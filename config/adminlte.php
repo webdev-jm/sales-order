@@ -311,7 +311,21 @@ return [
             'url'         => 'home',
             'icon'        => 'fas fa-fw fa-home',
         ],
-        ['header' => 'system_menu'],
+        [
+            'header'    => 'maintenance',
+            'can'       => ['discount access']
+        ],
+        [
+            'text'      => 'Discounts',
+            'url'       => '/discount',
+            'icon'      => 'fas fa-fw fa-tag',
+            'can'       => 'discount access',
+            'active'    => ['discount*']
+        ],
+        [
+            'header'    => 'system_menu',
+            'can'       => ['user access', 'role access']
+        ],
         [
             'text'      => 'Users',
             'url'       => '/user',
