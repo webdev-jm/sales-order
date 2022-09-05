@@ -23,6 +23,16 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+    // DISCOUNTS
+    Route::group(['middleware' => 'permission:discount access'], function() {
+        Route::get('discount', 'App\Http\Controllers\DiscountController@index')->name('discount.index')->middleware('permission:discount access');
+        Route::get('discount/create', 'App\Http\Controllers\DiscountController@create')->name('discount.create')->middleware('permission:discount create');
+        Route::post('discount', 'App\Http\Controllers\DiscountController@store')->name('discount.store')->middleware('permission:discount create');
+
+        Route::get('discount/{id}/edit', 'App\Http\Controllers\DiscountController@edit')->name('discount.edit')->middleware('permission:discount edit');
+        Route::post('discount/{id}', 'App\Http\Controllers\DiscountController@update')->name('discount.update')->middleware('permission:discount edit');
+    });
+
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
         Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');

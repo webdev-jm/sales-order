@@ -18,6 +18,11 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions_arr = [
+            // discounts
+            'discount access',
+            'discount create',
+            'discount edit',
+            'discount delete',
             // users
             'user access',
             'user create',
