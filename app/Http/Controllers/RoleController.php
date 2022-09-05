@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use App\Http\Requests\StoreRoleRequest;
+use App\Http\Requests\UpdateRoleRequest;
+
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+
+class RoleController extends Controller
+{
+    public function index() {
+        $roles = Role::orderBy('id', 'DESC')->paginate(10);
+        return view('roles.index')->with([
+            'roles' => $roles
+        ]);
+    }
+
+    public function create() {
+        $permissions = Permission::all();
+        return view('roles.create')->with([
+            'permissions' => $permissions
+        ]);
+    }
+
+    public function store(StoreRoleRequest $request) {
+        $role = Role::create(['name' => $request->name])->givePermissionTo($request->permissions);
+
+        return redirect()->route('role.index')->with([
+            'message_success' => 'Role '.$role->name.' was created.'
+        ]);
+    }
+
+    public function edit($id) {
+        $role = Role::findOrFail($id);
+        $permissions = Permission::all();
+        return view('roles.edit')->with([
+            'role' => $role,
+            'permissions' => $permissions
+        ]);
+    }
+
+    public function update(UpdateRoleRequest $request, $id) {
+        $role = Role::findOrFail($id);
+        $role_name = $role->name;
+        $role->update([
+            'name' => $request->name
+        ]);
+        $role->syncPermissions($request->permissions);
+
+        return back()->with([
+            'message_success' => $role_name
+        ]);
+    }
+}
