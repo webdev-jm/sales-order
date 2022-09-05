@@ -16,4 +16,5 @@ return [
     'important'                     => 'Important',
     'warning'                       => 'Warning',
     'information'                   => 'Information',
+    'system_menu'                   => 'SYSTEM MENU'
 ];
