@@ -316,6 +316,12 @@ return [
             'url'         => 'home',
             'icon'        => 'fas fa-fw fa-home',
         ],
+        ['header' => 'system_menu'],
+        [
+            'text'  => 'Users',
+            'url'   => '/user',
+            'icon'  => 'fas fa-fw fa-users'
+        ],
         ['header' => 'account_settings'],
         [
             'text' => 'profile',
