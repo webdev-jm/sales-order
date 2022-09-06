@@ -22,4 +22,8 @@ class Account extends Model
     public function discount() {
         return $this->belongsTo('App\Models\Discount');
     }
+
+    public function users() {
+        return $this->belongsToMany('App\Models\User');
+    }
 }
