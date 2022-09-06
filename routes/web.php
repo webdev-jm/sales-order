@@ -43,6 +43,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('account/{id}', 'App\Http\Controllers\AccountController@update')->name('account.update')->middleware('permission:account edit');
     });
 
+    // INVOICE TERMS
+    Route::group(['middleware' => 'permission:invoice term access'], function() {
+        Route::get('invoice-term', 'App\Http\Controllers\InvoiceTermController@index')->name('invoice-term.index');
+        Route::get('invoice-term/create', 'App\Http\Controllers\InvoiceTermController@create')->name('invoice-term.create')->middleware('permission:invoice term create');
+        Route::post('invoice-term', 'App\Http\Controllers\InvoiceTermController@store')->name('invoice-term.store')->middleware('permission:invoice term create');
+
+        Route::get('invoice-term/{id}/edit', 'App\Http\Controllers\InvoiceTermController@edit')->name('invoice-term.edit')->middleware('permission:invoice term edit');
+        Route::post('invoice-term/{id}', 'App\Http\Controllers\InvoiceTermController@update')->name('invoice-term.udpate')->middleware('permission:invoice term edit');
+    });
+
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
         Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');
