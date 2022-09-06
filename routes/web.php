@@ -33,6 +33,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('discount/{id}', 'App\Http\Controllers\DiscountController@update')->name('discount.update')->middleware('permission:discount edit');
     });
 
+    // ACCOUNTS
+    Route::group(['middleware' => 'permission:account access'], function() {
+        Route::get('account', 'App\Http\Controllers\AccountController@index')->name('account.index');
+        Route::get('account/create', 'App\Http\Controllers\AccountController@create')->name('account.create')->middleware('permission:account create');
+        Route::post('account', 'App\Http\Controllers\AccountController@store')->name('account.store')->middleware('permission:account create');
+
+        Route::get('account/{id}/create', 'App\Http\Controllers\AccountController@edit')->name('account.edit')->middleware('permission:account edit');
+        Route::post('account/{id}', 'App\Http\Controllers\AccountController@update')->name('account.update')->middleware('permission:account edit');
+    });
+
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
         Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');
