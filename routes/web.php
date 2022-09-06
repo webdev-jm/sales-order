@@ -53,6 +53,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('invoice-term/{id}', 'App\Http\Controllers\InvoiceTermController@update')->name('invoice-term.udpate')->middleware('permission:invoice term edit');
     });
 
+    // PRODUCTS
+    Route::group(['middleware' => 'permission:product access'], function() {
+        Route::get('product', 'App\Http\Controllers\ProductController@index')->name('product.index');
+        Route::get('product/create', 'App\Http\Controllers\ProductController@create')->name('product.create')->middleware('permission:product create');
+        Route::post('product', 'App\Http\Controllers\ProductController@store')->name('product.store')->middleware('permission:product create');
+
+        Route::get('product/{id}/edit', 'App\Http\Controllers\ProductController@edit')->name('product.edit')->middleware('permission:product edit');
+        Route::post('product/{id}', 'App\Http\Controllers\ProductController@update')->name('product.update')->middleware('permission:product edit');
+    });
+
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
         Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');
