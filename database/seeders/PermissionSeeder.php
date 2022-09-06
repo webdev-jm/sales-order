@@ -33,6 +33,11 @@ class PermissionSeeder extends Seeder
             'invoice term create',
             'invoice term edit',
             'invoice term delete',
+            // Products
+            'product access',
+            'product create',
+            'product edit',
+            'product delete',
             // users
             'user access',
             'user create',

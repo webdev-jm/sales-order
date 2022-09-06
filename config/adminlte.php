@@ -313,7 +313,12 @@ return [
         ],
         [
             'header'    => 'maintenance',
-            'can'       => ['discount access', 'account access', 'invoice term access']
+            'can'       => [
+                'discount access',
+                'account access',
+                'invoice term access',
+                'product access',
+            ]
         ],
         [
             'text'      => 'Discounts',
@@ -335,6 +340,13 @@ return [
             'icon'      => 'fas fa-fw fa-asterisk',
             'can'       => 'invoice term access',
             'active'    => ['invoice-term*']
+        ],
+        [
+            'text'      => 'Products',
+            'url'       => '/product',
+            'icon'      => 'fas fa-fw fa-box',
+            'can'       => 'product access',
+            'active'    => ['product*']
         ],
         [
             'header'    => 'system_menu',
