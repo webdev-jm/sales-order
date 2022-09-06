@@ -7,19 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Account extends Model
+class InvoiceTerm extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'discount_id',
-        'account_code',
-        'account_name',
-        'short_name'
+        'term_code',
+        'description',
+        'discount',
+        'discount_days',
+        'due_days'
     ];
-
-    public function discount() {
-        return $this->belongsTo('App\Models\Discount');
-    }
 }

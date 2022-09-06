@@ -28,6 +28,11 @@ class PermissionSeeder extends Seeder
             'account create',
             'account edit',
             'account delete',
+            // Invoice Terms
+            'invoice term access',
+            'invoice term create',
+            'invoice term edit',
+            'invoice term delete',
             // users
             'user access',
             'user create',
