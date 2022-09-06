@@ -23,6 +23,11 @@ class PermissionSeeder extends Seeder
             'discount create',
             'discount edit',
             'discount delete',
+            // accounts
+            'account access',
+            'account create',
+            'account edit',
+            'account delete',
             // users
             'user access',
             'user create',
