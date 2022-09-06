@@ -53,4 +53,8 @@ class User extends Authenticatable
     public function adminlte_desc() {
         return '';
     }
+
+    public function accounts() {
+        return $this->belongsToMany('App\Models\Account');
+    }
 }

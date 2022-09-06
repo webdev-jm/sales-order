@@ -55,6 +55,7 @@
                     <td>{{$user->email}}</td>
                     <td>{{implode(', ', $user->getRoleNames()->toArray())}}</td>
                     <td class="text-right">
+                        <livewire:users.user-account :user_id="$user->id"/>
                         @can('user edit')
                             <a href="{{route('user.edit', $user->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
