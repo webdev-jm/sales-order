@@ -43,6 +43,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('account/{id}', 'App\Http\Controllers\AccountController@update')->name('account.update')->middleware('permission:account edit');
     });
 
+    // BRANCHES
+    Route::group(['middleware' => 'permission:branch access'], function() {
+        Route::get('branch', 'App\Http\Controllers\BranchController@index')->name('branch.index');
+        Route::get('branch/create', 'App\Http\Controllers\BranchController@create')->name('branch.create')->middleware('permission:branch create');
+        Route::post('branch', 'App\Http\Controllers\BranchController@store')->name('branch.store')->middleware('permission:branch create');
+
+        Route::get('branch/{id}/edit', 'App\Http\Controllers\BranchController@edit')->name('branch.edit')->middleware('permission:branch edit');
+        Route::post('branch/{id}', 'App\Http\Controllers\BranchController@update')->name('branch.update')->middleware('permission:branch edit');
+    });
+
     // INVOICE TERMS
     Route::group(['middleware' => 'permission:invoice term access'], function() {
         Route::get('invoice-term', 'App\Http\Controllers\InvoiceTermController@index')->name('invoice-term.index');

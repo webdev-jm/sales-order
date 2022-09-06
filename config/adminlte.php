@@ -318,6 +318,7 @@ return [
                 'account access',
                 'invoice term access',
                 'product access',
+                'branch access'
             ]
         ],
         [
@@ -333,6 +334,13 @@ return [
             'icon'      => 'fas fa-fw fa-file-invoice',
             'can'       => 'account access',
             'active'    => ['account*']
+        ],
+        [
+            'text'      => 'Branches',
+            'url'       => '/branch',
+            'icon'      => 'fas fa-fw fa-code-branch',
+            'can'       => 'branch access',
+            'active'    => ['branch*']
         ],
         [
             'text'      => 'Invoice Terms',
