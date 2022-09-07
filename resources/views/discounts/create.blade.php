@@ -31,6 +31,14 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    {!! Form::label('company_id', 'Company') !!}
+                    {!! Form::select('company_id', $companies, null, ['class' => 'form-control'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'add_discount']) !!}
+                    <p class="text-danger">{{$errors->first('company_id')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
                     {!! Form::label('discount_code', 'Discount Code') !!}
                     {!! Form::text('discount_code', '', ['class' => 'form-control'.($errors->has('discount_code') ? ' is-invalid' : ''), 'form' => 'add_discount']) !!}
                     <p class="text-danger">{{$errors->first('discount_code')}}</p>

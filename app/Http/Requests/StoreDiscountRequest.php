@@ -26,6 +26,9 @@ class StoreDiscountRequest extends FormRequest
     public function rules()
     {
         return [
+            'company_id' => [
+                'required'
+            ],
             'discount_code' => [
                 'required', Rule::unique((new Discount)->getTable())
             ],

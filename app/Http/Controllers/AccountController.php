@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Account;
 use App\Models\Discount;
+use App\Models\Company;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 
@@ -35,8 +36,15 @@ class AccountController extends Controller
             $discount_arr[$discount->id] = $discount->discount_code;
         }
 
+        $companies = Company::orderBy('name', 'DESC')->get();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
         return view('accounts.create')->with([
-            'discounts' => $discount_arr
+            'discounts' => $discount_arr,
+            'companies' => $companies_arr
         ]);
     }
 
@@ -49,6 +57,7 @@ class AccountController extends Controller
     public function store(StoreAccountRequest $request)
     {
         $account = new Account([
+            'company_id' => $request->company_id,
             'discount_id' => $request->discount_id,
             'account_code' => $request->account_code,
             'account_name' => $request->account_name,
@@ -87,9 +96,16 @@ class AccountController extends Controller
             $discount_arr[$discount->id] = $discount->discount_code;
         }
 
+        $companies = Company::orderBy('name', 'DESC')->get();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
         return view('accounts.edit')->with([
             'account' => $account,
-            'discounts' => $discount_arr
+            'discounts' => $discount_arr,
+            'companies' => $companies_arr
         ]);
     }
 
@@ -105,6 +121,7 @@ class AccountController extends Controller
         $account = Account::findOrFail($id);
         $account_name = '['.$account->account_code.'] '.$account->account_name;
         $account->update([
+            'company_id' => $request->company_id,
             'discount_id' => $request->discount_id,
             'account_code' => $request->account_code,
             'account_name' => $request->account_name,

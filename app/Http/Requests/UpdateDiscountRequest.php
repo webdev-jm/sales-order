@@ -27,6 +27,9 @@ class UpdateDiscountRequest extends FormRequest
     public function rules()
     {
         return [
+            'company_id' => [
+                'required'
+            ],
             'discount_code' => [
                 'required', Rule::unique((new Discount)->getTable())->ignore($this->id)
             ],

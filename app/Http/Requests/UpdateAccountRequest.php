@@ -26,6 +26,9 @@ class UpdateAccountRequest extends FormRequest
     public function rules()
     {
         return [
+            'company_id' => [
+                'required'
+            ],
             'account_code' => [
                 'required', Rule::unique((new Account)->getTable())->ignore($this->id)
             ],

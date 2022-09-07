@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Discount;
 use App\Http\Requests\StoreDiscountRequest;
 use App\Http\Requests\UpdateDiscountRequest;
@@ -28,7 +29,15 @@ class DiscountController extends Controller
      */
     public function create()
     {
-        return view('discounts.create');
+        $companies = Company::orderBy('name', 'ASC')->get();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+        
+        return view('discounts.create')->with([
+            'companies' => $companies_arr
+        ]);
     }
 
     /**
@@ -40,6 +49,7 @@ class DiscountController extends Controller
     public function store(StoreDiscountRequest $request)
     {
         $discount = new Discount([
+            'company_id' => $request->company_id,
             'discount_code' => $request->discount_code,
             'description' => $request->description,
             'discount_1' => $request->discount_1,
@@ -73,8 +83,16 @@ class DiscountController extends Controller
     public function edit($id)
     {
         $discount = Discount::findOrFail($id);
+
+        $companies = Company::orderBy('name', 'ASC')->get();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
         return view('discounts.edit')->with([
-            'discount' => $discount
+            'discount' => $discount,
+            'companies' => $companies_arr
         ]);
     }
 
@@ -90,6 +108,7 @@ class DiscountController extends Controller
         $discount = Discount::findOrFail($id);
         $discount_code = $discount->discount_code;
         $discount->update([
+            'company_id' => $request->company_id,
             'discount_code' => $request->discount_code,
             'description' => $request->description,
             'discount_1' => $request->discount_1,
