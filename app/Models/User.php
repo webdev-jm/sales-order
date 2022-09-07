@@ -57,4 +57,8 @@ class User extends Authenticatable
     public function accounts() {
         return $this->belongsToMany('App\Models\Account');
     }
+
+    public function account_logins() {
+        return $this->hasMany('App\Models\AccountLogin');
+    }
 }
