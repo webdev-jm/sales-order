@@ -314,12 +314,20 @@ return [
         [
             'header'    => 'maintenance',
             'can'       => [
+                'company access',
                 'discount access',
                 'account access',
+                'branch access',
                 'invoice term access',
                 'product access',
-                'branch access'
             ]
+        ],
+        [
+            'text'      => 'Companies',
+            'url'       => '/company',
+            'icon'      => 'fas fa-fw fa-building',
+            'can'       => 'company access',
+            'active'    => ['company*']
         ],
         [
             'text'      => 'Discounts',

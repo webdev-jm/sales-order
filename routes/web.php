@@ -23,6 +23,17 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+    // COMPANY
+    Route::group(['middleware' => 'permission:company access'], function() {
+        Route::get('company', 'App\Http\Controllers\CompanyController@index')->name('company.index');
+        Route::get('company/create', 'App\Http\Controllers\CompanyController@create')->name('company.create')
+        ->middleware('permission:company create');
+        Route::post('company', 'App\Http\Controllers\CompanyController@store')->name('company.store')->middleware('permission:company create');
+
+        Route::get('company/{id}/edit', 'App\Http\Controllers\CompanyController@edit')->name('company.edit')->middleware('permission:company edit');
+        Route::post('company/{id}', 'App\Http\Controllers\CompanyController@update')->name('company.update')->middleware('permission:company edit');
+    });
+
     // DISCOUNTS
     Route::group(['middleware' => 'permission:discount access'], function() {
         Route::get('discount', 'App\Http\Controllers\DiscountController@index')->name('discount.index')->middleware('permission:discount access');
