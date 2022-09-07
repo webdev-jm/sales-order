@@ -12,6 +12,8 @@
     {{-- Content Header --}}
     @hasSection('content_header')
         <div class="content-header">
+            {{-- CUSTOM ACCOUNT SIGN-IN --}}
+            <livewire:accounts.account-logged />
             <div class="{{ config('adminlte.classes_content_header') ?: $def_container_class }}">
                 @yield('content_header')
             </div>
