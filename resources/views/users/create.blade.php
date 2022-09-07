@@ -75,6 +75,10 @@
                         {!! Form::radio('group_code', 'RD', false, ['class' => 'custom-control-input', 'id' => 'rd_check', 'form' => 'add_user']) !!}
                         {!! Form::label('rd_check', 'RD', ['class' => 'custom-control-label']) !!}
                     </div>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('group_code', 'CMD', false, ['class' => 'custom-control-input', 'id' => 'cmd_check', 'form' => 'add_user']) !!}
+                        {!! Form::label('cmd_check', 'CMD', ['class' => 'custom-control-label']) !!}
+                    </div>
                 </div>
             </div>
         </div>
