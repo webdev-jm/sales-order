@@ -15,11 +15,16 @@ class CreateAccountsTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBiginteger('company_id')->nullable();
             $table->unsignedBigInteger('discount_id')->nullable();
             $table->string('account_code');
             $table->string('account_name');
             $table->string('short_name');
             $table->timestamps();
+
+            $table->foreign('company_id')
+            ->references('id')->on('companies')
+            ->onDelete('cascade');
 
             $table->foreign('discount_id')
             ->references('id')->on('discounts')

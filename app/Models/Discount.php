@@ -13,6 +13,7 @@ class Discount extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'company_id',
         'discount_code',
         'description',
         'discount_1',

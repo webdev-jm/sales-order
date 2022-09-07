@@ -31,6 +31,14 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    {!! Form::label('company_id', 'Company') !!}
+                    {!! Form::select('company_id', $companies, $account->company_id, ['class' => 'form-control'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
+                    <p class="text-danger">{{$errors->first('company_id')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
                     {!! Form::label('account_code', 'Account Code') !!}
                     {!! Form::text('account_code', $account->account_code, ['class' => 'form-control'.($errors->has('account_code') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('account_code')}}</p>

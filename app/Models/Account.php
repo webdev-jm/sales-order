@@ -13,6 +13,7 @@ class Account extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'company_id',
         'discount_id',
         'account_code',
         'account_name',
