@@ -52,6 +52,7 @@
                     <td>{{$product->description}}</td>
                     <td>{{$product->size}}</td>
                     <td class="text-right">
+                        {{-- <livewire:products.product-price-code :product_id="$product->id"/> --}}
                         @can('product edit')
                             <a href="{{route('product.edit', $product->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
@@ -73,7 +74,34 @@
 
 @section('js')
 <script>
+    document.addEventListener('livewire:load', function() {
+        $('body').on('click', '.btn-add-row', function(e) {
+            e.preventDefault();
+            var body = $(this).closest('table').find('tbody');
+            var row = body.find('tr:first').clone(true);
+            row.find('input').val('');
+            body.append(row);
+            var tr = body.find('tr');
+            var i = 0;
+            tr.each(function(key) {
+                $(this).find('input').each(function() {
+                    var model = $(this).attr('wire:model.defer');
+                    var model_arr = model.split('.');
+                    model_arr.pop();
+                    model_arr.push(i);
+                    $(this).attr('wire:model.defer', model_arr.join('.'));
+                });
+                i++;
+            });
+        });
 
+        $('body').on('click', '.btn-remove-row', function(e) {
+            e.preventDefault();
+            if($(this).closest('tbody').find('tr').length > 1) {
+                $(this).closest('tr').remove();
+            }
+        });
+    });
 </script>
 @endsection
 

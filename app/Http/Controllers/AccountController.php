@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Discount;
 use App\Models\Company;
 use App\Models\InvoiceTerm;
+use App\Models\PriceCode;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 
@@ -43,16 +44,16 @@ class AccountController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        $invoice_terms = InvoiceTerm::select('term_code')->distinct()->get();
-        $invoice_terms_arr = [];
-        foreach($invoice_terms as $invoice_term) {
-            $invoice_terms_arr[$invoice_term->term_code] = $invoice_term->term_code;
+        $price_codes = PriceCode::select('code')->distinct()->get();
+        $price_codes_arr = [];
+        foreach($price_codes as $price_code) {
+            $price_codes_arr[$price_code->code] = $price_code->code;
         }
 
         return view('accounts.create')->with([
             'discounts' => $discount_arr,
             'companies' => $companies_arr,
-            'invoice_terms' => $invoice_terms_arr
+            'price_codes' => $price_codes_arr
         ]);
     }
 
@@ -117,10 +118,17 @@ class AccountController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
+        $price_codes = PriceCode::select('code')->distinct()->get();
+        $price_codes_arr = [];
+        foreach($price_codes as $price_code) {
+            $price_codes_arr[$price_code->code] = $price_code->code;
+        }
+
         return view('accounts.edit')->with([
             'account' => $account,
             'discounts' => $discount_arr,
-            'companies' => $companies_arr
+            'companies' => $companies_arr,
+            'price_codes' => $price_codes_arr
         ]);
     }
 

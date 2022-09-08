@@ -320,6 +320,7 @@ return [
                 'branch access',
                 'invoice term access',
                 'product access',
+                'price code access',
                 'sales people access',
             ]
         ],
@@ -364,6 +365,13 @@ return [
             'icon'      => 'fas fa-fw fa-box',
             'can'       => 'product access',
             'active'    => ['product*']
+        ],
+        [
+            'text'      => 'Price Codes',
+            'url'       => '/price-code',
+            'icon'      => 'fas fa-fw fa-money-bill',
+            'can'       => 'price code access',
+            'active'    => ['price-code*']
         ],
         [
             'text'      => 'Sales People',

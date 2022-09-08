@@ -84,6 +84,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('product/{id}', 'App\Http\Controllers\ProductController@update')->name('product.update')->middleware('permission:product edit');
     });
 
+    // PRICE CODES
+    Route::group(['middleware' => 'permission:price code access'], function() {
+        Route::get('price-code', 'App\Http\Controllers\PriceCodeController@index')->name('price-code.index');
+        Route::get('price-code/create', 'App\Http\Controllers\PriceCodeController@create')->name('price-code.create')->middleware('permission:price code create');
+        Route::post('price-code', 'App\Http\Controllers\PriceCodeController@store')->name('price-code.store')->middleware('permission:price code create');
+
+        Route::get('price-code/{id}/edit', 'App\Http\Controllers\PriceCodeController@edit')->name('price-code.edit')->middleware('permission:price code edit');
+        Route::post('price-code/{id}', 'App\Http\Controllers\PriceCodeController@update')->name('price-code.update')->middleware('permission:price code edit');
+    });
+
     // SALES PEOPLE
     Route::group(['middleware' => 'permission:sales people access'], function() {
         Route::get('sales-people', 'App\Http\Controllers\SalesPersonController@index')->name('sales-people.index');

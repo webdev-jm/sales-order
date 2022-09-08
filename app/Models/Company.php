@@ -14,4 +14,8 @@ class Company extends Model
     protected $fillable = [
         'name'
     ];
+
+    public function price_codes() {
+        return $this->hasMany('App\Models\PriceCode');
+    }
 }

@@ -72,7 +72,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('price_code', 'Price Code') !!}
-                    {!! Form::text('price_code', $account->price_code, ['class' => 'form-control'.($errors->has('price_code') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    {!! Form::select('price_code', $price_codes, $account->price_code, ['class' => 'form-control'.($errors->has('price_code') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('price_code')}}</p>
                 </div>
             </div>
