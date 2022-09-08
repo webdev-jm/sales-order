@@ -31,7 +31,9 @@ class UpdateDiscountRequest extends FormRequest
                 'required'
             ],
             'discount_code' => [
-                'required', Rule::unique((new Discount)->getTable())->ignore($this->id)
+                'required', Rule::unique((new Discount)->getTable())->ignore($this->id)->where(function($query) {
+                    $query->where('company_id', $this->company_id);
+                })
             ],
             'description' => [
                 'required'

@@ -320,6 +320,7 @@ return [
                 'branch access',
                 'invoice term access',
                 'product access',
+                'sales people access',
             ]
         ],
         [
@@ -363,6 +364,13 @@ return [
             'icon'      => 'fas fa-fw fa-box',
             'can'       => 'product access',
             'active'    => ['product*']
+        ],
+        [
+            'text'      => 'Sales People',
+            'url'       => '/sales-people',
+            'icon'      => 'fas fa-fw fa-universal-access',
+            'can'       => 'sales people access',
+            'active'    => ['sales-people*']
         ],
         [
             'header'    => 'system_menu',

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Company;
+use App\Models\PriceCode;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 
@@ -28,7 +30,15 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $companies = Company::orderBy('name', 'ASC')->get();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
+        return view('products.create')->with([
+            'companies' => $companies_arr
+        ]);
     }
 
     /**
@@ -44,14 +54,9 @@ class ProductController extends Controller
             'description' => $request->description,
             'size' => $request->size,
             'category' =>  $request->category,
-            'brand' => $request->brand,
-            'alternative_code' => $request->alternative_code,
-            'stock_uom1' => $request->stock_uom1,
-            'stock_uom2' => $request->stock_uom2,
-            'stock_uom3' => $request->stock_uom3,
-            'uom_price1' => $request->uom_price1,
-            'uom_price2' => $request->uom_price2,
-            'uom_price3' => $request->uom_price3,
+            'product_class' => $request->product_class,
+            'core_group' => $request->core_group,
+            'uom' => $request->uom
         ]);
         $product->save();
 
@@ -101,14 +106,9 @@ class ProductController extends Controller
             'description' => $request->description,
             'size' => $request->size,
             'category' =>  $request->category,
-            'brand' => $request->brand,
-            'alternative_code' => $request->alternative_code,
-            'stock_uom1' => $request->stock_uom1,
-            'stock_uom2' => $request->stock_uom2,
-            'stock_uom3' => $request->stock_uom3,
-            'uom_price1' => $request->uom_price1,
-            'uom_price2' => $request->uom_price2,
-            'uom_price3' => $request->uom_price3,
+            'product_class' => $request->product_class,
+            'core_group' => $request->core_group,
+            'uom' => $request->uom
         ]);
 
         return back()->with([

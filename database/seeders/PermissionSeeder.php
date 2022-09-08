@@ -48,6 +48,11 @@ class PermissionSeeder extends Seeder
             'product create',
             'product edit',
             'product delete',
+            // sales people
+            'sales people access',
+            'sales person create',
+            'sales person edit',
+            'sales person delete',
             // users
             'user access',
             'user create',

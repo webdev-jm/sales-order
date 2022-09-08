@@ -38,29 +38,14 @@ class StoreProductRequest extends FormRequest
             'category' => [
                 'max:255'
             ],
-            'brand' => [
-                'max:255'
-            ],
-            'alternative_code' => [
-                'max:255'
-            ],
-            'stock_uom1' => [
+            'product_class' => [
                 'required'
             ],
-            'stock_uom2' => [
-                'max:255'
+            'core_group' => [
+                'required'
             ],
-            'stock_uom3' => [
-                'max:255'
-            ],
-            'uom_price1' => [
-                'required_unless:stock_uom1,null'
-            ],
-            'uom_price2' => [
-                'required_unless:stock_uom2,null'
-            ],
-            'uom_price3' => [
-                'required_unless:stock_uom3,null'
+            'uom' => [
+                'required'
             ],
         ];
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Account;
 use App\Models\Discount;
 use App\Models\Company;
+use App\Models\InvoiceTerm;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 
@@ -30,10 +31,10 @@ class AccountController extends Controller
      */
     public function create()
     {
-        $discounts = Discount::orderBy('discount_code', 'ASC')->get();
+        $discounts = Discount::orderBy('company_id', 'ASC')->get();
         $discount_arr = [];
         foreach($discounts as $discount) {
-            $discount_arr[$discount->id] = $discount->discount_code;
+            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code;
         }
 
         $companies = Company::orderBy('name', 'DESC')->get();
@@ -42,9 +43,16 @@ class AccountController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
+        $invoice_terms = InvoiceTerm::select('term_code')->distinct()->get();
+        $invoice_terms_arr = [];
+        foreach($invoice_terms as $invoice_term) {
+            $invoice_terms_arr[$invoice_term->term_code] = $invoice_term->term_code;
+        }
+
         return view('accounts.create')->with([
             'discounts' => $discount_arr,
-            'companies' => $companies_arr
+            'companies' => $companies_arr,
+            'invoice_terms' => $invoice_terms_arr
         ]);
     }
 
@@ -62,6 +70,13 @@ class AccountController extends Controller
             'account_code' => $request->account_code,
             'account_name' => $request->account_name,
             'short_name' => $request->short_name,
+            'price_code' => $request->price_code,
+            'ship_to_address1' => $request->ship_to_address1,
+            'ship_to_address2' => $request->ship_to_address2,
+            'ship_to_address3' => $request->ship_to_address3,
+            'postal_code' => $request->postal_code,
+            'tax_number' => $request->tax_number,
+            'on_hold' => $request->on_hold,
         ]);
         $account->save();
 
@@ -90,10 +105,10 @@ class AccountController extends Controller
     public function edit($id)
     {
         $account = Account::findOrFail($id);
-        $discounts = Discount::orderBy('discount_code', 'ASC')->get();
+        $discounts = Discount::orderBy('company_id', 'ASC')->get();
         $discount_arr = [];
         foreach($discounts as $discount) {
-            $discount_arr[$discount->id] = $discount->discount_code;
+            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code;
         }
 
         $companies = Company::orderBy('name', 'DESC')->get();
@@ -126,6 +141,13 @@ class AccountController extends Controller
             'account_code' => $request->account_code,
             'account_name' => $request->account_name,
             'short_name' => $request->short_name,
+            'price_code' => $request->price_code,
+            'ship_to_address1' => $request->ship_to_address1,
+            'ship_to_address2' => $request->ship_to_address2,
+            'ship_to_address3' => $request->ship_to_address3,
+            'postal_code' => $request->postal_code,
+            'tax_number' => $request->tax_number,
+            'on_hold' => $request->on_hold,
         ]);
 
         return back()->with([

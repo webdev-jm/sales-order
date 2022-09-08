@@ -40,7 +40,28 @@ class StoreAccountRequest extends FormRequest
             ],
             'discount_id' => [
                 'required'
-            ]
+            ],
+            'price_code' => [
+                'required'
+            ],
+            'ship_to_address1' => [
+                'required', 'max:1000'
+            ],
+            'ship_to_address2' => [
+                'max:1000'
+            ],
+            'ship_to_address3' => [
+                'max:1000'
+            ],
+            'postal_code' => [
+                'max:11'
+            ],
+            'tax_number' => [
+                'max:255'
+            ],
+            'on_hold' => [
+                'max:1'
+            ],
         ];
     }
 }

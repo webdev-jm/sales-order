@@ -20,4 +20,8 @@ class Discount extends Model
         'discount_2',
         'discount_3',
     ];
+
+    public function company() {
+        return $this->belongsTo('App\Models\Company');
+    }
 }

@@ -56,70 +56,35 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('category', 'Category') !!}
-                    {!! Form::text('category', '', ['class' => 'form-control'.($errors->has('size') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
+                    {!! Form::text('category', '', ['class' => 'form-control'.($errors->has('category') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
                     <p class="text-danger">{{$errors->first('category')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('brand', 'Brand') !!}
-                    {!! Form::text('brand', '', ['class' => 'form-control'.($errors->has('brand') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
-                    <p class="text-danger">{{$errors->first('brand')}}</p>
+                    {!! Form::label('product_class', 'Product Class') !!}
+                    {!! Form::text('product_class', '', ['class' => 'form-control'.($errors->has('product_class') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
+                    <p class="text-danger">{{$errors->first('product_class')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('alternative_code', 'Alternative Code') !!}
-                    {!! Form::text('alternative_code', '', ['class' => 'form-control'.($errors->has('alternative_code') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
-                    <p class="text-danger">{{$errors->first('alternative_code')}}</p>
+                    {!! Form::label('core_group', 'Core Group') !!}
+                    {!! Form::text('core_group', '', ['class' => 'form-control'.($errors->has('core_group') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
+                    <p class="text-danger">{{$errors->first('core_group')}}</p>
                 </div>
             </div>
 
-        </div>
-
-        <div class="row">
-            <div class="col-lg-6">
-                <table class="table table-sm table-bordered">
-                    <thead>
-                        <tr class="text-center">
-                            <th></th>
-                            <th>UOM</th>
-                            <th>PRICE</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="text-center p-0 align-middle font-weight-bold">1.</td>
-                            <td class="p-0">
-                                {!! Form::text('stock_uom1', '', ['class' => 'form-control text-center'.($errors->has('stock_uom1') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                            <td class="p-0">
-                                {!! Form::text('uom_price1', '', ['class' => 'form-control text-center'.($errors->has('uom_price1') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center p-0 align-middle font-weight-bold">2.</td>
-                            <td class="p-0">
-                                {!! Form::text('stock_uom2', '', ['class' => 'form-control text-center'.($errors->has('stock_uom2') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                            <td class="p-0">
-                                {!! Form::text('uom_price2', '', ['class' => 'form-control text-center'.($errors->has('uom_price2') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="text-center p-0 align-middle font-weight-bold">3.</td>
-                            <td class="p-0">
-                                {!! Form::text('stock_uom3', '', ['class' => 'form-control text-center'.($errors->has('stock_uom3') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                            <td class="p-0">
-                                {!! Form::text('uom_price3', '', ['class' => 'form-control text-center'.($errors->has('uom_price3') ? ' is-invalid' : '  border-0'), 'form' => 'add_product']) !!}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('uom', 'Unit of Measurement') !!}
+                    {!! Form::text('uom', '', ['class' => 'form-control'.($errors->has('uom') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
+                    <p class="text-danger">{{$errors->first('uom')}}</p>
+                </div>
             </div>
+
         </div>
 
     </div>
@@ -132,7 +97,8 @@
 
 @section('js')
 <script>
-
+    $(function() {
+    });
 </script>
 @endsection
 

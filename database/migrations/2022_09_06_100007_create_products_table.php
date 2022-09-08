@@ -19,14 +19,9 @@ class CreateProductsTable extends Migration
             $table->string('description');
             $table->string('size')->nullable();
             $table->string('category')->nullable();
-            $table->string('brand')->nullable();
-            $table->string('alternative_code')->nullable();
-            $table->string('stock_uom1')->nullable();
-            $table->string('stock_uom2')->nullable();
-            $table->string('stock_uom3')->nullable();
-            $table->double('uom_price1')->nullable();
-            $table->double('uom_price2')->nullable();
-            $table->double('uom_price3')->nullable();
+            $table->string('product_class');
+            $table->string('core_group');
+            $table->string('uom');
             $table->timestamps();
 
             $table->softDeletes();
