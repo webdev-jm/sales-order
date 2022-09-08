@@ -167,11 +167,11 @@ return [
     |
     */
 
-    'classes_auth_card' => 'card-outline card-success',
-    'classes_auth_header' => '',
+    'classes_auth_card' => '',
+    'classes_auth_header' => 'bg-gradient-success',
     'classes_auth_body' => '',
-    'classes_auth_footer' => '',
-    'classes_auth_icon' => '',
+    'classes_auth_footer' => 'text-center',
+    'classes_auth_icon' => 'fa-lg text-success',
     'classes_auth_btn' => 'btn-flat btn-primary',
 
     /*
