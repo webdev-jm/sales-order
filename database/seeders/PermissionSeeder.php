@@ -48,6 +48,11 @@ class PermissionSeeder extends Seeder
             'product create',
             'product edit',
             'product delete',
+            // Price Code
+            'price code access',
+            'price code create',
+            'price code edit',
+            'price code delete',
             // sales people
             'sales people access',
             'sales person create',

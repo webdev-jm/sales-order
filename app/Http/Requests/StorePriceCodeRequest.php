@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\PriceCode;
 
 class StorePriceCodeRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class StorePriceCodeRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('price code create');
     }
 
     /**
@@ -24,7 +26,23 @@ class StorePriceCodeRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'company_id' => [
+                'required'
+            ],
+            'product_id' => [
+                'required'
+            ],
+            'code' => [
+                'required', Rule::unique((new PriceCode)->getTable())->where(function($query) {
+                    $query->where('company_id', $this->company_id)->where('product_id', $this->product_id);
+                })
+            ],
+            'selling_price' => [
+                'required', 'numeric'
+            ],
+            'price_basis' => [
+                'required'
+            ]
         ];
     }
 }

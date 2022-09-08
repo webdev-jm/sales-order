@@ -16,4 +16,12 @@ class PriceCode extends Model
         'selling_price',
         'price_basis',
     ];
+
+    public function company() {
+        return $this->belongsTo('App\Models\Company');
+    }
+
+    public function product() {
+        return $this->belongsTo('App\Models\Product');
+    }
 }
