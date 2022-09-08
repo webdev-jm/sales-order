@@ -84,6 +84,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('product/{id}', 'App\Http\Controllers\ProductController@update')->name('product.update')->middleware('permission:product edit');
     });
 
+    // SALES PEOPLE
+    Route::group(['middleware' => 'permission:sales people access'], function() {
+        Route::get('sales-people', 'App\Http\Controllers\SalesPersonController@index')->name('sales-people.index');
+        Route::get('sales-people/create', 'App\Http\Controllers\SalesPersonController@create')->name('sales-person.create')->middleware('permission:sales person create');
+        Route::post('sales-people', 'App\Http\Controllers\SalesPersonController@store')->name('sales-person.store')->middleware('permission:sales person create');
+
+        Route::get('sales-people/{id}/edit', 'App\Http\Controllers\SalesPersonController@edit')->name('sales-person.edit')->middleware('permission:sales person edit');
+        Route::post('sales-people/{id}', 'App\Http\Controllers\SalesPersonController@update')->name('sales-person.update')->middleware('permission:sales person edit');
+    });
+
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
         Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');

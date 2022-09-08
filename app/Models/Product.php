@@ -17,13 +17,8 @@ class Product extends Model
         'description',
         'size',
         'category',
-        'brand',
-        'alternative_code',
-        'stock_uom1',
-        'stock_uom2',
-        'stock_uom3',
-        'uom_price1',
-        'uom_price2',
-        'uom_price3',
+        'product_class',
+        'core_group',
+        'uom',
     ];
 }

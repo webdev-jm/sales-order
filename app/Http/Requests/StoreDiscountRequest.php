@@ -30,7 +30,9 @@ class StoreDiscountRequest extends FormRequest
                 'required'
             ],
             'discount_code' => [
-                'required', Rule::unique((new Discount)->getTable())
+                'required', Rule::unique((new Discount)->getTable())->where(function($query) {
+                    $query->where('company_id', $this->company_id);
+                })
             ],
             'description' => [
                 'required'

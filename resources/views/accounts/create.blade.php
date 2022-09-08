@@ -69,6 +69,68 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('price_code', 'Price Code') !!}
+                    {!! Form::select('price_code', $invoice_terms, null, ['class' => 'form-control'.($errors->has('price_code') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('price_code')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('ship_to_address1', 'Ship To Address 1') !!}
+                    {!! Form::text('ship_to_address1', '', ['class' => 'form-control'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('ship_to_address2', 'Ship To Address 2') !!}
+                    {!! Form::text('ship_to_address2', '', ['class' => 'form-control'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('ship_to_address2')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('ship_to_address3', 'Ship To Address 3') !!}
+                    {!! Form::text('ship_to_address3', '', ['class' => 'form-control'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('ship_to_address3')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('postal_code', 'Postal Code') !!}
+                    {!! Form::text('postal_code', '', ['class' => 'form-control'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('postal_code')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('tax_number', 'Tax Number') !!}
+                    {!! Form::text('tax_number', '', ['class' => 'form-control'.($errors->has('tax_number') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('tax_number')}}</p>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>On Hold</label>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('on_hold', 0, true, ['class' => 'custom-control-input', 'id' => 'no_radio', 'form' => 'add_account']) !!}
+                        {!! Form::label('no_radio', 'NO', ['class' => 'custom-control-label']) !!}
+                    </div>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('on_hold', 1, false, ['class' => 'custom-control-input', 'id' => 'yes_radion', 'form' => 'add_account']) !!}
+                        {!! Form::label('yes_radion', 'YES', ['class' => 'custom-control-label']) !!}
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
