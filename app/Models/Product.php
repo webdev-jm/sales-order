@@ -21,4 +21,8 @@ class Product extends Model
         'core_group',
         'uom',
     ];
+
+    public function price_code() {
+        return $this->hasMany('App\Models\PriceCode');
+    }
 }

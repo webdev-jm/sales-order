@@ -1,6 +1,6 @@
 <div>
     @if(isset($logged))
-        <div class="card">
+        <div class="card mx-2">
             <div class="card-body py-2">
                 <div class="row">
                     <div class="col">
