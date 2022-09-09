@@ -26,6 +26,9 @@ class StoreAccountRequest extends FormRequest
     public function rules()
     {
         return [
+            'invoice_term_id' => [
+                'required'
+            ],
             'company_id' => [
                 'required'
             ],

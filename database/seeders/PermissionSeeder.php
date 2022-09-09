@@ -18,6 +18,11 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions_arr = [
+            // sales order
+            'sales order access',
+            'sales order create',
+            'sales order edit',
+            'sales order delete',
             // company
             'company access',
             'company create',

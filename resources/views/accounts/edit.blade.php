@@ -79,6 +79,14 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    {!! Form::label('invoice_term_id', 'Invoice Term') !!}
+                    {!! Form::select('invoice_term_id', $invoice_terms, $account->invoice_term_id, ['class' => 'form-control'.($errors->has('invoice_term_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
+                    <p class="text-danger">{{$errors->first('invoice_term_id')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
                     {!! Form::label('ship_to_address1', 'Ship To Address 1') !!}
                     {!! Form::text('ship_to_address1', $account->ship_to_address1, ['class' => 'form-control'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
