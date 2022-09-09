@@ -13,9 +13,7 @@ class AccountLogged extends Component
     }
 
     public function mount() {
-        $this->logged = auth()->user()->account_logins()
-        ->whereNull('time_out')
-        ->first();
+        $this->logged = auth()->user()->logged_account();
     }
 
     public function render()

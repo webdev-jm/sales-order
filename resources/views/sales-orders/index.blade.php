@@ -40,7 +40,6 @@
             <thead>
                 <tr>
                     <th>PO Number</th>
-                    <th>Account</th>
                     <th>Order Date</th>
                     <th>Ship Date</th>
                     <th>Ship Description</th>

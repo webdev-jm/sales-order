@@ -23,6 +23,8 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+    Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
         Route::get('sales-order', 'App\Http\Controllers\SalesOrderController@index')->name('sales-order.index');
