@@ -6,6 +6,10 @@ use App\Models\Company;
 use App\Models\Discount;
 use App\Http\Requests\StoreDiscountRequest;
 use App\Http\Requests\UpdateDiscountRequest;
+use Illuminate\Http\Request;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\DiscountImport;
 
 class DiscountController extends Controller
 {
@@ -130,5 +134,19 @@ class DiscountController extends Controller
     public function destroy(Discount $discount)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new DiscountImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Discounts has been uploaded.'
+        ]);
     }
 }

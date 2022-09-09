@@ -405,6 +405,13 @@ return [
             'can'       => 'role access',
             'active'    => ['role*']
         ],
+        [
+            'text'      => 'Error Logs',
+            'url'       => '/logs',
+            'icon'      => 'fas fa-fw fa-bug',
+            'can'       => 'role access',
+            'active'    => ['role*']
+        ],
         // [
         //     'text'    => 'multilevel',
         //     'icon'    => 'fas fa-fw fa-share',

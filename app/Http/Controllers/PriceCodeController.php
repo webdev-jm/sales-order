@@ -7,6 +7,10 @@ use App\Models\Company;
 use App\Models\Product;
 use App\Http\Requests\StorePriceCodeRequest;
 use App\Http\Requests\UpdatePriceCodeRequest;
+use Illuminate\Http\Request;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\PriceCodeImport;
 
 class PriceCodeController extends Controller
 {
@@ -143,5 +147,19 @@ class PriceCodeController extends Controller
     public function destroy(PriceCode $priceCode)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new PriceCodeImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Price Codes has been uploaded.'
+        ]);
     }
 }

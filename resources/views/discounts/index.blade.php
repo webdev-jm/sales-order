@@ -15,6 +15,7 @@
     <div class="col-md-6 text-right">
         @can('discount create')
         <a href="{{route('discount.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Discount</a>
+        <a href="#" class="btn btn-warning" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload</a>
         @endcan
     </div>
 </div>
@@ -43,7 +44,6 @@
                     <th>Discount Code</th>
                     <th>Description</th>
                     <th></th>
-                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -52,7 +52,6 @@
                     <td>{{$discount->company->name}}</td>
                     <td>{{$discount->discount_code}}</td>
                     <td>{{$discount->description}}</td>
-                    <td>{{number_format($discount->discount_1+$discount->discount_2+$discount->discount_3, 2)}} %</td>
                     <td class="text-right">
                         @can('discount edit')
                             <a href="{{route('discount.edit', $discount->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
@@ -71,11 +70,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-upload">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Discounts</h4>
+            </div>
+            <div class="modal-body">
+                {!! Form::open(['method' => 'POST', 'route' => ['discount.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::close() !!}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="custom-file">
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form']) !!}
+                                {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
+                            </div>
+                            <p class="text-danger">{{$errors->first('upload_file')}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                {!! Form::submit('Upload', ['class' => 'btn btn-primary', 'form' => 'upload_form']) !!}
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
-
+    $(function() {
+        $('#btn-upload').on('click', function(e){
+            e.preventDefault();
+            $('#modal-upload').modal('show');
+        });
+    });
 </script>
 @endsection
 

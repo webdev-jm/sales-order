@@ -7,6 +7,10 @@ use App\Models\Company;
 use App\Models\PriceCode;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use Illuminate\Http\Request;
+
+use App\Imports\ProductImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {
@@ -17,7 +21,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('id', 'DESC')->paginate(10);
+        $products = Product::orderBy('id', 'DESC')->paginate(10)->onEachSide(1);
         return view('products.index')->with([
             'products' => $products
         ]);
@@ -125,5 +129,19 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new ProductImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Products has been uploaded.'
+        ]);
     }
 }
