@@ -12,8 +12,7 @@ class SalesOrder extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'account_id',
-        'user_id',
+        'account_login_id',
         'po_number',
         'order_date',
         'ship_date',
@@ -21,11 +20,7 @@ class SalesOrder extends Model
         'status',
     ];
 
-    public function account() {
-        return $this->belongsTo('App\Models\Account');
-    }
-
-    public function user() {
-        return $this->belongsTo('App\Models\User');
+    public function account_login() {
+        return $this->belongsTo('App\Models\AccountLogin');
     }
 }

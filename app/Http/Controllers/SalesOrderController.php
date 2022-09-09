@@ -15,11 +15,23 @@ class SalesOrderController extends Controller
      */
     public function index()
     {
-        $sales_orders = SalesOrder::orderBy('po_number', 'DESC')->paginate(10);
+        $logged_account = auth()->user()->logged_account();
+        if(!empty($logged_account)) {
+            $sales_orders = SalesOrder::orderBy('po_number', 'DESC')
+            ->whereHas('account_login', function($query) use($logged_account) {
+                $query->where('account_id', $logged_account->account_id);
+            })
+            ->paginate(10);
 
-        return view('sales-orders.index')->with([
-            'sales_orders' => $sales_orders
-        ]);
+            return view('sales-orders.index')->with([
+                'sales_orders' => $sales_orders
+            ]);
+        } else {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to accounts before creating sales order'
+            ]);
+        }
+        
     }
 
     /**

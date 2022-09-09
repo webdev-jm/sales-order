@@ -65,4 +65,8 @@ class User extends Authenticatable
     public function sales_person() {
         return $this->hasMany('App\Models\SalesPerson');
     }
+
+    public function logged_account() {
+        return $this->account_logins()->whereNull('time_out')->first();
+    }
 }

@@ -23,7 +23,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $logged_account = auth()->user()->account_logins()->whereNull('time_out')->first();
+        $logged_account = auth()->user()->logged_account();
         return view('home')->with([
             'logged_account' => $logged_account
         ]);

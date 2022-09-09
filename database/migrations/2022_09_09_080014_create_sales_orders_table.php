@@ -15,8 +15,7 @@ class CreateSalesOrdersTable extends Migration
     {
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('account_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('account_login_id')->nullable();
             $table->string('po_number');
             $table->date('order_date');
             $table->date('ship_date');
@@ -24,12 +23,8 @@ class CreateSalesOrdersTable extends Migration
             $table->string('status');
             $table->timestamps();
 
-            $table->foreign('account_id')
-            ->references('id')->on('accounts')
-            ->onDelete('cascade');
-
-            $table->foreign('user_id')
-            ->references('id')->on('users')
+            $table->foreign('account_login_id')
+            ->references('id')->on('account_logins')
             ->onDelete('cascade');
 
             $table->softDeletes();
