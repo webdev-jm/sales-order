@@ -312,6 +312,13 @@ return [
             'icon'        => 'fas fa-fw fa-home',
         ],
         [
+            'text'      => 'Sales Orders',
+            'url'       => '/sales-order',
+            'icon'      => 'fas fa-fw fa-cart-plus',
+            'can'       => 'sales order access',
+            'active'    => ['sales-order*']
+        ],
+        [
             'header'    => 'maintenance',
             'can'       => [
                 'company access',
@@ -339,20 +346,6 @@ return [
             'active'    => ['discount*']
         ],
         [
-            'text'      => 'Accounts',
-            'url'       => '/account',
-            'icon'      => 'fas fa-fw fa-file-invoice',
-            'can'       => 'account access',
-            'active'    => ['account*']
-        ],
-        [
-            'text'      => 'Branches',
-            'url'       => '/branch',
-            'icon'      => 'fas fa-fw fa-code-branch',
-            'can'       => 'branch access',
-            'active'    => ['branch*']
-        ],
-        [
             'text'      => 'Invoice Terms',
             'url'       => '/invoice-term',
             'icon'      => 'fas fa-fw fa-asterisk',
@@ -372,6 +365,20 @@ return [
             'icon'      => 'fas fa-fw fa-money-bill',
             'can'       => 'price code access',
             'active'    => ['price-code*']
+        ],
+        [
+            'text'      => 'Accounts',
+            'url'       => '/account',
+            'icon'      => 'fas fa-fw fa-file-invoice',
+            'can'       => 'account access',
+            'active'    => ['account*']
+        ],
+        [
+            'text'      => 'Branches',
+            'url'       => '/branch',
+            'icon'      => 'fas fa-fw fa-code-branch',
+            'can'       => 'branch access',
+            'active'    => ['branch*']
         ],
         [
             'text'      => 'Sales People',

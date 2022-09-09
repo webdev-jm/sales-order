@@ -15,6 +15,7 @@ class CreateAccountsTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('invoice_term_id')->nullable();
             $table->unsignedBiginteger('company_id')->nullable();
             $table->unsignedBigInteger('discount_id')->nullable();
             $table->string('account_code');
@@ -28,6 +29,10 @@ class CreateAccountsTable extends Migration
             $table->string('tax_number')->nullable();
             $table->boolean('on_hold')->default(false);
             $table->timestamps();
+
+            $table->foreign('invoice_term_id')
+            ->references('id')->on('invoice_terms')
+            ->onDelete('cascade');
 
             $table->foreign('company_id')
             ->references('id')->on('companies')

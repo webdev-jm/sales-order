@@ -50,10 +50,17 @@ class AccountController extends Controller
             $price_codes_arr[$price_code->code] = $price_code->code;
         }
 
+        $invoice_terms = InvoiceTerm::orderBy('term_code', 'ASC')->get();
+        $invoice_terms_arr = [];
+        foreach($invoice_terms as $invoice_term) {
+            $invoice_terms_arr[$invoice_term->id] = '['.$invoice_term->term_code.'] '.$invoice_term->description;
+        }
+
         return view('accounts.create')->with([
             'discounts' => $discount_arr,
             'companies' => $companies_arr,
-            'price_codes' => $price_codes_arr
+            'price_codes' => $price_codes_arr,
+            'invoice_terms' => $invoice_terms_arr,
         ]);
     }
 
@@ -66,6 +73,7 @@ class AccountController extends Controller
     public function store(StoreAccountRequest $request)
     {
         $account = new Account([
+            'invoice_term_id' => $request->invoice_term_id,
             'company_id' => $request->company_id,
             'discount_id' => $request->discount_id,
             'account_code' => $request->account_code,
@@ -124,11 +132,18 @@ class AccountController extends Controller
             $price_codes_arr[$price_code->code] = $price_code->code;
         }
 
+        $invoice_terms = InvoiceTerm::orderBy('term_code', 'ASC')->get();
+        $invoice_terms_arr = [];
+        foreach($invoice_terms as $invoice_term) {
+            $invoice_terms_arr[$invoice_term->id] = '['.$invoice_term->term_code.'] '.$invoice_term->description;
+        }
+
         return view('accounts.edit')->with([
             'account' => $account,
             'discounts' => $discount_arr,
             'companies' => $companies_arr,
-            'price_codes' => $price_codes_arr
+            'price_codes' => $price_codes_arr,
+            'invoice_terms' => $invoice_terms_arr
         ]);
     }
 
@@ -144,6 +159,7 @@ class AccountController extends Controller
         $account = Account::findOrFail($id);
         $account_name = '['.$account->account_code.'] '.$account->account_name;
         $account->update([
+            'invoice_term_id' => $request->invoice_term_id,
             'company_id' => $request->company_id,
             'discount_id' => $request->discount_id,
             'account_code' => $request->account_code,

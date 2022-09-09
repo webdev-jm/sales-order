@@ -23,6 +23,16 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+    // SALES ORDER
+    Route::group(['middleware' => 'permission:sales order access'], function() {
+        Route::get('sales-order', 'App\Http\Controllers\SalesOrderController@index')->name('sales-order.index');
+        Route::get('sales-order/create', 'App\Http\Controllers\SalesOrderController@create')->name('sales-order.create')->middleware('permission:sales order create');
+        Route::post('sales-order', 'App\Http\Controllers\SalesOrderController@store')->name('sales-order.store')->middleware('permission:sales order create');
+
+        Route::get('sales-order/{id}/edit', 'App\Http\Controllers\SalesOrderController@edit')->name('sales-order.edit')->middleware('permission:sales order edit');
+        Route::post('sales-order/{id}', 'App\Http\Controllers\SalesOrderController@update')->name('sales-order.update')->middleware('permission:sales order edit');
+    });
+
     // COMPANY
     Route::group(['middleware' => 'permission:company access'], function() {
         Route::get('company', 'App\Http\Controllers\CompanyController@index')->name('company.index');
