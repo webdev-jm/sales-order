@@ -52,8 +52,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('discount/create', 'App\Http\Controllers\DiscountController@create')->name('discount.create')->middleware('permission:discount create');
         Route::post('discount', 'App\Http\Controllers\DiscountController@store')->name('discount.store')->middleware('permission:discount create');
 
+        Route::post('discount/upload', 'App\Http\Controllers\DiscountController@upload')->name('discount.upload')->middleware('permission:discount create');
+
         Route::get('discount/{id}/edit', 'App\Http\Controllers\DiscountController@edit')->name('discount.edit')->middleware('permission:discount edit');
         Route::post('discount/{id}', 'App\Http\Controllers\DiscountController@update')->name('discount.update')->middleware('permission:discount edit');
+
+        
     });
 
     // ACCOUNTS
@@ -92,6 +96,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('product/create', 'App\Http\Controllers\ProductController@create')->name('product.create')->middleware('permission:product create');
         Route::post('product', 'App\Http\Controllers\ProductController@store')->name('product.store')->middleware('permission:product create');
 
+        Route::post('product/upload', 'App\Http\Controllers\ProductController@upload')->name('product.upload')->middleware('permission:product create');
+
         Route::get('product/{id}/edit', 'App\Http\Controllers\ProductController@edit')->name('product.edit')->middleware('permission:product edit');
         Route::post('product/{id}', 'App\Http\Controllers\ProductController@update')->name('product.update')->middleware('permission:product edit');
     });
@@ -101,6 +107,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('price-code', 'App\Http\Controllers\PriceCodeController@index')->name('price-code.index');
         Route::get('price-code/create', 'App\Http\Controllers\PriceCodeController@create')->name('price-code.create')->middleware('permission:price code create');
         Route::post('price-code', 'App\Http\Controllers\PriceCodeController@store')->name('price-code.store')->middleware('permission:price code create');
+
+        Route::post('product/upload', 'App\Http\Controllers\PriceCodeController@upload')->name('price-code.upload')->middleware('permission:price code create');
 
         Route::get('price-code/{id}/edit', 'App\Http\Controllers\PriceCodeController@edit')->name('price-code.edit')->middleware('permission:price code edit');
         Route::post('price-code/{id}', 'App\Http\Controllers\PriceCodeController@update')->name('price-code.update')->middleware('permission:price code edit');
