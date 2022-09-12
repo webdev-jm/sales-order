@@ -25,59 +25,16 @@
 @endsection
 
 @section('content')
-<div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Sales Order Form</h3>
-      <div class="card-tools">
-        <div class="input-group input-group-sm" style="width: 150px;">
-            <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-default">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-      </div>
+<div class="row">
+    <div class="col-lg-8">
+        <livewire:sales-order.sales-order-products/>
     </div>
-    <div class="card-body">
-
-        <div class="row">
-            <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th class="text-center">Unit</th>
-                                <th class="text-center">Order</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $num = 0;
-                            @endphp
-                            @foreach($products as $product)
-                            @php
-                                $num++;
-                            @endphp
-                            <tr>
-                                <td class="align-middle">[{{$product->stock_code}}] {{$product->description}} {{$product->size}}</td>
-                                <td class="align-middle text-center">{{$product->uom}}</td>
-                                <td class="p-0 align-middle">
-                                    <input type="number" class="form-control border-0">
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    </div>
-    <div class="card-footer">
+    <div class="col-lg-4">
+        
     </div>
 </div>
+
+
 
 @endsection
 
