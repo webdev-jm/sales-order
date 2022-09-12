@@ -42,15 +42,7 @@ class SalesOrderController extends Controller
      */
     public function create()
     {
-        $logged_account = auth()->user()->logged_account();
-        $account = $logged_account->account;
-        $products = Product::whereHas('price_code', function($query) use($account) {
-            $query->where('company_id', $account->company_id)->where('code', $account->price_code);
-        })->get();
-
-        return view('sales-orders.create')->with([
-            'products' => $products
-        ]);
+        return view('sales-orders.create');
     }
 
     /**

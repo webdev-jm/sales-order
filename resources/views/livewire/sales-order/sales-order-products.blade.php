@@ -7,7 +7,8 @@
                     <input type="text" name="table_search" wire:model="search" class="form-control float-right" placeholder="Search">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-default">
-                            <i class="fas fa-search"></i>
+                            <i class="fas fa-search" wire:loading.remove></i>
+                            <i class="fa fa-spinner fa-sm fa-spin" wire:loading></i>
                         </button>
                     </div>
                 </div>
@@ -48,7 +49,7 @@
                                 {{$uom}}
                             </td>
                             <td class="p-0 align-middle">
-                                <input type="number" wire:model.lazy="quantity.{{$product->id}}.{{$uom}}" class="form-control border-0" wire:loading.attr="readonly">
+                                <input type="number" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom}}" class="form-control border-0" wire:loading.attr="readonly">
                             </td>
                         </tr>
                         @endforeach

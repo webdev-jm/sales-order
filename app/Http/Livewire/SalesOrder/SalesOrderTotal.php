@@ -60,13 +60,19 @@ class SalesOrderTotal extends Component
                         }
                     }
 
-                    $orders[$product_id]['data'][$uom] = [
-                        'quantity' => $quantity,
-                        'total' => number_format($uom_total, 2)
-                    ];
+                    if($uom_total > 0) {
+                        $orders[$product_id]['data'][$uom] = [
+                            'quantity' => number_format($quantity),
+                            'total' => number_format($uom_total, 2)
+                        ];
+                    }
                     $product_total += $uom_total;
                 }
-                $orders[$product_id]['product_total'] = $product_total;
+                if($product_total > 0) {
+                    $orders[$product_id]['product_total'] = $product_total;
+                } else {
+                    unset($orders[$product_id]);
+                }
                 $total += $product_total;
             }
         }
@@ -74,16 +80,14 @@ class SalesOrderTotal extends Component
         $this->total = number_format($total, 2);
 
         $discounted = $total;
-        if($this->discount->discount_1 != 0) {
-            $discounted = $discounted - ($discounted * ($this->discount->discount_1 / 100));
+        if($this->discount->discount_1 > 0) {
+            $discounted = $discounted * ((100 - $this->discount->discount_1) / 100);
         }
-
-        if($this->discount->discount_2 != 0) {
-            $discounted = $discounted - ($discounted * ($this->discount->discount_1 / 100));
+        if($this->discount->discount_2 > 0) {
+            $discounted = $discounted * ((100 - $this->discount->discount_2) / 100);
         }
-
-        if($this->discount->discount_3 != 0) {
-            $discounted = $discounted - ($discounted * ($this->discount->discount_1 / 100));
+        if($this->discount->discount_3 > 0) {
+            $discounted = $discounted * ((100 - $this->discount->discount_3) / 100);
         }
 
         $this->grand_total = number_format($discounted, 2);
