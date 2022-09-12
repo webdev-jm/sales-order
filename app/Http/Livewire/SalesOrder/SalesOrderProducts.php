@@ -12,7 +12,7 @@ class SalesOrderProducts extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    public $account, $quantity, $search = '';
+    public $account, $quantity, $uom, $search = '';
 
     public function updatingSearch()
     {
@@ -36,7 +36,9 @@ class SalesOrderProducts extends Component
             ->orWhere('description', 'like', '%'.$this->search.'%')
             ->orWhere('category', 'like', '%'.$this->search.'%');
         })
-        ->paginate(10);
+        ->paginate(7)->onEachSide(1);
+
+        $this->emit('getTotal', $this->quantity);
 
         return view('livewire.sales-order.sales-order-products')->with([
             'products' => $products

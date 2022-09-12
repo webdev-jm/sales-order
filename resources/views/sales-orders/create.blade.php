@@ -27,10 +27,10 @@
 @section('content')
 <div class="row">
     <div class="col-lg-8">
-        <livewire:sales-order.sales-order-products/>
+        <livewire:sales-order.sales-order-products />
     </div>
     <div class="col-lg-4">
-        
+        <livewire:sales-order.sales-order-total />
     </div>
 </div>
 
