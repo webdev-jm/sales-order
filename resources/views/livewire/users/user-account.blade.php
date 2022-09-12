@@ -2,7 +2,7 @@
     <a href="#" wire:click.prevent="assignModals" title="user accounts"><i class="fas fa-wrench text-secondary mx-1"></i></a>
 
     <div class="modal fade" id="assign-modal{{$user_id}}">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Assign Accounts</h4>

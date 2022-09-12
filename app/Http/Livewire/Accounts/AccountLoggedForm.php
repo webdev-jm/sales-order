@@ -22,7 +22,7 @@ class AccountLoggedForm extends Component
             'longitude' => 'required',
             'latitude' => 'required',
             'activities' => 'required',
-            'picture_file' => 'image|max:2048',
+            // 'picture_file' => 'image|max:2048',
         ]);
 
         $this->logged->update([

@@ -27,13 +27,7 @@
     </div>
     <div class="card-body">
 
-        <div class="row">
-            @foreach(auth()->user()->accounts as $account)
-            <div class="col-lg-3">
-                <livewire:accounts.account-login :account_id="$account->id"/>
-            </div>
-            @endforeach
-        </div>
+        <livewire:accounts.account-login/>
 
     </div>
 </div>

@@ -9,6 +9,10 @@ use App\Models\InvoiceTerm;
 use App\Models\PriceCode;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use Illuminate\Http\Request;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\AccountImport;
 
 class AccountController extends Controller
 {
@@ -188,5 +192,19 @@ class AccountController extends Controller
     public function destroy(Account $account)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new AccountImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Accounts has been uploaded.'
+        ]);
     }
 }

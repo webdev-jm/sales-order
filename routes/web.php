@@ -66,6 +66,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('account/create', 'App\Http\Controllers\AccountController@create')->name('account.create')->middleware('permission:account create');
         Route::post('account', 'App\Http\Controllers\AccountController@store')->name('account.store')->middleware('permission:account create');
 
+        Route::post('account/upload', 'App\Http\Controllers\AccountController@upload')->name('account.upload')->middleware('permission:account create');
+
         Route::get('account/{id}/create', 'App\Http\Controllers\AccountController@edit')->name('account.edit')->middleware('permission:account edit');
         Route::post('account/{id}', 'App\Http\Controllers\AccountController@update')->name('account.update')->middleware('permission:account edit');
     });
@@ -108,7 +110,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('price-code/create', 'App\Http\Controllers\PriceCodeController@create')->name('price-code.create')->middleware('permission:price code create');
         Route::post('price-code', 'App\Http\Controllers\PriceCodeController@store')->name('price-code.store')->middleware('permission:price code create');
 
-        Route::post('product/upload', 'App\Http\Controllers\PriceCodeController@upload')->name('price-code.upload')->middleware('permission:price code create');
+        Route::post('price-code/upload', 'App\Http\Controllers\PriceCodeController@upload')->name('price-code.upload')->middleware('permission:price code create');
 
         Route::get('price-code/{id}/edit', 'App\Http\Controllers\PriceCodeController@edit')->name('price-code.edit')->middleware('permission:price code edit');
         Route::post('price-code/{id}', 'App\Http\Controllers\PriceCodeController@update')->name('price-code.update')->middleware('permission:price code edit');

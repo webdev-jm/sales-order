@@ -25,7 +25,7 @@ class CreateAccountsTable extends Migration
             $table->text('ship_to_address1')->nullable();
             $table->text('ship_to_address2')->nullable();
             $table->text('ship_to_address3')->nullable();
-            $table->integer('postal_code')->nullable();
+            $table->string('postal_code')->nullable();
             $table->string('tax_number')->nullable();
             $table->boolean('on_hold')->default(false);
             $table->timestamps();
