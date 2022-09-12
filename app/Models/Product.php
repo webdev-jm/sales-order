@@ -19,7 +19,13 @@ class Product extends Model
         'category',
         'product_class',
         'core_group',
-        'uom',
+        'stock_uom',
+        'order_uom',
+        'other_uom',
+        'order_uom_conversion',
+        'other_uom_conversion',
+        'order_uom_operator',
+        'other_uom_operator',
     ];
 
     public function price_code() {

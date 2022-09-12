@@ -1,5 +1,5 @@
 <div class="modal-content">
-
+    @if(!empty($account))
     @section('plugins.EkkoLightbox', true)
 
     <form wire:submit.prevent="login" enctype="multipart/form-data">
@@ -75,4 +75,5 @@
 
         });
     </script>
+    @endif
 </div>

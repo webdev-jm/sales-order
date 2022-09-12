@@ -15,6 +15,7 @@
         </div>
     @endforeach
     </div>
+    
 
     <div class="modal fade" id="login-modal">
         <div class="modal-dialog modal-lg">
@@ -31,5 +32,4 @@
             $("#login-modal").modal('hide');
         });
     </script>
-    
 </div>

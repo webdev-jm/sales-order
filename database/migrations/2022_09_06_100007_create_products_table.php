@@ -21,7 +21,13 @@ class CreateProductsTable extends Migration
             $table->string('category')->nullable();
             $table->string('product_class');
             $table->string('core_group');
-            $table->string('uom');
+            $table->string('stock_uom');
+            $table->string('order_uom');
+            $table->string('other_uom');
+            $table->integer('order_uom_conversion');
+            $table->integer('other_uom_conversion');
+            $table->string('order_uom_operator');
+            $table->string('other_uom_operator');
             $table->timestamps();
 
             $table->softDeletes();
