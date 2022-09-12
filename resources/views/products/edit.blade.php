@@ -79,12 +79,101 @@
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('uom', 'Unit of Measurement') !!}
-                    {!! Form::text('uom', $product->uom, ['class' => 'form-control'.($errors->has('uom') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
-                    <p class="text-danger">{{$errors->first('uom')}}</p>
+                    {!! Form::label('stock_uom', 'Unit of Measurement') !!}
+                    {!! Form::text('stock_uom', $product->stock_uom, ['class' => 'form-control'.($errors->has('stock_uom') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                    <p class="text-danger">{{$errors->first('stock_uom')}}</p>
                 </div>
             </div>
 
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Order UOM</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    {!! Form::label('order_uom', 'UOM') !!}
+                                    {!! Form::text('order_uom', $product->order_uom, ['class' => 'form-control'.($errors->has('order_uom') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                                    <p class="text-danger">{{$errors->first('order_uom')}}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    {!! Form::label('order_uom_conversion', 'Conversion') !!}
+                                    {!! Form::number('order_uom_conversion', $product->order_uom_conversion, ['class' => 'form-control'.($errors->has('order_uom_conversion') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                                    <p class="text-danger">{{$errors->first('order_uom_conversion')}}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label>Operation</label>
+                                <div class="form-group">
+                                    <div class="custom-control custom-radio">
+                                        {!! Form::radio('order_uom_operator', 'M', $product->order_uom_operator == 'M' ? true : false, ['class' => 'custom-control-input', 'id' => 'order_multiply', 'form' => 'update_product']) !!}
+                                        {!! Form::label('order_multiply', 'Multiplication', ['class' => 'custom-control-label']) !!}
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        {!! Form::radio('order_uom_operator', 'D', $product->order_uom_operator == 'D' ? true : false, ['class' => 'custom-control-input', 'id' => 'order_divide', 'form' => 'update_product']) !!}
+                                        {!! Form::label('order_divide', 'Division', ['class' => 'custom-control-label']) !!}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Other UOM</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    {!! Form::label('other_uom', 'UOM') !!}
+                                    {!! Form::text('other_uom', $product->other_uom, ['class' => 'form-control'.($errors->has('other_uom') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                                    <p class="text-danger">{{$errors->first('other_uom')}}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    {!! Form::label('other_uom_conversion', 'Conversion') !!}
+                                    {!! Form::number('other_uom_conversion', $product->other_uom_conversion, ['class' => 'form-control'.($errors->has('other_uom_conversion') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                                    <p class="text-danger">{{$errors->first('other_uom_conversion')}}</p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label>Operation</label>
+                                <div class="form-group">
+                                    <div class="custom-control custom-radio">
+                                        {!! Form::radio('other_uom_operator', 'M', $product->other_uom_operator == 'M' ? true : false, ['class' => 'custom-control-input', 'id' => 'other_multiply', 'form' => 'update_product']) !!}
+                                        {!! Form::label('other_multiply', 'Multiplication', ['class' => 'custom-control-label']) !!}
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        {!! Form::radio('other_uom_operator', 'D', $product->other_uom_operator == 'D' ? true : false, ['class' => 'custom-control-input', 'id' => 'other_divide', 'form' => 'update_product']) !!}
+                                        {!! Form::label('other_divide', 'Division', ['class' => 'custom-control-label']) !!}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>

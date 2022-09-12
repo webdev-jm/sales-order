@@ -12,6 +12,11 @@ use Illuminate\Http\Request;
 use App\Imports\ProductImport;
 use Maatwebsite\Excel\Facades\Excel;
 
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 0);
+ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
+ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
+
 class ProductController extends Controller
 {
     /**
@@ -60,7 +65,13 @@ class ProductController extends Controller
             'category' =>  $request->category,
             'product_class' => $request->product_class,
             'core_group' => $request->core_group,
-            'uom' => $request->uom
+            'stock_uom' => $request->stock_uom,
+            'order_uom' => $request->order_uom,
+            'other_uom' => $request->other_uom,
+            'order_uom_conversion' => $request->order_uom_conversion,
+            'other_uom_conversion' => $request->other_uom_conversion,
+            'order_uom_operator' => $request->order_uom_operator,
+            'other_uom_operator' => $request->other_uom_operator,
         ]);
         $product->save();
 
@@ -112,7 +123,13 @@ class ProductController extends Controller
             'category' =>  $request->category,
             'product_class' => $request->product_class,
             'core_group' => $request->core_group,
-            'uom' => $request->uom
+            'stock_uom' => $request->stock_uom,
+            'order_uom' => $request->order_uom,
+            'other_uom' => $request->other_uom,
+            'order_uom_conversion' => $request->order_uom_conversion,
+            'other_uom_conversion' => $request->other_uom_conversion,
+            'order_uom_operator' => $request->order_uom_operator,
+            'other_uom_operator' => $request->other_uom_operator,
         ]);
 
         return back()->with([

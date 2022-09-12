@@ -35,10 +35,16 @@ class ProductImport implements ToModel, WithStartRow
                 'stock_code' => $row[1],
                 'description' => $row[2],
                 'size' => $row[3],
-                'category' => $row[5],
-                'product_class' => $row[6],
-                'core_group' => $row[7],
-                'uom' => $row[4],
+                'category' => $row[11],
+                'product_class' => $row[12],
+                'core_group' => $row[13],
+                'stock_uom' => $row[4],
+                'order_uom' => $row[5],
+                'other_uom' => $row[6],
+                'order_uom_conversion' => $row[7],
+                'other_uom_conversion' => $row[8],
+                'order_uom_operator' => $row[9],
+                'other_uom_operator' => $row[10],
             ]);
         } else {
             return null;

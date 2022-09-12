@@ -44,7 +44,25 @@ class StoreProductRequest extends FormRequest
             'core_group' => [
                 'required'
             ],
-            'uom' => [
+            'stock_uom' => [
+                'required'
+            ],
+            'order_uom' => [
+                'required'
+            ],
+            'other_uom' => [
+                'required'
+            ],
+            'order_uom_conversion' => [
+                'required'
+            ],
+            'other_uom_conversion' => [
+                'required'
+            ],
+            'order_uom_operator' => [
+                'required'
+            ],
+            'other_uom_operator' => [
                 'required'
             ],
         ];
