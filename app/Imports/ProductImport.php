@@ -4,9 +4,24 @@ namespace App\Imports;
 
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class ProductImport implements ToModel
+class ProductImport implements ToModel, WithStartRow
 {
+    public function startRow(): int
+    {
+        return 2;
+    }
+
+    public function batchSize(): int
+    {
+        return 500;
+    }
+
+    public function chunkSize(): int {
+        return 500;
+    }
+
     /**
     * @param array $row
     *

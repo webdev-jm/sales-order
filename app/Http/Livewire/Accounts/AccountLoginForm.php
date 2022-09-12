@@ -44,8 +44,9 @@ class AccountLoginForm extends Component
 
             $this->save_image($this->picture_file, $login->id);
 
-            return redirect()->to('/sales-order');
         }
+        
+        return redirect()->to('/sales-order');
     }
 
     public function save_image($image_input, $id) {

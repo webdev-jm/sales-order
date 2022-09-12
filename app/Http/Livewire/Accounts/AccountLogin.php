@@ -7,14 +7,16 @@ use App\Models\Account;
 
 class AccountLogin extends Component
 {
-    public $acount;
+    public $accounts;
+    public $account;
 
-    public function loginModal() {
-        $this->dispatchBrowserEvent('openFormModal'.$this->account->id);
+    public function loginModal($account_id) {
+        $this->account = Account::findOrFail($account_id);
+        $this->dispatchBrowserEvent('openFormModal');
     }
 
-    public function mount($account_id) {
-        $this->account = Account::findOrFail($account_id);
+    public function mount() {
+        $this->accounts = auth()->user()->accounts;
     }
 
     public function render()
