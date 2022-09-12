@@ -12,6 +12,7 @@ class AccountLogin extends Component
 
     public function loginModal($account_id) {
         $this->account = Account::findOrFail($account_id);
+        $this->emit('loginForm', $account_id);
         $this->dispatchBrowserEvent('openFormModal');
     }
 

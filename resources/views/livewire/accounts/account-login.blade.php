@@ -18,7 +18,7 @@
 
     <div class="modal fade" id="login-modal">
         <div class="modal-dialog modal-lg">
-            <livewire:accounts.account-login-form :account="$account"/>
+            <livewire:accounts.account-login-form/>
         </div>
     </div>
 
