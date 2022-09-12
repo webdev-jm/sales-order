@@ -26,6 +26,17 @@
 
 @section('content')
 <div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0 align-middle">PO#:</h3>
+                <div class="card-tools">
+                    <button class="btn btn-secondary">Save As Draft</button>
+                    <button class="btn btn-primary">Finalize</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-lg-8">
         <livewire:sales-order.sales-order-products />
     </div>
