@@ -14,18 +14,29 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\AccountImport;
 
+use App\Http\Traits\GlobalTrait;
+
 class AccountController extends Controller
 {
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Account::orderBy('id', 'DESC')->paginate(10);
+        $search = trim($request->get('search'));
+        $accounts = Account::AccountSearch($search, $this->setting->data_per_page);
         return view('accounts.index')->with([
-            'accounts' => $accounts
+            'accounts' => $accounts,
+            'search' => $search
         ]);
     }
 

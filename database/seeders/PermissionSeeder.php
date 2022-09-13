@@ -74,6 +74,8 @@ class PermissionSeeder extends Seeder
             'role create',
             'role edit',
             'role delete',
+            // Settings
+            'settings access',
         ];
 
         foreach($permissions_arr as $permissions) {

@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PriceCodeImport;
 
+use App\Http\Traits\GlobalTrait;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -19,16 +21,26 @@ ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class PriceCodeController extends Controller
 {
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $price_codes = PriceCode::orderBy('code', 'ASC')->paginate(10);
+        $search = trim($request->get('search'));
+        $price_codes = PriceCode::PriceCodeSearch($search, $this->setting->data_per_page);
         return view('price-codes.index')->with([
-            'price_codes' => $price_codes
+            'price_codes' => $price_codes,
+            'search' => $search
         ]);
     }
 

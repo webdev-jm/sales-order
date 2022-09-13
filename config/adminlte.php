@@ -412,6 +412,13 @@ return [
             'can'       => 'role access',
             'active'    => ['role*']
         ],
+        [
+            'text'      => 'Settings',
+            'url'       => '/setting',
+            'icon'      => 'fas fa-fw fa-wrench',
+            'can'       => 'settings access',
+            'active'    => ['setting*']
+        ],
         // [
         //     'text'    => 'multilevel',
         //     'icon'    => 'fas fa-fw fa-share',

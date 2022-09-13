@@ -11,8 +11,19 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\DiscountImport;
 
+use App\Http\Traits\GlobalTrait;
+
 class DiscountController extends Controller
 {
+
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -21,7 +32,7 @@ class DiscountController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search'));
-        $discounts = Discount::DiscountSearch($search);
+        $discounts = Discount::DiscountSearch($search, $this->setting->data_per_page);
         return view('discounts.index')->with([
             'discounts' => $discounts,
             'search' => $search

@@ -44,4 +44,22 @@ class Account extends Model
     public function sales_person() {
         return $this->hasMany('App\Models\SalesPerson');
     }
+
+    public function scopeAccountSearch($query, $search, $limit) {
+        if($search != '') {
+            $accounts = $query->orderBy('id', 'DESC')
+            ->where('account_code', 'like', '%'.$search.'%')
+            ->orWhere('account_name', 'like', '%'.$search.'%')
+            ->orWhere('short_name', 'like', '%'.$search.'%')
+            ->orWhereHas('company', function($qry) use($search) {
+                $qry->where('name', 'like', '%'.$search.'%');
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $accounts = $query->orderBy('id', 'DESC')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $accounts;
+    }
 }

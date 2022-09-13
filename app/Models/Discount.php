@@ -25,7 +25,7 @@ class Discount extends Model
         return $this->belongsTo('App\Models\Company');
     }
 
-    public function scopeDiscountSearch($query, $search) {
+    public function scopeDiscountSearch($query, $search, $limit) {
         if($search != '') {
             $discounts = $query->orderBy('id', 'DESC')
             ->whereHas('company', function($qry) use($search) {
@@ -33,10 +33,10 @@ class Discount extends Model
             })
             ->orWhere('discount_code', 'like', '%'.$search.'%')
             ->orWhere('description', 'like', '%'.$search.'%')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $discounts = $query->orderBy('id', 'DESC')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }
 
         return $discounts;
