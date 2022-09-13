@@ -35,9 +35,7 @@ class AccountImport implements ToModel, WithStartRow
         }
 
         $discount = Discount::where('company_id', $company->id)
-        ->where(function($query) use ($row) {
-            $query->where('discount_code', $row[7])->orWhere('discount_code', $row[8]);
-        })
+        ->where('discount_code', $row[8])
         ->first();
 
         return new Account([
@@ -47,6 +45,7 @@ class AccountImport implements ToModel, WithStartRow
             'account_code' => $row[1],
             'account_name' => $row[2],
             'short_name' => $row[3],
+            'line_discount_code' => $row[7] ?? null,
             'price_code' => $row[6],
             'ship_to_address1' => $row[9],
             'ship_to_address2' => $row[10],

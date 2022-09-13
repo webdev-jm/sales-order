@@ -20,6 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('size')->nullable();
             $table->string('category')->nullable();
             $table->string('product_class');
+            $table->string('brand');
             $table->string('core_group');
             $table->string('stock_uom');
             $table->string('order_uom');

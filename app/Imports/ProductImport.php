@@ -30,14 +30,15 @@ class ProductImport implements ToModel, WithStartRow
     public function model(array $row)
     {
         $check = Product::where('stock_code', $row['1'])->first();
-        if(empty($check)) {
+        if(empty($check) && !empty($row[1])) {
             return new Product([
                 'stock_code' => $row[1],
-                'description' => $row[2],
+                'description' => $row[2] ?? '',
                 'size' => $row[3],
-                'category' => $row[11],
-                'product_class' => $row[12],
-                'core_group' => $row[13],
+                'category' => $row[11] ?? '',
+                'product_class' => $row[12] ?? '',
+                'brand' => $row[13],
+                'core_group' => $row[14] ?? '',
                 'stock_uom' => $row[4],
                 'order_uom' => $row[5],
                 'other_uom' => $row[6],

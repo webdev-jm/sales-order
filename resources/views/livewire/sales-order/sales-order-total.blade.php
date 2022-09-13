@@ -1,31 +1,32 @@
 <div>
     <div class="card">
         <div class="card-header bg-success">
-            <h3 class="card-title pb-1">Order Summary</h3>
+            <h3 class="card-title pb-1">ORDER SUMMARY</h3>
             <div class="card-tools" wire:loading>
-                <i class="fa fa-spinner fa-sm fa-spin"></i>
+                <i class="fa fa-sm fa-circle-notch fast-spin"></i>
             </div>
         </div>
         <div class="card-body">
             
             <div class="row">
-                <div class="col-12">
+
+                <div class="col-lg-6">
                     <div class="form-group">
                         <label>TOTAL</label>
                         <input type="text" class="form-control bg-white" readonly wire:model="total">
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-lg-6">
                     <div class="form-group">
                         <label>DISCOUNT</label>
-                        <input type="text" class="form-control bg-white" readonly value="{{$discount->description}}">
+                        <input type="text" class="form-control bg-white" readonly value="{{$discount->description ?? '0'}}">
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-lg-6">
                     <div class="form-group">
-                        <label>GRAND TOTAL</label>
+                        <label>TOTAL LESS DISCOUNT</label>
                         <input type="text" class="form-control bg-white" readonly wire:model="grand_total">
                     </div>
                 </div>
@@ -36,24 +37,34 @@
 
     <div class="card">
         <div class="card-header bg-success">
-            <h3 class="card-title pb-1">Order Details</h3>
+            <h3 class="card-title pb-1">ORDER DETAILS</h3>
             <div class="card-tools" wire:loading>
-                <i class="fa fa-spinner fa-sm fa-spin"></i>
+                <i class="fa fa-sm fa-circle-notch fast-spin"></i>
             </div>
         </div>
         <div class="card-body table-responsive p-0">
             <table class="table table-bordered table-sm">
                 <thead class="bg-secondary">
                     <tr>
-                        <th>Product</th>
-                        <th class="text-center">Unit</th>
-                        <th class="text-right">Quantity</th>
-                        <th class="text-right">Total</th>
+                        <th></th>
+                        <th class="align-middle">Product</th>
+                        <th class="text-center align-middle">Unit</th>
+                        <th class="text-center align-middle">Quantity</th>
+                        <th class="text-center align-middle">Total</th>
+                        <th class="text-center align-middle">Discount</th>
+                        <th class="text-center align-middle">Total less discount</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $num = 0;
+                    @endphp
                     @foreach($orders as $order)
+                        @php
+                            $num++;
+                        @endphp
                         <tr>
+                            <td class="align-middle text-center p-0 font-weight-bold" rowspan="{{count($order['data']) + 1}}">{{$num}}.</td>
                             <td class="align-middle p-2" rowspan="{{count($order['data']) + 1}}">
                                 <span class="font-weight-bold">{{$order['stock_code']}}</span>
                                 <br>
@@ -64,13 +75,17 @@
                         @foreach($order['data'] as $uom => $data)
                         <tr>
                             <td class="text-center align-middle p-0">{{$uom}}</td>
-                            <td class="text-right align-middle p-1">{{$data['quantity']}}</td>
-                            <td class="text-right align-middle p-1">{{$data['total']}}</td>
+                            <td class="text-center align-middle p-1">{{number_format($data['quantity'])}}</td>
+                            <td class="text-center align-middle p-1">{{number_format($data['total'], 2)}}</td>
+                            <td class="text-center align-middle p-1">{{$data['discount']}}</td>
+                            <td class="text-center align-middle p-1">{{number_format($data['discounted'], 2)}}</td>
                         </tr>
                         @endforeach
                     @endforeach
                 </tbody>
             </table>
+        </div>
+        <div class="card-footer">
         </div>
     </div>
 </div>

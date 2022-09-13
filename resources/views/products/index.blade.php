@@ -46,6 +46,7 @@
                     <th>Stock Code</th>
                     <th>Description</th>
                     <th>Size</th>
+                    <th>Brand</th>
                     <th></th>
                 </tr>
             </thead>
@@ -55,6 +56,7 @@
                     <td>{{$product->stock_code}}</td>
                     <td>{{$product->description}}</td>
                     <td>{{$product->size}}</td>
+                    <td>{{$product->brand}}</td>
                     <td class="text-right">
                         {{-- <livewire:products.product-price-code :product_id="$product->id"/> --}}
                         @can('product edit')

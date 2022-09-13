@@ -12,10 +12,14 @@ class SalesOrderProducts extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    public $account, $quantity, $uom, $search = '';
+    public $account, $quantity, $uom, $search = '', $brands, $brand = '';
 
     public function updatingSearch()
     {
+        $this->resetPage();
+    }
+
+    public function updatingBrand() {
         $this->resetPage();
     }
 
@@ -24,6 +28,7 @@ class SalesOrderProducts extends Component
         $account = $logged_account->account;
         
         $this->account = $account;
+        $this->brand = 'ALL';
     }
 
     public function change() {
@@ -32,21 +37,47 @@ class SalesOrderProducts extends Component
 
     public function render()
     {
-        $products = Product::whereHas('price_code', function($query) {
+        if($this->brand == 'ALL') {
+            $products = Product::whereHas('price_code', function($query) {
+                $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+            })
+            ->where(function($query) {
+                $query->where('stock_code', 'like', '%'.$this->search.'%')
+                ->orWhere('description', 'like', '%'.$this->search.'%')
+                ->orWhere('category', 'like', '%'.$this->search.'%')
+                ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
+                ->orWhere('order_uom', 'like', '%'.$this->search.'%')
+                ->orWhere('other_uom', 'like', '%'.$this->search.'%')
+                ->orWhere('brand', 'like', '%'.$this->search.'%');
+            })
+            ->paginate(7)->onEachSide(1);
+        } else {
+            $products = Product::whereHas('price_code', function($query) {
+                $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+            })
+            ->where(function($query) {
+                $query->where('brand', $this->brand);
+            })
+            ->where(function($query) {
+                $query->where('stock_code', 'like', '%'.$this->search.'%')
+                ->orWhere('description', 'like', '%'.$this->search.'%')
+                ->orWhere('category', 'like', '%'.$this->search.'%')
+                ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
+                ->orWhere('order_uom', 'like', '%'.$this->search.'%')
+                ->orWhere('other_uom', 'like', '%'.$this->search.'%');
+            })
+            ->paginate(7)->onEachSide(1);
+        }
+        
+        $this->brands = Product::select('brand')->distinct()->orderBy('brand', 'ASC')
+        ->whereHas('price_code', function($query) {
             $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
         })
-        ->Where(function($query) {
-            $query->where('stock_code', 'like', '%'.$this->search.'%')
-            ->orWhere('description', 'like', '%'.$this->search.'%')
-            ->orWhere('category', 'like', '%'.$this->search.'%')
-            ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-            ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-            ->orWhere('other_uom', 'like', '%'.$this->search.'%');
-        })
-        ->paginate(7)->onEachSide(1);
+        ->get('brand');
 
         return view('livewire.sales-order.sales-order-products')->with([
-            'products' => $products
+            'products' => $products,
+            'brands' => $this->brands
         ]);
     }
 }

@@ -14,3 +14,13 @@
 .login-logo a {
     color: #ffffff;
 }
+
+.slow-spin {
+    -webkit-animation: fa-spin 6s infinite linear;
+    animation: fa-spin 6s infinite linear;
+}
+
+.fast-spin {
+    -webkit-animation: fa-spin 500ms infinite linear;
+    animation: fa-spin 500ms infinite linear;
+}

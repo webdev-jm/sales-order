@@ -16,11 +16,18 @@ class CreateSalesOrdersTable extends Migration
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_login_id')->nullable();
+            $table->string('control_number');
             $table->string('po_number');
             $table->date('order_date');
             $table->date('ship_date');
-            $table->string('ship_description');
+            $table->string('ship_to_name');
+            $table->string('ship_to_building');
+            $table->string('ship_to_street');
+            $table->string('ship_to_city');
+            $table->string('ship_to_postal');
             $table->string('status');
+            $table->integer('total_qantity')->default(0);
+            $table->decimal('total_sales', 15,2)->default(0.00);
             $table->timestamps();
 
             $table->foreign('account_login_id')
