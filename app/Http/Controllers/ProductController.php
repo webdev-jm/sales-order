@@ -24,11 +24,13 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderBy('id', 'DESC')->paginate(10)->onEachSide(1);
+        $search = trim($request->get('search'));
+        $products = Product::ProductSearch($search);
         return view('products.index')->with([
-            'products' => $products
+            'products' => $products,
+            'search' => $search
         ]);
     }
 

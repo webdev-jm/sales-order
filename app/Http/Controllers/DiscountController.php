@@ -18,11 +18,13 @@ class DiscountController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $discounts = Discount::orderBy('id', 'DESC')->paginate(10);
+        $search = trim($request->get('search'));
+        $discounts = Discount::DiscountSearch($search);
         return view('discounts.index')->with([
-            'discounts' => $discounts
+            'discounts' => $discounts,
+            'search' => $search
         ]);
     }
 

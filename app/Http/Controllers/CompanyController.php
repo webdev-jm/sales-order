@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
+use Illuminate\Http\Request;
 
 class CompanyController extends Controller
 {
@@ -13,11 +14,14 @@ class CompanyController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $companies = Company::orderBy('id', 'DESC')->paginate(10);
+        $search = trim($request->get('search'));
+        $companies = Company::CompanySearch($search);
+        
         return view('companies.index')->with([
-            'companies' => $companies
+            'companies' => $companies,
+            'search' => $search
         ]);
     }
 

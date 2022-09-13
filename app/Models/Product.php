@@ -31,4 +31,19 @@ class Product extends Model
     public function price_code() {
         return $this->hasMany('App\Models\PriceCode');
     }
+
+    public function scopeProductSearch($query, $search) {
+        if($search != '') {
+            $products = $query->orderBy('id', 'DESC')
+            ->where('stock_code', 'like', '%'.$search.'%')
+            ->orWhere('description', 'like', '%'.$search.'%')
+            ->orWhere('size', 'like', '%'.$search.'%')
+            ->paginate(10)->onEachSide(1)->appends(request()->query());
+        } else {
+            $products = $query->orderBy('id', 'DESC')
+            ->paginate(10)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $products;
+    }
 }

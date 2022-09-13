@@ -4,14 +4,14 @@
 
     <form wire:submit.prevent="logout" enctype="multipart/form-data">
         <div class="modal-header">
-            <h4 class="modal-title">Login to Account <span class="badge badge-primary">[{{$account->account_code}}] {{$account->short_name}}</span></h4>
-            <div class="card-tools">
+            <h4 class="modal-title">Logout Account <span class="badge badge-primary">[{{$account->account_code}}] {{$account->short_name}}</span></h4>
+            {{-- <div class="card-tools">
                 <button type="button" class="btn btn-secondary" id="btn-reload-location">Reload Location</button>
-            </div>
+            </div> --}}
         </div>
         <div class="modal-body text-left">
 
-            <div class="row">
+            {{-- <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Accuracy (m.)</label>
@@ -35,7 +35,7 @@
                         <p class="text-danger">{{$errors->first('latitude')}}</p>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="row">
                 
@@ -83,11 +83,11 @@
 
     <script>
         document.addEventListener('livewire:load', function () {
-            getLocation();
-            $('body').on('click', '#btn-reload-location', function(e) {
-                e.preventDefault();
-                getLocation();
-            });
+            // getLocation();
+            // $('body').on('click', '#btn-reload-location', function(e) {
+            //     e.preventDefault();
+            //     getLocation();
+            // });
 
             $('body').on('click', '[data-toggle="lightbox"]', function(event) {
                 event.preventDefault();
@@ -96,19 +96,19 @@
                 });
             });
 
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        @this.accuracy = position.coords.accuracy.toFixed(3)+' m';
-                        @this.longitude = position.coords.longitude;
-                        @this.latitude = position.coords.latitude;
-                    }, function(error) {
-                        @this.accuracy = error.message;
-                    });
-                } else { 
-                    console.log("Geolocation is not supported by this browser.");
-                }
-            }
+            // function getLocation() {
+            //     if (navigator.geolocation) {
+            //         navigator.geolocation.getCurrentPosition(function(position) {
+            //             @this.accuracy = position.coords.accuracy.toFixed(3)+' m';
+            //             @this.longitude = position.coords.longitude;
+            //             @this.latitude = position.coords.latitude;
+            //         }, function(error) {
+            //             @this.accuracy = error.message;
+            //         });
+            //     } else { 
+            //         console.log("Geolocation is not supported by this browser.");
+            //     }
+            // }
 
         });
     </script>

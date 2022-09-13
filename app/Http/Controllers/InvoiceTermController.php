@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InvoiceTerm;
 use App\Http\Requests\StoreInvoiceTermRequest;
 use App\Http\Requests\UpdateInvoiceTermRequest;
+use Illuminate\Http\Request;
 
 class InvoiceTermController extends Controller
 {
@@ -13,11 +14,13 @@ class InvoiceTermController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $invoice_terms = InvoiceTerm::orderBy('id', 'DESC')->paginate(10);
+        $search = trim($request->get('search'));
+        $invoice_terms = InvoiceTerm::InvoiceTermSearch($search);
         return view('invoice-terms.index')->with([
-            'invoice_terms' => $invoice_terms
+            'invoice_terms' => $invoice_terms,
+            'search' => $search
         ]);
     }
 
