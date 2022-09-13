@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use App\Imports\ProductImport;
 use Maatwebsite\Excel\Facades\Excel;
 
+use App\Http\Traits\GlobalTrait;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -19,6 +21,14 @@ ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class ProductController extends Controller
 {
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +37,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search'));
-        $products = Product::ProductSearch($search);
+        $products = Product::ProductSearch($search, $this->setting->data_per_page);
         return view('products.index')->with([
             'products' => $products,
             'search' => $search

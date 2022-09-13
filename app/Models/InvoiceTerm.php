@@ -24,7 +24,7 @@ class InvoiceTerm extends Model
         return $this->hasMany('App\Models\Account');
     }
 
-    public function scopeInvoiceTermSearch($query, $search) {
+    public function scopeInvoiceTermSearch($query, $search, $limit) {
         if($search != '') {
             $invoice_terms = $query->orderBy('id', 'DESC')
             ->where('term_code', 'like', '%'.$search.'%')
@@ -33,10 +33,10 @@ class InvoiceTerm extends Model
             ->orWhere('discount', 'like', '%'.$search.'%')
             ->orWhere('discount_days', 'like', '%'.$search.'%')
             ->orWhere('due_days', 'like', '%'.$search.'%')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $invoice_terms = $query->orderBy('id', 'DESC')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }
 
         return $invoice_terms;

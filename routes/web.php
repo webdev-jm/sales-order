@@ -145,5 +145,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('role/{id}/edit', 'App\Http\Controllers\RoleController@edit')->name('role.edit')->middleware('permission:role edit');
         Route::post('role/{id}', 'App\Http\Controllers\RoleController@update')->name('role.update')->middleware('permission:role edit');
     });
-});
 
+    // SETTINGS
+    Route::group(['middleware' => 'permission:settings access'], function() {
+        Route::get('setting', 'App\Http\Controllers\SettingController@index')->name('setting.index');
+        Route::post('setting/{id}', 'App\Http\Controllers\SettingController@update')->name('setting.update');
+    });
+});

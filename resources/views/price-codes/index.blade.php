@@ -22,14 +22,17 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'GET', 'route' => ['price-code.index'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">List of Price Codes</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-default">
+                    <button type="submit" class="btn btn-default" form="search_form">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>

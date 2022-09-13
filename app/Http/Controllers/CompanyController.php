@@ -7,8 +7,18 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use Illuminate\Http\Request;
 
+use App\Http\Traits\GlobalTrait;
+
 class CompanyController extends Controller
 {
+
+    use GlobalTrait;
+    
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +27,7 @@ class CompanyController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search'));
-        $companies = Company::CompanySearch($search);
+        $companies = Company::CompanySearch($search, $this->setting->data_per_page);
         
         return view('companies.index')->with([
             'companies' => $companies,

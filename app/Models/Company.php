@@ -19,14 +19,14 @@ class Company extends Model
         return $this->hasMany('App\Models\PriceCode');
     }
 
-    public function scopeCompanySearch($query, $search) {
+    public function scopeCompanySearch($query, $search, $limit) {
         if($search != '') {
             $companies = $query->orderBy('id', 'DESC')
             ->where('name', 'like', '%'.$search.'%')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $companies = $query->orderBy('id', 'DESC')
-            ->paginate(10)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }
 
         return $companies;

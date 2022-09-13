@@ -7,8 +7,19 @@ use App\Http\Requests\StoreInvoiceTermRequest;
 use App\Http\Requests\UpdateInvoiceTermRequest;
 use Illuminate\Http\Request;
 
+use App\Http\Traits\GlobalTrait;
+
 class InvoiceTermController extends Controller
 {
+
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +28,7 @@ class InvoiceTermController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search'));
-        $invoice_terms = InvoiceTerm::InvoiceTermSearch($search);
+        $invoice_terms = InvoiceTerm::InvoiceTermSearch($search, $this->setting->data_per_page);
         return view('invoice-terms.index')->with([
             'invoice_terms' => $invoice_terms,
             'search' => $search
