@@ -24,4 +24,21 @@ class Discount extends Model
     public function company() {
         return $this->belongsTo('App\Models\Company');
     }
+
+    public function scopeDiscountSearch($query, $search) {
+        if($search != '') {
+            $discounts = $query->orderBy('id', 'DESC')
+            ->whereHas('company', function($qry) use($search) {
+                $qry->where('name', 'like', '%'.$search.'%');
+            })
+            ->orWhere('discount_code', 'like', '%'.$search.'%')
+            ->orWhere('description', 'like', '%'.$search.'%')
+            ->paginate(10)->onEachSide(1)->appends(request()->query());
+        } else {
+            $discounts = $query->orderBy('id', 'DESC')
+            ->paginate(10)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $discounts;
+    }
 }
