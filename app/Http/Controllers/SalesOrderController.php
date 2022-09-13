@@ -42,7 +42,13 @@ class SalesOrderController extends Controller
      */
     public function create()
     {
-        return view('sales-orders.create');
+        $control_number = 'SO-'.date('Ymd', time()).'-1001';
+        $logged_account = auth()->user()->logged_account();
+
+        return view('sales-orders.create')->with([
+            'control_number' => $control_number,
+            'logged_account' => $logged_account
+        ]);
     }
 
     /**
@@ -53,7 +59,7 @@ class SalesOrderController extends Controller
      */
     public function store(StoreSalesOrderRequest $request)
     {
-        //
+        
     }
 
     /**

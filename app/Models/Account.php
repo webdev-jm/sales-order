@@ -19,6 +19,7 @@ class Account extends Model
         'account_code',
         'account_name',
         'short_name',
+        'line_discount_code',
         'price_code',
         'ship_to_address1',
         'ship_to_address2',

@@ -5,15 +5,33 @@ namespace App\Http\Livewire\SalesOrder;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\PriceCode;
+use App\Models\Discount;
+
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
+
+use Livewire\WithPagination;
 
 class SalesOrderTotal extends Component
 {
+    use WithPagination;
 
-    public $logged_account, $account, $discount, $orders = [];
+    public $logged_account,
+    $account,
+    $discount;
+
+    public $orders = [];
+
     public $total = '0.00';
     public $grand_total = '0.00';
 
     protected $listeners = ['getTotal', 'getTotal'];
+    protected $rules = [
+        'po_number' => [
+            'required', 'min:3'
+        ]
+    ];
 
     public function getTotal($product_details) {
         $orders = [];
@@ -60,13 +78,32 @@ class SalesOrderTotal extends Component
                         }
                     }
 
+                    // apply line discount
+                    $line_discount = Discount::where('discount_code', $this->account->line_discount_code)
+                    ->where('company_id', $this->account->company_id)->first();
+                    $uom_discounted = $uom_total;
+                    if(!empty($line_discount)) {
+                        $discounted = $total;
+                        if($line_discount->discount_1 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
+                        }
+                        if($line_discount->discount_2 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_2) / 100);
+                        }
+                        if($line_discount->discount_3 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_3) / 100);
+                        }
+                    }
+
                     if($uom_total > 0) {
                         $orders[$product_id]['data'][$uom] = [
-                            'quantity' => number_format($quantity),
-                            'total' => number_format($uom_total, 2)
+                            'quantity' => $quantity,
+                            'total' => $uom_total,
+                            'discount' => $line_discount->description ?? '0',
+                            'discounted' => $uom_discounted
                         ];
                     }
-                    $product_total += $uom_total;
+                    $product_total += $uom_discounted;
                 }
                 if($product_total > 0) {
                     $orders[$product_id]['product_total'] = $product_total;
@@ -79,15 +116,18 @@ class SalesOrderTotal extends Component
 
         $this->total = number_format($total, 2);
 
+        // apply inventory discount
         $discounted = $total;
-        if($this->discount->discount_1 > 0) {
-            $discounted = $discounted * ((100 - $this->discount->discount_1) / 100);
-        }
-        if($this->discount->discount_2 > 0) {
-            $discounted = $discounted * ((100 - $this->discount->discount_2) / 100);
-        }
-        if($this->discount->discount_3 > 0) {
-            $discounted = $discounted * ((100 - $this->discount->discount_3) / 100);
+        if(!empty($this->discount)) {
+            if($this->discount->discount_1 > 0) {
+                $discounted = $discounted * ((100 - $this->discount->discount_1) / 100);
+            }
+            if($this->discount->discount_2 > 0) {
+                $discounted = $discounted * ((100 - $this->discount->discount_2) / 100);
+            }
+            if($this->discount->discount_3 > 0) {
+                $discounted = $discounted * ((100 - $this->discount->discount_3) / 100);
+            }
         }
 
         $this->grand_total = number_format($discounted, 2);

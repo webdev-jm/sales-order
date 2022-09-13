@@ -21,6 +21,7 @@ class CreateAccountsTable extends Migration
             $table->string('account_code');
             $table->string('account_name');
             $table->string('short_name');
+            $table->string('line_discount_code')->nullable();
             $table->string('price_code')->nullable();
             $table->text('ship_to_address1')->nullable();
             $table->text('ship_to_address2')->nullable();

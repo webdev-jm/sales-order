@@ -10,6 +10,11 @@
         word-wrap: break-word;
         white-space: inherit !important;
     }
+
+    .fast-spin {
+        -webkit-animation: fa-spin 500ms infinite linear;
+        animation: fa-spin 500ms infinite linear;
+    }
 </style>
 @endsection
 
@@ -25,27 +30,119 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order']) !!}
+{!! Form::close() !!}
+
 <div class="row">
-    <div class="col-12">
+    <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title mb-0 align-middle">PO#:</h3>
+                <h3 class="mb-1 align-middle">CONTROL NO: {{$control_number}}</h3>
+                {!! Form::hidden('control_number', $control_number, ['form' => 'add_sales_order']) !!}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
                 <div class="card-tools">
-                    <button class="btn btn-secondary">Save As Draft</button>
-                    <button class="btn btn-primary">Finalize</button>
+                    {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary', 'form' => 'add_sales_order']) !!}
+                    {!! Form::submit('Finalize', ['class' => 'btn btn-primary', 'form' => 'add_sales_order']) !!}
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-8">
+
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header bg-success">
+                <h3 class="card-title">ORDER HEADER</h3>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            {!! Form::label('po_number', 'PO Number') !!}
+                            {!! Form::text('po_number', '', ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('po_number')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            {!! Form::label('order_date', 'Order Date') !!}
+                            {!! Form::date('order_date', now(), ['class' => 'form-control form-control-sm'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('order_date')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            {!! Form::label('ship_date', 'Ship Date') !!}
+                            {!! Form::date('ship_date', now(), ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('ship_date')}}</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <label class="mb-0">SHIP TO ADDRESS</label>
+                <hr class="mt-0">
+
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('ship_to_name', 'Ship To Name') !!}
+                            {!! Form::text('ship_to_name', $logged_account->account->account_name, ['class' => 'form-control form-control-sm'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('ship_to_name')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('ship_to_address1', 'Building') !!}
+                            {!! Form::text('ship_to_address1', $logged_account->account->ship_to_address1, ['class' => 'form-control form-control-sm'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('ship_to_address2', 'Street') !!}
+                            {!! Form::text('ship_to_address2', $logged_account->account->ship_to_address2, ['class' => 'form-control form-control-sm'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('ship_to_address2')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('ship_to_address3', 'City') !!}
+                            {!! Form::text('ship_to_address3', $logged_account->account->ship_to_address3, ['class' => 'form-control form-control-sm'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('ship_to_address3')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('postal_code', 'Postal Code') !!}
+                            {!! Form::text('postal_code', $logged_account->account->postal_code, ['class' => 'form-control form-control-sm'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('postal_code')}}</p>
+                        </div>
+                    </div>
+
+                </div>
+                
+            </div>
+        </div>
         <livewire:sales-order.sales-order-products />
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-5">
         <livewire:sales-order.sales-order-total />
     </div>
 </div>
-
-
 
 @endsection
 

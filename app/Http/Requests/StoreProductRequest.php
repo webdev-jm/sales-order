@@ -41,6 +41,9 @@ class StoreProductRequest extends FormRequest
             'product_class' => [
                 'required'
             ],
+            'brand' => [
+                'required',
+            ],
             'core_group' => [
                 'required'
             ],

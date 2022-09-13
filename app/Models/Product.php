@@ -18,6 +18,7 @@ class Product extends Model
         'size',
         'category',
         'product_class',
+        'brand',
         'core_group',
         'stock_uom',
         'order_uom',
@@ -38,6 +39,7 @@ class Product extends Model
             ->where('stock_code', 'like', '%'.$search.'%')
             ->orWhere('description', 'like', '%'.$search.'%')
             ->orWhere('size', 'like', '%'.$search.'%')
+            ->orWhere('brand', 'like', '%'.$search.'%')
             ->paginate(10)->onEachSide(1)->appends(request()->query());
         } else {
             $products = $query->orderBy('id', 'DESC')

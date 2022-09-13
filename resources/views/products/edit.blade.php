@@ -71,6 +71,14 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    {!! Form::label('brand', 'Brand') !!}
+                    {!! Form::text('brand', $product->brand, ['class' => 'form-control'.($errors->has('brand') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                    <p class="text-danger">{{$errors->first('brand')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
                     {!! Form::label('core_group', 'Core Group') !!}
                     {!! Form::text('core_group', $product->core_group, ['class' => 'form-control'.($errors->has('core_group') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
                     <p class="text-danger">{{$errors->first('core_group')}}</p>

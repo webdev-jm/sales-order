@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SalesOrderProduct extends Model
+class SalesOrderProductUom extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'account_login_id',
-        'product_id',
-        'total_quantity',
-        'total_sales',
+        'sales_order_product_id',
+        'uom',
+        'quantity',
+        'uom_sales',
     ];
 }

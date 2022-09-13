@@ -5,10 +5,20 @@ namespace App\Http\Livewire\Users;
 use Livewire\Component;
 use App\Models\Account;
 use App\Models\User;
+use Livewire\WithPagination;
 
 class UserAssignForm extends Component
 {
-    public $user_id, $assigned, $user;
+    use WithPagination;
+
+    public $user_id, $assigned, $user, $search;
+    
+    protected $paginationTheme = 'bootstrap';
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
 
     public function assign($account_id) {
         // check
@@ -30,7 +40,11 @@ class UserAssignForm extends Component
 
     public function render()
     {
-        $accounts = Account::orderBy('account_code', 'ASC')->get();
+        $accounts = Account::orderBy('account_code', 'ASC')
+        ->where('account_code', 'like', '%'.$this->search.'%')
+        ->orWhere('short_name', 'like', '%'.$this->search.'%')
+        ->paginate(12)->onEachSide(1);
+
         return view('livewire.users.user-assign-form')->with([
             'accounts' => $accounts
         ]);

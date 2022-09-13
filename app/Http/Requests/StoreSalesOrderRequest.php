@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\SalesOrder;
 
 class StoreSalesOrderRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class StoreSalesOrderRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('sales order create');
     }
 
     /**
@@ -24,7 +26,19 @@ class StoreSalesOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'control_number' => [
+                'required', Rule::unique((new SalesOrder)->getTable())
+            ],
+            'po_number' => [
+                'required'
+            ],
+            'order_date' => [
+                'required'
+            ],
+            'ship_date' => [
+                'required'
+            ],
+            'ship_to_name'
         ];
     }
 }
