@@ -33,7 +33,7 @@ class StoreSalesOrderRequest extends FormRequest
                 'required'
             ],
             'po_number' => [
-                'required'
+                'required', Rule::unique((new SalesOrder)->getTable())
             ],
             'order_date' => [
                 'required'

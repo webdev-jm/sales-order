@@ -31,9 +31,9 @@ class SalesOrderController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
         $logged_account = Session::get('logged_account');
-        if(!empty($logged_account)) {
+        $search = trim($request->get('search'));
+        if(isset($logged_account)) {
 
             Session::forget('order_data');
 
@@ -58,6 +58,12 @@ class SalesOrderController extends Controller
     public function create()
     {
         $logged_account = Session::get('logged_account');
+        if(empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to accounts before creating sales order'
+            ]);
+        }
+
         $date_code = date('Ymd', time());
         $control_number = 'SO-'.$date_code.'-001';
         $sales_order = SalesOrder::orderBy('control_number', 'DESC')->first();
@@ -168,9 +174,15 @@ class SalesOrderController extends Controller
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
      */
-    public function show(SalesOrder $salesOrder)
+    public function show($id)
     {
-        //
+        $sales_order = SalesOrder::findOrFail($id);
+        $parts = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
+        
+        return view('sales-orders.show')->with([
+            'sales_order' => $sales_order,
+            'parts' => $parts
+        ]);
     }
 
     /**
@@ -181,6 +193,13 @@ class SalesOrderController extends Controller
      */
     public function edit($id)
     {
+        $logged_account = Session::get('logged_account');
+        if(empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to accounts before creating sales order'
+            ]);
+        }
+
         $sales_order = SalesOrder::findOrFail($id);
         $order_data = [];
         $order_products = $sales_order->order_products;
@@ -223,9 +242,71 @@ class SalesOrderController extends Controller
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateSalesOrderRequest $request, SalesOrder $salesOrder)
+    public function update(UpdateSalesOrderRequest $request, $id)
     {
-        //
+        $logged_account = Session::get('logged_account');
+        $order_data = Session::get('order_data');
+
+        if(empty($order_data['items'])) {
+            return back()->with([
+                'message_error' => 'Please add items first.'
+            ]);
+        }
+
+        $sales_order = SalesOrder::findOrFail($id);
+        $sales_order->update([
+            'po_number' => $request->po_number,
+            'ship_date' => $request->ship_date,
+            'status' => $request->status
+        ]);
+
+        
+        $num = 0;
+        $part = 1;
+        $limit = $this->setting->sales_order_limit;
+
+        $sales_order->order_products()->forceDelete();
+        
+        foreach($order_data['items'] as $product_id => $items) {
+            $num++;
+
+            // divide by parts
+            if($num > $limit) {
+                $limit += $limit;
+                $part++;
+            }
+
+            $sales_order_product = new SalesOrderProduct([
+                'sales_order_id' => $sales_order->id,
+                'product_id' => $product_id,
+                'part' => $part,
+                'total_quantity' => $items['product_quantity'],
+                'total_sales' => $items['product_total'],
+            ]);
+            $sales_order_product->save();
+
+            foreach($items['data'] as $uom => $data) {
+                $sales_order_product_uom = new SalesOrderProductUom([
+                    'sales_order_product_id' => $sales_order_product->id,
+                    'uom' => $uom,
+                    'quantity' => $data['quantity'],
+                    'uom_total' => $data['total'],
+                    'uom_total_less_disc' => $data['discounted']
+                ]);
+                $sales_order_product_uom->save();
+            }
+        }
+
+        if($sales_order->status == 'draft') {
+            return back()->with([
+                'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
+            ]);
+        } else {
+            return redirect()->route('sales-order.index')->with([
+                'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
+            ]);
+        }
+        
     }
 
     /**
