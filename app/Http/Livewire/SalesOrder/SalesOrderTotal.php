@@ -11,6 +11,8 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
+use Illuminate\Support\Facades\Session;
+
 use Livewire\WithPagination;
 
 class SalesOrderTotal extends Component
@@ -34,19 +36,25 @@ class SalesOrderTotal extends Component
     ];
 
     public function getTotal($product_details) {
+        $this->processDetails($product_details);
+    }
+
+    public function processDetails($product_details) {
         $orders = [];
         $total = 0;
+        $total_quantity = 0;
         if(!empty($product_details)) {
             foreach($product_details as $product_id => $details) {
                 // get product details
                 $product = Product::findOrFail($product_id);
-                $orders[$product_id] = [
+                $orders['items'][$product_id] = [
                     'stock_code' => $product->stock_code,
                     'description' => $product->description,
                     'size' => $product->size,
                 ];
                 
                 $product_total = 0;
+                $product_quantity = 0;
                 foreach($details as $uom => $quantity) {
                     // check price code of product
                     $price_code = PriceCode::where('company_id', $this->account->company_id)
@@ -96,7 +104,7 @@ class SalesOrderTotal extends Component
                     }
 
                     if($uom_total > 0) {
-                        $orders[$product_id]['data'][$uom] = [
+                        $orders['items'][$product_id]['data'][$uom] = [
                             'quantity' => $quantity,
                             'total' => $uom_total,
                             'discount' => $line_discount->description ?? '0',
@@ -104,13 +112,19 @@ class SalesOrderTotal extends Component
                         ];
                     }
                     $product_total += $uom_discounted;
+                    $product_quantity += $quantity;
+
                 }
+
                 if($product_total > 0) {
-                    $orders[$product_id]['product_total'] = $product_total;
+                    $orders['items'][$product_id]['product_total'] = $product_total;
+                    $orders['items'][$product_id]['product_quantity'] = $product_quantity;
                 } else {
                     unset($orders[$product_id]);
                 }
+
                 $total += $product_total;
+                $total_quantity += $product_quantity;
             }
         }
 
@@ -130,18 +144,34 @@ class SalesOrderTotal extends Component
             }
         }
 
+        $orders['total_quantity'] = $total_quantity;
+        $orders['total'] = $total;
+        $orders['discount_id'] = $this->discount->id;
+        $orders['grand_total'] = $discounted;
+
         $this->grand_total = number_format($discounted, 2);
         $this->orders = $orders;
     }
 
     public function mount() {
-        $this->logged_account = auth()->user()->logged_account();
+        $this->logged_account = Session::get('logged_account');
         $this->account = $this->logged_account->account;
         $this->discount = $this->account->discount;
+
+        $order_data = Session::get('order_data');
+        if(empty($this->orders) && !empty($order_data)) {
+            $this->orders = $order_data;
+        }
+
+        if(!empty($order_data['total'])) {
+            $this->total = $order_data['total'];
+            $this->grand_total = $order_data['grand_total'];
+        }
     }
 
     public function render()
     {
+        Session::put('order_data', $this->orders);
         return view('livewire.sales-order.sales-order-total');
     }
 }

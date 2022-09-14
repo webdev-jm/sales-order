@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Sales Orders - Add
+    Sales Orders - Edit
 @endsection
 
 @section('css')
@@ -21,7 +21,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Sales Orders / Add</h1>
+        <h1 class="align-middle">Sales Orders / Edit <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span></h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('sales-order.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
@@ -30,15 +30,15 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['sales-order.update', $sales_order->id], 'id' => 'update_sales_order']) !!}
 {!! Form::close() !!}
 
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="mb-1 align-middle">CONTROL NO: {{$control_number}}</h3>
-                {!! Form::hidden('control_number', $control_number, ['form' => 'add_sales_order']) !!}
+                <h3 class="mb-1 align-middle">CONTROL NO: {{$sales_order->control_number}}</h3>
+                {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'add_sales_order']) !!}
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('po_number', 'PO Number') !!}
-                            {!! Form::text('po_number', '', ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::text('po_number', $sales_order->po_number, ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('po_number')}}</p>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('order_date', 'Order Date') !!}
-                            {!! Form::date('order_date', now(), ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::date('order_date', $sales_order->order_date, ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('order_date')}}</p>
                         </div>
                     </div>
@@ -82,7 +82,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('ship_date', 'Ship Date') !!}
-                            {!! Form::date('ship_date', now(), ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::date('ship_date', $sales_order->ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_name', 'Ship To Name') !!}
-                            {!! Form::text('ship_to_name', $logged_account->account->account_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_name', $sales_order->ship_to_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_name')}}</p>
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address1', 'Building') !!}
-                            {!! Form::text('ship_to_address1', $logged_account->account->ship_to_address1, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address1', $sales_order->ship_to_building, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address2', 'Street') !!}
-                            {!! Form::text('ship_to_address2', $logged_account->account->ship_to_address2, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address2', $sales_order->ship_to_street, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address2')}}</p>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address3', 'City') !!}
-                            {!! Form::text('ship_to_address3', $logged_account->account->ship_to_address3, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address3', $sales_order->ship_to_city, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address3')}}</p>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('postal_code', 'Postal Code') !!}
-                            {!! Form::text('postal_code', $logged_account->account->postal_code, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('postal_code', $sales_order->ship_to_postal, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('postal_code')}}</p>
                         </div>
                     </div>

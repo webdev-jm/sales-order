@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Accounts;
 
 use Livewire\Component;
+use Illuminate\Support\Facades\Session;
 
 class AccountLogged extends Component
 {
@@ -13,7 +14,7 @@ class AccountLogged extends Component
     }
 
     public function mount() {
-        $this->logged = auth()->user()->logged_account();
+        $this->logged = Session::get('logged_account');
     }
 
     public function render()

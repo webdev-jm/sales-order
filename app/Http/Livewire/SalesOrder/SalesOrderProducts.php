@@ -5,6 +5,7 @@ namespace App\Http\Livewire\SalesOrder;
 use Livewire\Component;
 use App\Models\Product;
 use Livewire\WithPagination;
+use Illuminate\Support\Facades\Session;
 
 class SalesOrderProducts extends Component
 {
@@ -29,6 +30,15 @@ class SalesOrderProducts extends Component
         
         $this->account = $account;
         $this->brand = 'ALL';
+
+        $order_data = Session::get('order_data');
+        if(empty($this->quantity) && !empty($order_data)) {
+            foreach($order_data['items'] as $product_id => $item) {
+                foreach($item['data'] as $uom => $data) {
+                    $this->quantity[$product_id][$uom] = $data['quantity'];
+                }
+            }
+        }
     }
 
     public function change() {

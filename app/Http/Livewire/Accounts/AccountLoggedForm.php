@@ -7,6 +7,8 @@ use App\Models\Account;
 
 use Livewire\WithFileUploads;
 
+use Illuminate\Support\Facades\Session;
+
 use Intervention\Image\Facades\Image;
 
 class AccountLoggedForm extends Component
@@ -36,6 +38,9 @@ class AccountLoggedForm extends Component
         if($this->picture_file) {
             $this->save_image($this->picture_file, $this->logged->id);
         }
+
+        Session::forget('logged_account');
+        Session::forget('order_data');
 
         return redirect()->to('/home');
     }
