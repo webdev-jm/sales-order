@@ -5,15 +5,15 @@ namespace App\Http\Livewire\Users;
 use Livewire\Component;
 use App\Models\Account;
 use App\Models\User;
-use Livewire\WithPagination;
+// use Livewire\WithPagination;
 
 class UserAssignForm extends Component
 {
-    use WithPagination;
+    // use WithPagination;
 
     public $user_id, $assigned, $user, $search;
     
-    protected $paginationTheme = 'bootstrap';
+    // protected $paginationTheme = 'bootstrap';
 
     public function updatingSearch()
     {
@@ -42,8 +42,8 @@ class UserAssignForm extends Component
     {
         $accounts = Account::orderBy('account_code', 'ASC')
         ->where('account_code', 'like', '%'.$this->search.'%')
-        ->orWhere('short_name', 'like', '%'.$this->search.'%')
-        ->paginate(12)->onEachSide(1);
+        ->orWhere('short_name', 'like', '%'.$this->search.'%')->get();
+        // ->paginate(12, ['*'], 'accountPage')->onEachSide(1);
 
         return view('livewire.users.user-assign-form')->with([
             'accounts' => $accounts
