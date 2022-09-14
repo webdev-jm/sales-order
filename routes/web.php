@@ -135,6 +135,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('user/create', 'App\Http\Controllers\UserController@create')->name('user.create')->middleware('permission:user create');
         Route::post('user', 'App\Http\Controllers\UserController@store')->name('user.store')->middleware('permission:user create');
 
+        Route::post('user/upload', 'App\Http\Controllers\UserController@upload')->name('user.upload')->middleware('permission:user upload');
+
         Route::get('user/{id}/edit', 'App\Http\Controllers\UserController@edit')->name('user.edit')->middleware('permission:user edit');
         Route::post('user/{id}', 'App\Http\Controllers\UserController@update')->name('user.update')->middleware('permission:user edit');
     });
