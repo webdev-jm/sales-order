@@ -24,7 +24,7 @@
 
     <div class="row mt-4">
         <div class="col-12">
-            {{$accounts->links()}}
+            {{-- {{$accounts->links()}} --}}
         </div>
     </div>
 </div>
