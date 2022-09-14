@@ -155,7 +155,7 @@
             var status = $(this).val();
             var status_val = 'draft';
             if(status == 'Finalize') {
-                status_val = 'final';
+                status_val = 'finalized';
             } else {
                 status_val = 'draft';
             }

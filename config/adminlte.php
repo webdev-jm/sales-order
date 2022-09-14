@@ -410,7 +410,7 @@ return [
             'url'       => '/logs',
             'icon'      => 'fas fa-fw fa-bug',
             'can'       => 'role access',
-            'active'    => ['role*']
+            'active'    => ['logs*']
         ],
         [
             'text'      => 'Settings',

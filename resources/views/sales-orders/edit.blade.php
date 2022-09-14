@@ -38,7 +38,7 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="mb-1 align-middle">CONTROL NO: {{$sales_order->control_number}}</h3>
-                {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'add_sales_order']) !!}
+                {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
             </div>
         </div>
     </div>
@@ -46,9 +46,9 @@
         <div class="card">
             <div class="card-header">
                 <div class="card-tools">
-                    {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'add_sales_order']) !!}
-                    {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_sales_order']) !!}
-                    {!! Form::hidden('status', 'draft', ['form' => 'add_sales_order', 'id' => 'status']) !!}
+                    {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_sales_order']) !!}
+                    {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_sales_order']) !!}
+                    {!! Form::hidden('status', 'draft', ['form' => 'update_sales_order', 'id' => 'status']) !!}
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('po_number', 'PO Number') !!}
-                            {!! Form::text('po_number', $sales_order->po_number, ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::text('po_number', $sales_order->po_number, ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('po_number')}}</p>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('order_date', 'Order Date') !!}
-                            {!! Form::date('order_date', $sales_order->order_date, ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::date('order_date', $sales_order->order_date, ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('order_date')}}</p>
                         </div>
                     </div>
@@ -82,7 +82,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('ship_date', 'Ship Date') !!}
-                            {!! Form::date('ship_date', $sales_order->ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::date('ship_date', $sales_order->ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_name', 'Ship To Name') !!}
-                            {!! Form::text('ship_to_name', $sales_order->ship_to_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_name', $sales_order->ship_to_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_name')}}</p>
                         </div>
                     </div>
@@ -105,7 +105,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address1', 'Building') !!}
-                            {!! Form::text('ship_to_address1', $sales_order->ship_to_building, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address1', $sales_order->ship_to_building, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address2', 'Street') !!}
-                            {!! Form::text('ship_to_address2', $sales_order->ship_to_street, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address2', $sales_order->ship_to_street, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address2')}}</p>
                         </div>
                     </div>
@@ -121,7 +121,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address3', 'City') !!}
-                            {!! Form::text('ship_to_address3', $sales_order->ship_to_city, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address3', $sales_order->ship_to_city, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address3')}}</p>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('postal_code', 'Postal Code') !!}
-                            {!! Form::text('postal_code', $sales_order->ship_to_postal, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
+                            {!! Form::text('postal_code', $sales_order->ship_to_postal, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('postal_code')}}</p>
                         </div>
                     </div>
@@ -155,7 +155,7 @@
             var status = $(this).val();
             var status_val = 'draft';
             if(status == 'Finalize') {
-                status_val = 'final';
+                status_val = 'finalized';
             } else {
                 status_val = 'draft';
             }
