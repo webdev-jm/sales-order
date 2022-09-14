@@ -5,8 +5,10 @@ namespace App\Imports;
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
+use Maatwebsite\Excel\Concerns\WithBatchInserts;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class ProductImport implements ToModel, WithStartRow
+class ProductImport implements ToModel, WithStartRow, WithBatchInserts, WithChunkReading
 {
     public function startRow(): int
     {

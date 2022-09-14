@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Hash;
 
 use Spatie\Permission\Models\Role;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UserImport;
+
 class UserController extends Controller
 {
     /**
@@ -129,5 +132,19 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new UserImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Users has been uploaded.'
+        ]);
     }
 }
