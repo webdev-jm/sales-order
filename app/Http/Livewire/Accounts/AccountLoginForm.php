@@ -6,6 +6,8 @@ use Livewire\Component;
 use App\Models\Account;
 use AccountLoginModel;
 
+use Illuminate\Support\Facades\Session;
+
 use Intervention\Image\Facades\Image;
 
 class AccountLoginForm extends Component
@@ -38,7 +40,9 @@ class AccountLoginForm extends Component
             ]);
             $login->save();
 
+            Session::put('logged_account', $login);
         }
+
         
         return redirect()->to('/sales-order');
     }

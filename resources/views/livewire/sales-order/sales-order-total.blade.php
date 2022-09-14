@@ -19,7 +19,7 @@
 
                 <div class="col-lg-6">
                     <div class="form-group">
-                        <label>DISCOUNT</label>
+                        <label>INVENTORY DISCOUNT</label>
                         <input type="text" class="form-control bg-white" readonly value="{{$discount->description ?? '0'}}">
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                         <th class="text-center align-middle">Unit</th>
                         <th class="text-center align-middle">Quantity</th>
                         <th class="text-center align-middle">Total</th>
-                        <th class="text-center align-middle">Discount</th>
+                        <th class="text-center align-middle">Line Discount</th>
                         <th class="text-center align-middle">Total less discount</th>
                     </tr>
                 </thead>
@@ -59,29 +59,31 @@
                     @php
                         $num = 0;
                     @endphp
-                    @foreach($orders as $order)
-                        @php
-                            $num++;
-                        @endphp
-                        <tr>
-                            <td class="align-middle text-center p-0 font-weight-bold" rowspan="{{count($order['data']) + 1}}">{{$num}}.</td>
-                            <td class="align-middle p-2" rowspan="{{count($order['data']) + 1}}">
-                                <span class="font-weight-bold">{{$order['stock_code']}}</span>
-                                <br>
-                                <span>{{$order['description']}}</span>
-                                <span class="text-muted">[{{$order['size']}}]</span>
-                            </td>
-                        </tr>
-                        @foreach($order['data'] as $uom => $data)
-                        <tr>
-                            <td class="text-center align-middle p-0">{{$uom}}</td>
-                            <td class="text-center align-middle p-1">{{number_format($data['quantity'])}}</td>
-                            <td class="text-center align-middle p-1">{{number_format($data['total'], 2)}}</td>
-                            <td class="text-center align-middle p-1">{{$data['discount']}}</td>
-                            <td class="text-center align-middle p-1">{{number_format($data['discounted'], 2)}}</td>
-                        </tr>
+                    @if(!empty($orders['items']))
+                        @foreach($orders['items'] as $order)
+                            @php
+                                $num++;
+                            @endphp
+                            <tr>
+                                <td class="align-middle text-center p-0 font-weight-bold" rowspan="{{count($order['data']) + 1}}">{{$num}}.</td>
+                                <td class="align-middle p-2" rowspan="{{count($order['data']) + 1}}">
+                                    <span class="font-weight-bold">{{$order['stock_code']}}</span>
+                                    <br>
+                                    <span>{{$order['description']}}</span>
+                                    <span class="text-muted">[{{$order['size']}}]</span>
+                                </td>
+                            </tr>
+                            @foreach($order['data'] as $uom => $data)
+                            <tr>
+                                <td class="text-center align-middle p-0">{{$uom}}</td>
+                                <td class="text-center align-middle p-1">{{number_format($data['quantity'])}}</td>
+                                <td class="text-center align-middle p-1">{{number_format($data['total'], 2)}}</td>
+                                <td class="text-center align-middle p-1">{{$data['discount']}}</td>
+                                <td class="text-center align-middle p-1">{{number_format($data['discounted'], 2)}}</td>
+                            </tr>
+                            @endforeach
                         @endforeach
-                    @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>

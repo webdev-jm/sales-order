@@ -18,7 +18,8 @@ class CreateSalesOrderProductUomsTable extends Migration
             $table->unsignedBigInteger('sales_order_product_id')->nullable();
             $table->string('uom');
             $table->integer('quantity');
-            $table->decimal('uom_sales', 15, 2);
+            $table->decimal('uom_total', 15, 2);
+            $table->decimal('uom_total_less_disc', 15, 2);
             $table->timestamps();
 
             $table->foreign('sales_order_product_id')

@@ -15,6 +15,7 @@ class SalesOrderProductUom extends Model
         'sales_order_product_id',
         'uom',
         'quantity',
-        'uom_sales',
+        'uom_total',
+        'uom_total_less_disc'
     ];
 }

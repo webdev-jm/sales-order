@@ -21,28 +21,32 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'GET', 'route' => ['sales-order.index'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
+
 <div class="card">
     <div class="card-header">
-      <h3 class="card-title">List of Sales Orders</h3>
-      <div class="card-tools">
-        <div class="input-group input-group-sm" style="width: 150px;">
-            <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-            <div class="input-group-append">
-                <button type="submit" class="btn btn-default">
-                    <i class="fas fa-search"></i>
-                </button>
+        <h3 class="card-title">List of Sales Orders</h3>
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 150px;">
+                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-default" form="search_form">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </div>
         </div>
-      </div>
     </div>
     <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
+                    <th>Control Number</th>
                     <th>PO Number</th>
                     <th>Order Date</th>
                     <th>Ship Date</th>
-                    <th>Ship Description</th>
+                    <th>Name</th>
                     <th>Status</th>
                     <th></th>
                 </tr>
@@ -50,7 +54,14 @@
             <tbody>
                 @foreach($sales_orders as $sales_order)
                 <tr>
-                    <th></th>
+                    <td>{{$sales_order->control_number}}</td>
+                    <td>{{$sales_order->po_number}}</td>
+                    <td>{{$sales_order->order_date}}</td>
+                    <td>{{$sales_order->ship_date}}</td>
+                    <td>{{$sales_order->ship_to_name}}</td>
+                    <td>
+                        <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                    </td>
                     <td class="text-right">
                         @can('sales order edit')
                             <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>

@@ -29,6 +29,9 @@ class StoreSalesOrderRequest extends FormRequest
             'control_number' => [
                 'required', Rule::unique((new SalesOrder)->getTable())
             ],
+            'status' => [
+                'required'
+            ],
             'po_number' => [
                 'required'
             ],
@@ -38,7 +41,21 @@ class StoreSalesOrderRequest extends FormRequest
             'ship_date' => [
                 'required'
             ],
-            'ship_to_name'
+            'ship_to_name' => [
+                'required'
+            ],
+            'ship_to_address1' => [
+                'max:255'
+            ],
+            'ship_to_address2' => [
+                'max:255'
+            ],
+            'ship_to_address3' => [
+                'max:255'
+            ],
+            'postal_code' => [
+                'max:255'
+            ],
         ];
     }
 }

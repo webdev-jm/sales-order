@@ -12,9 +12,22 @@ class SalesOrderProduct extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'account_login_id',
+        'sales_order_id',
         'product_id',
+        'part',
         'total_quantity',
         'total_sales',
     ];
+
+    public function sales_order() {
+        return $this->belongsTo('App\Models\SalesOrder');
+    }
+
+    public function product_uoms() {
+        return $this->hasMany('App\Models\SalesOrderProductUom');
+    }
+
+    public function product() {
+        return $this->belongsTo('App\Models\Product');
+    }
 }
