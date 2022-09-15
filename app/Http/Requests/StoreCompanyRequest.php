@@ -28,6 +28,9 @@ class StoreCompanyRequest extends FormRequest
         return [
             'name' => [
                 'required', Rule::unique((new Company)->getTable())
+            ],
+            'order_limit' => [
+                'required'
             ]
         ];
     }

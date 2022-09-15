@@ -37,6 +37,14 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('order_limit', 'Order Limit') !!}
+                    {!! Form::number('order_limit', '', ['class' => 'form-control'.($errors->has('order_limit') ? ' is-invalid' : ''), 'form' => 'add_company']) !!}
+                    <p class="text-danger">{{$errors->first('order_limit')}}</p>
+                </div>
+            </div>
+
         </div>
 
     </div>

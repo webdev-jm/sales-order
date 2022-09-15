@@ -28,6 +28,9 @@ class UpdateCompanyRequest extends FormRequest
         return [
             'name' => [
                 'required', Rule::unique((new Company)->getTable())->ignore($this->id)
+            ],
+            'order_limit' => [
+                'required'
             ]
         ];
     }

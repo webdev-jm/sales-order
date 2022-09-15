@@ -12,7 +12,8 @@ class Company extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name'
+        'name',
+        'order_limit'
     ];
 
     public function price_codes() {
