@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Account;
+use App\Models\Company;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 
@@ -14,18 +16,30 @@ use Spatie\Permission\Models\Role;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\UserImport;
 
+use App\Http\Traits\GlobalTrait;
+
 class UserController extends Controller
 {
+    use GlobalTrait;
+
+    public $setting;
+
+    public function __construct() {
+        $this->setting = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('firstname', 'ASC')->paginate(10, ['*'], 'userPage');
+        $search = trim($request->get('search'));
+        $users = User::UserSearch($search, $this->setting->data_per_page);
         return view('users.index')->with([
-            'users' => $users
+            'users' => $users,
+            'search' => $search
         ]);
     }
 
@@ -141,7 +155,34 @@ class UserController extends Controller
             ]
         ]);
 
-        Excel::import(new UserImport, $request->upload_file);
+        $accounts = Account::all();
+        $bevi_accounts = Account::whereHas('company', function($qry) {
+            $qry->where('name', 'BEVI');
+        })->get('id');
+
+        $imports = Excel::toArray(new UserImport, $request->upload_file);
+        foreach($imports[0] as $row) {
+            $email_arr = explode('@', $row[3]);
+            $password = reset($email_arr).'123!';
+
+            $user = new User([
+                'firstname' => $row[0],
+                'middlename' => $row[1],
+                'lastname' => $row[2],
+                'email' => $row[3],
+                'password' => Hash::make($password),
+                'group_code' => $row[4],
+            ]);
+            $user->save();
+
+            $user->assignRole('user');
+
+            if($row[4] == 'NKA') {
+                $user->accounts()->sync($bevi_accounts->pluck('id'));
+            } else if($row[4] == 'CMD') {
+                $user->accounts()->sync($accounts->pluck('id'));
+            }
+        }
 
         return back()->with([
             'message_success' => 'Users has been uploaded.'

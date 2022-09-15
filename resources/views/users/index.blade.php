@@ -24,14 +24,17 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'GET', 'route' => ['user.index'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">List of Users</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
+                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                 <div class="input-group-append">
-                    <button type="submit" class="btn btn-default">
+                    <button type="submit" class="btn btn-default" form="search_form">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
@@ -42,8 +45,10 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
                     <th>Email</th>
+                    <th>Group Code</th>
                     <th>Role</th>
                     <th></th>
                 </tr>
@@ -51,11 +56,13 @@
             <tbody>
                 @foreach($users as $user)
                 <tr>
-                    <td>{{$user->firstname}} {{$user->lastname}}</td>
+                    <td>{{$user->firstname}}</td>
+                    <td>{{$user->lastname}}</td>
                     <td>{{$user->email}}</td>
+                    <td>{{$user->group_code}}</td>
                     <td>{{implode(', ', $user->getRoleNames()->toArray())}}</td>
                     <td class="text-right">
-                        {{-- <livewire:users.user-account :user_id="$user->id"/> --}}
+                        <livewire:users.user-account :user_id="$user->id"/>
                         @can('user edit')
                             <a href="{{route('user.edit', $user->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
