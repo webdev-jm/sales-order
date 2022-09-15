@@ -29,15 +29,7 @@ class BranchController extends Controller
      */
     public function create()
     {
-        $accounts = Account::orderBy('account_code', 'ASC')->get();
-        $accounts_arr = [];
-        foreach($accounts as $account) {
-            $accounts_arr[$account->id] = '['.$account->account_code.'] '.$account->short_name;
-        }
-
-        return view('branches.create')->with([
-            'accounts' => $accounts_arr
-        ]);
+        return view('branches.create');
     }
 
     /**

@@ -31,6 +31,9 @@ class AccountLogin extends Component
         $accounts = Account::whereHas('users', function($query) {
             $query->where('user_id', auth()->user()->id);
         })
+        ->orWhereHas('sales_people', function($query) {
+            $query->where('user_id', auth()->user()->id);
+        })
         ->where(function($query) {
             $query->where('account_code', 'like', '%'.$this->search.'%')
             ->orWhere('short_name', 'like', '%'.$this->search.'%');
