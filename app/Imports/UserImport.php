@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\User;
+use App\Models\Account;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Concerns\WithStartRow;
@@ -32,7 +33,5 @@ class UserImport implements ToModel, WithStartRow
             'password' => Hash::make($password),
             'group_code' => $row[4],
         ]);
-
-        
     }
 }

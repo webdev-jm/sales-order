@@ -21,16 +21,7 @@
     </div>
 </div>
 @else
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">User Accounts</h3>
-    </div>
-    <div class="card-body">
-
-        <livewire:accounts.account-login/>
-
-    </div>
-</div>
+    <livewire:accounts.account-login/>
 @endif
 @endsection
 

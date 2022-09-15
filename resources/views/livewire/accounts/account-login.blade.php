@@ -1,21 +1,43 @@
 <div>
-    <div class="row">
-    @foreach($accounts as $account)
-        <div class="col-lg-3">
-            <div class="small-box">
-                <div class="inner">
-                    <h3>{{$account->account_code}}</h3>
-                    <p class="text-uppercase">{{$account->account_name}}</p>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">User Accounts</h3>
+            <div class="card-tools">
+                <div class="input-group input-group-sm" style="width: 150px;">
+                    <input type="text" class="form-control float-right" placeholder="Search" wire:model="search">
+                    <div class="input-group-append">
+                        <button type="submit" class="btn btn-default" form="search_form">
+                            <i class="fas fa-search" wire:loading.remove></i>
+                            <i class="fa fa-spinner fa-sm fa-spin" wire:loading></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="ion ion-bag"></i>
-                </div>
-                <a href="#" class="small-box-footer text-dark get-location" wire:loading.attr="disabled" wire:click.prevent="loginModal({{$account->id}})">Sign In<i class="fas fa-arrow-circle-right ml-2"></i></a>
             </div>
         </div>
-    @endforeach
+        <div class="card-body">
+
+            <div class="row">
+            @foreach($accounts as $account)
+                <div class="col-lg-3">
+                    <div class="small-box">
+                        <div class="inner">
+                            <h3>{{$account->account_code}}</h3>
+                            <p class="text-uppercase">{{$account->account_name}}</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
+                        </div>
+                        <a href="#" class="small-box-footer text-dark get-location" wire:loading.attr="disabled" wire:click.prevent="loginModal({{$account->id}})">Sign In<i class="fas fa-arrow-circle-right ml-2"></i></a>
+                    </div>
+                </div>
+            @endforeach
+            </div>
+
+        </div>
+        <div class="card-footer">
+            {{$accounts->links()}}
+        </div>
     </div>
-    
 
     <div class="modal fade" id="login-modal">
         <div class="modal-dialog modal-lg">

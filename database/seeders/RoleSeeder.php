@@ -19,5 +19,11 @@ class RoleSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         Role::create(['name' => 'superadmin'])->givePermissionTo(Permission::all());
+        Role::create(['name' => 'user'])->givePermissionTo([
+            'sales order access',
+            'sales order create',
+            'sales order edit',
+            'sales order delete',
+        ]);
     }
 }

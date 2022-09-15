@@ -69,4 +69,20 @@ class User extends Authenticatable
     public function logged_account() {
         return $this->account_logins()->whereNull('time_out')->first();
     }
+
+    public function scopeUserSearch($query, $search, $limit) {
+        if($search != '') {
+            $users = $query->orderBy('id', 'DESC')
+            ->where('firstname', 'like', '%'.$search.'%')
+            ->orWhere('middlename', 'like', '%'.$search.'%')
+            ->orWhere('lastname', 'like', '%'.$search.'%')
+            ->orWhere('email', 'like', '%'.$search.'%')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $users = $query->orderBy('id', 'DESC')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $users;
+    }
 }
