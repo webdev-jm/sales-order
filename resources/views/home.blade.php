@@ -15,9 +15,10 @@
 @if(!empty($logged_account))
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">User Branches</h3>
+        <h3 class="card-title">Activities</h3>
     </div>
     <div class="card-body">
+        <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
     </div>
 </div>
 @else

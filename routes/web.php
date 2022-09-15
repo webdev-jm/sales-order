@@ -25,6 +25,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
+    // AJAX
+    Route::post('user/ajax', 'App\Http\Controllers\UserController@ajax')->name('user.ajax');
+    Route::post('account/ajax', 'App\Http\Controllers\AccountController@ajax')->name('account.ajax');
+
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
         Route::get('sales-order', 'App\Http\Controllers\SalesOrderController@index')->name('sales-order.index');
