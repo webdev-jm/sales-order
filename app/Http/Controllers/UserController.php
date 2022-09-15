@@ -194,4 +194,9 @@ class UserController extends Controller
         $response = User::UserAjax($search);
         return response()->json($response);
     }
+
+    public function getAjax($id) {
+        $user = User::findOrFail($id);
+        return response()->json($user);
+    }
 }

@@ -16,16 +16,11 @@ class CreateSalesPeopleTable extends Migration
         Schema::create('sales_people', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('account_id')->nullable();
             $table->string('code');
             $table->timestamps();
 
             $table->foreign('user_id')
             ->references('id')->on('users')
-            ->onDelete('cascade');
-
-            $table->foreign('account_id')
-            ->references('id')->on('accounts')
             ->onDelete('cascade');
 
             $table->softDeletes();

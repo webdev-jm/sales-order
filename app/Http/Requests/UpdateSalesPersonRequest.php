@@ -29,8 +29,8 @@ class UpdateSalesPersonRequest extends FormRequest
             'user_id' => [
                 'required', Rule::unique((new SalesPerson)->getTable())->ignore($this->id)
             ],
-            'account_id' => [
-                'required', Rule::unique((new SalesPerson)->getTable())->ignore($this->id)
+            'accounts' => [
+                'required'
             ],
             'code' => [
                 'required', Rule::unique((new SalesPerson)->getTable())->ignore($this->id)

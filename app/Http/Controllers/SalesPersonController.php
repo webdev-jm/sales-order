@@ -30,22 +30,7 @@ class SalesPersonController extends Controller
      */
     public function create()
     {
-        $users = User::orderBy('firstname', 'DESC')->get();
-        $users_arr = [];
-        foreach($users as $user) {
-            $users_arr[$user->id] = $user->firstname.' '.$user->lastname;
-        }
-
-        $accounts = Account::orderBy('account_code', 'ASC')->get();
-        $accounts_arr = [];
-        foreach($accounts as $account) {
-            $accounts_arr[$account->id] = '['.$account->account_code.'] '.$account->short_name;
-        }
-
-        return view('sales-people.create')->with([
-            'accounts' => $accounts_arr,
-            'users' => $users_arr,
-        ]);
+        return view('sales-people.create');
     }
 
     /**
@@ -58,10 +43,11 @@ class SalesPersonController extends Controller
     {
         $sales_person = new SalesPerson([
             'user_id' => $request->user_id,
-            'account_id' => $request->account_id,
             'code' => $request->code
         ]);
         $sales_person->save();
+
+        $sales_person->accounts()->attach($request->accounts);
 
         return redirect()->route('sales-people.index')->with([
             'message_success' => 'Sales Person '.$sales_person->code.' was created.'
@@ -88,12 +74,6 @@ class SalesPersonController extends Controller
     public function edit($id)
     {
         $sales_person = SalesPerson::findOrFail($id);
-        
-        $users = User::orderBy('firstname', 'DESC')->get();
-        $users_arr = [];
-        foreach($users as $user) {
-            $users_arr[$user->id] = $user->firstname.' '.$user->lastname;
-        }
 
         $accounts = Account::orderBy('account_code', 'ASC')->get();
         $accounts_arr = [];
@@ -103,7 +83,6 @@ class SalesPersonController extends Controller
 
         return view('sales-people.edit')->with([
             'sales_person' => $sales_person,
-            'users' => $users_arr,
             'accounts' => $accounts_arr,
         ]);
     }
@@ -121,10 +100,11 @@ class SalesPersonController extends Controller
         $code = $sales_person->code;
         $sales_person->update([
             'user_id' => $request->user_id,
-            'account_id' => $request->account_id,
             'code' => $request->code
         ]);
         $sales_person->save();
+
+        $sales_person->accounts()->sync($request->accounts);
 
         return back()->with([
             'message_success' => 'Sales Person '.$sales_person->code.' was update.'

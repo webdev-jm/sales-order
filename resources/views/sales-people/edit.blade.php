@@ -32,7 +32,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('user_id', 'User') !!}
-                    {!! Form::select('user_id', $users, $sales_person->user_id, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'update_sales_person']) !!}
+                    {!! Form::select('user_id', [], $sales_person->user_id, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'update_sales_person']) !!}
                     <p class="text-danger">{{$errors->first('user_id')}}</p>
                 </div>
             </div>
@@ -40,8 +40,8 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('account_id', 'Account') !!}
-                    {!! Form::select('account_id', $accounts, $sales_person->account_id, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'update_sales_person']) !!}
-                    <p class="text-danger">{{$errors->first('account_id')}}</p>
+                    {!! Form::select('accounts[]', $accounts, $sales_person->accounts->pluck('id'), ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'update_sales_person', 'multiple' => 'multiple', 'id' => 'account_id']) !!}
+                    <p class="text-danger">{{$errors->first('accounts')}}</p>
                 </div>
             </div>
 
@@ -62,9 +62,77 @@
 
 @endsection
 
+@section('plugins.Select2', true)
+
 @section('js')
 <script>
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
+        $('#user_id').select2({
+            ajax: { 
+                url: '{{route("user.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
+        
+        var user_select = $('#user_id');
+        $.ajax({
+            type:'GET',
+            url: '/user/get-ajax/{{$sales_person->user_id}}'
+        }).then(function(data) {
+            console.log(data);
+            var option = new Option(data.firstname+' '+data.lastname, data.id, true, true);
+            user_select.append(option).trigger('change');
+
+            user_select.trigger({
+                type: 'select2:select',
+                params: {
+                    data: data
+                }
+            });
+        });
+
+        $('#account_id').select2();
+
+        // $('#account_id').select2({
+        //     ajax: { 
+        //         url: '{{route("account.ajax")}}',
+        //         type: "POST",
+        //         dataType: 'json',
+        //         delay: 50,
+        //         data: function (params) {
+        //             return {
+        //                 search: params.term // search term
+        //             };
+        //         },
+        //         processResults: function (response) {
+        //             return {
+        //                 results: response
+        //             };
+        //         },
+        //         cache: true
+        //     }
+        // });
+
+    });
 </script>
 @endsection
 

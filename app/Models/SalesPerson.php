@@ -13,7 +13,6 @@ class SalesPerson extends Model
 
     protected $fillable = [
         'user_id',
-        'account_id',
         'code'
     ];
 
@@ -21,7 +20,7 @@ class SalesPerson extends Model
         return $this->belongsTo('App\Models\User');
     }
 
-    public function account() {
-        return $this->belongsTo('App\Models\Account');
+    public function accounts() {
+        return $this->belongsToMany('App\Models\Account');
     }
 }

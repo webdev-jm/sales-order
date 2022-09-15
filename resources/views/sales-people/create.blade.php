@@ -40,7 +40,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('account_id', 'Account') !!}
-                    {!! Form::select('account_id', [], null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person']) !!}
+                    {!! Form::select('accounts[]', [], null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person', 'multiple' => 'multiple', 'id' => 'account_id']) !!}
                     <p class="text-danger">{{$errors->first('account_id')}}</p>
                 </div>
             </div>

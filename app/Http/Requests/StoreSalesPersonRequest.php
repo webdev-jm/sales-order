@@ -29,8 +29,8 @@ class StoreSalesPersonRequest extends FormRequest
             'user_id' => [
                 'required', Rule::unique((new SalesPerson)->getTable())
             ],
-            'account_id' => [
-                'required', Rule::unique((new SalesPerson)->getTable())
+            'accounts' => [
+                'required'
             ],
             'code' => [
                 'required', Rule::unique((new SalesPerson)->getTable())

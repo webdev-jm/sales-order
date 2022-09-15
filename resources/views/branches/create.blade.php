@@ -32,7 +32,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('account_id', 'Account') !!}
-                    {!! Form::select('account_id', $accounts, null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    {!! Form::select('account_id', [], null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
                     <p class="text-danger">{{$errors->first('account_id')}}</p>
                 </div>
             </div>
@@ -63,9 +63,38 @@
 
 @endsection
 
+@section('plugins.Select2', true)
+
 @section('js')
 <script>
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
+        $('#account_id').select2({
+            ajax: { 
+                url: '{{route("account.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
+
+    })
 </script>
 @endsection
 
