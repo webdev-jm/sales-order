@@ -5,6 +5,12 @@
 @endsection
 
 @section('css')
+<style>
+    .bg-thead {
+        background-color: #b1b1b1;
+        color: rgb(255, 255, 255);
+    }
+</style>
 @endsection
 
 @section('content_header')
@@ -19,17 +25,6 @@
 @endsection
 
 @section('content')
-
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Sales Order Details</h3>
-    </div>
-    <div class="card-body">
-    </div>
-    <div class="card-footer">
-    </div>
-</div>
-
 <div class="invoice p-3 mb-3">
     <div class="row">
         <div class="col-12">
@@ -68,7 +63,7 @@
         </div>
         <div class="col-12 table-responsive">
             <table class="table table-sm table-bordered">
-                <thead>
+                <thead class="bg-thead">
                     <tr>
                         <th>#</th>
                         <th class="align-middle">Stock Code</th>
@@ -82,6 +77,9 @@
                 <tbody>
                     @php
                         $num = 0;
+                        $quantity_total = 0;
+                        $sales_total = 0;
+                        $sales_total_less_disc = 0;
                     @endphp
                     @foreach($sales_order->order_products()->where('part', $part->part)->get() as $order_product)
                     @php
@@ -93,18 +91,49 @@
                         <td rowspan="{{$order_product->product_uoms->count() + 1}}" class="align-middle">{{$order_product->product->description}} [{{$order_product->product->size}}]</td>
                     </tr>
                         @foreach($order_product->product_uoms as $uom)
+                        @php
+                            $quantity_total += $uom->quantity;
+                            $sales_total += $uom->uom_total;
+                            $sales_total_less_disc +=$uom->uom_total_less_disc;
+                        @endphp
                         <tr>
                             <td>{{$uom->uom}}</td>
                             <td>{{$uom->quantity}}</td>
-                            <td>{{$uom->uom_total}}</td>
-                            <td>{{$uom->uom_total_less_disc}}</td>
+                            <td>{{number_format($uom->uom_total, 2)}}</td>
+                            <td>{{number_format($uom->uom_total_less_disc, 2)}}</td>
                         </tr>
                         @endforeach
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="4">TOTAL</th>
+                        <th>{{number_format($quantity_total)}}</th>
+                        <th>{{number_format($sales_total, 2)}}</th>
+                        <th>{{number_format($sales_total_less_disc, 2)}}</th>
+                    </tr>
+                </tfoot>
             </table>
         </div>
         @endforeach
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <p class="lead">Order Summary</p>
+            <div class="table-responsive">
+                <table class="table">
+                    <tr>
+                        <th style="width:50%">Total:</th>
+                        <td>{{number_format($sales_order->total_sales, 2)}}</td>
+                    </tr>
+                    <tr>
+                        <th>Total Less Discount</th>
+                        <td>{{number_format($sales_order->grand_total, 2)}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
     
 </div>
