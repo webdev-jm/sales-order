@@ -188,4 +188,10 @@ class UserController extends Controller
             'message_success' => 'Users has been uploaded.'
         ]);
     }
+
+    public function ajax(Request $request) {
+        $search = $request->search;
+        $response = User::UserAjax($search);
+        return response()->json($response);
+    }
 }

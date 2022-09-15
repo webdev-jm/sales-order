@@ -218,4 +218,10 @@ class AccountController extends Controller
             'message_success' => 'Accounts has been uploaded.'
         ]);
     }
+
+    public function ajax(Request $request) {
+        $search = $request->search;
+        $response = Account::AccountAjax($search);
+        return response()->json($response);
+    }
 }

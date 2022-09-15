@@ -62,4 +62,25 @@ class Account extends Model
 
         return $accounts;
     }
+
+    public function scopeAccountAjax($query, $search) {
+        if($search == '') {
+            $accounts = $query->select('id', 'account_code', 'short_name')->limit(5)->get();
+        } else {
+            $accounts = $query->select('id', 'account_code', 'short_name')
+            ->where('account_code', 'like', '%'.$search.'%')
+            ->orWhere('short_name', 'like', '%'.$search.'%')
+            ->limit(5)->get();
+        }
+
+        $response = [];
+        foreach($accounts as $account) {
+            $response[] = [
+                'id' => $account->id,
+                'text' => '['.$account->account_code.'] '.$account->short_name
+            ];
+        }
+
+        return $response;
+    }
 }

@@ -85,4 +85,25 @@ class User extends Authenticatable
 
         return $users;
     }
+
+    public function scopeUserAjax($query, $search) {
+        if($search == '') {
+            $users = $query->select('id', 'firstname', 'lastname')->limit(5)->get();
+        } else {
+            $users = $query->select('id', 'firstname', 'lastname')
+            ->where('firstname', 'like', '%'.$search.'%')
+            ->orWhere('lastname', 'like', '%'.$search.'%')
+            ->limit(5)->get();
+        }
+
+        $response = [];
+        foreach($users as $user) {
+            $response[] = array(
+                'id' => $user->id,
+                'text' => $user->firstname.' '.$user->lastname
+            );
+        }
+
+        return $response;
+    }
 }

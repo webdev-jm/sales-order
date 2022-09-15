@@ -32,7 +32,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('user_id', 'User') !!}
-                    {!! Form::select('user_id', $users, null, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person']) !!}
+                    {!! Form::select('user_id', [], null, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person']) !!}
                     <p class="text-danger">{{$errors->first('user_id')}}</p>
                 </div>
             </div>
@@ -40,7 +40,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('account_id', 'Account') !!}
-                    {!! Form::select('account_id', $accounts, null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person']) !!}
+                    {!! Form::select('account_id', [], null, ['class' => 'form-control'.($errors->has('account_id') ? ' is-invalid' : ''), 'form' => 'add_sales_person']) !!}
                     <p class="text-danger">{{$errors->first('account_id')}}</p>
                 </div>
             </div>
@@ -62,9 +62,58 @@
 
 @endsection
 
+@section('plugins.Select2', true)
+
 @section('js')
 <script>
+    $(function() {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
+        $('#user_id').select2({
+            ajax: { 
+                url: '{{route("user.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
+
+        $('#account_id').select2({
+            ajax: { 
+                url: '{{route("account.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
+
+    });
 </script>
 @endsection
 
