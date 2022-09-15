@@ -104,6 +104,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="loadingModal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog" aria-labelledby="loadingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center" id="exampleModalLongTitle">UPLOADING......</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <i class="fa fa-spinner fa-spin fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -112,6 +129,11 @@
         $('#btn-upload').on('click', function(e){
             e.preventDefault();
             $('#modal-upload').modal('show');
+        });
+
+        $('#upload_form').on('submit', function() {
+            $('#modal-upload').modal('hide');
+            $('#loadingModal').modal('show');
         });
     });
 </script>
