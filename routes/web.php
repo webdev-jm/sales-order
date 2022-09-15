@@ -1,6 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\SalesOrderController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\InvoiceTermController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PriceCodeController;
+use App\Http\Controllers\SalesPersonController;
+use App\http\Controllers\RoleController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,129 +38,129 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
 
     // AJAX
-    Route::post('user/ajax', 'App\Http\Controllers\UserController@ajax')->name('user.ajax');
-    Route::post('account/ajax', 'App\Http\Controllers\AccountController@ajax')->name('account.ajax');
+    Route::post('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
+    Route::post('account/ajax',[AccountController::class, 'ajax'])->name('account.ajax');
 
-    Route::get('user/get-ajax/{id}', 'App\Http\Controllers\UserController@getAjax')->name('user.getAjax');
+    Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
 
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
-        Route::get('sales-order', 'App\Http\Controllers\SalesOrderController@index')->name('sales-order.index');
-        Route::get('sales-order/create', 'App\Http\Controllers\SalesOrderController@create')->name('sales-order.create')->middleware('permission:sales order create');
-        Route::post('sales-order', 'App\Http\Controllers\SalesOrderController@store')->name('sales-order.store')->middleware('permission:sales order create');
+        Route::get('sales-order', [SalesOrderController::class, 'index'])->name('sales-order.index');
+        Route::get('sales-order/create', [SalesOrderController::class, 'create'])->name('sales-order.create')->middleware('permission:sales order create');
+        Route::post('sales-order', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
         
-        Route::get('sales-order/{id}', 'App\Http\Controllers\SalesOrderController@show')->name('sales-order.show');
+        Route::get('sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales-order.show');
         
-        Route::get('sales-order/{id}/edit', 'App\Http\Controllers\SalesOrderController@edit')->name('sales-order.edit')->middleware('permission:sales order edit');
-        Route::post('sales-order/{id}', 'App\Http\Controllers\SalesOrderController@update')->name('sales-order.update')->middleware('permission:sales order edit');
+        Route::get('sales-order/{id}/edit', [SalesOrderController::class, 'edit'])->name('sales-order.edit')->middleware('permission:sales order edit');
+        Route::post('sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales-order.update')->middleware('permission:sales order edit');
     });
 
     // COMPANY
     Route::group(['middleware' => 'permission:company access'], function() {
-        Route::get('company', 'App\Http\Controllers\CompanyController@index')->name('company.index');
-        Route::get('company/create', 'App\Http\Controllers\CompanyController@create')->name('company.create')
+        Route::get('company', [CompanyController::class, 'index'])->name('company.index');
+        Route::get('company/create', [CompanyController::class, 'create'])->name('company.create')
         ->middleware('permission:company create');
-        Route::post('company', 'App\Http\Controllers\CompanyController@store')->name('company.store')->middleware('permission:company create');
+        Route::post('company', [CompanyController::class, 'store'])->name('company.store')->middleware('permission:company create');
 
-        Route::get('company/{id}/edit', 'App\Http\Controllers\CompanyController@edit')->name('company.edit')->middleware('permission:company edit');
-        Route::post('company/{id}', 'App\Http\Controllers\CompanyController@update')->name('company.update')->middleware('permission:company edit');
+        Route::get('company/{id}/edit', [CompanyController::class, 'edit'])->name('company.edit')->middleware('permission:company edit');
+        Route::post('company/{id}', [CompanyController::class, 'update'])->name('company.update')->middleware('permission:company edit');
     });
 
     // DISCOUNTS
     Route::group(['middleware' => 'permission:discount access'], function() {
-        Route::get('discount', 'App\Http\Controllers\DiscountController@index')->name('discount.index')->middleware('permission:discount access');
-        Route::get('discount/create', 'App\Http\Controllers\DiscountController@create')->name('discount.create')->middleware('permission:discount create');
-        Route::post('discount', 'App\Http\Controllers\DiscountController@store')->name('discount.store')->middleware('permission:discount create');
+        Route::get('discount', [DiscountController::class, 'index'])->name('discount.index')->middleware('permission:discount access');
+        Route::get('discount/create', [DiscountController::class, 'create'])->name('discount.create')->middleware('permission:discount create');
+        Route::post('discount', [DiscountController::class, 'store'])->name('discount.store')->middleware('permission:discount create');
 
-        Route::post('discount/upload', 'App\Http\Controllers\DiscountController@upload')->name('discount.upload')->middleware('permission:discount create');
+        Route::post('discount/upload', [DiscountController::class, 'upload'])->name('discount.upload')->middleware('permission:discount create');
 
-        Route::get('discount/{id}/edit', 'App\Http\Controllers\DiscountController@edit')->name('discount.edit')->middleware('permission:discount edit');
-        Route::post('discount/{id}', 'App\Http\Controllers\DiscountController@update')->name('discount.update')->middleware('permission:discount edit');
+        Route::get('discount/{id}/edit', [DiscountController::class, 'edit'])->name('discount.edit')->middleware('permission:discount edit');
+        Route::post('discount/{id}', [DiscountController::class, 'update'])->name('discount.update')->middleware('permission:discount edit');
 
         
     });
 
     // ACCOUNTS
     Route::group(['middleware' => 'permission:account access'], function() {
-        Route::get('account', 'App\Http\Controllers\AccountController@index')->name('account.index');
-        Route::get('account/create', 'App\Http\Controllers\AccountController@create')->name('account.create')->middleware('permission:account create');
-        Route::post('account', 'App\Http\Controllers\AccountController@store')->name('account.store')->middleware('permission:account create');
+        Route::get('account', [AccountController::class, 'index'])->name('account.index');
+        Route::get('account/create', [AccountController::class, 'create'])->name('account.create')->middleware('permission:account create');
+        Route::post('account', [AccountController::class, 'store'])->name('account.store')->middleware('permission:account create');
 
-        Route::post('account/upload', 'App\Http\Controllers\AccountController@upload')->name('account.upload')->middleware('permission:account create');
+        Route::post('account/upload', [AccountController::class, 'upload'])->name('account.upload')->middleware('permission:account create');
 
-        Route::get('account/{id}/create', 'App\Http\Controllers\AccountController@edit')->name('account.edit')->middleware('permission:account edit');
-        Route::post('account/{id}', 'App\Http\Controllers\AccountController@update')->name('account.update')->middleware('permission:account edit');
+        Route::get('account/{id}/create', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
+        Route::post('account/{id}', [AccountController::class, 'update'])->name('account.update')->middleware('permission:account edit');
     });
 
     // BRANCHES
     Route::group(['middleware' => 'permission:branch access'], function() {
-        Route::get('branch', 'App\Http\Controllers\BranchController@index')->name('branch.index');
-        Route::get('branch/create', 'App\Http\Controllers\BranchController@create')->name('branch.create')->middleware('permission:branch create');
-        Route::post('branch', 'App\Http\Controllers\BranchController@store')->name('branch.store')->middleware('permission:branch create');
+        Route::get('branch', [BranchController::class, 'index'])->name('branch.index');
+        Route::get('branch/create', [BranchController::class, 'create'])->name('branch.create')->middleware('permission:branch create');
+        Route::post('branch', [BranchController::class, 'store'])->name('branch.store')->middleware('permission:branch create');
 
-        Route::get('branch/{id}/edit', 'App\Http\Controllers\BranchController@edit')->name('branch.edit')->middleware('permission:branch edit');
-        Route::post('branch/{id}', 'App\Http\Controllers\BranchController@update')->name('branch.update')->middleware('permission:branch edit');
+        Route::get('branch/{id}/edit', [BranchController::class, 'edit'])->name('branch.edit')->middleware('permission:branch edit');
+        Route::post('branch/{id}', [BranchController::class, 'update'])->name('branch.update')->middleware('permission:branch edit');
     });
 
     // INVOICE TERMS
     Route::group(['middleware' => 'permission:invoice term access'], function() {
-        Route::get('invoice-term', 'App\Http\Controllers\InvoiceTermController@index')->name('invoice-term.index');
-        Route::get('invoice-term/create', 'App\Http\Controllers\InvoiceTermController@create')->name('invoice-term.create')->middleware('permission:invoice term create');
-        Route::post('invoice-term', 'App\Http\Controllers\InvoiceTermController@store')->name('invoice-term.store')->middleware('permission:invoice term create');
+        Route::get('invoice-term', [InvoiceTermController::class, 'index'])->name('invoice-term.index');
+        Route::get('invoice-term/create', [InvoiceTermController::class, 'create'])->name('invoice-term.create')->middleware('permission:invoice term create');
+        Route::post('invoice-term', [InvoiceTermController::class, 'store'])->name('invoice-term.store')->middleware('permission:invoice term create');
 
-        Route::get('invoice-term/{id}/edit', 'App\Http\Controllers\InvoiceTermController@edit')->name('invoice-term.edit')->middleware('permission:invoice term edit');
-        Route::post('invoice-term/{id}', 'App\Http\Controllers\InvoiceTermController@update')->name('invoice-term.udpate')->middleware('permission:invoice term edit');
+        Route::get('invoice-term/{id}/edit', [InvoiceTermController::class, 'edit'])->name('invoice-term.edit')->middleware('permission:invoice term edit');
+        Route::post('invoice-term/{id}', [InvoiceTermController::class, 'update'])->name('invoice-term.udpate')->middleware('permission:invoice term edit');
     });
 
     // PRODUCTS
     Route::group(['middleware' => 'permission:product access'], function() {
-        Route::get('product', 'App\Http\Controllers\ProductController@index')->name('product.index');
-        Route::get('product/create', 'App\Http\Controllers\ProductController@create')->name('product.create')->middleware('permission:product create');
-        Route::post('product', 'App\Http\Controllers\ProductController@store')->name('product.store')->middleware('permission:product create');
+        Route::get('product', [ProductController::class, 'index'])->name('product.index');
+        Route::get('product/create', [ProductController::class, 'create'])->name('product.create')->middleware('permission:product create');
+        Route::post('product', [ProductController::class, 'store'])->name('product.store')->middleware('permission:product create');
 
-        Route::post('product/upload', 'App\Http\Controllers\ProductController@upload')->name('product.upload')->middleware('permission:product create');
+        Route::post('product/upload', [ProductController::class, 'upload'])->name('product.upload')->middleware('permission:product create');
 
-        Route::get('product/{id}/edit', 'App\Http\Controllers\ProductController@edit')->name('product.edit')->middleware('permission:product edit');
-        Route::post('product/{id}', 'App\Http\Controllers\ProductController@update')->name('product.update')->middleware('permission:product edit');
+        Route::get('product/{id}/edit', [ProductController::class, 'edit'])->name('product.edit')->middleware('permission:product edit');
+        Route::post('product/{id}', [ProductController::class, 'update'])->name('product.update')->middleware('permission:product edit');
     });
 
     // PRICE CODES
     Route::group(['middleware' => 'permission:price code access'], function() {
-        Route::get('price-code', 'App\Http\Controllers\PriceCodeController@index')->name('price-code.index');
-        Route::get('price-code/create', 'App\Http\Controllers\PriceCodeController@create')->name('price-code.create')->middleware('permission:price code create');
-        Route::post('price-code', 'App\Http\Controllers\PriceCodeController@store')->name('price-code.store')->middleware('permission:price code create');
+        Route::get('price-code', [PriceCodeController::class, 'index'])->name('price-code.index');
+        Route::get('price-code/create', [PriceCodeController::class, 'create'])->name('price-code.create')->middleware('permission:price code create');
+        Route::post('price-code', [PriceCodeController::class, 'store'])->name('price-code.store')->middleware('permission:price code create');
 
-        Route::post('price-code/upload', 'App\Http\Controllers\PriceCodeController@upload')->name('price-code.upload')->middleware('permission:price code create');
+        Route::post('price-code/upload', [PriceCodeController::class, 'upload'])->name('price-code.upload')->middleware('permission:price code create');
 
-        Route::get('price-code/{id}/edit', 'App\Http\Controllers\PriceCodeController@edit')->name('price-code.edit')->middleware('permission:price code edit');
-        Route::post('price-code/{id}', 'App\Http\Controllers\PriceCodeController@update')->name('price-code.update')->middleware('permission:price code edit');
+        Route::get('price-code/{id}/edit', [PriceCodeController::class, 'edit'])->name('price-code.edit')->middleware('permission:price code edit');
+        Route::post('price-code/{id}', [PriceCodeController::class, 'update'])->name('price-code.update')->middleware('permission:price code edit');
     });
 
     // SALES PEOPLE
     Route::group(['middleware' => 'permission:sales people access'], function() {
-        Route::get('sales-people', 'App\Http\Controllers\SalesPersonController@index')->name('sales-people.index');
-        Route::get('sales-people/create', 'App\Http\Controllers\SalesPersonController@create')->name('sales-person.create')->middleware('permission:sales person create');
-        Route::post('sales-people', 'App\Http\Controllers\SalesPersonController@store')->name('sales-person.store')->middleware('permission:sales person create');
+        Route::get('sales-people', [SalesPersonController::class, 'index'])->name('sales-people.index');
+        Route::get('sales-people/create', [SalesPersonController::class, 'create'])->name('sales-person.create')->middleware('permission:sales person create');
+        Route::post('sales-people', [SalesPersonController::class, 'store'])->name('sales-person.store')->middleware('permission:sales person create');
 
-        Route::get('sales-people/{id}/edit', 'App\Http\Controllers\SalesPersonController@edit')->name('sales-person.edit')->middleware('permission:sales person edit');
-        Route::post('sales-people/{id}', 'App\Http\Controllers\SalesPersonController@update')->name('sales-person.update')->middleware('permission:sales person edit');
+        Route::get('sales-people/{id}/edit', [SalesPersonController::class, 'edit'])->name('sales-person.edit')->middleware('permission:sales person edit');
+        Route::post('sales-people/{id}', [SalesPersonController::class, 'update'])->name('sales-person.update')->middleware('permission:sales person edit');
     });
 
     // USERS
     Route::group(['middleware' => 'permission:user access'], function() {
-        Route::get('user', 'App\Http\Controllers\UserController@index')->name('user.index');
-        Route::get('user/create', 'App\Http\Controllers\UserController@create')->name('user.create')->middleware('permission:user create');
-        Route::post('user', 'App\Http\Controllers\UserController@store')->name('user.store')->middleware('permission:user create');
+        Route::get('user', [UserController::class, 'index'])->name('user.index');
+        Route::get('user/create', [UserController::class, 'create'])->name('user.create')->middleware('permission:user create');
+        Route::post('user', [UserController::class, 'store'])->name('user.store')->middleware('permission:user create');
 
-        Route::post('user/upload', 'App\Http\Controllers\UserController@upload')->name('user.upload')->middleware('permission:user upload');
+        Route::post('user/upload', [UserController::class, 'upload'])->name('user.upload')->middleware('permission:user upload');
 
-        Route::get('user/{id}/edit', 'App\Http\Controllers\UserController@edit')->name('user.edit')->middleware('permission:user edit');
-        Route::post('user/{id}', 'App\Http\Controllers\UserController@update')->name('user.update')->middleware('permission:user edit');
+        Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit')->middleware('permission:user edit');
+        Route::post('user/{id}', [UserController::class, 'update'])->name('user.update')->middleware('permission:user edit');
     });
 
     // ROLES
     Route::group(['middleware' => 'permission:role access'], function() {
-        Route::get('role', 'App\http\Controllers\RoleController@index')->name('role.index');
+        Route::get('role', 'App\Http\Controllers\RoleController@index')->name('role.index');
         Route::get('role/create', 'App\Http\Controllers\RoleController@create')->name('role.create')->middleware('permission:role create');
         Route::post('role', 'App\Http\Controllers\RoleController@store')->name('role.store')->middleware('permission:role create');
 
@@ -158,7 +170,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // SETTINGS
     Route::group(['middleware' => 'permission:settings access'], function() {
-        Route::get('setting', 'App\Http\Controllers\SettingController@index')->name('setting.index');
-        Route::post('setting/{id}', 'App\Http\Controllers\SettingController@update')->name('setting.update');
+        Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
+        Route::post('setting/{id}', [SettingController::class, 'update'])->name('setting.update');
     });
 });
