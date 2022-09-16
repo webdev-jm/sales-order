@@ -389,7 +389,19 @@ return [
         ],
         [
             'header'    => 'system_menu',
-            'can'       => ['user access', 'role access']
+            'can'       => [
+                'user access',
+                'role access',
+                'settings access',
+                'account login access'
+            ]
+        ],
+        [
+            'text'      => 'Account Logins',
+            'url'       => '/login-account',
+            'icon'      => 'fas fa-fw fa-user-clock',
+            'can'       => 'account login access',
+            'active'    => ['login-account*']
         ],
         [
             'text'      => 'Users',
@@ -406,18 +418,18 @@ return [
             'active'    => ['role*']
         ],
         [
-            'text'      => 'Error Logs',
-            'url'       => '/logs',
-            'icon'      => 'fas fa-fw fa-bug',
-            'can'       => 'role access',
-            'active'    => ['logs*']
-        ],
-        [
             'text'      => 'Settings',
             'url'       => '/setting',
             'icon'      => 'fas fa-fw fa-wrench',
             'can'       => 'settings access',
             'active'    => ['setting*']
+        ],
+        [
+            'text'      => 'Error Logs',
+            'url'       => '/logs',
+            'icon'      => 'fas fa-fw fa-bug',
+            'can'       => 'role access',
+            'active'    => ['logs*']
         ],
         // [
         //     'text'    => 'multilevel',

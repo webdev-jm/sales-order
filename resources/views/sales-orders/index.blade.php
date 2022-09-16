@@ -63,9 +63,6 @@
                         <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
                     </td>
                     <td class="text-right">
-                        <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
-                            <i class="fa fa-eye text-primary mx-1"></i>
-                        </a>
                         @if($sales_order->status == 'draft')
                             @can('sales order edit')
                                 <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit">
@@ -73,6 +70,9 @@
                                 </a>
                             @endcan
                         @endif
+                        <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
+                            <i class="fa fa-eye text-primary mx-1"></i>
+                        </a>
                         @can('sales order delete')
                             <a href="#" title="delete">
                                 <i class="fas fa-trash-alt text-danger mx-1"></i>

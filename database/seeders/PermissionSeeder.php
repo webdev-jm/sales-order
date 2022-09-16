@@ -63,6 +63,9 @@ class PermissionSeeder extends Seeder
             'sales person create',
             'sales person edit',
             'sales person delete',
+            // account logins
+            'account login access',
+            'account login export',
             // users
             'user access',
             'user create',

@@ -13,6 +13,7 @@ use App\Http\Controllers\PriceCodeController;
 use App\Http\Controllers\SalesPersonController;
 use App\http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\AccountLoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +145,12 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('sales-people/{id}/edit', [SalesPersonController::class, 'edit'])->name('sales-person.edit')->middleware('permission:sales person edit');
         Route::post('sales-people/{id}', [SalesPersonController::class, 'update'])->name('sales-person.update')->middleware('permission:sales person edit');
+    });
+
+    // ACCOUNT LOGINS
+    Route::group(['middleware' => 'permission:account login access'], function() {
+        Route::get('login-account', [AccountLoginController::class, 'index'])->name('account-login.index');
+        Route::get('login-account/{id}', [AccountLoginController::class, 'show'])->name('account-login.show');
     });
 
     // USERS
