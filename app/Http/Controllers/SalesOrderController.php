@@ -132,13 +132,14 @@ class SalesOrderController extends Controller
 
         $num = 0;
         $part = 1;
-        $limit = $this->setting->sales_order_limit;
+        $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
+        $curr_limit = $limit;
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            if($num > $limit) {
-                $limit += $limit;
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
                 $part++;
             }
 
@@ -259,20 +260,19 @@ class SalesOrderController extends Controller
             'ship_date' => $request->ship_date,
             'status' => $request->status
         ]);
-
         
         $num = 0;
         $part = 1;
-        $limit = $this->setting->sales_order_limit;
-
+        $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
+        $curr_limit = $limit;
         $sales_order->order_products()->forceDelete();
         
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            if($num > $limit) {
-                $limit += $limit;
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
                 $part++;
             }
 

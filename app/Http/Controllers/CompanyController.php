@@ -54,7 +54,8 @@ class CompanyController extends Controller
     public function store(StoreCompanyRequest $request)
     {
         $company = new Company([
-            'name' => $request->name
+            'name' => $request->name,
+            'order_limit' => $request->order_limit
         ]);
         $company->save();
 
@@ -100,7 +101,8 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
         $company_name = $company->name;
         $company->update([
-            'name' => $request->name
+            'name' => $request->name,
+            'order_limit' => $request->order_limit
         ]);
 
         return back()->with([
