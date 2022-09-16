@@ -49,6 +49,10 @@ class Account extends Model
         return $this->belongsToMany('App\Models\SalesPerson');
     }
 
+    public function account_logins() {
+        return $this->hasMany('App\Models\AccountLogin');
+    }
+
     public function scopeAccountSearch($query, $search, $limit) {
         if($search != '') {
             $accounts = $query->orderBy('id', 'DESC')
@@ -61,6 +65,28 @@ class Account extends Model
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $accounts = $query->orderBy('id', 'DESC')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $accounts;
+    }
+
+    public function scopeLoginAccountSearch($query, $search, $limit) {
+        if($search != '') {
+            $accounts = $query->orderBy('account_code', 'ASC')
+            ->whereHas('account_logins')
+            ->where(function($qry) use ($search) {
+                $qry->where('account_code', 'like', '%'.$search.'%')
+                ->orWhere('account_name', 'like', '%'.$search.'%')
+                ->orWhere('short_name', 'like', '%'.$search.'%')
+                ->orWhereHas('company', function($qry) use($search) {
+                    $qry->where('name', 'like', '%'.$search.'%');
+                });
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $accounts = $query->orderBy('account_code', 'ASC')
+            ->whereHas('account_logins')
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }
 

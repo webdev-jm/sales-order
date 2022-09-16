@@ -30,4 +30,8 @@ class AccountLogin extends Model
     public function account() {
         return $this->belongsTo('App\Models\Account');
     }
+
+    public function sales_orders() {
+        return $this->hasMany('App\Models\SalesOrder');
+    }
 }

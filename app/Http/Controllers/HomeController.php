@@ -25,11 +25,12 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if(empty(Session::get('logged_account'))) {
-            $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
-            ->whereNull('time_out')
-            ->first();
-
+        $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
+        ->whereNull('time_out')
+        ->first();
+        if(empty($logged_account)) {
+            Session::forget('logged_account');
+        } else {
             Session::put('logged_account', $logged_account);
         }
 
