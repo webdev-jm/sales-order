@@ -48,6 +48,7 @@
                     <th>Ship Date</th>
                     <th>Name</th>
                     <th>Status</th>
+                    <th>Created By</th>
                     <th></th>
                 </tr>
             </thead>
@@ -62,6 +63,7 @@
                     <td>
                         <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
                     </td>
+                    <td>{{$sales_order->account_login->user->firstname}} {{$sales_order->account_login->user->lastname}}</td>
                     <td class="text-right">
                         @if($sales_order->status == 'draft')
                             @can('sales order edit')
