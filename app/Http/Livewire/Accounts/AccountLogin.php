@@ -28,15 +28,18 @@ class AccountLogin extends Component
 
     public function render()
     {
-        $accounts = Account::whereHas('users', function($query) {
-            $query->where('user_id', auth()->user()->id);
-        })
-        ->orWhereHas('sales_people', function($query) {
-            $query->where('user_id', auth()->user()->id);
+        $accounts = Account::where(function($query) {
+            $query->whereHas('users', function($qry) {
+                $qry->where('user_id', auth()->user()->id);
+            })
+            ->orWhereHas('sales_people', function($qry) {
+                $qry->where('user_id', auth()->user()->id);
+            });
         })
         ->where(function($query) {
-            $query->where('account_code', 'like', '%'.$this->search.'%')
-            ->orWhere('short_name', 'like', '%'.$this->search.'%');
+            $query->where('account_code', 'like', '%'.trim($this->search).'%')
+            ->orWhere('account_name', 'like', '%'.trim($this->search).'%')
+            ->orWhere('short_name', 'like', '%'.trim($this->search).'%');
         })
         ->paginate(12)->onEachSide(1)->appends(request()->query());
 

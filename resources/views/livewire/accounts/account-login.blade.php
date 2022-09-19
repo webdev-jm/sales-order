@@ -22,10 +22,8 @@
                     <div class="small-box">
                         <div class="inner">
                             <h3>{{$account->account_code}}</h3>
-                            <p class="text-uppercase">{{$account->account_name}}</p>
-                        </div>
-                        <div class="icon">
-                            <i class="ion ion-bag"></i>
+                            <p class="text-uppercase mb-0">{{$account->account_name}}</p>
+                            <small class="text-muted">{{$account->short_name}}</small>
                         </div>
                         <a href="#" class="small-box-footer text-dark get-location" wire:loading.attr="disabled" wire:click.prevent="loginModal({{$account->id}})">Sign In<i class="fas fa-arrow-circle-right ml-2"></i></a>
                     </div>
