@@ -87,6 +87,14 @@
                         </div>
                     </div>
 
+                    <div class="col-12">
+                        <div class="form-group">
+                            {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
+                            {!! Form::textarea('shipping_instruction', '', ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 2, 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('shipping_instruction')}}</p>
+                        </div>
+                    </div>
+
                 </div>
 
                 <label class="mb-0">SHIP TO ADDRESS</label>

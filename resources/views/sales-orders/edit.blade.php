@@ -86,6 +86,14 @@
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>
+                    
+                    <div class="col-12">
+                        <div class="form-group">
+                            {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
+                            {!! Form::textarea('shipping_instruction', $sales_order->shipping_instruction, ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 2, 'form' => 'update_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('shipping_instruction')}}</p>
+                        </div>
+                    </div>
 
                 </div>
 

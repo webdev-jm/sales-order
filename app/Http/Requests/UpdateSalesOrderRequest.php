@@ -42,6 +42,9 @@ class UpdateSalesOrderRequest extends FormRequest
             'ship_date' => [
                 'required'
             ],
+            'shipping_instruction' => [
+                'max:1000'
+            ],
             'ship_to_name' => [
                 'required'
             ],
