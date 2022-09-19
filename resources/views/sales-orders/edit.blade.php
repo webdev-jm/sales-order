@@ -21,7 +21,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1 class="align-middle">Sales Orders / Edit <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span></h1>
+        <h1 class="align-middle">Sales Orders / Edit</h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('sales-order.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
@@ -37,8 +37,11 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="mb-1 align-middle">CONTROL NO: {{$sales_order->control_number}}</h3>
-                {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
+                <h3 class="mb-1 align-middle">
+                    CONTROL NO: {{$sales_order->control_number}}
+                    {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
+                    <span class="badge float-right {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                </h3>
             </div>
         </div>
     </div>

@@ -21,7 +21,6 @@ class CreateAccountLoginsTable extends Migration
             $table->decimal('latitude', 10,7);
             $table->text('accuracy');
             $table->text('activities')->nullable();
-            $table->text('picture')->nullable();
             $table->dateTime('time_in');
             $table->dateTime('time_out')->nullable();
             $table->timestamps();

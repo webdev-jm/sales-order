@@ -63,26 +63,28 @@ class SalesOrderTotal extends Component
                     ->first();
                     // get price
                     $selling_price = $price_code->selling_price;
+
+                    $quantity = (int)$quantity;
     
                     $uom_total = 0;
                     // check if stock UOM
                     if($uom == $product->stock_uom) {
-                        $uom_total += (int)$quantity * $selling_price;
+                        $uom_total += $quantity * $selling_price;
                     } else if($uom == $product->order_uom) { // order UOM
                         // check operation
                         if($product->order_uom_operator == 'M') { // multiply
-                            $uom_total += ((int)$quantity * $product->order_uom_conversion) * $selling_price;
+                            $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
                         }
                         if($product->order_uom_operator == 'D') { // Divide
-                            $uom_total += ((int)$quantity / $product->order_uom_conversion) * $selling_price;
+                            $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
                         }
                     } else if($uom == $product->other_uom) { // Other UOM
                         // check operation
                         if($product->other_uom_operator == 'M') { // multiply
-                            $uom_total += ((int)$quantity * $product->other_uom_conversion) * $selling_price;
+                            $uom_total += ($quantity * $product->other_uom_conversion) * $selling_price;
                         }
                         if($product->other_uom_operator == 'D') { // Divide
-                            $uom_total += ((int)$quantity / $product->other_uom_conversion) * $selling_price;
+                            $uom_total += ($quantity / $product->other_uom_conversion) * $selling_price;
                         }
                     }
 
@@ -120,7 +122,7 @@ class SalesOrderTotal extends Component
                     $orders['items'][$product_id]['product_total'] = $product_total;
                     $orders['items'][$product_id]['product_quantity'] = $product_quantity;
                 } else {
-                    unset($orders[$product_id]);
+                    unset($orders['items'][$product_id]);
                 }
 
                 $total += $product_total;

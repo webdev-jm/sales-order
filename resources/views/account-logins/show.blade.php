@@ -10,7 +10,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Account Logins / Details</h1>
+        <h1 class="ml-2">Account Logins / Details</h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('account-login.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-2"></i>{{__('Back')}}</a>

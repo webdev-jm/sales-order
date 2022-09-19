@@ -18,7 +18,6 @@ class AccountLogin extends Model
         'latitude',
         'accuracy',
         'activities',
-        'picture',
         'time_in',
         'time_out'
     ];
