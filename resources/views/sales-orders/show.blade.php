@@ -54,6 +54,13 @@
             <b>Discount:</b> {{$sales_order->account_login->account->discount->description}}<br>
             <b>Account:</b> [{{$sales_order->account_login->account->account_code}}] {{$sales_order->account_login->account->short_name}}
         </div>
+
+        <div class="col-sm-4 invoice-col">
+            <b>Shipping Instruction:</b><br>
+            <p>
+                {{$sales_order->shipping_instruction}}
+            </p>
+        </div>
     </div>
     
     <div class="row">
@@ -126,6 +133,10 @@
                     <tr>
                         <th style="width:50%">Total:</th>
                         <td>{{number_format($sales_order->total_sales, 2)}}</td>
+                    </tr>
+                    <tr>
+                        <th>Discount</th>
+                        <td>{{$sales_order->account_login->account->discount->description}}</td>
                     </tr>
                     <tr>
                         <th>Total Less Discount</th>
