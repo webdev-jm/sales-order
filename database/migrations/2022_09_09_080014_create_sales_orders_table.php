@@ -18,7 +18,7 @@ class CreateSalesOrdersTable extends Migration
             $table->unsignedBigInteger('account_login_id')->nullable();
             $table->string('control_number');
             $table->string('po_number');
-            $table->string('reference')->nullable()->comment('sys pro sales reference number');
+            $table->string('reference')->nullable()->comment('sys pro sales reference numbers');
             $table->integer(1)->nullable();
             $table->date('order_date');
             $table->date('ship_date');

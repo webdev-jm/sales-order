@@ -19,7 +19,7 @@
         <h1>Sales Orders / Details</h1>
     </div>
     <div class="col-md-6 text-right">
-        <a href="{{route('sales-order.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
+        <a href="{{URL::previous()}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
     </div>
 </div>
 @endsection

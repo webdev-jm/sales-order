@@ -24,6 +24,16 @@ class SalesOrderController extends Controller
         $this->setting = $this->getSettings();
     }
 
+    public function list(Request $request) {
+        $search = trim($request->get('search'));
+        $sales_orders = SalesOrder::SalesOrderListSearch($search, $this->setting->data_per_page);
+
+        return view('sales-orders.list')->with([
+            'search' => $search,
+            'sales_orders' => $sales_orders
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
