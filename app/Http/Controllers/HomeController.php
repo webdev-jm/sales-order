@@ -31,7 +31,16 @@ class HomeController extends Controller
         if(empty($logged_account)) {
             Session::forget('logged_account');
         } else {
-            Session::put('logged_account', $logged_account);
+            // check
+            $check = auth()->user()->accounts()->where('id', $logged_account->account_id)->first();
+            if(empty($check)) {
+                Session::forget('logged_account');
+                $logged_account->update([
+                    'time_out' => now()
+                ]);
+            } else {
+                Session::put('logged_account', $logged_account);
+            }
         }
 
         $logged_account = auth()->user()->logged_account();

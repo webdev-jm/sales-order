@@ -38,13 +38,13 @@ class StoreDiscountRequest extends FormRequest
                 'required'
             ],
             'discount_1' => [
-                'required', 'max:3'
+                'required', 'max:5'
             ],
             'discount_2' => [
-                'max:3'
+                'max:5'
             ],
             'discount_3' => [
-                'max:3'
+                'max:5'
             ],
         ];
     }

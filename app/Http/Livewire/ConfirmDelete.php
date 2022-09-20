@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Hash;
 
 use App\Models\Company;
+use App\Models\Discount;
 
 class ConfirmDelete extends Component
 {
@@ -31,7 +32,7 @@ class ConfirmDelete extends Component
         if(!Hash::check($this->password, auth()->user()->password)) { // invalid
             $this->error_message = 'incorrect password.';
         } else { // delete function
-            $this->model->forceDelete();
+            $this->model->delete();
 
             return redirect()->to($this->route)->with([
                 'Message Success '.$this->name.' was deleted.'
@@ -46,6 +47,11 @@ class ConfirmDelete extends Component
                 $this->model = Company::findOrFail($model_id);
                 $this->name = $this->model->name;
                 $this->route = '/company';
+                break;
+            case 'Discount':
+                $this->model = Discount::findOrFail($model_id);
+                $this->name = $this->model->description;
+                $this->route = '/discount';
                 break;
         }
     }

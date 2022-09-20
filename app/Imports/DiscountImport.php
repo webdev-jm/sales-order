@@ -30,6 +30,12 @@ class DiscountImport implements ToModel, WithStartRow
             $company->save();
         }
 
+        $description = $row[2];
+        // convert decimal value to percentage
+        if(strpos('%', $description) >= 0) {
+            $description = ($description * 100) . '%';
+        }
+
         return new Discount([
             'company_id' => $company->id,
             'discount_code' => $row[1],
