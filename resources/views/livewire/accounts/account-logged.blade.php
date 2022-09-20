@@ -3,10 +3,10 @@
         <div class="card mx-2">
             <div class="card-body py-2">
                 <div class="row">
-                    <div class="col">
+                    <div class="col-lg-8 col-xl-10">
                         <h3 class="mb-0">[{{$logged->account->account_code}}] <span>{{$logged->account->short_name}}</span> - {{$logged->account->account_name}}</h3>
                     </div>
-                    <div class="col text-right">
+                    <div class="col-lg-4 col-xl-2 text-right">
                         <button class="btn btn-danger" wire:click.prevent="loggedForm">Sign Out</button>
                     </div>
                 </div>

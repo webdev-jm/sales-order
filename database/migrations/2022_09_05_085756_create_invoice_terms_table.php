@@ -17,8 +17,8 @@ class CreateInvoiceTermsTable extends Migration
             $table->id();
             $table->string('term_code');
             $table->string('description');
-            $table->float('discount');
-            $table->integer('discount_days');
+            $table->float('discount')->nullable();
+            $table->integer('discount_days')->nullable();
             $table->integer('due_days');
             $table->timestamps();
 

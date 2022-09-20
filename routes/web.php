@@ -92,7 +92,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('account/upload', [AccountController::class, 'upload'])->name('account.upload')->middleware('permission:account create');
 
-        Route::get('account/{id}/create', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
+        Route::get('account/{id}/edit', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
         Route::post('account/{id}', [AccountController::class, 'update'])->name('account.update')->middleware('permission:account edit');
     });
 
@@ -111,6 +111,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('invoice-term', [InvoiceTermController::class, 'index'])->name('invoice-term.index');
         Route::get('invoice-term/create', [InvoiceTermController::class, 'create'])->name('invoice-term.create')->middleware('permission:invoice term create');
         Route::post('invoice-term', [InvoiceTermController::class, 'store'])->name('invoice-term.store')->middleware('permission:invoice term create');
+
+        Route::post('invoice-term/upload', [InvoiceTermController::class, 'upload'])->name('invoice-term.upload')->middleware('permission:invoice term create');
 
         Route::get('invoice-term/{id}/edit', [InvoiceTermController::class, 'edit'])->name('invoice-term.edit')->middleware('permission:invoice term edit');
         Route::post('invoice-term/{id}', [InvoiceTermController::class, 'update'])->name('invoice-term.udpate')->middleware('permission:invoice term edit');

@@ -33,10 +33,10 @@ class StoreInvoiceTermRequest extends FormRequest
                 'required'
             ],
             'discount' => [
-                'required'
+                'max:11'
             ],
             'discount_days' => [
-                'required'
+                'max:11'
             ],
             'due_days' => [
                 'required'
