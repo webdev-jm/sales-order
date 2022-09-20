@@ -4,7 +4,7 @@
             <div class="card-body py-2">
                 <div class="row">
                     <div class="col">
-                        <h3 class="mb-0">[{{$logged->account->account_code}}] {{$logged->account->short_name}}</h3>
+                        <h3 class="mb-0">[{{$logged->account->account_code}}] <span>{{$logged->account->short_name}}</span> - {{$logged->account->account_name}}</h3>
                     </div>
                     <div class="col text-right">
                         <button class="btn btn-danger" wire:click.prevent="loggedForm">Sign Out</button>

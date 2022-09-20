@@ -19,14 +19,14 @@
 
                 <div class="col-lg-6">
                     <div class="form-group">
-                        <label>INVENTORY DISCOUNT</label>
+                        <label>ORDER DISCOUNT</label>
                         <input type="text" class="form-control bg-white" readonly value="{{$discount->description ?? '0'}}">
                     </div>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="form-group">
-                        <label>TOTAL LESS DISCOUNT</label>
+                        <label>TOTAL NET DISCOUNT</label>
                         <input type="text" class="form-control bg-white" readonly wire:model="grand_total">
                     </div>
                 </div>
