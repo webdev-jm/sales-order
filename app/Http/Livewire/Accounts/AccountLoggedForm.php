@@ -19,13 +19,13 @@ class AccountLoggedForm extends Component
     public $image_url;
 
     public function logout() {
-        $this->validate([
-            // 'accuracy' => 'required',
-            // 'longitude' => 'required',
-            // 'latitude' => 'required',
-            'activities' => 'required',
-            'picture_file' => 'image|max:2048',
-        ]);
+        // $this->validate([
+        //     // 'accuracy' => 'required',
+        //     // 'longitude' => 'required',
+        //     // 'latitude' => 'required',
+        //     'activities' => 'required',
+        //     'picture_file' => 'image|max:2048',
+        // ]);
 
         $this->logged->update([
             // 'longitude' => $this->longitude,

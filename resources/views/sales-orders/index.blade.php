@@ -48,6 +48,7 @@
                     <th>Ship Date</th>
                     <th>Name</th>
                     <th>Status</th>
+                    <th>Reference</th>
                     <th>Created By</th>
                     <th></th>
                 </tr>
@@ -61,7 +62,14 @@
                     <td>{{$sales_order->ship_date}}</td>
                     <td>{{$sales_order->ship_to_name}}</td>
                     <td>
+                        @if(isset($sales_order->upload_status))
+                        <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                        @else
                         <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                        @endif
+                    </td>
+                    <td>
+                        {{$sales_order->reference}}
                     </td>
                     <td>{{$sales_order->account_login->user->firstname}} {{$sales_order->account_login->user->lastname}}</td>
                     <td class="text-right">

@@ -30,7 +30,13 @@
         <div class="col-12">
             <h4>
                 {{$sales_order->control_number}}
-                <small class="float-right">Order Date: {{$sales_order->order_date}}</small>
+                <small class="float-right">
+                    @if(!empty($sales_order->upload_status))
+                    <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                    @else
+                    <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                    @endif
+                </small>
             </h4>
         </div>
     </div>
@@ -50,12 +56,14 @@
         <div class="col-sm-4 invoice-col">
             <b>PO Number: {{$sales_order->po_number}}</b><br>
             <br>
+           <b>Order Date:</b> {{$sales_order->order_date}}<br>
             <b>Ship Date:</b> {{$sales_order->ship_date}}<br>
             <b>Discount:</b> {{$sales_order->account_login->account->discount->description}}<br>
             <b>Account:</b> [{{$sales_order->account_login->account->account_code}}] {{$sales_order->account_login->account->short_name}}
         </div>
 
         <div class="col-sm-4 invoice-col">
+            <b>Reference:</b> {{$sales_order->reference}}<br>
             <b>Shipping Instruction:</b><br>
             <p>
                 {{$sales_order->shipping_instruction}}
@@ -64,9 +72,9 @@
     </div>
     
     <div class="row">
-        @foreach($parts as $part)
+        @foreach($parts as $key => $part)
         <div class="col-12">
-            <label>Part {{$part->part}}</label>
+            <label>Part {{$part->part}} <a href="#" class="badge badge-info">{{$reference_arr[$key] ?? ''}}</a></label>
         </div>
         <div class="col-12 table-responsive">
             <table class="table table-sm table-bordered">
@@ -93,7 +101,7 @@
                         $num++;
                     @endphp
                     <tr>
-                        <td rowspan="{{$order_product->product_uoms->count() + 1}}" class="align-middle text    -center">{{$num}}</td>
+                        <td rowspan="{{$order_product->product_uoms->count() + 1}}" class="align-middle text-center">{{$num}}</td>
                         <td rowspan="{{$order_product->product_uoms->count() + 1}}" class="align-middle">{{$order_product->product->stock_code}}</td>
                         <td rowspan="{{$order_product->product_uoms->count() + 1}}" class="align-middle">{{$order_product->product->description}} [{{$order_product->product->size}}]</td>
                     </tr>

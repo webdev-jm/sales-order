@@ -180,10 +180,13 @@ class SalesOrderController extends Controller
     {
         $sales_order = SalesOrder::findOrFail($id);
         $parts = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
+
+        $reference_arr = explode(' ,', $sales_order->reference);
         
         return view('sales-orders.show')->with([
             'sales_order' => $sales_order,
-            'parts' => $parts
+            'parts' => $parts,
+            'reference_arr' => $reference_arr
         ]);
     }
 
