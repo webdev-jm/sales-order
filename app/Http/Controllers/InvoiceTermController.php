@@ -7,6 +7,9 @@ use App\Http\Requests\StoreInvoiceTermRequest;
 use App\Http\Requests\UpdateInvoiceTermRequest;
 use Illuminate\Http\Request;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\InvoiceTermImport;
+
 use App\Http\Traits\GlobalTrait;
 
 class InvoiceTermController extends Controller
@@ -125,5 +128,19 @@ class InvoiceTermController extends Controller
     public function destroy(InvoiceTerm $invoiceTerm)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new InvoiceTermImport, $request->upload_file);
+
+        return back()->with([
+            'message_success' => 'Invoice Terms has been uploaded.'
+        ]);
     }
 }
