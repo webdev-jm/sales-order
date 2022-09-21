@@ -30,6 +30,16 @@
                         <input type="text" class="form-control bg-white" readonly wire:model="grand_total">
                     </div>
                 </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>PO value</label>
+                        <input type="number" class="form-control bg-white{{isset($po_message) && $po_message != '' ? ' is-invalid' : ''}}" wire:model.lazy="po_value" wire:change="change_po_value">
+                        @if(isset($po_message) && $po_message != '')
+                            <p class="text-danger"><b>NOTE:</b> {{$po_message}}</p>
+                        @endif
+                    </div>
+                </div>
             </div>
 
         </div>

@@ -42,6 +42,19 @@ class SalesOrderProducts extends Component
     }
 
     public function change() {
+        if(isset($this->uom)) {
+            foreach($this->uom as $product_id => $uom) {
+                if(isset($this->quantity[$product_id])) {
+                    foreach($this->quantity[$product_id] as $uom_key => $qty) {
+                        if($uom_key != $uom) {
+                            $this->quantity[$product_id][$uom] = $qty;
+                            unset($this->quantity[$product_id][$uom_key]);
+                        }
+                    }
+                }
+            }
+        }
+
         $this->emit('getTotal', $this->quantity);
     }
 
@@ -60,7 +73,7 @@ class SalesOrderProducts extends Component
                 ->orWhere('other_uom', 'like', '%'.$this->search.'%')
                 ->orWhere('brand', 'like', '%'.$this->search.'%');
             })
-            ->paginate(7)->onEachSide(1);
+            ->paginate(10)->onEachSide(1);
         } else {
             $products = Product::whereHas('price_code', function($query) {
                 $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
@@ -76,7 +89,7 @@ class SalesOrderProducts extends Component
                 ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                 ->orWhere('other_uom', 'like', '%'.$this->search.'%');
             })
-            ->paginate(7)->onEachSide(1);
+            ->paginate(10)->onEachSide(1);
         }
         
         $this->brands = Product::select('brand')->distinct()->orderBy('brand', 'ASC')
