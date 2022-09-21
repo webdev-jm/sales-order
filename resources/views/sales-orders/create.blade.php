@@ -97,7 +97,7 @@
 
                 </div>
 
-                <label class="mb-0">SHIP TO ADDRESS</label>
+                <label class="mb-0">SHIP TO ADDRESS</label> <a href="#" class="badge badge-info ml-2"><i class="fa fa-edit mr-1"></i>Change Address</a>
                 <hr class="mt-0">
 
                 <div class="row">

@@ -21,7 +21,10 @@ class SalesOrderTotal extends Component
 
     public $logged_account,
     $account,
-    $discount;
+    $discount,
+    $po_value;
+
+    public $po_message = 'Required';
 
     public $orders = [];
 
@@ -34,6 +37,19 @@ class SalesOrderTotal extends Component
             'required', 'min:3'
         ]
     ];
+
+    public function change_po_value() {
+        // compare with total
+        if($this->po_value != '') {
+            if($this->po_value == str_replace(',', '', $this->total)) {
+                $this->po_message = '';
+            } else {
+                $this->po_message = 'PO value does not match the total.';
+            }
+        } else {
+            $this->po_message = 'Required';
+        }
+    }
 
     public function getTotal($product_details) {
         $this->processDetails($product_details);
@@ -166,8 +182,8 @@ class SalesOrderTotal extends Component
         }
 
         if(!empty($order_data['total'])) {
-            $this->total = $order_data['total'];
-            $this->grand_total = $order_data['grand_total'];
+            $this->total = number_format($order_data['total'], 2);
+            $this->grand_total = number_format($order_data['grand_total'], 2);
         }
     }
 
