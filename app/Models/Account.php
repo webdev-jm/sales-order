@@ -53,6 +53,10 @@ class Account extends Model
         return $this->hasMany('App\Models\AccountLogin');
     }
 
+    public function shipping_addresses() {
+        return $this->hasMany('App\Models\ShippingAddress');
+    }
+
     public function scopeAccountSearch($query, $search, $limit) {
         if($search != '') {
             $accounts = $query->orderBy('id', 'DESC')

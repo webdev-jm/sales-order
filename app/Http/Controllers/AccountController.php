@@ -224,4 +224,9 @@ class AccountController extends Controller
         $response = Account::AccountAjax($search);
         return response()->json($response);
     }
+
+    public function getAjax($id) {
+        $account = Account::findOrFail($id);
+        return response()->json($account);
+    }
 }

@@ -322,7 +322,7 @@ return [
             'text'      => 'Sales Order List',
             'url'       => '/list-sales-order/list',
             'icon'      => 'fas fa-fw fa-list',
-            // 'can'       => 'sales order list',
+            'can'       => 'sales order list',
             'active'    => ['list-sales-order*']
         ],
         [
@@ -378,7 +378,7 @@ return [
             'url'       => '/account',
             'icon'      => 'fas fa-fw fa-file-invoice',
             'can'       => 'account access',
-            'active'    => ['account*']
+            'active'    => ['account*', 'shipping-address*']
         ],
         [
             'text'      => 'Branches',

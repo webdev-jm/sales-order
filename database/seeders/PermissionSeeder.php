@@ -40,6 +40,11 @@ class PermissionSeeder extends Seeder
             'account create',
             'account edit',
             'account delete',
+            // Shipping Address
+            'shipping address access',
+            'shipping address create',
+            'shipping address edit',
+            'shipping address delete',
             // Branches
             'branch access',
             'branch create',
