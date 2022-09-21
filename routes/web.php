@@ -14,6 +14,7 @@ use App\Http\Controllers\SalesPersonController;
 use App\http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AccountLoginController;
+use App\Http\Controllers\ShippingAddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('account/ajax',[AccountController::class, 'ajax'])->name('account.ajax');
 
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
+    Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');
 
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
@@ -55,8 +57,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('sales-order/{id}/edit', [SalesOrderController::class, 'edit'])->name('sales-order.edit')->middleware('permission:sales order edit');
         Route::post('sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales-order.update')->middleware('permission:sales order edit');
 
-        Route::get('list-sales-order/list', [SalesOrderController::class, 'list'])->name('sales-order.list');
-        // ->middleware('permission:sales order list')
+        Route::get('list-sales-order/list', [SalesOrderController::class, 'list'])->name('sales-order.list')->middleware('permission:sales order list');
     });
 
     // COMPANY
@@ -94,6 +95,18 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('account/{id}/edit', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
         Route::post('account/{id}', [AccountController::class, 'update'])->name('account.update')->middleware('permission:account edit');
+    });
+
+    // SHIPPING ADDRESS
+    Route::group(['middleware' => 'permission:shipping address access'], function() {
+        Route::get('shipping-address/{id}', [ShippingAddressController::class, 'index'])->name('shipping-address.index');
+        Route::get('shipping-address/{id}/create', [ShippingAddressController::class, 'create'])->name('shipping-address.create')->middleware('permission:shipping address create');
+        Route::post('shipping-address', [ShippingAddressController::class, 'store'])->name('shipping-address.store')->middleware('permission:shipping address create');
+        
+        Route::post('shipping-address/upload', [ShippingAddressController::class, 'upload'])->name('shipping-address.upload')->middleware('permission:shipping address create');
+
+        Route::get('shipping-address/{id}/edit', [ShippingAddressController::class, 'edit'])->name('shipping-address.edit')->middleware('permission:shipping address edit');
+        Route::post('shipping-address/{id}', [ShippingAddressController::class, 'update'])->name('shipping-address.update')->middleware('permission:shipping address edit');
     });
 
     // BRANCHES
