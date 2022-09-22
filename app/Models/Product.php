@@ -27,6 +27,7 @@ class Product extends Model
         'other_uom_conversion',
         'order_uom_operator',
         'other_uom_operator',
+        'status',
     ];
 
     public function price_code() {

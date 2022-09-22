@@ -68,6 +68,9 @@ class UpdateProductRequest extends FormRequest
             'other_uom_operator' => [
                 'required'
             ],
+            'status' => [
+                'required'
+            ]
         ];
     }
 }
