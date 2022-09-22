@@ -1,6 +1,6 @@
 ## Introduction
 
-This web application is for creation and management of order entries.
+This web application is for the creation and management of order entries.
 
 ## Requirements
 
