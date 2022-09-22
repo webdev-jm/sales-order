@@ -97,7 +97,9 @@
 
                 </div>
 
-                <label class="mb-0">SHIP TO ADDRESS</label> <a href="#" class="badge badge-info ml-2"><i class="fa fa-edit mr-1"></i>Change Address</a>
+                <label class="mb-0">SHIP TO ADDRESS</label>
+                <livewire:sales-order.shipping-address-change :account_id="$logged_account->account_id"/>
+                {!! Form::hidden('shipping_address_id', 'default', ['form' => 'add_sales_order', 'id' => 'shipping_address_id']) !!}
                 <hr class="mt-0">
 
                 <div class="row">

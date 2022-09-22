@@ -13,6 +13,7 @@ class SalesOrder extends Model
 
     protected $fillable = [
         'account_login_id',
+        'shipping_address_id',
         'control_number',
         'po_number',
         'sales_order',
@@ -27,7 +28,8 @@ class SalesOrder extends Model
         'status',
         'total_quantity',
         'total_sales',
-        'grand_total'
+        'grand_total',
+        'po_value'
     ];
 
     public function account_login() {

@@ -22,9 +22,9 @@ class SalesOrderTotal extends Component
     public $logged_account,
     $account,
     $discount,
-    $po_value;
+    $po_value = 0;
 
-    public $po_message = 'Required';
+    public $po_message = '';
 
     public $orders = [];
 
@@ -49,6 +49,8 @@ class SalesOrderTotal extends Component
         } else {
             $this->po_message = 'Required';
         }
+
+        $this->orders['po_value'] = $this->po_value;
     }
 
     public function getTotal($product_details) {
@@ -166,6 +168,7 @@ class SalesOrderTotal extends Component
         $orders['total'] = $total;
         $orders['discount_id'] = $this->discount->id;
         $orders['grand_total'] = $discounted;
+        $orders['po_value'] = $this->po_value;
 
         $this->grand_total = number_format($discounted, 2);
         $this->orders = $orders;
@@ -184,6 +187,7 @@ class SalesOrderTotal extends Component
         if(!empty($order_data['total'])) {
             $this->total = number_format($order_data['total'], 2);
             $this->grand_total = number_format($order_data['grand_total'], 2);
+            $this->po_value = $order_data['po_value'];
         }
     }
 

@@ -16,6 +16,7 @@ class CreateSalesOrdersTable extends Migration
         Schema::create('sales_orders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_login_id')->nullable();
+            $table->unsignedBigInteger('shipping_address_id')->nullable();
             $table->string('control_number');
             $table->string('po_number');
             $table->string('reference')->nullable()->comment('sys pro sales reference numbers');
@@ -32,10 +33,15 @@ class CreateSalesOrdersTable extends Migration
             $table->integer('total_quantity')->default(0);
             $table->decimal('total_sales', 15,2)->default(0.00);
             $table->decimal('grand_total', 15,2)->default(0.00);
+            $table->decimal('po_value', 15,2)->default(0.00);
             $table->timestamps();
 
             $table->foreign('account_login_id')
             ->references('id')->on('account_logins')
+            ->onDelete('cascade');
+
+            $table->foreign('shipping_address_id')
+            ->references('id')->on('shipping_addresses')
             ->onDelete('cascade');
 
             $table->softDeletes();
