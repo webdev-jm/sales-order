@@ -1,5 +1,5 @@
 <div class="d-inline">
-    <a href="#" class="badge badge-info ml-2" wire:click="openModal"><i class="fa fa-edit mr-1"></i>Change Address</a>
+    <a href="#" class="badge badge-info ml-2" wire:click.prevent="openModal"><i class="fa fa-edit mr-1"></i>Change Address</a>
 
     <div class="modal fade" id="address-modal">
         <div class="modal-dialog modal-lg">

@@ -15,13 +15,20 @@ class CompanySeeder extends Seeder
     public function run()
     {
         $companies_arr = [
-            'BEVI',
-            'BEVA',
+            [
+                'BEVI',
+                20
+            ],
+            [
+                'BEVI',
+                17,
+            ]
         ];
 
         foreach($companies_arr as $company) {
             $company = new Company([
-                'name' => $company
+                'name' => $company[0],
+                'order_limit' => $company[1]
             ]);
             $company->save();
         }
