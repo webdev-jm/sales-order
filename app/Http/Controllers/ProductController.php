@@ -85,6 +85,7 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
+            'status' => $request->status
         ]);
         $product->save();
 
@@ -144,6 +145,7 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
+            'status' => $request->status
         ]);
 
         return back()->with([

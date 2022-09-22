@@ -93,6 +93,12 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label(, $text, [$options]) !!}
+                </div>
+            </div>
+
         </div>
 
         <div class="row">

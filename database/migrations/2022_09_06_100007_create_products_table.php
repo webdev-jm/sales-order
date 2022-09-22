@@ -29,6 +29,7 @@ class CreateProductsTable extends Migration
             $table->integer('other_uom_conversion');
             $table->string('order_uom_operator');
             $table->string('other_uom_operator');
+            $table->string('status')->default('active');
             $table->timestamps();
 
             $table->softDeletes();
