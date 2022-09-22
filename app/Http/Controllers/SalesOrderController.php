@@ -122,8 +122,11 @@ class SalesOrderController extends Controller
             ]);
         }
 
+        $shipping_address_id = $request->shipping_address_id == null ? '' : $request->shipping_address_id;
+
         $sales_order = new SalesOrder([
             'account_login_id' => $logged_account->id,
+            'shipping_address_id' => $shipping_address_id,
             'control_number' => $request->control_number,
             'po_number' => $request->po_number,
             'order_date' => $request->order_date,
@@ -137,7 +140,8 @@ class SalesOrderController extends Controller
             'status' => $request->status,
             'total_quantity' => $order_data['total_quantity'],
             'total_sales' => $order_data['total'],
-            'grand_total' => $order_data['grand_total']
+            'grand_total' => $order_data['grand_total'],
+            'po_value' => $order_data['po_value']
         ]);
         $sales_order->save();
 
@@ -242,6 +246,7 @@ class SalesOrderController extends Controller
         $order_data['total_quantity'] = $sales_order->total_quantity;
         $order_data['total'] = $sales_order->total_sales;
         $order_data['grand_total'] = $sales_order->grand_total;
+        $order_data['po_value'] = $sales_order->po_value;
 
         Session::put('order_data', $order_data);
 
@@ -268,12 +273,24 @@ class SalesOrderController extends Controller
             ]);
         }
 
+        $shipping_address_id = $request->shipping_address_id == null ? '' : $request->shipping_address_id;
+
         $sales_order = SalesOrder::findOrFail($id);
         $sales_order->update([
+            'shipping_address_id' => $shipping_address_id,
             'po_number' => $request->po_number,
             'ship_date' => $request->ship_date,
             'shipping_instruction' => $request->shipping_instruction,
-            'status' => $request->status
+            'ship_to_name' => $request->ship_to_name,
+            'ship_to_building' => $request->ship_to_address1,
+            'ship_to_street' => $request->ship_to_address2,
+            'ship_to_city' => $request->ship_to_address3,
+            'ship_to_postal' => $request->postal_code,
+            'status' => $request->status,
+            'total_quantity' => $order_data['total_quantity'],
+            'total_sales' => $order_data['total'],
+            'grand_total' => $order_data['grand_total'],
+            'po_value' => $order_data['po_value'],
         ]);
         
         $num = 0;

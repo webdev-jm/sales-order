@@ -101,6 +101,8 @@
                 </div>
 
                 <label class="mb-0">SHIP TO ADDRESS</label>
+                <livewire:sales-order.shipping-address-change :account_id="$sales_order->account_login->account_id"/>
+                {!! Form::hidden('shipping_address_id', $sales_order->shipping_address_id ?? 'default', ['form' => 'update_sales_order', 'id' => 'shipping_address_id']) !!}
                 <hr class="mt-0">
 
                 <div class="row">
