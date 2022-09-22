@@ -54,7 +54,7 @@
                             <a href="{{route('role.edit', $role->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
                         @can('role delete')
-                            <a href="#" title="delete"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$role->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>
                 </tr>
@@ -67,11 +67,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
 <script>
-
+    $(function() {
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'Role', id);
+            $('#modal-delete').modal('show');
+        });
+    });
 </script>
 @endsection
 

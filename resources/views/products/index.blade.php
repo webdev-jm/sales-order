@@ -63,7 +63,7 @@
                             <a href="{{route('product.edit', $product->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
                         @can('product delete')
-                            <a href="#" title="delete"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$product->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>
                 </tr>
@@ -123,6 +123,12 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
@@ -137,6 +143,14 @@
             $('#modal-upload').modal('hide');
             $('#loadingModal').modal('show');
         });
+
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'Product', id);
+            $('#modal-delete').modal('show');
+        });
+
     });
 
     document.addEventListener('livewire:load', function() {

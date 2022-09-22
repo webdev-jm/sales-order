@@ -84,9 +84,7 @@
                             <i class="fa fa-eye text-primary mx-1"></i>
                         </a>
                         @can('sales order delete')
-                            <a href="#" title="delete">
-                                <i class="fas fa-trash-alt text-danger mx-1"></i>
-                            </a>
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$sales_order->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>
                 </tr>
@@ -99,11 +97,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
 <script>
-
+    $(function() {
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'SalesOrder', id);
+            $('#modal-delete').modal('show');
+        });
+    });
 </script>
 @endsection
 
