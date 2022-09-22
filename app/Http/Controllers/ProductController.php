@@ -70,6 +70,7 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
+        $status = $request->status == 'active' ? null : $request->status;
         $product = new Product([
             'stock_code' => $request->stock_code,
             'description' => $request->description,
@@ -85,7 +86,7 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
-            'status' => $request->status
+            'status' => $status
         ]);
         $product->save();
 
@@ -130,6 +131,8 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product_code = $product->stock_code;
+
+        $status = $request->status == 'active' ? null : $request->status;
         $product->update([
             'stock_code' => $request->stock_code,
             'description' => $request->description,
@@ -145,7 +148,7 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
-            'status' => $request->status
+            'status' => $status
         ]);
 
         return back()->with([

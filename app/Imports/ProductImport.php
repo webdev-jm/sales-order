@@ -5,25 +5,25 @@ namespace App\Imports;
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
-use Maatwebsite\Excel\Concerns\WithBatchInserts;
-use Maatwebsite\Excel\Concerns\WithChunkReading;
+// use Maatwebsite\Excel\Concerns\WithBatchInserts;
+// use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class ProductImport implements ToModel, WithStartRow, WithBatchInserts, WithChunkReading
+class ProductImport implements ToModel, WithStartRow
 {
     public function startRow(): int
     {
         return 2;
     }
 
-    public function batchSize(): int
-    {
-        return 500;
-    }
+    // public function batchSize(): int
+    // {
+    //     return 500;
+    // }
 
-    public function chunkSize(): int {
-        return 500;
-    }
-
+    // public function chunkSize(): int {
+    //     return 500;
+    // }
+    
     /**
     * @param array $row
     *
@@ -31,10 +31,10 @@ class ProductImport implements ToModel, WithStartRow, WithBatchInserts, WithChun
     */
     public function model(array $row)
     {
-        $check = Product::where('stock_code', $row['1'])->first();
+        $check = Product::where('stock_code', trim($row[1]))->first();
         if(empty($check) && !empty($row[1])) {
             return new Product([
-                'stock_code' => $row[1],
+                'stock_code' => trim($row[1]),
                 'description' => $row[2] ?? '',
                 'size' => $row[3],
                 'category' => $row[11] ?? '',
@@ -48,6 +48,7 @@ class ProductImport implements ToModel, WithStartRow, WithBatchInserts, WithChun
                 'other_uom_conversion' => $row[8],
                 'order_uom_operator' => $row[9],
                 'other_uom_operator' => $row[10],
+                'status' => null
             ]);
         } else {
             return null;

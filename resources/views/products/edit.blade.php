@@ -93,6 +93,21 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    @php
+                        $status_arr = [
+                            'active' => 'active',
+                            'F' => 'Hold',
+                            'P' => 'Partial Hold'
+                        ];
+                    @endphp
+                    {!! Form::label('status', 'Status') !!}
+                    {!! Form::select('status', $status_arr, empty($product->status) ? 'active' : $product->status, ['class' => 'form-control'.($errors->has('status') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                    <p class="text-danger">{{$errors->first('status')}}</p>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">
