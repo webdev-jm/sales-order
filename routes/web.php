@@ -31,6 +31,10 @@ Route::get('/', function () {
     return redirect()->route('home');
 });
 
+Route::get('/test', function() {
+    return view('welcome');
+});
+
 Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 
 
