@@ -84,6 +84,8 @@ class PermissionSeeder extends Seeder
             'role create',
             'role edit',
             'role delete',
+            // System Logs
+            'system logs',
             // Settings
             'settings access',
         ];
