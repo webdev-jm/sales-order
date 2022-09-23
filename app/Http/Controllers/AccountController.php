@@ -104,6 +104,11 @@ class AccountController extends Controller
         ]);
         $account->save();
 
+        // logs
+        activity('create')
+        ->performedOn($account)
+        ->log(':causer.firstname :causer.lastname has created account [:subject.account_code] :subject.account_name');
+
         return redirect()->route('account.index')->with([
             'message_success' => 'Account '.$account->account_code.' was created.'
         ]);
@@ -189,6 +194,17 @@ class AccountController extends Controller
             'on_hold' => $request->on_hold,
         ]);
 
+        $changes_arr = [
+            'old' => $account,
+            'changes' => $account->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($account)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated account [:subject.account_code] :subject.account_name.');
+
         return back()->with([
             'message_success' => 'Account '.$account_name.' was updated'
         ]);
@@ -213,6 +229,9 @@ class AccountController extends Controller
         ]);
 
         Excel::import(new AccountImport, $request->upload_file);
+
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded accounts');
 
         return back()->with([
             'message_success' => 'Accounts has been uploaded.'

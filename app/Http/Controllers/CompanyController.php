@@ -59,6 +59,11 @@ class CompanyController extends Controller
         ]);
         $company->save();
 
+        // logs
+        activity('create')
+        ->performedOn($company)
+        ->log(':causer.firstname :causer.lastname has created company :subject.name');
+
         return redirect()->route('company.index')->with([
             'message_success' => 'Company '.$company->name.' was created.'
         ]);
@@ -104,6 +109,17 @@ class CompanyController extends Controller
             'name' => $request->name,
             'order_limit' => $request->order_limit
         ]);
+        
+        $changes_arr = [
+            'old' => $company,
+            'changes' => $company->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($company)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated company :subject.name.');
 
         return back()->with([
             'message_success' => 'Company '.$company_name.' was updated.'

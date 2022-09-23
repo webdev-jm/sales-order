@@ -65,6 +65,11 @@ class InvoiceTermController extends Controller
         ]);
         $invoice_term->save();
 
+        // logs
+        activity('create')
+        ->performedOn($invoice_term)
+        ->log(':causer.firstname :causer.lastname has created invoice term :subject.description');
+
         return redirect()->route('invoice-term.index')->with([
             'message_success' => 'Invoice Term '.$invoice_term->term_code.' was created.'
         ]);
@@ -114,6 +119,17 @@ class InvoiceTermController extends Controller
             'due_days' => $request->due_days
         ]);
 
+        $changes_arr = [
+            'old' => $invoice_term,
+            'changes' => $invoice_term->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($invoice_term)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated invoice term :subject.description.');
+
         return back()->with([
             'message_success' => 'Invoice Term '.$invoice_term_code.' was updated.'
         ]);
@@ -138,6 +154,10 @@ class InvoiceTermController extends Controller
         ]);
 
         Excel::import(new InvoiceTermImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded invoice terms');
 
         return back()->with([
             'message_success' => 'Invoice Terms has been uploaded.'

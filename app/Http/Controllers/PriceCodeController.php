@@ -86,6 +86,11 @@ class PriceCodeController extends Controller
         ]);
         $price_code->save();
 
+        // logs
+        activity('create')
+        ->performedOn($price_code)
+        ->log(':causer.firstname :causer.lastname has created price code :subject.code');
+
         return redirect()->route('price-code.index')->with([
             'message_success' => 'Price Code '.$price_code->code.' was created.'
         ]);
