@@ -15,6 +15,7 @@ use App\http\Controllers\RoleController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AccountLoginController;
 use App\Http\Controllers\ShippingAddressController;
+use App\Http\Controllers\SystemLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,11 +38,14 @@ Route::get('/test', function() {
 
 Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 
-
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+
+    // SYSTEM LOGS
+    Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs');
+    // ->middleware('permission:system logs')
 
     // AJAX
     Route::post('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');

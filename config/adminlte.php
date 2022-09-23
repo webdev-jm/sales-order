@@ -425,6 +425,13 @@ return [
             'active'    => ['role*']
         ],
         [
+            'text'      => 'System Logs',
+            'url'       => '/system-logs',
+            'icon'      => 'fas fa-fw fa-business-time',
+            'can'       => 'system logs',
+            'active'    => ['system-logs*']
+        ],
+        [
             'text'      => 'Settings',
             'url'       => '/setting',
             'icon'      => 'fas fa-fw fa-wrench',
