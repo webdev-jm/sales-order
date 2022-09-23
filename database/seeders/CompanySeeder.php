@@ -20,7 +20,7 @@ class CompanySeeder extends Seeder
                 20
             ],
             [
-                'BEVI',
+                'BEVA',
                 17,
             ]
         ];
