@@ -33,9 +33,11 @@ class SalesOrderProducts extends Component
 
         $order_data = Session::get('order_data');
         if(empty($this->quantity) && !empty($order_data)) {
-            foreach($order_data['items'] as $product_id => $item) {
-                foreach($item['data'] as $uom => $data) {
-                    $this->quantity[$product_id][$uom] = $data['quantity'];
+            if(!empty($order_data['items'])) {
+                foreach($order_data['items'] as $product_id => $item) {
+                    foreach($item['data'] as $uom => $data) {
+                        $this->quantity[$product_id][$uom] = $data['quantity'];
+                    }
                 }
             }
         }

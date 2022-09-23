@@ -6,9 +6,17 @@
 
 @section('css')
 <style>
-    td {
+    /* td {
         word-wrap: break-word;
         white-space: inherit !important;
+    } */
+
+    .w150 {
+        width: 200px;
+    }
+
+    .w100 {
+        width: 75px;
     }
 
     .fast-spin {
