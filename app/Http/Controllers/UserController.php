@@ -79,6 +79,11 @@ class UserController extends Controller
 
         $user->assignRole($request->roles);
 
+        // logs
+        activity('create')
+        ->performedOn($user)
+        ->log(':causer.firstname :causer.lastname has created user :subject.firstname :subject.lastname.');
+
         return redirect()->route('user.index')->with([
             'message_success' => 'User '.$user->firstname.' was created.'
         ]);
@@ -132,6 +137,17 @@ class UserController extends Controller
 
         $user->syncRoles($request->roles);
 
+        $changes_arr = [
+            'old' => $user,
+            'changes' => $user->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($user)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated user :subject.firstname :subject.lastname.');
+
         return back()->with([
             'message_success' => 'User '.$user->firstname.' was updated.'
         ]);
@@ -183,6 +199,10 @@ class UserController extends Controller
                 $user->accounts()->sync($accounts->pluck('id'));
             }
         }
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded users');
 
         return back()->with([
             'message_success' => 'Users has been uploaded.'

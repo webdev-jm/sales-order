@@ -29,6 +29,11 @@ class RoleController extends Controller
     public function store(StoreRoleRequest $request) {
         $role = Role::create(['name' => $request->name])->givePermissionTo($request->permissions);
 
+        // logs
+        activity('create')
+        ->performedOn($role)
+        ->log(':causer.firstname :causer.lastname has created role :subject.name');
+
         return redirect()->route('role.index')->with([
             'message_success' => 'Role '.$role->name.' was created.'
         ]);
@@ -50,6 +55,17 @@ class RoleController extends Controller
             'name' => $request->name
         ]);
         $role->syncPermissions($request->permissions);
+
+        $changes_arr = [
+            'old' => $role,
+            'changes' => $role->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($role)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated role :subject.name.');
 
         return back()->with([
             'message_success' => $role_name

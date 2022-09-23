@@ -75,6 +75,11 @@ class ShippingAddressController extends Controller
         ]);
         $shipping_address->save();
 
+        // logs
+        activity('create')
+        ->performedOn($shipping_address)
+        ->log(':causer.firstname :causer.lastname has created shipping address :subject.address_code');
+
         return redirect()->route('shipping-address.index', $shipping_address->account_id)->with([
             'message_success' => 'Shipping address '.$shipping_address->address_code.' was created.'
         ]);
@@ -127,6 +132,17 @@ class ShippingAddressController extends Controller
             'postal' => $request->postal,
         ]);
 
+        $changes_arr = [
+            'old' => $shipping_address,
+            'changes' => $shipping_address->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($shipping_address)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated shipping address :subject.address_code.');
+
         return back()->with([
             'message_success' => 'Shipping address '.$shipping_address->address_code.' was updated.'
         ]);
@@ -151,6 +167,10 @@ class ShippingAddressController extends Controller
         ]);
 
         Excel::import(new ShippingAddressImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded shipping address.');
 
         return back()->with([
             'message_success' => 'Shipping Addresses has been uploaded.'

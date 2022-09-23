@@ -155,6 +155,17 @@ class PriceCodeController extends Controller
             'price_basis' => $request->price_basis,
         ]);
 
+        $changes_arr = [
+            'old' => $price_code,
+            'changes' => $price_code->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($price_code)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated price code :subject.code.');
+
         return back()->with([
             'message_success' => 'Price Code '.$code.' was updated.'
         ]);
@@ -179,6 +190,10 @@ class PriceCodeController extends Controller
         ]);
 
         Excel::import(new PriceCodeImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded price code');
 
         return back()->with([
             'message_success' => 'Price Codes has been uploaded.'

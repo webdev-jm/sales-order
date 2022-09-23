@@ -179,6 +179,11 @@ class SalesOrderController extends Controller
             }
         }
 
+        // logs
+        activity('create')
+        ->performedOn($sales_order)
+        ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number :subject.po_number');
+
         return redirect()->route('sales-order.index')->with([
             'message_success' => 'Sales Order '.$sales_order->control_number.' was created'
         ]);
@@ -328,6 +333,17 @@ class SalesOrderController extends Controller
                 $sales_order_product_uom->save();
             }
         }
+
+        $changes_arr = [
+            'old' => $sales_order,
+            'changes' => $sales_order->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($sales_order)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated sales order :subject.control_number :subject.po_number.');
 
         if($sales_order->status == 'draft') {
             return back()->with([
