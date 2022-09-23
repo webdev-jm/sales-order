@@ -47,6 +47,11 @@ class BranchController extends Controller
         ]);
         $branch->save();
 
+        // logs
+        activity('create')
+        ->performedOn($branch)
+        ->log(':causer.firstname :causer.lastname has created branch [:subject.branch_code] :subject.branch_name');
+
         return redirect()->route('branch.index')->with([
             'message_success' => 'Branch '.$branch->branch_code.' was created.'
         ]);

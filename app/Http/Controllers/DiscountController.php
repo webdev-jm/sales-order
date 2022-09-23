@@ -75,6 +75,11 @@ class DiscountController extends Controller
         ]);
         $discount->save();
 
+        // logs
+        activity('create')
+        ->performedOn($discount)
+        ->log(':causer.firstname :causer.lastname has created discount :subject.description');
+
         return redirect()->route('discount.index')->with([
             'message_success' => 'Discount '.$discount->discount_code.' was created.'
         ]);
@@ -133,6 +138,17 @@ class DiscountController extends Controller
             'discount_3' => $request->discount_3,
         ]);
 
+        $changes_arr = [
+            'old' => $discount,
+            'changes' => $discount->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($discount)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated discount :subject.description.');
+
         return redirect()->route('discount.index')->with([
             'message_success' => 'Discount '.$discount_code.' was updated.'
         ]);
@@ -157,6 +173,10 @@ class DiscountController extends Controller
         ]);
 
         Excel::import(new DiscountImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded discounts');
 
         return back()->with([
             'message_success' => 'Discounts has been uploaded.'

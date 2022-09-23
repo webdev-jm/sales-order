@@ -43,6 +43,11 @@ class ConfirmDelete extends Component
         } else { // delete function
             $this->model->delete();
 
+            activity('delete')
+            ->performedOn($this->model)
+            ->withProperties($this->model)
+            ->log(':causer.firstname :causer.lastname has deleted '.$this->name);
+
             return redirect()->to($this->route)->with([
                 'message_success' => 'Message Success '.$this->name.' was deleted.'
             ]);
