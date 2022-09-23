@@ -30,9 +30,10 @@
             </div>
         </div>
         <div class="card-body table-responsive p-0">
-            <table class="table table-sm table-bordered table-hover">
+            <table class="table table-sm table-bordered">
                 <thead class="bg-secondary">
                     <tr>
+                        <th></th>
                         <th>Product</th>
                         <th class="text-center">Category</th>
                         <th class="text-center">Brand</th>
@@ -51,6 +52,15 @@
                         $uom_arr = array_unique($uom_arr);
                     @endphp
                     <tr>
+                        <td class="p-0 text-center align-middle">
+                            @if(empty($product->status))
+                                <i class="fa fa-circle text-success rounded-circle" title="Active"></i>
+                            @elseif($product->status == 'F')
+                                <i class="fa fa-circle text-danger rounded-circle" title="Hold"></i>
+                            @else
+                                <i class="fa fa-circle text-warning rounded-circle" title="Partial Hold"></i>
+                            @endif
+                        </td>
                         <td class="align-middle px-2">
                             <span class="font-weight-bold">[{{$product->stock_code}}]</span>
                             <span>{{$product->description}} </span>
@@ -63,14 +73,14 @@
                             {{$product->brand}}
                         </td>
                         <td class="p-0 align-middle">
-                            <select class="form-control border-0 px-1" wire:change="change" wire:model="uom.{{$product->id}}">
+                            <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">
                                 @foreach($uom_arr as $key => $val)
                                 <option value="{{$val}}" {{$val == $product->order_uom ? 'selected' : ''}}>{{$val}}</option>
                                 @endforeach
                             </select>
                         </td>
                         <td class="p-0 align-middle">
-                            <input type="number" class="form-control border-0" min="0" wire:loading.attr="disabled" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}">
+                            <input type="number" class="form-control border-0 w150" min="0" wire:loading.attr="disabled" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}">
                         </td>
                     </tr>
                     @endforeach

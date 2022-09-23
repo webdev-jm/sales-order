@@ -193,7 +193,9 @@ class SalesOrderTotal extends Component
 
     public function render()
     {
-        Session::put('order_data', $this->orders);
+        if(!empty($this->orders)) {
+            Session::put('order_data', $this->orders);
+        }
         return view('livewire.sales-order.sales-order-total');
     }
 }
