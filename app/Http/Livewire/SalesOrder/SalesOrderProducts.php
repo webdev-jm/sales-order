@@ -13,7 +13,8 @@ class SalesOrderProducts extends Component
 
     protected $paginationTheme = 'bootstrap';
 
-    public $account, $quantity, $uom, $search = '', $brands, $brand = '';
+    public $account, $uom, $search = '', $brands, $brand = '';
+    public $quantity;
 
     public function updatingSearch()
     {
