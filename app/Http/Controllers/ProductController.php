@@ -89,6 +89,11 @@ class ProductController extends Controller
             'status' => $status
         ]);
         $product->save();
+        
+        // logs
+        activity('create')
+        ->performedOn($product)
+        ->log(':causer.firstname :causer.lastname has created product :subject.stock_code :subject.description');
 
         return redirect()->route('product.index')->with([
             'message_success' => 'Product '.$product->stock_code.' was created.'
@@ -151,6 +156,17 @@ class ProductController extends Controller
             'status' => $status
         ]);
 
+        $changes_arr = [
+            'old' => $product,
+            'changes' => $product->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($product)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated product :subject.stock_code :subject.description.');
+
         return back()->with([
             'message_success' => 'Product '.$product_code.' was updated.'
         ]);
@@ -175,6 +191,10 @@ class ProductController extends Controller
         ]);
 
         Excel::import(new ProductImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded product');
 
         return back()->with([
             'message_success' => 'Products has been uploaded.'

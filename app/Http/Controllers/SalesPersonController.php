@@ -49,6 +49,11 @@ class SalesPersonController extends Controller
 
         $sales_person->accounts()->attach($request->accounts);
 
+        // logs
+        activity('create')
+        ->performedOn($sales_person)
+        ->log(':causer.firstname :causer.lastname has created sales person :subject.code');
+
         return redirect()->route('sales-people.index')->with([
             'message_success' => 'Sales Person '.$sales_person->code.' was created.'
         ]);
@@ -105,6 +110,17 @@ class SalesPersonController extends Controller
         $sales_person->save();
 
         $sales_person->accounts()->sync($request->accounts);
+
+        $changes_arr = [
+            'old' => $sales_person,
+            'changes' => $sales_person->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($sales_person)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated sales person :subject.code.');
 
         return back()->with([
             'message_success' => 'Sales Person '.$sales_person->code.' was update.'

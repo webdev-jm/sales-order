@@ -36,6 +36,17 @@ class SettingController extends Controller
             'sales_order_limit' => $request->sales_order_limit
         ]);
 
+        $changes_arr = [
+            'old' => $setting,
+            'changes' => $setting->getChanges()
+        ];
+
+        // logs
+        activity('update')
+        ->performedOn($setting)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated settings');
+
         return back()->with([
             'message_success' => 'Settings was updated.'
         ]);
