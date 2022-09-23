@@ -57,8 +57,15 @@
     </div>
 
     <script>
-        var id = null;
-        var val = [];
+        var id = 'default';
+        var val = [
+            '{{$account->account_name}}',
+            '{{$account->ship_to_address1}}',
+            '{{$account->ship_to_address2}}',
+            '{{$account->ship_to_address3}}',
+            '{{$account->postal_code}}',
+        ];
+
         window.addEventListener('openModal', event => {
             var address_id = $('body').find('#shipping_address_id').val();
             $('body').find('.address-option').each(function() {
