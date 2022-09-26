@@ -58,7 +58,7 @@
             <br>
            <b>Order Date:</b> {{$sales_order->order_date}}<br>
             <b>Ship Date:</b> {{$sales_order->ship_date}}<br>
-            <b>Discount:</b> {{$sales_order->account_login->account->discount->description}}<br>
+            <b>Discount:</b> {{$sales_order->account_login->account->discount->description ?? ''}}<br>
             <b>Account:</b> [{{$sales_order->account_login->account->account_code}}] {{$sales_order->account_login->account->short_name}}
         </div>
 
@@ -144,7 +144,7 @@
                     </tr>
                     <tr>
                         <th>Discount</th>
-                        <td>{{$sales_order->account_login->account->discount->description}}</td>
+                        <td>{{$sales_order->account_login->account->discount->description ?? ''}}</td>
                     </tr>
                     <tr>
                         <th>Total Less Discount</th>

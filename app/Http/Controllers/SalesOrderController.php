@@ -122,7 +122,13 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $shipping_address_id = $request->shipping_address_id == null ? '' : $request->shipping_address_id;
+        if($order_data['po_value'] <= 0) {
+            return back()->with([
+                'message_error' => 'PO value is required.'
+            ]);
+        }
+
+        $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
 
         $sales_order = new SalesOrder([
             'account_login_id' => $logged_account->id,
@@ -278,7 +284,13 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $shipping_address_id = $request->shipping_address_id == null ? '' : $request->shipping_address_id;
+        if($order_data['po_value'] <= 0) {
+            return back()->with([
+                'message_error' => 'PO value is required.'
+            ]);
+        }
+
+        $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
 
         $sales_order = SalesOrder::findOrFail($id);
         $sales_order->update([

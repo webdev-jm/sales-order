@@ -185,7 +185,7 @@ class SalesOrderTotal extends Component
 
         $orders['total_quantity'] = $total_quantity;
         $orders['total'] = $total;
-        $orders['discount_id'] = $this->discount->id;
+        $orders['discount_id'] = $this->discount->id ?? null;
         $orders['grand_total'] = $discounted;
         $orders['po_value'] = $this->po_value;
 

@@ -53,7 +53,7 @@
                     <td>{{$activity->created_at->diffForHumans()}}</td>
                     <td class="text-right">
                         @if($activity->log_name == 'update')
-                            <a href="#" class="btn-show-changes"><i class="fa fa-exchange-alt"></i></a>
+                            <a href="#" class="btn-show-changes btn-changes" data-id="{{$activity->id}}"><i class="fa fa-exchange-alt"></i></a>
                         @endif
                     </td>
                 </tr>
@@ -65,11 +65,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-changes">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <livewire:system-logs.logs-changes/>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
-
+    $(function() {
+        $('body').on('click', '.btn-changes', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('showChanges', id);
+            $('#modal-changes').modal('show');
+        });
+    });
 </script>
 @endsection
 

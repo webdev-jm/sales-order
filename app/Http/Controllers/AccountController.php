@@ -178,6 +178,9 @@ class AccountController extends Controller
     {
         $account = Account::findOrFail($id);
         $account_name = '['.$account->account_code.'] '.$account->account_name;
+
+        $changes_arr['old'] = $account;
+
         $account->update([
             'invoice_term_id' => $request->invoice_term_id,
             'company_id' => $request->company_id,
@@ -193,11 +196,8 @@ class AccountController extends Controller
             'tax_number' => $request->tax_number,
             'on_hold' => $request->on_hold,
         ]);
-
-        $changes_arr = [
-            'old' => $account,
-            'changes' => $account->getChanges()
-        ];
+        
+        $changes_arr['changes'] = $account->getChanges();
 
         // logs
         activity('update')
