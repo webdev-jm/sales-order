@@ -21,16 +21,16 @@ class AccountLogged extends Component
         if(empty($logged_account)) {
             Session::forget('logged_account');
         } else {
-            // check
-            $check = auth()->user()->accounts()->where('id', $logged_account->account_id)->first();
-            if(empty($check)) {
-                Session::forget('logged_account');
-                $logged_account->update([
-                    'time_out' => now()
-                ]);
-            } else {
+            // // check
+            // $check = auth()->user()->accounts()->where('id', $logged_account->account_id)->first();
+            // if(empty($check)) {
+            //     Session::forget('logged_account');
+            //     $logged_account->update([
+            //         'time_out' => now()
+            //     ]);
+            // } else {
                 Session::put('logged_account', $logged_account);
-            }
+            // }
         }
 
         $this->logged = Session::get('logged_account');
