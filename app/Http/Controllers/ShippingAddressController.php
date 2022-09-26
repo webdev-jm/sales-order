@@ -121,6 +121,9 @@ class ShippingAddressController extends Controller
     public function update(UpdateShippingAddressRequest $request, $id)
     {
         $shipping_address = ShippingAddress::findOrFail($id);
+
+        $changes_arr['old'] = $shipping_address;
+
         $shipping_address->update([
             'account_id' => $request->account_id,
             'address_code' => $request->address_code,
@@ -132,10 +135,7 @@ class ShippingAddressController extends Controller
             'postal' => $request->postal,
         ]);
 
-        $changes_arr = [
-            'old' => $shipping_address,
-            'changes' => $shipping_address->getChanges()
-        ];
+        $changes_arr['changes'] = $shipping_address->getChanges();
 
         // logs
         activity('update')

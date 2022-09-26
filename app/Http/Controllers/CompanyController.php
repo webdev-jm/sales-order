@@ -105,15 +105,15 @@ class CompanyController extends Controller
     {
         $company = Company::findOrFail($id);
         $company_name = $company->name;
+
+        $changes_arr['old'] = $company;
+
         $company->update([
             'name' => $request->name,
             'order_limit' => $request->order_limit
         ]);
-        
-        $changes_arr = [
-            'old' => $company,
-            'changes' => $company->getChanges()
-        ];
+
+        $changes_arr['changes'] = $company->getChanges();
 
         // logs
         activity('update')

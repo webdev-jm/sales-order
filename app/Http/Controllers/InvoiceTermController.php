@@ -111,6 +111,9 @@ class InvoiceTermController extends Controller
     {
         $invoice_term = InvoiceTerm::findOrFail($id);
         $invoice_term_code = $invoice_term->term_code;
+
+        $changes_arr['old'] = $invoice_term;
+
         $invoice_term->update([
             'term_code' => $request->term_code,
             'description' => $request->description,
@@ -119,10 +122,7 @@ class InvoiceTermController extends Controller
             'due_days' => $request->due_days
         ]);
 
-        $changes_arr = [
-            'old' => $invoice_term,
-            'changes' => $invoice_term->getChanges()
-        ];
+        $changes_arr['changes'] = $invoice_term->getChanges();
 
         // logs
         activity('update')

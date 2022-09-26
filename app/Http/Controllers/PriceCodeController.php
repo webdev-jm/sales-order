@@ -147,6 +147,9 @@ class PriceCodeController extends Controller
     {
         $price_code = PriceCode::findOrFail($id);
         $code = $price_code->code;
+
+        $changes_arr['old'] = $price_code;
+
         $price_code->update([
             'company_id' => $request->company_id,
             'product_id' => $request->product_id,
@@ -155,10 +158,7 @@ class PriceCodeController extends Controller
             'price_basis' => $request->price_basis,
         ]);
 
-        $changes_arr = [
-            'old' => $price_code,
-            'changes' => $price_code->getChanges()
-        ];
+        $changes_arr['changes'] = $price_code->getChanges();
 
         // logs
         activity('update')

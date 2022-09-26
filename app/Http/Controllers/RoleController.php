@@ -51,16 +51,16 @@ class RoleController extends Controller
     public function update(UpdateRoleRequest $request, $id) {
         $role = Role::findOrFail($id);
         $role_name = $role->name;
+
+        $changes_arr['old'] = $role;
+
         $role->update([
             'name' => $request->name
         ]);
         $role->syncPermissions($request->permissions);
 
-        $changes_arr = [
-            'old' => $role,
-            'changes' => $role->getChanges()
-        ];
-
+        $changes_arr['changes'] = $role->getChanges();
+        
         // logs
         activity('update')
         ->performedOn($role)
