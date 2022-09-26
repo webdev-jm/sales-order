@@ -103,6 +103,9 @@ class SalesPersonController extends Controller
     {
         $sales_person = SalesPerson::findOrFail($id);
         $code = $sales_person->code;
+
+        $changes_arr['old'] = $sales_person;
+
         $sales_person->update([
             'user_id' => $request->user_id,
             'code' => $request->code
@@ -111,10 +114,7 @@ class SalesPersonController extends Controller
 
         $sales_person->accounts()->sync($request->accounts);
 
-        $changes_arr = [
-            'old' => $sales_person,
-            'changes' => $sales_person->getChanges()
-        ];
+        $changes_arr['changes'] = $sales_person->getChanges();
 
         // logs
         activity('update')

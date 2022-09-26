@@ -293,6 +293,9 @@ class SalesOrderController extends Controller
         $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
 
         $sales_order = SalesOrder::findOrFail($id);
+
+        $changes_arr['old'] = $sales_order;
+
         $sales_order->update([
             'shipping_address_id' => $shipping_address_id,
             'po_number' => $request->po_number,
@@ -346,10 +349,7 @@ class SalesOrderController extends Controller
             }
         }
 
-        $changes_arr = [
-            'old' => $sales_order,
-            'changes' => $sales_order->getChanges()
-        ];
+        $changes_arr['changes'] = $sales_order->getChanges();
 
         // logs
         activity('update')

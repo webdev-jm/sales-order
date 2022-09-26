@@ -31,15 +31,15 @@ class SettingController extends Controller
     public function update(UpdateSettingRequest $request, $id)
     {
         $setting = Setting::findOrFail($id);
+
+        $changes_arr['old'] = $setting;
+
         $setting->update([
             'data_per_page' => $request->data_per_page,
             'sales_order_limit' => $request->sales_order_limit
         ]);
 
-        $changes_arr = [
-            'old' => $setting,
-            'changes' => $setting->getChanges()
-        ];
+        $changes_arr['changes'] = $setting->getChanges();
 
         // logs
         activity('update')

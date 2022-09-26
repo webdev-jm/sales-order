@@ -137,6 +137,8 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product_code = $product->stock_code;
 
+        $changes_arr['old'] = $product;
+
         $status = $request->status == 'active' ? null : $request->status;
         $product->update([
             'stock_code' => $request->stock_code,
@@ -156,10 +158,7 @@ class ProductController extends Controller
             'status' => $status
         ]);
 
-        $changes_arr = [
-            'old' => $product,
-            'changes' => $product->getChanges()
-        ];
+        $changes_arr['changes'] = $product->getChanges();
 
         // logs
         activity('update')

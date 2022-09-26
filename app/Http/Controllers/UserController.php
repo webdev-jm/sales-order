@@ -127,6 +127,9 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, $id)
     {
         $user = User::findOrFail($id);
+
+        $changes_arr['old'] = $user;
+
         $user->update([
             'firstname' => $request->firstname,
             'middlename' => $request->middlename,
@@ -137,14 +140,12 @@ class UserController extends Controller
 
         $user->syncRoles($request->roles);
 
-        $changes_arr = [
-            'old' => $user,
-            'changes' => $user->getChanges()
-        ];
+        $model = $user;
+        $changes_arr['changes'] = $user->getChanges();
 
         // logs
         activity('update')
-        ->performedOn($user)
+        ->performedOn($model)
         ->withProperties($changes_arr)
         ->log(':causer.firstname :causer.lastname has updated user :subject.firstname :subject.lastname.');
 

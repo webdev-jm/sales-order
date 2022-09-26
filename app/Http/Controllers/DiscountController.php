@@ -129,6 +129,9 @@ class DiscountController extends Controller
     {
         $discount = Discount::findOrFail($id);
         $discount_code = $discount->discount_code;
+
+        $changes_arr['old'] = $discount;
+
         $discount->update([
             'company_id' => $request->company_id,
             'discount_code' => $request->discount_code,
@@ -138,10 +141,7 @@ class DiscountController extends Controller
             'discount_3' => $request->discount_3,
         ]);
 
-        $changes_arr = [
-            'old' => $discount,
-            'changes' => $discount->getChanges()
-        ];
+        $changes_arr['changes'] = $discount->getChanges();
 
         // logs
         activity('update')
