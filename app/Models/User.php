@@ -50,6 +50,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function adminlte_profile_url()
+    {
+        return route('profile');
+    }
+
     public function adminlte_desc() {
         return '';
     }

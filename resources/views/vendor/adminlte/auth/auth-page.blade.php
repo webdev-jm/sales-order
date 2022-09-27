@@ -13,7 +13,7 @@
     @yield('css')
 @stop
 
-@section('classes_body'){{ ($auth_type ?? 'login') . '-page bg-dark' }}@stop
+@section('classes_body'){{ ($auth_type ?? 'login') . '-page bg-gradient-navy' }}@stop
 
 @section('body')
     <div class="{{ $auth_type ?? 'login' }}-box">

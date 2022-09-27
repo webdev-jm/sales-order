@@ -16,6 +16,8 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\AccountLoginController;
 use App\Http\Controllers\ShippingAddressController;
 use App\Http\Controllers\SystemLogController;
+use App\Http\Controllers\ProfileController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -42,6 +44,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+
+    Route::get('profile', [ProfileController::class, 'index'])->name('profile');
 
     // SYSTEM LOGS
     Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs');
