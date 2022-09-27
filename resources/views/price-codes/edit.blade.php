@@ -32,7 +32,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('company_id', 'Company') !!}
-                    {!! Form::select('company_id', $companies, $price_code->company_id, ['class' => 'form-control'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'update_price_code']) !!}
+                    {!! Form::select('company_id', $companies, $price_code->company_id, ['class' => 'form-control select'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'update_price_code']) !!}
                     <p class="text-danger">{{$errors->first('company_id')}}</p>
                 </div>
             </div>
@@ -40,7 +40,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('product_id', 'Product') !!}
-                    {!! Form::select('product_id', $products, $price_code->product_id, ['class' => 'form-control'.($errors->has('product_id') ? ' is-invalid' : ''), 'form' => 'update_price_code']) !!}
+                    {!! Form::select('product_id', $products, $price_code->product_id, ['class' => 'form-control select'.($errors->has('product_id') ? ' is-invalid' : ''), 'form' => 'update_price_code']) !!}
                     <p class="text-danger">{{$errors->first('product_id')}}</p>
                 </div>
             </div>
@@ -85,7 +85,9 @@
 
 @section('js')
 <script>
-
+    $(function() {
+        $('.select').select2();
+    })
 </script>
 @endsection
 

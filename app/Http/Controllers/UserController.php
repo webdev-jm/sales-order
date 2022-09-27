@@ -64,8 +64,8 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $upass = trim($request->lastname).'123!';
-        $password = Hash::make($upass);
+        $email_arr = explode('@', $request->email);
+        $password = reset($email_arr).'123!';
         
         $user = new User([
             'firstname' => $request->firstname,

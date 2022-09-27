@@ -62,6 +62,7 @@
         </table>
     </div>
     <div class="card-footer">
+        {{$activities->links()}}
     </div>
 </div>
 
