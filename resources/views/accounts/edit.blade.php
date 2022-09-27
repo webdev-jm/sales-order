@@ -64,7 +64,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('discount_id', 'Discount') !!}
-                    {!! Form::select('discount_id', $discounts, $account->discount_id, ['class' => 'form-control'.($errors->has('discount_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
+                    {!! Form::select('discount_id', $discounts, $account->discount_id, ['class' => 'form-control select'.($errors->has('discount_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('discount_id')}}</p>
                 </div>
             </div>
@@ -72,7 +72,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('price_code', 'Price Code') !!}
-                    {!! Form::select('price_code', $price_codes, $account->price_code, ['class' => 'form-control'.($errors->has('price_code') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
+                    {!! Form::select('price_code', $price_codes, $account->price_code, ['class' => 'form-control select'.($errors->has('price_code') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('price_code')}}</p>
                 </div>
             </div>
@@ -80,7 +80,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('invoice_term_id', 'Invoice Term') !!}
-                    {!! Form::select('invoice_term_id', $invoice_terms, $account->invoice_term_id, ['class' => 'form-control'.($errors->has('invoice_term_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
+                    {!! Form::select('invoice_term_id', $invoice_terms, $account->invoice_term_id, ['class' => 'form-control select'.($errors->has('invoice_term_id') ? ' is-invalid' : ''), 'form' => 'update_account']) !!}
                     <p class="text-danger">{{$errors->first('invoice_term_id')}}</p>
                 </div>
             </div>
@@ -151,7 +151,9 @@
 
 @section('js')
 <script>
-
+    $(function() {
+        $('.select').select2();
+    })
 </script>
 @endsection
 

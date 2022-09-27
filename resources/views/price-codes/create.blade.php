@@ -32,7 +32,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('company_id', 'Company') !!}
-                    {!! Form::select('company_id', $companies, null, ['class' => 'form-control'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
+                    {!! Form::select('company_id', $companies, null, ['class' => 'form-control select'.($errors->has('company_id') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
                     <p class="text-danger">{{$errors->first('company_id')}}</p>
                 </div>
             </div>
@@ -40,7 +40,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('product_id', 'Product') !!}
-                    {!! Form::select('product_id', $products, null, ['class' => 'form-control'.($errors->has('product_id') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
+                    {!! Form::select('product_id', $products, null, ['class' => 'form-control select'.($errors->has('product_id') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
                     <p class="text-danger">{{$errors->first('product_id')}}</p>
                 </div>
             </div>
@@ -68,7 +68,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('price_basis', 'Price Basis') !!}
-                    {!! Form::text('price_basis', '', ['class' => 'form-control'.($errors->has('price_basis') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
+                    {!! Form::select('price_basis', $price_basis, null, ['class' => 'form-control'.($errors->has('price_basis') ? ' is-invalid' : ''), 'form' => 'add_price_code']) !!}
                     <p class="text-danger">{{$errors->first('price_basis')}}</p>
                 </div>
             </div>
@@ -85,7 +85,9 @@
 
 @section('js')
 <script>
-
+    $(function() {
+        $('.select').select2();
+    })
 </script>
 @endsection
 

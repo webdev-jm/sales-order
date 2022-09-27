@@ -60,12 +60,24 @@ class PriceCodeController extends Controller
         $products = Product::orderBy('stock_code', 'ASC')->get();
         $products_arr = [];
         foreach($products as $product) {
-            $products_arr[$product->id] = $product->stock_code;
+            $products_arr[$product->id] = '['.$product->stock_code.'] '.$product->description .' '.$product->size;
+        }
+
+        $price_basis = PriceCode::select('price_basis')->distinct()->get();
+        $price_basis_arr = [];
+        $price_basis_data = [
+            'S' => 'Stock',
+            'A' => 'Order',
+            'O' => 'Other'  
+        ];
+        foreach($price_basis as $basis) {
+            $price_basis_arr[$basis->price_basis] = $basis->price_basis.' - '.$price_basis_data[$basis->price_basis];
         }
 
         return view('price-codes.create')->with([
             'companies' => $companies_arr,
             'products' => $products_arr,
+            'price_basis' => $price_basis_arr
         ]);
     }
 

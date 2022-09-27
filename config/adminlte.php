@@ -216,7 +216,7 @@ return [
     'sidebar_collapse_remember' => true,
     'sidebar_collapse_remember_no_transition' => true,
     'sidebar_scrollbar_theme' => 'os-theme-light',
-    'sidebar_scrollbar_auto_hide' => 'l',
+    'sidebar_scrollbar_auto_hide' => 'xl',
     'sidebar_nav_accordion' => true,
     'sidebar_nav_animation_speed' => 300,
 
@@ -604,6 +604,21 @@ return [
                     'location' => '/vendor/ekko-lightbox/ekko-lightbox.min.js',
                 ]
             ],
+        ],
+        'Fullcalendar' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '/vendor/fullcalendar/main.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/fullcalendar/main.min.js',
+                ]
+            ]
         ]
     ],
 
