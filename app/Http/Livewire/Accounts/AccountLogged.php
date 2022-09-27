@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Accounts;
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
 use AccountLoginModel;
+use App\Models\Account;
 
 class AccountLogged extends Component
 {
@@ -21,16 +22,25 @@ class AccountLogged extends Component
         if(empty($logged_account)) {
             Session::forget('logged_account');
         } else {
-            // // check
-            // $check = auth()->user()->accounts()->where('id', $logged_account->account_id)->first();
-            // if(empty($check)) {
-            //     Session::forget('logged_account');
-            //     $logged_account->update([
-            //         'time_out' => now()
-            //     ]);
-            // } else {
+            // check
+            $check = Account::where(function($query) {
+                $query->whereHas('users', function($qry) {
+                    $qry->where('user_id', auth()->user()->id);
+                })
+                ->orWhereHas('sales_people', function($qry) {
+                    $qry->where('user_id', auth()->user()->id);
+                });
+            })
+            ->where('id', $logged_account->account_id)->first();
+            
+            if(empty($check)) {
+                Session::forget('logged_account');
+                $logged_account->update([
+                    'time_out' => now()
+                ]);
+            } else {
                 Session::put('logged_account', $logged_account);
-            // }
+            }
         }
 
         $this->logged = Session::get('logged_account');

@@ -12,6 +12,9 @@
     <div class="col-md-6">
         <h1>System Settings</h1>
     </div>
+    <div class="col-md-6 text-right">
+        <a href="#" class="btn btn-warning" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload PO Numbers</a>
+    </div>
 </div>
 @endsection
 
@@ -51,11 +54,69 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-upload">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Users</h4>
+            </div>
+            <div class="modal-body">
+                {!! Form::open(['method' => 'POST', 'route' => ['po-number.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::close() !!}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="custom-file">
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form']) !!}
+                                {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
+                            </div>
+                            <p class="text-danger">{{$errors->first('upload_file')}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                {!! Form::submit('Upload', ['class' => 'btn btn-primary', 'form' => 'upload_form']) !!}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="loadingModal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog" aria-labelledby="loadingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center" id="exampleModalLongTitle">UPLOADING......</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <i class="fa fa-spinner fa-spin fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
+    $(function() {
+        $('#btn-upload').on('click', function(e){
+            e.preventDefault();
+            $('#modal-upload').modal('show');
+        });
 
+        $('#upload_form').on('submit', function() {
+            $('#modal-upload').modal('hide');
+            $('#loadingModal').modal('show');
+        });
+    });
 </script>
 @endsection
 
