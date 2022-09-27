@@ -205,5 +205,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:settings access'], function() {
         Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
         Route::post('setting/{id}', [SettingController::class, 'update'])->name('setting.update');
+        Route::post('po-number/upload', [SettingController::class, 'upload'])->name('po-number.upload');
     });
 });

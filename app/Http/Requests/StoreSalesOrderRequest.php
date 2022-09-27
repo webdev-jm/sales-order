@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\SalesOrder;
 
+use Illuminate\Support\Facades\Session;
+
 class StoreSalesOrderRequest extends FormRequest
 {
     /**
@@ -25,6 +27,8 @@ class StoreSalesOrderRequest extends FormRequest
      */
     public function rules()
     {
+        $logged_account = Session::get('logged_account');
+
         return [
             'control_number' => [
                 'required', Rule::unique((new SalesOrder)->getTable())
@@ -33,7 +37,9 @@ class StoreSalesOrderRequest extends FormRequest
                 'required'
             ],
             'po_number' => [
-                'required', Rule::unique((new SalesOrder)->getTable())
+                'required',
+                Rule::unique((new SalesOrder)->getTable()),
+                Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id)
             ],
             'order_date' => [
                 'required'

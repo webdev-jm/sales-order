@@ -6,6 +6,14 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateSettingRequest;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\PurchaseOrderNumberImport;
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 0);
+ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
+ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
+
 class SettingController extends Controller
 {
     /**
@@ -49,6 +57,24 @@ class SettingController extends Controller
 
         return back()->with([
             'message_success' => 'Settings was updated.'
+        ]);
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new PurchaseOrderNumberImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded po numbers');
+
+        return back()->with([
+            'message_success' => 'PO numbers has been uploaded.'
         ]);
     }
 }
