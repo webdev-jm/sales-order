@@ -13,7 +13,7 @@ class StoreOperationProcessRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('operation process create');
     }
 
     /**
@@ -24,7 +24,18 @@ class StoreOperationProcessRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'company_id' => [
+                'required'
+            ],
+            'operation_process' => [
+                'required'
+            ],
+            'description.*' => [
+                'max:255'
+            ],
+            'remarks.*' => [
+                'max:255'
+            ]
         ];
     }
 }

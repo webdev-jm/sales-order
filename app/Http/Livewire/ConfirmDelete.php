@@ -16,6 +16,7 @@ use App\Models\SalesPerson;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\SalesOrder;
+use App\Models\OperationProcess;
 
 class ConfirmDelete extends Component
 {
@@ -111,6 +112,11 @@ class ConfirmDelete extends Component
                 $this->model = SalesOrder::findOrFail($model_id);
                 $this->name = $this->model->control_number;
                 $this->route = '/sales-order';
+                break;
+            case 'OperationProcess':
+                $this->model = OperationProcess::findOrFail($model_id);
+                $this->name = $this->model->operation_process;
+                $this->route = '/operation-process';
                 break;
         }
     }

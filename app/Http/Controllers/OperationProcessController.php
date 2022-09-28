@@ -48,7 +48,15 @@ class OperationProcessController extends Controller
      */
     public function create()
     {
-        //
+        $companies = Company::all();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
+        return view('operation-processes.create')->with([
+            'companies' => $companies_arr
+        ]);
     }
 
     /**
@@ -59,7 +67,29 @@ class OperationProcessController extends Controller
      */
     public function store(StoreOperationProcessRequest $request)
     {
-        //
+        $operation_process = new OperationProcess([
+            'company_id' => $request->company_id,
+            'operation_process' => $request->operation_process
+        ]);
+        $operation_process->save();
+
+        foreach($request->description as $key => $description) {
+            $activity = new Activity([
+                'operation_process_id' => $operation_process->id,
+                'description' => $request->description[$key],
+                'remarks' => $request->remarks[$key],
+            ]);
+            $activity->save();
+        }
+
+        // logs
+        activity('create')
+        ->performedOn($operation_process)
+        ->log(':causer.firstname :causer.lastname has created operation process :subject.operation_process');
+
+        return redirect()->route('operation-process.index')->with([
+            'message_success' => 'Operation process was created'
+        ]);
     }
 
     /**
@@ -79,9 +109,20 @@ class OperationProcessController extends Controller
      * @param  \App\Models\OperationProcess  $operationProcess
      * @return \Illuminate\Http\Response
      */
-    public function edit(OperationProcess $operationProcess)
+    public function edit($id)
     {
-        //
+        $operation_process = OperationProcess::findOrFail($id);
+
+        $companies = Company::all();
+        $companies_arr = [];
+        foreach($companies as $company) {
+            $companies_arr[$company->id] = $company->name;
+        }
+
+        return view('operation-processes.edit')->with([
+            'companies' => $companies_arr,
+            'operation_process' => $operation_process
+        ]);
     }
 
     /**
@@ -91,9 +132,28 @@ class OperationProcessController extends Controller
      * @param  \App\Models\OperationProcess  $operationProcess
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateOperationProcessRequest $request, OperationProcess $operationProcess)
+    public function update(UpdateOperationProcessRequest $request, $id)
     {
-        //
+        $operation_process = OperationProcess::findOrFail($id);
+        $operation_process->update([
+            'company_id' => $request->company_id,
+            'operation_process' => $request->operation_process
+        ]);
+        
+        $operation_process->activities()->forceDelete();
+        foreach($request->description as $key => $description) {
+            $activity = new Activity([
+                'operation_process_id' => $operation_process->id,
+                'description' => $request->description[$key],
+                'remarks' => $request->remarks[$key],
+            ]);
+            $activity->save();
+        }
+
+        return back()->with([
+            'message_success' => 'Operation process was updated.'
+        ]);
+
     }
 
     /**
