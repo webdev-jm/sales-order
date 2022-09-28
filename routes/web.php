@@ -17,7 +17,7 @@ use App\Http\Controllers\AccountLoginController;
 use App\Http\Controllers\ShippingAddressController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\ProfileController;
-
+use App\Http\Controllers\OperationProcessController;
 
 /*
 |--------------------------------------------------------------------------
@@ -175,6 +175,18 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('sales-people/{id}/edit', [SalesPersonController::class, 'edit'])->name('sales-person.edit')->middleware('permission:sales person edit');
         Route::post('sales-people/{id}', [SalesPersonController::class, 'update'])->name('sales-person.update')->middleware('permission:sales person edit');
+    });
+
+    // OPERATION PROCESS
+    Route::group(['middleware' => 'permission:operation process access'], function() {
+        Route::get('operation-process', [OperationProcessController::class, 'index'])->name('operation-process.index');
+        Route::get('operation-process/create', [OperationProcessController::class, 'create'])->name('operation-process.create')->middleware('permission:operation process create');
+        Route::post('operation-process', [OperationProcessController::class, 'store'])->name('operation-process.store')->middleware('permission:operation process create');
+
+        Route::post('operation-process/upload', [OperationProcessController::class, 'upload'])->name('operation-process.upload')->middleware('permission:operation process create');
+
+        Route::get('operation-process/{id}/edit', [OperationProcessController::class, 'edit'])->name('operation-process.edit')->middleware('permission:operation process edit');
+        Route::post('operation-process/{id}', [OperationProcessController::class, 'update'])->name('operation-process.update')->middleware('permission:operation process edit');
     });
 
     // ACCOUNT LOGINS
