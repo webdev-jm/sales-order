@@ -2,7 +2,7 @@
     <div class="card shadow-sm">
         <div class="card-header bg-success">
             <h3 class="card-title">PRODUCTS <i class="fa fa-sm fa-circle-notch fast-spin" wire:loading></i></h3>
-            <div class="card-tools">
+            <div class="card-tools mt-3">
                 <div class="row">
                     <div class="col">
                         <div class="input-group input-group-sm">
