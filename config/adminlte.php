@@ -336,6 +336,7 @@ return [
                 'product access',
                 'price code access',
                 'sales people access',
+                'operation process access',
             ]
         ],
         [
@@ -393,6 +394,13 @@ return [
             'icon'      => 'fas fa-fw fa-universal-access',
             'can'       => 'sales people access',
             'active'    => ['sales-people*']
+        ],
+        [
+            'text'      => 'Operation Processes',
+            'url'       => '/operation-process',
+            'icon'      => 'fas fa-fw fa-microchip',
+            'can'       => 'operation process access',
+            'active'    => ['operation-process*']
         ],
         [
             'header'    => 'system_menu',

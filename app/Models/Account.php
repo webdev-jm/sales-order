@@ -33,6 +33,10 @@ class Account extends Model
         return $this->belongsTo('App\Models\Discount');
     }
 
+    public function branches() {
+        return $this->hasMany('App\Models\Branch');
+    }
+
     public function users() {
         return $this->belongsToMany('App\Models\User');
     }

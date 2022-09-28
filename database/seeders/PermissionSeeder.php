@@ -70,6 +70,11 @@ class PermissionSeeder extends Seeder
             'sales person create',
             'sales person edit',
             'sales person delete',
+            // operation process
+            'operation process access',
+            'operation process create',
+            'operation process edit',
+            'operation process delete',
             // account logins
             'account login access',
             'account login export',

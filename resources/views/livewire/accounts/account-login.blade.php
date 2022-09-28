@@ -24,6 +24,8 @@
                             <h3>{{$account->account_code}}</h3>
                             <p class="text-uppercase mb-0">{{$account->account_name}}</p>
                             <small class="text-muted">{{$account->short_name}}</small>
+                            <br>
+                            <button class="btn btn-primary btn-xs" wire:click.prevent="branchModal({{$account->id}})">Branches</button>
                         </div>
                         <a href="#" class="small-box-footer text-dark get-location" wire:loading.attr="disabled" wire:click.prevent="loginModal({{$account->id}})">Sign In<i class="fas fa-arrow-circle-right ml-2"></i></a>
                     </div>
@@ -43,6 +45,12 @@
         </div>
     </div>
 
+    <div class="modal fade" id="branch-login-modal">
+        <div class="modal-dialog modal-lg">
+            <livewire:accounts.account-branch-login/>
+        </div>
+    </div>
+
     <script>
         window.addEventListener('openFormModal', event => {
             $("#login-modal").modal('show');
@@ -50,6 +58,10 @@
 
         window.addEventListener('closeFormModal', event => {
             $("#login-modal").modal('hide');
+        });
+
+        window.addEventListener('openBranchModal', event => {
+            $('#branch-login-modal').modal('show');
         });
     </script>
 </div>

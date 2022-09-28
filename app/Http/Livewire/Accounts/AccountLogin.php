@@ -26,6 +26,11 @@ class AccountLogin extends Component
         $this->dispatchBrowserEvent('openFormModal');
     }
 
+    public function branchModal($account_id) {
+        $this->emit('setAccount', $account_id);
+        $this->dispatchBrowserEvent('openBranchModal');
+    }
+
     public function render()
     {
         $accounts = Account::where(function($query) {
