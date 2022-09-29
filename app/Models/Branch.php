@@ -16,6 +16,9 @@ class Branch extends Model
         'account_id',
         'branch_code',
         'branch_name',
+        'region',
+        'classification',
+        'area',
     ];
 
     public function account() {

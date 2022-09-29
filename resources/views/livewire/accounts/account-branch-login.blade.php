@@ -20,8 +20,8 @@
 
             <div class="row">
                 @foreach($branches as $branch)
-                <div class="col-lg-4">
-                    <button type="button" class="btn btn-default btn-block" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
+                <div class="col-lg-4 my-2">
+                    <button type="button" class="btn btn-default btn-block h-100" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
                 </div>
                 @endforeach
             </div>
