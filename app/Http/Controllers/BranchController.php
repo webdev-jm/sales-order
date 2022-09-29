@@ -6,6 +6,15 @@ use App\Models\Branch;
 use App\Models\Account;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
+use Illuminate\Http\Request;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\BranchImport;
+
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 0);
+ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
+ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class BranchController extends Controller
 {
@@ -100,5 +109,23 @@ class BranchController extends Controller
     public function destroy(Branch $branch)
     {
         //
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        Excel::import(new BranchImport, $request->upload_file);
+
+        // logs
+        activity('upload')
+        ->log(':causer.firstname :causer.lastname has uploaded branches');
+
+        return back()->with([
+            'message_success' => 'Branches has been uploaded.'
+        ]);
     }
 }

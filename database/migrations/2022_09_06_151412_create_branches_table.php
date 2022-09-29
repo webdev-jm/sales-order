@@ -18,6 +18,9 @@ class CreateBranchesTable extends Migration
             $table->unsignedBigInteger('account_id')->nullable();
             $table->string('branch_code');
             $table->string('branch_name');
+            $table->string('region');
+            $table->string('classification');
+            $table->string('area');
             $table->timestamps();
 
             $table->foreign('account_id')

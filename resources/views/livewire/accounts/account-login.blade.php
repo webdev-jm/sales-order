@@ -23,7 +23,7 @@
                         <div class="inner">
                             <h3>{{$account->account_code}}</h3>
                             <p class="text-uppercase mb-0">{{$account->account_name}}</p>
-                            <small class="text-muted">{{$account->short_name}}</small>
+                            <small class="text-muted">{{$account->short_name}} [{{$account->company->name}}]</small>
                             <br>
                             <button class="btn btn-primary btn-xs" wire:click.prevent="branchModal({{$account->id}})">Branches</button>
                         </div>
@@ -46,7 +46,7 @@
     </div>
 
     <div class="modal fade" id="branch-login-modal">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <livewire:accounts.account-branch-login/>
         </div>
     </div>
