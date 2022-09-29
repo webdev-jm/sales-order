@@ -63,6 +63,10 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Models\Account');
     }
 
+    public function branches() {
+        return $this->belongsToMany('App\Models\Branch');
+    }
+
     public function account_logins() {
         return $this->hasMany('App\Models\AccountLogin');
     }
