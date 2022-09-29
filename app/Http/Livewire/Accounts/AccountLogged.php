@@ -17,6 +17,7 @@ class AccountLogged extends Component
     }
 
     public function loggedBranchForm() {
+        $this->emit('reloadActivities');
         $this->dispatchBrowserEvent('openLoggedModal'.$this->logged_branch->id);
     }
 

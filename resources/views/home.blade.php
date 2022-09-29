@@ -28,7 +28,7 @@
     </div>
     <div class="card-body">
 
-        
+        <livewire:activities.activities :logged_branch="$logged_branch"/>
 
     </div>
 </div>

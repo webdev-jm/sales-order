@@ -16,6 +16,7 @@ class CreateActivitiesTable extends Migration
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('operation_process_id')->nullable();
+            $table->integer('number');
             $table->string('description');
             $table->string('remarks')->nullable();
             $table->timestamps();
