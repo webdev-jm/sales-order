@@ -62,6 +62,7 @@
                     <td>{{$user->group_code}}</td>
                     <td>{{implode(', ', $user->getRoleNames()->toArray())}}</td>
                     <td class="text-right">
+                        <a href="" title="branches" class="btn-branch-assign" data-id="{{$user->id}}"><i class="fas fa-code-branch text-primary mx-1"></i></a>
                         <livewire:users.user-account :user_id="$user->id"/>
                         @can('user edit')
                             <a href="{{route('user.edit', $user->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
@@ -133,6 +134,12 @@
         <livewire:confirm-delete/>
     </div>
 </div>
+
+<div class="modal fade" id="modal-branches">
+    <div class="modal-dialog modal-xl">
+        <livewire:users.user-branch/>
+    </div>
+</div>
 @endsection
 
 @section('js')
@@ -153,6 +160,13 @@
             var id = $(this).data('id');
             Livewire.emit('setDeleteModel', 'User', id);
             $('#modal-delete').modal('show');
+        });
+
+        $('body').on('click', '.btn-branch-assign', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('userBranch', id);
+            $('#modal-branches').modal('show');
         });
     });
 </script>

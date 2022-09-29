@@ -21,4 +21,8 @@ class Branch extends Model
     public function account() {
         return $this->belongsTo('App\Models\Account');
     }
+
+    public function users() {
+        return $this->belongsToMany('App\Models\User');
+    }
 }

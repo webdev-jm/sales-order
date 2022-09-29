@@ -35,7 +35,7 @@ class AccountBranchLogin extends Component
         if(!empty($this->account)) {
             $branches = Branch::orderBy('branch_code', 'ASC')
             ->where('account_id', $this->account->id)
-            ->paginate(12, ['*'], 'branchPage')
+            ->paginate(1, ['*'], 'branchPage')
             ->onEachSide(1)->appends(request()->query());
         }
 

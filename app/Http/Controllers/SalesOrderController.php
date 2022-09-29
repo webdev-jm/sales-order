@@ -54,7 +54,7 @@ class SalesOrderController extends Controller
             ]);
         } else {
             return redirect()->route('home')->with([
-                'message_error' => 'please sign in to accounts before creating sales order'
+                'message_error' => 'please sign in to account before creating sales order'
             ]);
         }
         
@@ -70,7 +70,7 @@ class SalesOrderController extends Controller
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
             return redirect()->route('home')->with([
-                'message_error' => 'please sign in to accounts before creating sales order'
+                'message_error' => 'please sign in to account before creating sales order'
             ]);
         }
 
@@ -226,7 +226,7 @@ class SalesOrderController extends Controller
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
             return redirect()->route('home')->with([
-                'message_error' => 'please sign in to accounts before creating sales order'
+                'message_error' => 'please sign in to account before creating sales order'
             ]);
         }
 
