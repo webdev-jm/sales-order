@@ -31,4 +31,8 @@ class BranchLogin extends Model
     public function operation_process() {
         return $this->belongsTo('App\Models\OperationProcess');
     }
+
+    public function login_activities() {
+        return $this->hasMany('App\Models\BranchLoginActivity');
+    }
 }

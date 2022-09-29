@@ -13,6 +13,7 @@ class Activity extends Model
 
     protected $fillable = [
         'operation_process_id',
+        'number',
         'description',
         'remarks',
     ];

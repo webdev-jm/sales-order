@@ -193,6 +193,7 @@ class OperationProcessController extends Controller
             if(!empty($row[2])) {
                 $activity = new Activity([
                     'operation_process_id' => $operation_process->id,
+                    'number' => $row[2],
                     'description' => $row[3],
                     'remarks' => $row[4],
                 ]);
