@@ -71,12 +71,20 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\AccountLogin');
     }
 
+    public function branch_logins() {
+        return $this->hasMany('App\Models\BranchLogin');
+    }
+
     public function sales_person() {
         return $this->hasMany('App\Models\SalesPerson');
     }
 
     public function logged_account() {
         return $this->account_logins()->whereNull('time_out')->first();
+    }
+
+    public function logged_branch() {
+        return $this->branch_logins()->whereNull('time_out')->first();
     }
 
     public function scopeUserSearch($query, $search, $limit) {

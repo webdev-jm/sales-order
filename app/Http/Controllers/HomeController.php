@@ -26,8 +26,15 @@ class HomeController extends Controller
     public function index()
     {
         $logged_account = auth()->user()->logged_account();
+
+        $logged_branch = auth()->user()->logged_branch();
+        if(!empty($logged_branch)) {
+
+        }
+
         return view('home')->with([
-            'logged_account' => $logged_account
+            'logged_account' => $logged_account,
+            'logged_branch' => $logged_branch
         ]);
     }
 }

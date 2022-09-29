@@ -21,6 +21,17 @@
         <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
     </div>
 </div>
+@elseif(!empty($logged_branch))
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Activities</h3>
+    </div>
+    <div class="card-body">
+
+        
+
+    </div>
+</div>
 @else
     <livewire:accounts.account-login/>
 @endif
