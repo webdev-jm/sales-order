@@ -62,6 +62,9 @@
                     <td>{{$user->group_code}}</td>
                     <td>{{implode(', ', $user->getRoleNames()->toArray())}}</td>
                     <td class="text-right">
+                        @can('user change password')
+                        <a href="" title="change password" class="btn-change-pass" data-id="{{$user->id}}"><i class="fas fa-lock text-warning mx-1"></i></a>
+                        @endcan
                         <a href="" title="branches" class="btn-branch-assign" data-id="{{$user->id}}"><i class="fas fa-code-branch text-primary mx-1"></i></a>
                         <livewire:users.user-account :user_id="$user->id"/>
                         @can('user edit')
@@ -140,6 +143,14 @@
         <livewire:users.user-branch/>
     </div>
 </div>
+
+@can('user change password')
+<div class="modal fade" id="modal-change-pass">
+    <div class="modal-dialog">
+        <livewire:users.user-change-password/>
+    </div>
+</div>
+@endcan
 @endsection
 
 @section('js')
@@ -168,6 +179,15 @@
             Livewire.emit('userBranch', id);
             $('#modal-branches').modal('show');
         });
+
+        @can('user change password')
+        $('body').on('click', '.btn-change-pass', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setUser', id);
+            $('#modal-change-pass').modal('show');
+        });
+        @endcan
     });
 </script>
 @endsection

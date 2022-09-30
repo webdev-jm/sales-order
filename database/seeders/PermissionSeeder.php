@@ -88,6 +88,7 @@ class PermissionSeeder extends Seeder
             'user create',
             'user upload',
             'user edit',
+            'user change password',
             'user delete',
             // roles
             'role access',
