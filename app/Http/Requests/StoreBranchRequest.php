@@ -34,6 +34,15 @@ class StoreBranchRequest extends FormRequest
             ],
             'branch_name' => [
                 'required'
+            ],
+            'region' => [
+                'required'
+            ],
+            'classification' => [
+                'required'
+            ],
+            'area' => [
+                'required'
             ]
         ];
     }

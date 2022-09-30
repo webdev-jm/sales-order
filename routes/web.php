@@ -18,6 +18,7 @@ use App\Http\Controllers\ShippingAddressController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OperationProcessController;
+use App\Http\Controllers\UserBranchScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +71,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales-order.update')->middleware('permission:sales order edit');
 
         Route::get('list-sales-order/list', [SalesOrderController::class, 'list'])->name('sales-order.list')->middleware('permission:sales order list');
+    });
+
+    // CALENDAR
+    Route::group(['middleware' => 'permission:calendar access'], function() {
+        Route::get('calendar', [UserBranchScheduleController::class, 'index'])->name('calendar.index');
+
+        Route::post('calendar/upload', [UserBranchScheduleController::class, 'upload'])->name('calendar.upload')->middleware('permission:calendar create');
     });
 
     // COMPANY

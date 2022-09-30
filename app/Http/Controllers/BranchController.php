@@ -52,7 +52,10 @@ class BranchController extends Controller
         $branch = new Branch([
             'account_id' => $request->account_id,
             'branch_code' => $request->branch_code,
-            'branch_name' => $request->branch_name
+            'branch_name' => $request->branch_name,
+            'region' => $request->region,
+            'classification' => $request->classification,
+            'area' => $request->area,
         ]);
         $branch->save();
 
@@ -83,9 +86,13 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function edit(Branch $branch)
+    public function edit($id)
     {
-        //
+        $branch = Branch::findOrFail($id);
+
+        return view('branches.edit')->with([
+            'branch' => $branch
+        ]);
     }
 
     /**
@@ -95,9 +102,33 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateBranchRequest $request, Branch $branch)
+    public function update(UpdateBranchRequest $request, $id)
     {
-        //
+        $branch = Branch::findOrFail($id);
+
+        $changes_arr['old'] = $branch;
+
+        $branch->update([
+            'account_id' => $request->account_id,
+            'branch_code' => $request->branch_code,
+            'branch_name' => $request->branch_name,
+            'region' => $request->region,
+            'classification' => $request->classification,
+            'area' => $request->area,
+        ]);
+
+        $changes_arr['changes'] = $branch->getChanges();
+
+        // logs
+        activity('update')
+        ->performedOn($branch)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated branch :subject.branch_code.');
+
+        return back()->with([
+            'message_success' => 'Branch '.$branch->branch_code.' was updated.'
+        ]);
+
     }
 
     /**

@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Branch;
 
 class UpdateBranchRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class UpdateBranchRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('branch edit');
     }
 
     /**
@@ -24,7 +26,24 @@ class UpdateBranchRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'account_id' => [
+                'required'
+            ],
+            'branch_code' => [
+                'required', Rule::unique((new Branch)->getTable())->ignore($this->id)
+            ],
+            'branch_name' => [
+                'required'
+            ],
+            'region' => [
+                'required'
+            ],
+            'classification' => [
+                'required'
+            ],
+            'area' => [
+                'required'
+            ]
         ];
     }
 }

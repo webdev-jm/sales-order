@@ -326,6 +326,13 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
+            'text'      => 'Calendar',
+            'url'       => '/calendar',
+            'icon'      => 'fas fa-fw fa-calendar-alt',
+            'can'       => 'calendar access',
+            'active'    => ['calendar*']
+        ],
+        [
             'header'    => 'maintenance',
             'can'       => [
                 'company access',
