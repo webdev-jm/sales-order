@@ -53,6 +53,30 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('region', 'Region') !!}
+                    {!! Form::text('region', '', ['class' => 'form-control'.($errors->has('region') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('region')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('classification', 'Classification') !!}
+                    {!! Form::text('classification', '', ['class' => 'form-control'.($errors->has('classification') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('classification')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('area', 'Area') !!}
+                    {!! Form::text('area', '', ['class' => 'form-control'.($errors->has('area') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('area')}}</p>
+                </div>
+            </div>
+
         </div>
 
     </div>

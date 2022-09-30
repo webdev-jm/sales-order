@@ -25,6 +25,11 @@ class PermissionSeeder extends Seeder
             'sales order create',
             'sales order edit',
             'sales order delete',
+            // calendar
+            'calendar access',
+            'calendar create',
+            'calendar edit',
+            'calendar delete',
             // company
             'company access',
             'company create',

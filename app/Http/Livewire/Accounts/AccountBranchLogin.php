@@ -79,6 +79,7 @@ class AccountBranchLogin extends Component
 
     public function setAccount($account_id) {
         $this->account = Account::findOrFail($account_id);
+        $this->reset('search');
     }
 
     public function render()
