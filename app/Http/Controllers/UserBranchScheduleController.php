@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Branch;
 use App\Models\UserBranchSchedule;
 use App\Http\Requests\StoreUserBranchScheduleRequest;
 use App\Http\Requests\UpdateUserBranchScheduleRequest;
@@ -17,11 +19,29 @@ class UserBranchScheduleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        $user_id = trim($request->get('user_id'));
+        $branch_id = trim($request->get('branch_id'));
+
         $schedule_data = [];
         if(auth()->user()->hasRole('superadmin')) {
-            $schedules = UserBranchSchedule::all();
+            if(!empty($user_id) || !empty($branch_id)) {
+                $schedules = UserBranchSchedule::whereNotNull('id');
+                if(!empty($user_id)) {
+                    $schedules->where('user_id', $user_id);
+                
+                }
+
+                if(!empty($branch_id)) {
+                    $schedules->where('branch_id', $branch_id);
+                }
+
+                $schedules = $schedules->get();
+            } else {
+                $schedules = UserBranchSchedule::all();
+            }
+
             foreach($schedules as $schedule) {
                 $schedule_data[] = [
                     'title' => $schedule->user->firstname.' '.$schedule->user->lastname.' '.$schedule->branch->branch_code,
@@ -31,8 +51,24 @@ class UserBranchScheduleController extends Controller
                     'borderColor' => '#00a65a' //Success (green)
                 ];
             }
+
+            $users = UserBranchSchedule::select('user_id')->distinct()->get('user_id');
+
+            $users_arr = [
+                '' => 'All'
+            ];
+            foreach($users as $user) {
+                $user_data = User::findOrFail($user->user_id);
+                $users_arr[$user_data->id] = $user_data->firstname.' '.$user_data->lastname;
+            }
         } else {
-            $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)->get();
+            if(!empty($branch_id)) {
+                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
+                ->where('branch_id', $branch_id)
+                ->get();
+            } else {
+                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)->get();
+            }
             foreach($schedules as $schedule) {
                 $schedule_data[] = [
                     'title' => $schedule->branch->branch_code,
@@ -42,10 +78,28 @@ class UserBranchScheduleController extends Controller
                     'borderColor' => '#00a65a' //Success (green)
                 ];
             }
+
+            $users_arr = [
+                auth()->user()->id => auth()->user()->firstname.' '.auth()->user()->lastname
+            ];
+        }
+    
+        $branches = UserBranchSchedule::select('branch_id')->distinct()->get('branch_id');
+
+        $branches_arr = [
+            '' => 'All'
+        ];
+        foreach($branches as $branch) {
+            $branch_val = Branch::findOrFail($branch->branch_id);
+            $branches_arr[$branch_val->id] = $branch_val->branch_code.' '.$branch_val->branch_name;
         }
         
         return view('calendars.index')->with([
-            'schedule_data' => $schedule_data
+            'user_id' => $user_id,
+            'branch_id' => $branch_id,
+            'schedule_data' => $schedule_data,
+            'users' => $users_arr,
+            'branches' => $branches_arr
         ]);
     }
 
