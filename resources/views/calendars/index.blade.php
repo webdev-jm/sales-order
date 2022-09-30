@@ -18,25 +18,47 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'GET', 'route' => ['calendar.index'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
+
 <div class="row">
-    @if(auth()->user()->can('calendar create'))
+    
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Actions</h3>
+                <div class="card-tools">
+                    @can('calendar create')
+                    <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload"></i> Upload</button>
+                    @endif
+                </div>
             </div>
             <div class="card-body">
-
                 <div class="row">
+
                     <div class="col-lg-6">
-                        <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload"></i> Upload</button>
+                        <div class="form-group">
+                            {!! Form::label('user_id', 'User') !!}
+                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                        </div>
                     </div>
+    
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('branch_id', 'Branch') !!}
+                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
+            <div class="card-footer text-right">
+                {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
+            </div>
         </div>
     </div>
-    @endif
+    
     <div class="{{auth()->user()->can('calendar create') ? 'col-lg-8' : 'col-12'}}">
         <div class="card">
             <div class="card-header">
@@ -123,7 +145,6 @@
                 right : 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             themeSystem: 'bootstrap',
-            //Random default events
             events: @php echo json_encode($schedule_data); @endphp
         });
         calendar.render();
