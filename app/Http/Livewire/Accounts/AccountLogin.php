@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Accounts;
 
 use Livewire\Component;
 use App\Models\Account;
+use App\Models\SalesOrder;
 use Livewire\WithPagination;
 
 class AccountLogin extends Component
@@ -48,8 +49,19 @@ class AccountLogin extends Component
         })
         ->paginate(12)->onEachSide(1)->appends(request()->query());
 
+        $count_data = [];
+        foreach($accounts as $account) {
+            $count = SalesOrder::whereHas('account_login', function($query) use ($account) {
+                $query->where('account_id', $account->id)
+                ->where('user_id', auth()->user()->id);
+            })->count();
+
+            $count_data[$account->id] = $count;
+        }
+
         return view('livewire.accounts.account-login')->with([
-            'accounts' => $accounts
+            'accounts' => $accounts,
+            'count_data' => $count_data
         ]);
     }
 }

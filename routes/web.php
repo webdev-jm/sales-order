@@ -19,6 +19,7 @@ use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OperationProcessController;
 use App\Http\Controllers\UserBranchScheduleController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,6 +59,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
     Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');
+
+    // DASHBOARD
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {

@@ -44,7 +44,7 @@ class UserBranchScheduleController extends Controller
 
             foreach($schedules as $schedule) {
                 $schedule_data[] = [
-                    'title' => $schedule->user->firstname.' '.$schedule->user->lastname.' '.$schedule->branch->branch_code,
+                    'title' => $schedule->branch->branch_code,
                     'start' => $schedule->date,
                     'allDay' => true,
                     'backgroundColor' => '#00a65a', //Success (green)
