@@ -73,7 +73,7 @@ class SalesOrderProducts extends Component
                     $query->where('stock_code', 'like', '%'.$this->search.'%')
                     ->orWhere('description', 'like', '%'.$this->search.'%')
                     ->orWhere('category', 'like', '%'.$this->search.'%')
-                    ->orWhere('size')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
                     ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%')
@@ -88,7 +88,7 @@ class SalesOrderProducts extends Component
                     $query->where('stock_code', 'like', '%'.$this->search.'%')
                     ->orWhere('description', 'like', '%'.$this->search.'%')
                     ->orWhere('category', 'like', '%'.$this->search.'%')
-                    ->orWhere('size')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
                     ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%')
@@ -110,6 +110,7 @@ class SalesOrderProducts extends Component
                     $query->where('stock_code', 'like', '%'.$this->search.'%')
                     ->orWhere('description', 'like', '%'.$this->search.'%')
                     ->orWhere('category', 'like', '%'.$this->search.'%')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
                     ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%');
@@ -126,6 +127,7 @@ class SalesOrderProducts extends Component
                     $query->where('stock_code', 'like', '%'.$this->search.'%')
                     ->orWhere('description', 'like', '%'.$this->search.'%')
                     ->orWhere('category', 'like', '%'.$this->search.'%')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
                     ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%');
