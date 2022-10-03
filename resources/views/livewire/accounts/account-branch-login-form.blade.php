@@ -27,6 +27,9 @@
                     </ol>
                 </div>
             </div>
+            @elseif(!empty($logged_branch->login_activities()->count()))
+            <h4>Remarks</h4>
+            <p>{{$logged_branch->login_activities()->first()->remarks}}</p>
             @endif
 
             <div class="row">

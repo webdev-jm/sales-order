@@ -115,13 +115,13 @@ class SalesOrder extends Model
         $sales_orders = $query->orderBy('control_number', 'DESC')
         ->whereHas('account_login', function($qry) use($search) {
             $qry->whereHas('account', function($qry1) use($search) {
-                if(auth()->user()->id == 1) { // admin
+                // if(auth()->user()->id == 1) { // admin
 
-                } else {
-                    $qry1->whereHas('users', function($qry2) {
-                        $qry2->where('id', auth()->user()->id);
-                    });
-                }
+                // } else {
+                //     $qry1->whereHas('users', function($qry2) {
+                //         $qry2->where('id', auth()->user()->id);
+                //     });
+                // }
             });
         })
         ->paginate($limit)->onEachSide(1)->appends(request()->query());

@@ -54,12 +54,12 @@ class AccountBranchLoginForm extends Component
     }
 
     public function loadActivities() {
-        $this->branch_activities = $this->logged_branch->login_activities;
+        $this->branch_activities = $this->logged_branch->login_activities()->whereNotNull('activity_id')->get();
     }
 
     public function mount($logged_branch) {
         $this->branch = $logged_branch->branch;
-        $this->branch_activities = $logged_branch->login_activities;
+        $this->branch_activities = $logged_branch->login_activities()->whereNotNull('activity_id')->get();
     }
 
     public function render()

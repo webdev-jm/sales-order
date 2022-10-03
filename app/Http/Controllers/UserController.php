@@ -72,7 +72,7 @@ class UserController extends Controller
             'middlename' => $request->middlename,
             'lastname' => $request->lastname,
             'email' => $request->email,
-            'password' => $password,
+            'password' => Hash::make($password),
             'group_code' => $request->group_code
         ]);
         $user->save();

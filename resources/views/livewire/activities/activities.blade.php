@@ -50,5 +50,14 @@
             </table>
         </div>
     </div>
+    @else
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Remarks</h3>
+        </div>
+        <div class="card-body p-0">
+            <textarea class="form-control" rows="3" wire:model.lazy="remarks" wire:change="updateData"></textarea>
+        </div>
+    </div>
     @endif
 </div>
