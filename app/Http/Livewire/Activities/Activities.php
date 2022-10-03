@@ -11,7 +11,7 @@ class Activities extends Component
 {
     public $logged_branch, $branch, $operation_processes;
     public $operation_process_id, $activities;
-    public $activity_val;
+    public $activity_val, $remarks;
 
     public function selectOperationProcess() {
         if($this->operation_process_id != '') {
@@ -36,6 +36,25 @@ class Activities extends Component
         $this->logged_branch->update([
             'operation_process_id' => $operation_process_id
         ]);
+
+        if(empty($operation_process)) {
+            // check
+            $activity_check = BranchLoginActivity::where('branch_login_id', $this->logged_branch->id)
+                ->whereNull('activity_id')
+                ->first();
+            if(!empty($activity_check)) {
+                $activity_check->update([
+                    'remarks' => $this->remarks ?? ''
+                ]);
+            } else {
+                $branch_activity = new BranchLoginActivity([
+                    'branch_login_id' => $this->logged_branch->id,
+                    'activity_id' => NULL,
+                    'remarks' => $this->remarks ?? ''
+                ]);
+                $branch_activity->save();
+            }
+        }
 
         if(!empty($this->activity_val)) {
             foreach($this->activity_val as $activity_id  => $data) {
@@ -68,8 +87,9 @@ class Activities extends Component
             }
         } else {
             // remove all
-            $this->logged_branch->login_activities()->delete();
+            $this->logged_branch->login_activities()->whereNotNull('activity_id')->delete();
         }
+        
     }
 
     public function mount($logged_branch) {
@@ -83,14 +103,18 @@ class Activities extends Component
             ->get();
         }
 
-        $branch_activity = BranchLoginActivity::where('branch_login_id', $logged_branch->id)->get();
+        $branch_activity = BranchLoginActivity::where('branch_login_id', $logged_branch->id)->whereNotNull('activity_id')->get();
         $activity_val = [];
         foreach($branch_activity as $activity) {
-            $activity_val[$activity->activity_id] = [
-                'number' => true,
-                'remarks' => $activity->remarks
-            ];
+            if(!empty($activity->activity_id)) {
+                $activity_val[$activity->activity_id] = [
+                    'number' => true,
+                    'remarks' => $activity->remarks
+                ];
+            }
         }
+
+        $this->remarks = BranchLoginActivity::where('branch_login_id', $logged_branch->id)->whereNull('activity_id')->first()->remarks;
 
         if(!empty($activity_val)) {
             $this->activity_val = $activity_val;

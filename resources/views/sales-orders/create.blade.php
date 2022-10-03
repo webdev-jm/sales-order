@@ -106,7 +106,9 @@
                 </div>
 
                 <label class="mb-0">SHIP TO ADDRESS</label>
-                <livewire:sales-order.shipping-address-change :account_id="$logged_account->account_id"/>
+                {{-- <livewire:sales-order.shipping-address-change :account_id="$logged_account->account_id"/> --}}
+                <a href="#" class="badge badge-info ml-2" id="btn-address-modal"><i class="fa fa-edit mr-1"></i>Change Address</a>
+
                 {!! Form::hidden('shipping_address_id', 'default', ['form' => 'add_sales_order', 'id' => 'shipping_address_id']) !!}
                 <hr class="mt-0">
 
@@ -163,11 +165,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="address-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:sales-order.shipping-address-change :account_id="$logged_account->account_id"/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
     $(function() {
+
+        $('#btn-address-modal').on('click', function(e) {
+            e.preventDefault();
+            $('#address-modal').modal('show');
+        });
+
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
             var status = $(this).val();
