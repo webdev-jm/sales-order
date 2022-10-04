@@ -20,6 +20,7 @@ class PermissionSeeder extends Seeder
         $permissions_arr = [
             // sales order list
             'sales order list',
+            'sales order change status',
             // sales order
             'sales order access',
             'sales order create',

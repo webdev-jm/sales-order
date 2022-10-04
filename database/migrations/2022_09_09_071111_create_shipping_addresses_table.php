@@ -23,6 +23,8 @@ class CreateShippingAddressesTable extends Migration
             $table->string('city')->nullable();
             $table->string('tin')->nullable();
             $table->string('postal')->nullable();
+            $table->integer('active')->nullable();
+            $table->string('wh');
             $table->timestamps();
 
             $table->foreign('account_id')
