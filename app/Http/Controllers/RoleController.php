@@ -13,6 +13,10 @@ use Spatie\Permission\Models\Permission;
 class RoleController extends Controller
 {
     public function index() {
+
+        // Reset cached roles and permissions
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        
         $roles = Role::orderBy('id', 'DESC')->paginate(10);
         return view('roles.index')->with([
             'roles' => $roles

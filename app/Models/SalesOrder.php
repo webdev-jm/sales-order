@@ -16,6 +16,8 @@ class SalesOrder extends Model
         'shipping_address_id',
         'control_number',
         'po_number',
+        'reference',
+        'upload_status',
         'sales_order',
         'order_date',
         'ship_date',
@@ -67,64 +69,46 @@ class SalesOrder extends Model
     }
 
     public function scopeSalesOrderListSearch($query, $search, $limit) {
-        // if($search != '') {
-        //     $sales_orders = $query->orderBy('control_number', 'DESC')
-        //     ->whereHas('account_login', function($qry) use($search) {
-        //         $qry->whereHas('account', function($qry1) use($search) {
-        //             if(auth()->user()->id == 1) { // admin
-        //                 $qry1->where(function($qry2) use ($search) {
-        //                     $qry2->where('account_code', 'like', '%'.$search.'%')
-        //                     ->orWhere('short_name', 'like', '%'.$search.'%');
-        //                 });
-        //             } else {
-        //                 $qry1->where(function($qry2) {
-        //                     $qry2->where('account_code', 'like', '%'.$search.'%')
-        //                     ->orWhere('short_name', 'like', '%'.$search.'%');
-        //                 })
-        //                 ->whereHas('users', function($qry2) {
-        //                     $qry2->where('id', auth()->user()->id);
-        //                 });
-        //             }
-        //         });
-        //     })
-        //     ->where(function($qry) use ($search) {
-        //         $qry->where('control_number', 'like', '%'.$search.'%')
-        //         ->orWhere('po_number', 'like', '%'.$search.'%')
-        //         ->orWhere('order_date', 'like', '%'.$search.'%')
-        //         ->orWhere('ship_date', 'like', '%'.$search.'%')
-        //         ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-        //         ->orWhere('status', 'like', '%'.$search.'%');
-        //     })
-        //     ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        // } else {
-        //     $sales_orders = $query->orderBy('control_number', 'DESC')
-        //     ->whereHas('account_login', function($qry) use($search) {
-        //         $qry->whereHas('account', function($qry1) use($search) {
-        //             if(auth()->user()->id == 1) { // admin
 
-        //             } else {
-        //                 $qry1->whereHas('users', function($qry2) {
-        //                     $qry2->where('id', auth()->user()->id);
-        //                 });
-        //             }
-        //         });
-        //     })
-        //     ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        // }
-
-        $sales_orders = $query->orderBy('control_number', 'DESC')
-        ->whereHas('account_login', function($qry) use($search) {
-            $qry->whereHas('account', function($qry1) use($search) {
-                // if(auth()->user()->id == 1) { // admin
-
-                // } else {
-                //     $qry1->whereHas('users', function($qry2) {
-                //         $qry2->where('id', auth()->user()->id);
-                //     });
-                // }
-            });
-        })
-        ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        if($search != '') {
+            $sales_orders = $query->orderBy('control_number', 'DESC')
+            ->where(function($qry) use ($search) {
+                $qry->where('control_number', 'like', '%'.$search.'%')
+                ->orWhere('po_number', 'like', '%'.$search.'%')
+                ->orWhere('order_date', 'like', '%'.$search.'%')
+                ->orWhere('ship_date', 'like', '%'.$search.'%')
+                ->orWhere('ship_to_name', 'like', '%'.$search.'%')
+                ->orWhere('status', 'like', '%'.$search.'%');
+            })
+            ->orWhereHas('account_login', function($qry) use($search) {
+                $qry->whereHas('account', function($qry1) use($search) {
+                    // if(auth()->user()->id == 1) { // admin
+    
+                    // } else {
+                    //     $qry1->whereHas('users', function($qry2) {
+                    //         $qry2->where('id', auth()->user()->id);
+                    //     });
+                    // }
+                    $qry1->where('account_code', 'like', '%'.$search.'%')
+                    ->orWhere('short_name', 'like', '%'.$search.'%');
+                });
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $sales_orders = $query->orderBy('control_number', 'DESC')
+            ->whereHas('account_login', function($qry) use($search) {
+                $qry->whereHas('account', function($qry1) use($search) {
+                    // if(auth()->user()->id == 1) { // admin
+    
+                    // } else {
+                    //     $qry1->whereHas('users', function($qry2) {
+                    //         $qry2->where('id', auth()->user()->id);
+                    //     });
+                    // }
+                });
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
 
         return $sales_orders;
     }
