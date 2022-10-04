@@ -29,6 +29,7 @@ class ShippingAddressChange extends Component
     public function select() {
         $this->dispatchBrowserEvent('changeAddress');
         $this->dispatchBrowserEvent('closeModal');
+        $this->emit('saveData');
     }
 
     public function mount() {

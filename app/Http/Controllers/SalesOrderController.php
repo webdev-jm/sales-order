@@ -303,13 +303,31 @@ class SalesOrderController extends Controller
 
         if(empty($order_data['items'])) {
             return back()->with([
-                'message_error' => 'Please add items first.'
+                'message_error' => 'Please add items first.',
+                'shipping_address_id' => $request->shipping_address_id,
+                'po_number' => $request->po_number,
+                'ship_date' => $request->ship_date,
+                'shipping_instruction' => $request->shipping_instruction,
+                'ship_to_name' => $request->ship_to_name,
+                'ship_to_building' => $request->ship_to_address1,
+                'ship_to_street' => $request->ship_to_address2,
+                'ship_to_city' => $request->ship_to_address3,
+                'ship_to_postal' => $request->postal_code,
             ]);
         }
 
         if($order_data['po_value'] <= 0) {
             return back()->with([
-                'message_error' => 'PO value is required.'
+                'message_error' => 'PO value is required.',
+                'shipping_address_id' => $request->shipping_address_id,
+                'po_number' => $request->po_number,
+                'ship_date' => $request->ship_date,
+                'shipping_instruction' => $request->shipping_instruction,
+                'ship_to_name' => $request->ship_to_name,
+                'ship_to_building' => $request->ship_to_address1,
+                'ship_to_street' => $request->ship_to_address2,
+                'ship_to_city' => $request->ship_to_address3,
+                'ship_to_postal' => $request->postal_code,
             ]);
         }
 

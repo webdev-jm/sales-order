@@ -41,6 +41,7 @@
                     CONTROL NO: {{$sales_order->control_number}}
                     {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
                     <span class="badge float-right {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                    <livewire:sales-order.autosave :sales_order_id="$sales_order->id"/>
                 </h3>
             </div>
         </div>
@@ -69,7 +70,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('po_number', 'PO Number') !!}
-                            {!! Form::text('po_number', $sales_order->po_number, ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
+                            {!! Form::text('po_number', session('po_number') ?? $sales_order->po_number, ['class' => 'form-control form-control-sm'.($errors->has('po_number') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('po_number')}}</p>
                         </div>
                     </div>
@@ -85,7 +86,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('ship_date', 'Ship Date') !!}
-                            {!! Form::date('ship_date', $sales_order->ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
+                            {!! Form::date('ship_date', session('ship_date') ?? $sales_order->ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>
@@ -93,7 +94,7 @@
                     <div class="col-12">
                         <div class="form-group">
                             {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
-                            {!! Form::textarea('shipping_instruction', $sales_order->shipping_instruction, ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 1, 'form' => 'update_sales_order']) !!}
+                            {!! Form::textarea('shipping_instruction', session('shipping_instruction') ?? $sales_order->shipping_instruction, ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 1, 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('shipping_instruction')}}</p>
                         </div>
                     </div>
@@ -102,7 +103,7 @@
 
                 <label class="mb-0">SHIP TO ADDRESS</label>
                 <a href="#" class="badge badge-info ml-2" id="btn-address-modal"><i class="fa fa-edit mr-1"></i>Change Address</a>
-                {!! Form::hidden('shipping_address_id', $sales_order->shipping_address_id ?? 'default', ['form' => 'update_sales_order', 'id' => 'shipping_address_id']) !!}
+                {!! Form::hidden('shipping_address_id', session('shipping_address_id') ?? $sales_order->shipping_address_id ?? 'default', ['form' => 'update_sales_order', 'id' => 'shipping_address_id']) !!}
                 <hr class="mt-0">
 
                 <div class="row">
@@ -110,7 +111,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_name', 'Ship To Name') !!}
-                            {!! Form::text('ship_to_name', $sales_order->ship_to_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_name', session('ship_to_name') ?? $sales_order->ship_to_name, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_name') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_name')}}</p>
                         </div>
                     </div>
@@ -118,7 +119,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address1', 'Building') !!}
-                            {!! Form::text('ship_to_address1', $sales_order->ship_to_building, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address1', session('ship_to_address1') ?? $sales_order->ship_to_building, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address1') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address1')}}</p>
                         </div>
                     </div>
@@ -126,7 +127,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address2', 'Street') !!}
-                            {!! Form::text('ship_to_address2', $sales_order->ship_to_street, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address2', session('ship_to_address2') ?? $sales_order->ship_to_street, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address2') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address2')}}</p>
                         </div>
                     </div>
@@ -134,7 +135,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('ship_to_address3', 'City') !!}
-                            {!! Form::text('ship_to_address3', $sales_order->ship_to_city, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
+                            {!! Form::text('ship_to_address3', session('ship_to_address3') ?? $sales_order->ship_to_city, ['class' => 'form-control form-control-sm bg-white'.($errors->has('ship_to_address3') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('ship_to_address3')}}</p>
                         </div>
                     </div>
@@ -142,7 +143,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('postal_code', 'Postal Code') !!}
-                            {!! Form::text('postal_code', $sales_order->ship_to_postal, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
+                            {!! Form::text('postal_code', session('postal_code') ?? $sales_order->ship_to_postal, ['class' => 'form-control form-control-sm bg-white'.($errors->has('postal_code') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('postal_code')}}</p>
                         </div>
                     </div>
@@ -186,6 +187,10 @@
 
             $('#status').val(status_val);
             $('#'+$(this).attr('form')).submit();
+        });
+
+        $('body').on('change', '[form="update_sales_order"]', function(e) {
+            Livewire.emit('saveData');
         });
     });
 </script>
