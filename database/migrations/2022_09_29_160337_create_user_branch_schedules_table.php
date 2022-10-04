@@ -18,6 +18,8 @@ class CreateUserBranchSchedulesTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->date('date');
+            $table->string('status')->nullable();
+            $table->date('reschedule_date')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')
