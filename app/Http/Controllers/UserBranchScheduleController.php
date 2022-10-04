@@ -24,32 +24,46 @@ class UserBranchScheduleController extends Controller
         $user_id = trim($request->get('user_id'));
         $branch_id = trim($request->get('branch_id'));
 
+        $request_color = '#25b8b5';
+
         $schedule_data = [];
         if(auth()->user()->hasRole('superadmin')) {
+
             if(!empty($user_id) || !empty($branch_id)) {
-                $schedules = UserBranchSchedule::whereNotNull('id');
-                if(!empty($user_id)) {
-                    $schedules->where('user_id', $user_id);
+                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
                 
-                }
+                foreach($schedules_date as $schedule) {
+                    $schedules = UserBranchSchedule::whereNotNull('id')
+                    ->where('date', $schedule->date);
+                    if(!empty($user_id)) {
+                        $schedules->where('user_id', $user_id);
+                    }
+                    if(!empty($branch_id)) {
+                        $schedules->where('branch_id', $branch_id);
+                    }
+    
+                    $schedules = $schedules->get();
 
-                if(!empty($branch_id)) {
-                    $schedules->where('branch_id', $branch_id);
+                    $schedule_data[] = [
+                        'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                        'start' => $schedule->date,
+                        'allDay' => true,
+                        'backgroundColor' => $request_color,
+                        'borderColor' => $request_color,
+                    ];
                 }
-
-                $schedules = $schedules->get();
             } else {
-                $schedules = UserBranchSchedule::all();
-            }
-
-            foreach($schedules as $schedule) {
-                $schedule_data[] = [
-                    'title' => $schedule->branch->branch_code,
-                    'start' => $schedule->date,
-                    'allDay' => true,
-                    'backgroundColor' => '#00a65a', //Success (green)
-                    'borderColor' => '#00a65a' //Success (green)
-                ];
+                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+                foreach($schedules_date as $schedule) {
+                    $schedules = UserBranchSchedule::where('date', $schedule->date);
+                    $schedule_data[] = [
+                        'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                        'start' => $schedule->date,
+                        'allDay' => true,
+                        'backgroundColor' => $request_color,
+                        'borderColor' => $request_color,
+                    ];
+                }
             }
 
             $users = UserBranchSchedule::select('user_id')->distinct()->get('user_id');
@@ -63,20 +77,36 @@ class UserBranchScheduleController extends Controller
             }
         } else {
             if(!empty($branch_id)) {
-                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
-                ->where('branch_id', $branch_id)
-                ->get();
+                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('branch_id', $branch_id)
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    $schedule_data[] = [
+                        'title' => $count.($count > 1 ? ' requests' : ' request'),
+                        'start' => $schedule->date,
+                        'allDay' => true,
+                        'backgroundColor' => $request_color,
+                        'borderColor' => $request_color,
+                    ];
+                }
             } else {
-                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)->get();
-            }
-            foreach($schedules as $schedule) {
-                $schedule_data[] = [
-                    'title' => $schedule->branch->branch_code,
-                    'start' => $schedule->date,
-                    'allDay' => true,
-                    'backgroundColor' => '#00a65a', //Success (green)
-                    'borderColor' => '#00a65a' //Success (green)
-                ];
+                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    $schedule_data[] = [
+                        'title' => $count.($count > 1 ? ' requests' : ' request'),
+                        'start' => $schedule->date,
+                        'allDay' => true,
+                        'backgroundColor' => $request_color,
+                        'borderColor' => $request_color,
+                    ];
+                }
             }
 
             $users_arr = [

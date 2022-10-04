@@ -13,6 +13,8 @@ class UserBranchSchedule extends Model
         'user_id',
         'branch_id',
         'date',
+        'status',
+        'reschedule_date',
     ];
 
     public function user() {
