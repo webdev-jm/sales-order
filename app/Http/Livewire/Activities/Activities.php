@@ -113,8 +113,11 @@ class Activities extends Component
                 ];
             }
         }
-
-        $this->remarks = BranchLoginActivity::where('branch_login_id', $logged_branch->id)->whereNull('activity_id')->first()->remarks;
+        
+        $activity = BranchLoginActivity::where('branch_login_id', $logged_branch->id)->whereNull('activity_id')->first();
+        if(!empty($activity)) {
+            $this->remarks = $activity->remarks;
+        }
 
         if(!empty($activity_val)) {
             $this->activity_val = $activity_val;

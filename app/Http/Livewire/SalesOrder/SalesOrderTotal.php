@@ -55,6 +55,7 @@ class SalesOrderTotal extends Component
 
     public function getTotal($product_details) {
         $this->processDetails($product_details);
+        $this->emit('saveData');
     }
 
     public function processDetails($product_details) {
