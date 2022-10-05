@@ -5,6 +5,14 @@
 @endsection
 
 @section('css')
+<style>
+    .h-90 {
+        height: 89% !important;
+    }
+    .h-80 {
+        height: 84% !important;
+    }
+</style>
 @endsection
 
 @section('content_header')

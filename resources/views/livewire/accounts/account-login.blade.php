@@ -19,8 +19,8 @@
             <div class="row">
             @foreach($accounts as $account)
                 <div class="col-lg-3">
-                    <div class="small-box">
-                        <div class="inner">
+                    <div class="small-box h-90">
+                        <div class="inner h-80">
                             <h3>{{$account->account_code}}</h3>
                             <p class="text-uppercase mb-0">{{$account->account_name}}</p>
                             <small class="text-muted">{{$account->short_name}} [{{$account->company->name}}]</small>
