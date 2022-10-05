@@ -111,6 +111,17 @@
         </div>
 
         <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <div class="custom-control custom-switch">
+                        {!! Form::checkbox('special_product', 1, false, ['class' => 'custom-control-input', 'id' => 'special_product', 'form' => 'add_product']) !!}
+                        {!! Form::label('special_product', 'Special Product', ['class' => 'custom-control-label']) !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
 
             <div class="col-lg-4">
                 <div class="card">

@@ -62,7 +62,7 @@ class Account extends Model
     }
 
     public function products() {
-        return $this->belongsToMany('App\Models\Product');
+        return $this->belongsToMany('App\Models\Product')->withPivot('price_code');
     }
 
     public function scopeAccountSearch($query, $search, $limit) {

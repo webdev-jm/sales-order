@@ -70,6 +70,9 @@ class StoreProductRequest extends FormRequest
             ],
             'status' => [
                 'required'
+            ],
+            'special_product' => [
+                'max:1'
             ]
         ];
     }
