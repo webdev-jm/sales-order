@@ -23,12 +23,35 @@
     <div class="card-header">
         <h3 class="card-title">List of Sales Orders</h3>
         <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
-                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-default" form="search_form">
-                        <i class="fas fa-search"></i>
-                    </button>
+            <div class="row">
+                <div class="col my-2">
+                    <div class="input-group input-group-sm">
+                        {!! Form::date('order-date', $order_date, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col my-2">
+                    <div class="input-group input-group-sm">
+                        @php
+                            $status_arr = [
+                                '' => 'All status',
+                                'draft' => 'Draft',
+                                'finalized' => 'Finalized',
+                                'uploaded' => 'Uploaded',
+                                'upload_error' => 'Upload Error'
+                            ];
+                        @endphp
+                        {!! Form::select('status', $status_arr, $status, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col my-2">
+                    <div class="input-group input-group-sm" style="width: 150px;">
+                        {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col my-2">
+                    <div class="input-group input-group-sm">
+                        {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
+                    </div>
                 </div>
             </div>
         </div>

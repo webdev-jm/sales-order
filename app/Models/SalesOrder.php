@@ -69,7 +69,6 @@ class SalesOrder extends Model
     }
 
     public function scopeSalesOrderListSearch($query, $search, $limit) {
-
         if($search != '') {
             $sales_orders = $query->orderBy('control_number', 'DESC')
             ->where(function($qry) use ($search) {
@@ -90,7 +89,11 @@ class SalesOrder extends Model
                     //     });
                     // }
                     $qry1->where('account_code', 'like', '%'.$search.'%')
-                    ->orWhere('short_name', 'like', '%'.$search.'%');
+                    ->orWhere('short_name', 'like', '%'.$search.'%')
+                    ->orWhereHas('users', function($qry2) use ($search) {
+                        $qry2->where('firstname', 'like', '%'.$search.'%')
+                        ->orWhere('lastname', 'like', '%'.$search.'%');
+                    });
                 });
             })
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
