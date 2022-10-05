@@ -61,6 +61,10 @@ class Account extends Model
         return $this->hasMany('App\Models\ShippingAddress');
     }
 
+    public function products() {
+        return $this->belongsToMany('App\Models\Product');
+    }
+
     public function scopeAccountSearch($query, $search, $limit) {
         if($search != '') {
             $accounts = $query->orderBy('id', 'DESC')

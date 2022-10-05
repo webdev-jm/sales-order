@@ -44,25 +44,30 @@ class UserBranchScheduleController extends Controller
     
                     $schedules = $schedules->get();
 
-                    $schedule_data[] = [
-                        'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
-                        'start' => $schedule->date,
-                        'allDay' => true,
-                        'backgroundColor' => $request_color,
-                        'borderColor' => $request_color,
-                    ];
+                    if($schedules->count() > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                        ];
+                    }
                 }
             } else {
                 $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
                 foreach($schedules_date as $schedule) {
                     $schedules = UserBranchSchedule::where('date', $schedule->date);
-                    $schedule_data[] = [
-                        'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
-                        'start' => $schedule->date,
-                        'allDay' => true,
-                        'backgroundColor' => $request_color,
-                        'borderColor' => $request_color,
-                    ];
+
+                    if($schedules->count() > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                        ];
+                    }
                 }
             }
 
@@ -84,13 +89,15 @@ class UserBranchScheduleController extends Controller
                     ->where('date', $schedule->date)
                     ->count();
 
-                    $schedule_data[] = [
-                        'title' => $count.($count > 1 ? ' requests' : ' request'),
-                        'start' => $schedule->date,
-                        'allDay' => true,
-                        'backgroundColor' => $request_color,
-                        'borderColor' => $request_color,
-                    ];
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' requests' : ' request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                        ];
+                    }
                 }
             } else {
                 $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
@@ -99,13 +106,15 @@ class UserBranchScheduleController extends Controller
                     ->where('date', $schedule->date)
                     ->count();
 
-                    $schedule_data[] = [
-                        'title' => $count.($count > 1 ? ' requests' : ' request'),
-                        'start' => $schedule->date,
-                        'allDay' => true,
-                        'backgroundColor' => $request_color,
-                        'borderColor' => $request_color,
-                    ];
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' requests' : ' request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                        ];
+                    }
                 }
             }
 

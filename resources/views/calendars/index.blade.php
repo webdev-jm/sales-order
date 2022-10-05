@@ -5,6 +5,11 @@
 @endsection
 
 @section('css')
+<style>
+    .fc-daygrid-event {
+        cursor: pointer;
+    }
+</style>
 @endsection
 
 @section('content_header')

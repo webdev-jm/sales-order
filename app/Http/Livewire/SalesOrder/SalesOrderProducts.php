@@ -64,6 +64,7 @@ class SalesOrderProducts extends Component
     public function render()
     {
         if($this->brand == 'ALL') {
+
             // enable DF20004 to Phil Seven only
             if($this->account->account_code == 1200015) {
                 $products = Product::whereHas('price_code', function($query) {
@@ -79,6 +80,24 @@ class SalesOrderProducts extends Component
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('brand', 'like', '%'.$this->search.'%');
                 })
+                ->where('stock_code', '<>', 'KS99065')
+                ->paginate(10)->onEachSide(1);
+            } else if(in_array($this->account->account_code, [5000001, 1200100, 1200081, 1200077])) {
+                 // KS99065 to accounts [5000001, 1200100, 1200081, 1200077]
+                $products = Product::whereHas('price_code', function($query) {
+                    $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+                })
+                ->where(function($query) {
+                    $query->where('stock_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%')
+                    ->orWhere('category', 'like', '%'.$this->search.'%')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
+                    ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
+                    ->orWhere('order_uom', 'like', '%'.$this->search.'%')
+                    ->orWhere('other_uom', 'like', '%'.$this->search.'%')
+                    ->orWhere('brand', 'like', '%'.$this->search.'%');
+                })
+                ->where('stock_code', '<>', 'DF20004')
                 ->paginate(10)->onEachSide(1);
             } else {
                 $products = Product::whereHas('price_code', function($query) {
@@ -95,6 +114,7 @@ class SalesOrderProducts extends Component
                     ->orWhere('brand', 'like', '%'.$this->search.'%');
                 })
                 ->where('stock_code', '<>', 'DF20004')
+                ->where('stock_code', '<>', 'KS99065')
                 ->paginate(10)->onEachSide(1);
             }
         } else {
@@ -115,6 +135,26 @@ class SalesOrderProducts extends Component
                     ->orWhere('order_uom', 'like', '%'.$this->search.'%')
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%');
                 })
+                ->where('stock_code', '<>', 'KS99065')
+                ->paginate(10)->onEachSide(1);
+            } else if(in_array($this->account->account_code, [5000001, 1200100, 1200081, 1200077])) {
+                // KS99065 to accounts [5000001, 1200100, 1200081, 1200077]
+                $products = Product::whereHas('price_code', function($query) {
+                    $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+                })
+                ->where(function($query) {
+                    $query->where('brand', $this->brand);
+                })
+                ->where(function($query) {
+                    $query->where('stock_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('description', 'like', '%'.$this->search.'%')
+                    ->orWhere('category', 'like', '%'.$this->search.'%')
+                    ->orWhere('size', 'like', '%'.$this->search.'%')
+                    ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
+                    ->orWhere('order_uom', 'like', '%'.$this->search.'%')
+                    ->orWhere('other_uom', 'like', '%'.$this->search.'%');
+                })
+                ->where('stock_code', '<>', 'DF20004')
                 ->paginate(10)->onEachSide(1);
             } else {
                 $products = Product::whereHas('price_code', function($query) {
@@ -133,6 +173,7 @@ class SalesOrderProducts extends Component
                     ->orWhere('other_uom', 'like', '%'.$this->search.'%');
                 })
                 ->where('stock_code', '<>', 'DF20004')
+                ->where('stock_code', '<>', 'KS99065')
                 ->paginate(10)->onEachSide(1);
             }
         }
