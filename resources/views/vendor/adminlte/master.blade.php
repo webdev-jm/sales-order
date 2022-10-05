@@ -107,6 +107,8 @@
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
 
+    <livewire:changelogs/>
+
 </body>
 
 </html>
