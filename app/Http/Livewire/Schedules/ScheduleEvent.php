@@ -13,6 +13,8 @@ class ScheduleEvent extends Component
     protected $paginationTheme = 'bootstrap';
     
     public $date, $schedule_data;
+    public $action;
+    public $status, $reschedule_date;
 
     protected $listeners = [
         'showEvents' => 'setDate'
@@ -21,6 +23,33 @@ class ScheduleEvent extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function submit() {
+        if($this->action == 'reschedule-request') {
+            $this->validate([
+                'reschedule_date' => 'required'
+            ]);
+            $this->schedule_data->update([
+                'reschedule_date' => $this->reschedule_date,
+                'status' => 'reschedule-request'
+            ]);
+
+            $this->reset('action');
+            $this->reset('schedule_data');
+            $this->reset('reschedule_date');
+        }
+        if($this->action == 'delete-request') {
+            
+        }
+    }
+
+    public function setAction($action) {
+        $this->action = $action;
+    }
+
+    public function backAction() {
+        $this->reset('action');
     }
 
     public function viewSchedule($schedule_id) {

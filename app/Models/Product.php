@@ -34,6 +34,10 @@ class Product extends Model
         return $this->hasMany('App\Models\PriceCode');
     }
 
+    public function accounts() {
+        return $this->belongsToMany('App\Models\Account');
+    }
+
     public function scopeProductSearch($query, $search, $limit) {
         if($search != '') {
             $products = $query->orderBy('id', 'DESC')
