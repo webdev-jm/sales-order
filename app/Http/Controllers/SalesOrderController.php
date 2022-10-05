@@ -26,11 +26,63 @@ class SalesOrderController extends Controller
 
     public function list(Request $request) {
         $search = trim($request->get('search'));
+        $status = trim($request->get('status'));
+        $order_date = trim($request->get('order-date'));
 
-        $sales_orders = SalesOrder::SalesOrderListSearch($search, $this->setting->data_per_page);
+        if($search != '' || $status != '' || $order_date != '') {
+            $query = SalesOrder::orderBy('control_number', 'DESC');
+            if($search != '') {
+                $query->where(function($qry) use ($search) {
+                    $qry->where('control_number', 'like', '%'.$search.'%')
+                    ->orWhere('po_number', 'like', '%'.$search.'%')
+                    ->orWhere('order_date', 'like', '%'.$search.'%')
+                    ->orWhere('ship_date', 'like', '%'.$search.'%')
+                    ->orWhere('ship_to_name', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%');
+                })
+                ->orWhereHas('account_login', function($qry) use($search) {
+                    $qry->whereHas('account', function($qry1) use($search) {
+    
+                        $qry1->where('account_code', 'like', '%'.$search.'%')
+                        ->orWhere('short_name', 'like', '%'.$search.'%')
+                        ->orWhereHas('users', function($qry2) use ($search) {
+                            $qry2->where('firstname', 'like', '%'.$search.'%')
+                            ->orWhere('lastname', 'like', '%'.$search.'%');
+                        });
+                    });
+                });
+            }
+
+            if($status != '') {
+                if($status == 'uploaded') {
+                    $query->where('upload_status', 1);
+                } else if($status == 'upload_error') {
+                    $query->where('upload_status', 0);
+                } else {
+                    $query->where('status', $status)->whereNull('upload_status');
+                }
+            }
+
+            if($order_date != '') {
+                $query->where('order_date', $order_date);
+            }
+
+            $sales_orders = $query->paginate($this->setting->data_per_page)->onEachSide(1)->appends(request()->query());
+        } else {
+            $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
+            ->whereHas('account_login', function($qry) use($search) {
+                $qry->whereHas('account', function($qry1) use($search) {
+                });
+            })
+            ->paginate($this->setting->data_per_page)->onEachSide(1)->appends(request()->query());
+        }
+
+        // $sales_orders = SalesOrder::SalesOrderListSearch($search, $this->setting->data_per_page);
 
         return view('sales-orders.list')->with([
             'search' => $search,
+            'status' => $status,
+            'order_date' => $order_date,
             'sales_orders' => $sales_orders
         ]);
     }

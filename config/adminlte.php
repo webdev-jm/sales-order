@@ -216,7 +216,7 @@ return [
     'sidebar_collapse_remember' => true,
     'sidebar_collapse_remember_no_transition' => true,
     'sidebar_scrollbar_theme' => 'os-theme-light',
-    'sidebar_scrollbar_auto_hide' => 'xl',
+    'sidebar_scrollbar_auto_hide' => 's',
     'sidebar_nav_accordion' => true,
     'sidebar_nav_animation_speed' => 300,
 
