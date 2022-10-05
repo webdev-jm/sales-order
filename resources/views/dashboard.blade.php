@@ -5,6 +5,18 @@
 @endsection
 
 @section('css')
+<style>
+    .small-box .inner {
+        border: solid 3px rgb(98, 98, 98);
+    }
+    .small-box:hover .inner {
+        border: solid 3px rgb(76, 145, 255);
+        cursor: pointer;
+    }
+    .h-90 {
+        height: 90% !important;
+    }
+</style>
 @endsection
 
 @section('content_header')
@@ -21,8 +33,8 @@
         <div class="row">
             @foreach($accounts as $account)
             <div class="col-lg-3">
-                <div class="small-box bg-secondary">
-                    <div class="inner">
+                <div class="small-box bg-secondary h-90">
+                    <div class="inner h-100">
                         <h3>{{$count_data[$account->id]}}</h3>
       
                         <b>{{$account->account_code}}</b>
