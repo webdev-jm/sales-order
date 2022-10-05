@@ -13,7 +13,13 @@
         {{-- Custom left links --}}
         @yield('content_top_nav_left')
 
-        <livewire:changelogs/>
+        <li class="nav-item">
+            <a href="" class="nav-link" id="btn-changelog">
+                <i class="fas fa-clipboard-list text-warning"></i>
+                <span class="navbar-badge animation__shake"><i class="fa fa-asterisk text-danger"></i></span>
+            </a>
+        </li>
+        
     </ul>
 
     {{-- Navbar right links --}}
