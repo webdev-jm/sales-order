@@ -52,7 +52,7 @@ class AccountImport implements ToModel, WithStartRow
             'ship_to_address3' => $row[11],
             'postal_code' => $row[12],
             'tax_number' => $row[13],
-            'on_hold' => trim($row[14]) == 'N' ? true : false,
+            'on_hold' => trim($row[14]) == 'Y' ? true : false,
         ]);
     }
 }

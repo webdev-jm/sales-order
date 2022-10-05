@@ -58,6 +58,7 @@
                     <td>{{$account->account_name}}</td>
                     <td>{{$account->short_name}}</td>
                     <td class="text-right">
+                        <a href="#" class="btn-product-modal" data-id="{{$account->id}}"><i class="fas fa-box text-primary"></i></a>
                         @can('shipping address access')
                             <a href="{{route('shipping-address.index', $account->id)}}" title="shipping addresses"><i class="fas fa-map-marked-alt text-info mx-1"></i></a>
                         @endcan
@@ -132,6 +133,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-product-assign">
+    <div class="modal-dialog modal-lg">
+        <livewire:accounts.product-assign/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -152,6 +159,13 @@
             var id = $(this).data('id');
             Livewire.emit('setDeleteModel', 'Account', id);
             $('#modal-delete').modal('show');
+        });
+
+        $('body').on('click', '.btn-product-modal', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setAccount', id);
+            $('#modal-product-assign').modal('show');
         });
     });
 </script>

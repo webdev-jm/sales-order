@@ -28,6 +28,7 @@ class Product extends Model
         'order_uom_operator',
         'other_uom_operator',
         'status',
+        'special_product',
     ];
 
     public function price_code() {
@@ -35,7 +36,7 @@ class Product extends Model
     }
 
     public function accounts() {
-        return $this->belongsToMany('App\Models\Account');
+        return $this->belongsToMany('App\Models\Account')->withPivot('price_code');
     }
 
     public function scopeProductSearch($query, $search, $limit) {

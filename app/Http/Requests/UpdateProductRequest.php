@@ -70,6 +70,9 @@ class UpdateProductRequest extends FormRequest
             ],
             'status' => [
                 'required'
+            ],
+            'special_product' => [
+                'required'
             ]
         ];
     }

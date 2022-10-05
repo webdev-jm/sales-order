@@ -71,6 +71,8 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $status = $request->status == 'active' ? null : $request->status;
+        $special_product = $request->special_product ?? false;
+
         $product = new Product([
             'stock_code' => $request->stock_code,
             'description' => $request->description,
@@ -86,7 +88,8 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
-            'status' => $status
+            'status' => $status,
+            'special_product' => $special_product
         ]);
         $product->save();
         
@@ -140,6 +143,8 @@ class ProductController extends Controller
         $changes_arr['old'] = $product;
 
         $status = $request->status == 'active' ? null : $request->status;
+        $special_product = $request->special_product ?? false;
+
         $product->update([
             'stock_code' => $request->stock_code,
             'description' => $request->description,
@@ -155,7 +160,8 @@ class ProductController extends Controller
             'other_uom_conversion' => $request->other_uom_conversion,
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
-            'status' => $status
+            'status' => $status,
+            'special_product' => $special_product
         ]);
 
         $changes_arr['changes'] = $product->getChanges();
