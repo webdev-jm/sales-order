@@ -29,7 +29,7 @@ class ShippingAddress extends Model
             $shipping_addresses = $query->orderBy('address_code', 'DESC')
             ->where('account_id', $account_id)
             ->where(function($qry) use($search) {
-                $qry->where('account_code', 'like', '%'.$search.'%')
+                $qry->where('address_code', 'like', '%'.$search.'%')
                 ->orWhere('ship_to_name', 'like', '%'.$search.'%')
                 ->orWhere('building', 'like', '%'.$search.'%')
                 ->orWhere('street', 'like', '%'.$search.'%')
