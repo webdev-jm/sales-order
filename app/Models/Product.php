@@ -31,7 +31,7 @@ class Product extends Model
         'special_product',
     ];
 
-    public function price_code() {
+    public function price_codes() {
         return $this->hasMany('App\Models\PriceCode');
     }
 

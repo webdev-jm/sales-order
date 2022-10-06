@@ -76,14 +76,27 @@ class SalesOrderTotal extends Component
                 $product_quantity = 0;
                 foreach($details as $uom => $quantity) {
                     // check price code of product
-                    $price_code = PriceCode::where('company_id', $this->account->company_id)
-                    ->where('product_id', $product->id)
-                    ->where('code', $this->account->price_code)
-                    ->first();
+                    if($product->special_product) {
+                        $special_product = $this->account->products()->where('product_id', $product->id)
+                        ->first();
+
+                        $code = $special_product->pivot->price_code ?? $this->account->price_code;
+
+                        $price_code = PriceCode::where('company_id', $this->account->company_id)
+                        ->where('product_id', $product->id)
+                        ->where('code', $code)
+                        ->first();
+                    } else {
+                        $price_code = PriceCode::where('company_id', $this->account->company_id)
+                        ->where('product_id', $product->id)
+                        ->where('code', $this->account->price_code)
+                        ->first();
+                    }
 
                     // get price
                     $selling_price = $price_code->selling_price;
                     $price_basis = $price_code->price_basis;
+                    
                     // convert selling price to stock uom price
                     if($price_basis == 'A') {
                         if($product->order_uom_operator == 'M') { // multiply
