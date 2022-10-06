@@ -33,7 +33,7 @@
         <div class="row">
             @foreach($accounts as $account)
             <div class="col-lg-3">
-                <div class="small-box bg-secondary h-90">
+                <div class="small-box bg-secondary h-90 account-card" data-id="{{$account->id}}">
                     <div class="inner h-100">
                         <h3>{{$count_data[$account->id]}}</h3>
       
@@ -54,9 +54,24 @@
         {{$accounts->links()}}
     </div>
 </div>
+
+<div class="modal fade" id="modal-account-report">
+    <div class="modal-dialog modal-lg">
+        <livewire:dashboard.account-report/>
+    </div>
+</div>
 @endsection
 
 @section('js')
+<script>
+    $(function() {
+        $('body').on('click', '.account-card', function() {
+            var id = $(this).data('id');
+            Livewire.emit('setAccount', id);
+            $('#modal-account-report').modal('show');
+        });
+    });
+</script>
 @endsection
 
 @section('footer')
