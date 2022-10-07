@@ -38,7 +38,8 @@ class SalesOrderController extends Controller
                     ->orWhere('order_date', 'like', '%'.$search.'%')
                     ->orWhere('ship_date', 'like', '%'.$search.'%')
                     ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-                    ->orWhere('status', 'like', '%'.$search.'%');
+                    ->orWhere('status', 'like', '%'.$search.'%')
+                    ->orWhere('reference', 'like', '%'.$search.'%');
                 })
                 ->orWhereHas('account_login', function($qry) use($search) {
                     $qry->whereHas('account', function($qry1) use($search) {
