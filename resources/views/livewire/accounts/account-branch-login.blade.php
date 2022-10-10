@@ -19,6 +19,14 @@
         <div class="modal-body text-left">
 
             <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-primary" wire:click.prevent="addBranch"><i class="fa fa-plus mr-1"></i>Add Branch</button>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row">
                 @foreach($branches as $branch)
                 <div class="col-lg-4 my-2">
                     <button type="button" class="btn btn-default btn-block h-100" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
@@ -27,9 +35,75 @@
             </div>
 
         </div>
-        <div class="modal-footer text-right">
+        <div class="modal-footer">
             {{$branches->links()}}
         </div>
+    @elseif($branch_form)
+    <form wire:submit.prevent="submitAddBranch">
+        <div class="modal-header">
+            <h4 class="modal-title">Add Branch <span class="badge badge-primary">[{{$account->account_code}}] {{$account->short_name}}</span></h4>
+        </div>
+        <div class="modal-body text-left">
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Branch Code</label>
+                        <input type="text" class="form-control @error('branch_code') is-invalid @enderror" wire:model.defer="branch_code">
+                        @error('branch_code')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Branch Name</label>
+                        <input type="text" class="form-control @error('branch_name') is-invalid @enderror" wire:model.defer="branch_name">
+                        @error('branch_name')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Region</label>
+                        <input type="text" class="form-control @error('region') is-invalid @enderror" wire:model.defer="region">
+                        @error('region')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Classification</label>
+                        <input type="text" class="form-control @error('classification') is-invalid @enderror" wire:model.defer="classification">
+                        @error('classification')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="">Area</label>
+                        <input type="text" class="form-control @error('area') is-invalid @enderror" wire:model.defer="area">
+                        @error('area')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer text-right">
+            <button class="btn btn-default" wire:click.prevent="branchBack">Back</button>
+            <button class="btn btn-primary" type="submit">Add Branch</button>
+        </div>
+    </form>
     @else
         <form wire:submit.prevent="login" enctype="multipart/form-data">
             <div class="modal-header">
