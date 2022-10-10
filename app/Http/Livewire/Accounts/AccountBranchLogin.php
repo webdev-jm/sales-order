@@ -6,6 +6,9 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\BranchLogin;
+use App\Models\Region;
+use App\Models\Classification;
+use App\Models\Area;
 
 use AccountLoginModel;
 
@@ -27,6 +30,7 @@ class AccountBranchLogin extends Component
     public $search;
 
     public $branch_form = false;
+    public $regions, $classifications, $areas;
     public $branch_code, $branch_name, $region, $classification, $area;
 
     protected $listeners = ['setAccount' => 'setAccount'];
@@ -57,11 +61,11 @@ class AccountBranchLogin extends Component
 
         $branch = new Branch([
             'account_id' => $this->account->id,
+            'region_id' => $this->region,
+            'classification_id' => $this->classification,
+            'area_id' => $this->area,
             'branch_code' => $this->branch_code,
             'branch_name' => $this->branch_name,
-            'region' => $this->region,
-            'classification' => $this->classification,
-            'area' => $this->area,
         ]);
         $branch->save();
 
@@ -72,11 +76,26 @@ class AccountBranchLogin extends Component
     public function addBranch() {
         $this->branch_form = true;
         $this->branch = 1;
+
+        $this->regions = Region::orderBy('region_name', 'ASC')->get();
+        $this->classifications = Classification::orderBy('classification_name', 'ASC')->get();
+        $this->areas = Area::orderBy('area_name', 'ASC')->get();
+
+        $this->reset('branch_code');
+        $this->reset('branch_name');
+        $this->reset('region');
+        $this->reset('classification');
+        $this->reset('area');
     }
 
     public function branchBack() {
         $this->branch_form = false;
         $this->reset('branch');
+        $this->reset('branch_code');
+        $this->reset('branch_name');
+        $this->reset('region');
+        $this->reset('classification');
+        $this->reset('area');
     }
 
     public function login() {

@@ -70,7 +70,12 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Region</label>
-                        <input type="text" class="form-control @error('region') is-invalid @enderror" wire:model.defer="region">
+                        <select class="form-control @error('region') is-invalid @enderror" wire:model.defer="region">
+                            <option value=""></option>
+                            @foreach($regions as $region)
+                            <option value="{{$region->id}}">{{$region->region_name}}</option>
+                            @endforeach
+                        </select>
                         @error('region')
                         <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -80,7 +85,12 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Classification</label>
-                        <input type="text" class="form-control @error('classification') is-invalid @enderror" wire:model.defer="classification">
+                        <select class="form-control @error('classification') is-invalid @enderror" wire:model.defer="classification">
+                            <option value=""></option>
+                            @foreach($classifications as $classification)
+                            <option value="{{$classification->id}}">[{{$classification->classification_code}}] {{$classification->classification_name}}</option>
+                            @endforeach
+                        </select>
                         @error('classification')
                         <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -90,7 +100,12 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Area</label>
-                        <input type="text" class="form-control @error('area') is-invalid @enderror" wire:model.defer="area">
+                        <select class="form-control @error('area') is-invalid @enderror" wire:model.defer="area">
+                            <option value=""></option>
+                            @foreach($areas as $area)
+                            <option value="{{$area->id}}">[{{$area->area_code}}] {{$area->area_name}}</option>
+                            @endforeach
+                        </select>
                         @error('area')
                         <p class="text-danger">{{$message}}</p>
                         @enderror

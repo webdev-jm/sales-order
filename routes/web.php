@@ -20,6 +20,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OperationProcessController;
 use App\Http\Controllers\UserBranchScheduleController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RegionController;
+use App\Http\Controllers\ClassificationController;
+use App\Http\Controllers\AreaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,6 +146,44 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('branch/{id}/edit', [BranchController::class, 'edit'])->name('branch.edit')->middleware('permission:branch edit');
         Route::post('branch/{id}', [BranchController::class, 'update'])->name('branch.update')->middleware('permission:branch edit');
+    });
+
+    // REGIONS
+    Route::group(['middleware' => 'permission:region access'], function() {
+        Route::get('region', [RegionController::class, 'index'])->name('region.index');
+        Route::get('region/create', [RegionController::class, 'create'])->name('region.create')->middleware('permission:region create');
+        Route::post('region', [RegionController::class, 'store'])->name('region.store')->middleware('permission:region create');
+
+        Route::get('region/{id}', [RegionController::class, 'show'])->name('region.show');
+        
+        Route::post('region/upload', [RegionController::class, 'upload'])->name('region.upload')->middleware('permission:region create');
+
+        Route::get('region/{id}/edit', [RegionController::class, 'edit'])->name('region.edit')->middleware('permission:region edit');
+        Route::post('region/{id}', [RegionController::class, 'update'])->name('region.edit')->middleware('permission:region edit');
+    });
+
+    // CLASSIFICATIONS
+    Route::group(['middleware' => 'permission:classification access'], function() {
+        Route::get('classification', [ClassificationController::class, 'index'])->name('classification.index');
+        Route::get('classification/create', [ClassificationController::class, 'create'])->name('classification.create')->middleware('permission:classification create');
+        Route::post('classification', [ClassificationController::class, 'store'])->name('classification.store')->middleware('permission:classification create');
+
+        Route::post('classification/upload', [ClassificationController::class, 'upload'])->name('classification.upload')->middleware('permission:classification create');
+
+        Route::get('classification/{id}/edit', [ClassificationController::class, 'edit'])->name('classification.edit')->middleware('permission:classification edit');
+        Route::post('classification/{id}', [ClassificationController::class, 'update'])->name('classification.update')->middleware('permission:classification update');
+    });
+
+    // AREAS
+    Route::group(['middleware' => 'permission:area access'], function() {
+        Route::get('area', [AreaController::class, 'index'])->name('area.index');
+        Route::get('area/create', [AreaController::class, 'create'])->name('area.create')->middleware('permission:area create');
+        Route::post('area', [AreaController::class, 'store'])->name('area.store')->middleware('permission:area create');
+
+        Route::post('area/upload', [AreaController::class, 'upload'])->name('area.upload')->middleware('permission:area create');
+
+        Route::get('area/{id}/edit', [AreaController::class, 'edit'])->name('area.edit')->middleware('permission:area edit');
+        Route::post('area/{id}', [AreaController::class, 'update'])->name('area.update')->middleware('permission:area edit');
     });
 
     // INVOICE TERMS

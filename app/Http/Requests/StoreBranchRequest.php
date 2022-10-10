@@ -30,18 +30,18 @@ class StoreBranchRequest extends FormRequest
                 'required'
             ],
             'branch_code' => [
-                // 'required', Rule::unique((new Branch)->getTable())
+                'nullable', Rule::unique((new Branch)->getTable())
             ],
             'branch_name' => [
                 'required'
             ],
-            'region' => [
+            'region_id' => [
                 'required'
             ],
-            'classification' => [
+            'classification_id' => [
                 'required'
             ],
-            'area' => [
+            'area_id' => [
                 'required'
             ]
         ];

@@ -55,25 +55,25 @@
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('region', 'Region') !!}
-                    {!! Form::text('region', '', ['class' => 'form-control'.($errors->has('region') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
-                    <p class="text-danger">{{$errors->first('region')}}</p>
+                    {!! Form::label('region_id', 'Region') !!}
+                    {!! Form::select('region_id', $regions, null, ['class' => 'form-control'.($errors->has('region_id') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('region_id')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('classification', 'Classification') !!}
-                    {!! Form::text('classification', '', ['class' => 'form-control'.($errors->has('classification') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
-                    <p class="text-danger">{{$errors->first('classification')}}</p>
+                    {!! Form::label('classification_id', 'Classification') !!}
+                    {!! Form::select('classification_id', $classifications, null, ['class' => 'form-control'.($errors->has('classification_id') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('classification_id')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('area', 'Area') !!}
-                    {!! Form::text('area', '', ['class' => 'form-control'.($errors->has('area') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
-                    <p class="text-danger">{{$errors->first('area')}}</p>
+                    {!! Form::label('area_id', 'Area') !!}
+                    {!! Form::select('area_id', $areas, null, ['class' => 'form-control'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'add_branch']) !!}
+                    <p class="text-danger">{{$errors->first('area_id')}}</p>
                 </div>
             </div>
 
