@@ -30,7 +30,7 @@ class UpdateBranchRequest extends FormRequest
                 'required'
             ],
             'branch_code' => [
-                'required', Rule::unique((new Branch)->getTable())->ignore($this->id)
+                // 'required', Rule::unique((new Branch)->getTable())->ignore($this->id)
             ],
             'branch_name' => [
                 'required'

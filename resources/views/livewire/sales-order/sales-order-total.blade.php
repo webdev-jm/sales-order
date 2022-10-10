@@ -40,6 +40,13 @@
                         @endif
                     </div>
                 </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>Total Quantity</label>
+                        <input type="text" class="form-control bg-white" readonly value="{{number_format($orders['total_quantity'] ?? 0)}}">
+                    </div>
+                </div>
             </div>
 
         </div>

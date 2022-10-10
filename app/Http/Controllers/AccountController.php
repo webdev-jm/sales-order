@@ -50,7 +50,7 @@ class AccountController extends Controller
         $discounts = Discount::orderBy('company_id', 'ASC')->get();
         $discount_arr = [];
         foreach($discounts as $discount) {
-            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code;
+            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code.' - '.$discount->description;
         }
 
         $companies = Company::orderBy('name', 'DESC')->get();
