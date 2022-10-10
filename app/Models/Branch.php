@@ -14,11 +14,11 @@ class Branch extends Model
 
     protected $fillable = [
         'account_id',
+        'region_id',
+        'classification_id',
+        'area_id',
         'branch_code',
         'branch_name',
-        'region',
-        'classification',
-        'area',
     ];
 
     public function account() {
@@ -27,5 +27,17 @@ class Branch extends Model
 
     public function users() {
         return $this->belongsToMany('App\Models\User');
+    }
+
+    public function region() {
+        return $this->belongsTo('App\Models\Region');
+    }
+
+    public function classification() {
+        return $this->belongsTo('App\Models\Classification');
+    }
+
+    public function area() {
+        return $this->belongsTo('App\Models\Area');
     }
 }

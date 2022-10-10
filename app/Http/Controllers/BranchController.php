@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Account;
+use App\Models\Region;
+use App\Models\Classification;
+use App\Models\Area;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use Illuminate\Http\Request;
@@ -38,7 +41,29 @@ class BranchController extends Controller
      */
     public function create()
     {
-        return view('branches.create');
+        $regions = Region::orderBy('region_name', 'ASC')->get();
+        $regions_arr = [];
+        foreach($regions as $region) {
+            $regions_arr[$region->id] = $region['region_name'];
+        }
+
+        $classifications = Classification::orderBy('classification_name', 'ASC')->get();
+        $classifications_arr = [];
+        foreach($classifications as $classification) {
+            $classifications_arr[$classification->id] = '['.$classification->classification_code.'] '.$classification->classification_name;
+        }
+
+        $areas = Area::orderBy('area_name', 'ASC')->get();
+        $areas_arr = [];
+        foreach($areas as $area) {
+            $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
+        }
+
+        return view('branches.create')->with([
+            'regions' => $regions_arr,
+            'classifications' => $classifications_arr,
+            'areas' => $areas_arr
+        ]);
     }
 
     /**
@@ -51,11 +76,11 @@ class BranchController extends Controller
     {
         $branch = new Branch([
             'account_id' => $request->account_id,
+            'region_id' => $request->region_id,
+            'classification_id' => $request->classification_id,
+            'area_id' => $request->area_id,
             'branch_code' => $request->branch_code,
             'branch_name' => $request->branch_name,
-            'region' => $request->region,
-            'classification' => $request->classification,
-            'area' => $request->area,
         ]);
         $branch->save();
 
@@ -90,8 +115,29 @@ class BranchController extends Controller
     {
         $branch = Branch::findOrFail($id);
 
+        $regions = Region::orderBy('region_name', 'ASC')->get();
+        $regions_arr = [];
+        foreach($regions as $region) {
+            $regions_arr[$region->id] = $region['region_name'];
+        }
+
+        $classifications = Classification::orderBy('classification_name', 'ASC')->get();
+        $classifications_arr = [];
+        foreach($classifications as $classification) {
+            $classifications_arr[$classification->id] = '['.$classification->classification_code.'] '.$classification->classification_name;
+        }
+
+        $areas = Area::orderBy('area_name', 'ASC')->get();
+        $areas_arr = [];
+        foreach($areas as $area) {
+            $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
+        }
+
         return view('branches.edit')->with([
-            'branch' => $branch
+            'branch' => $branch,
+            'regions' => $regions_arr,
+            'classifications' => $classifications_arr,
+            'areas' => $areas_arr
         ]);
     }
 
@@ -110,11 +156,11 @@ class BranchController extends Controller
 
         $branch->update([
             'account_id' => $request->account_id,
+            'region_id' => $request->region_id,
+            'classification_id' => $request->classification_id,
+            'area_id' => $request->area_id,
             'branch_code' => $request->branch_code,
             'branch_name' => $request->branch_name,
-            'region' => $request->region,
-            'classification' => $request->classification,
-            'area' => $request->area,
         ]);
 
         $changes_arr['changes'] = $branch->getChanges();

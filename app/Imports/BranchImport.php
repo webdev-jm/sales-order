@@ -4,6 +4,9 @@ namespace App\Imports;
 
 use App\Models\Account;
 use App\Models\Branch;
+use App\Models\Region;
+use App\Models\Classification;
+use App\Models\Area;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
@@ -33,14 +36,26 @@ class BranchImport implements ToModel, WithStartRow, WithBatchInserts, WithChunk
     public function model(array $row)
     {
         $account = Account::where('account_code', $row[0])->first();
-        if(!empty($account)) {
+
+        $region = Region::where('region_name', $row[1])->first();
+        if(empty($region)) {
+            $region = new Region([
+                'region_name' => $row[1]
+            ]);
+            $region->save();
+        }
+
+        $classification = Classification::where('classification_code', $row[2])->first();
+        $area = Area::where('area_code', $row[8])->first();
+
+        if(!empty($account) && !empty($classification) && !empty($area)) {
             return new Branch([
                 'account_id' => $account->id,
+                'region_id' => $region->id,
+                'classification_id' => $classification->id,
+                'area_id' => $area->id,
                 'branch_code' => $row[4],
                 'branch_name' => $row[3],
-                'region' => $row[1],
-                'classification' => $row[2],
-                'area' => $row[8],
             ]);
         } else {
             return null;

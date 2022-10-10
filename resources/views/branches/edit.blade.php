@@ -55,25 +55,25 @@
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('region', 'Region') !!}
-                    {!! Form::text('region', $branch->region, ['class' => 'form-control'.($errors->has('region') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
-                    <p class="text-danger">{{$errors->first('region')}}</p>
+                    {!! Form::label('region_id', 'Region') !!}
+                    {!! Form::select('region_id', $regions, $branch->region_id, ['class' => 'form-control'.($errors->has('region_id') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
+                    <p class="text-danger">{{$errors->first('region_id')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('classification', 'Classification') !!}
-                    {!! Form::text('classification', $branch->classification, ['class' => 'form-control'.($errors->has('classification') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
-                    <p class="text-danger">{{$errors->first('classification')}}</p>
+                    {!! Form::label('classification_id', 'Classification') !!}
+                    {!! Form::select('classification_id', $classifications, $branch->classification_id, ['class' => 'form-control'.($errors->has('classification_id') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
+                    <p class="text-danger">{{$errors->first('classification_id')}}</p>
                 </div>
             </div>
 
             <div class="col-md-3">
                 <div class="form-group">
-                    {!! Form::label('area', 'Area') !!}
-                    {!! Form::text('area', $branch->area, ['class' => 'form-control'.($errors->has('area') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
-                    <p class="text-danger">{{$errors->first('area')}}</p>
+                    {!! Form::label('area_id', 'Area') !!}
+                    {!! Form::select('area_id', $areas, $branch->area_id, ['class' => 'form-control'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'update_branch']) !!}
+                    <p class="text-danger">{{$errors->first('area_id')}}</p>
                 </div>
             </div>
 

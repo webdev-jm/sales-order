@@ -56,6 +56,21 @@ class PermissionSeeder extends Seeder
             'branch create',
             'branch edit',
             'branch delete',
+            // Regions
+            'region access',
+            'region create',
+            'region edit',
+            'region delete',
+            // classification
+            'classification access',
+            'classification create',
+            'classification edit',
+            'classification delete',
+            // Area
+            'area access',
+            'area create',
+            'area edit',
+            'area delete',
             // Invoice Terms
             'invoice term access',
             'invoice term create',

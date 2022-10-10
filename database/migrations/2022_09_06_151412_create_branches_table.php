@@ -16,15 +16,27 @@ class CreateBranchesTable extends Migration
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('region_id')->nullable();
+            $table->unsignedBigInteger('classification_id')->nullable();
+            $table->unsignedBigInteger('area_id')->nullable();
             $table->string('branch_code')->nullable();
             $table->string('branch_name');
-            $table->string('region');
-            $table->string('classification');
-            $table->string('area');
             $table->timestamps();
 
             $table->foreign('account_id')
             ->references('id')->on('accounts')
+            ->onDelete('cascade');
+
+            $table->foreign('region_id')
+            ->references('id')->on('regions')
+            ->onDelete('cascade');
+
+            $table->foreign('classification_id')
+            ->references('id')->on('classifications')
+            ->onDelete('cascade');
+
+            $table->foreign('area_id')
+            ->references('id')->on('areas')
             ->onDelete('cascade');
 
             $table->softDeletes();

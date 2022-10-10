@@ -402,6 +402,27 @@ return [
             'active'    => ['branch*']
         ],
         [
+            'text'      => 'Regions',
+            'url'       => '/region',
+            'icon'      => 'fas fa-fw fa-map',
+            'can'       => 'region access',
+            'active'    => ['region*']
+        ],
+        [
+            'text'      => 'Classifications',
+            'url'       => '/classification',
+            'icon'      => 'fas fa-fw fa-store',
+            'can'       => 'classification access',
+            'active'    => ['classification*']
+        ],
+        [
+            'text'      => 'Areas',
+            'url'       => '/area',
+            'icon'      => 'fas fa-fw fa-globe',
+            'can'       => 'area access',
+            'active'    => ['area*']
+        ],
+        [
             'text'      => 'Sales People',
             'url'       => '/sales-people',
             'icon'      => 'fas fa-fw fa-universal-access',
