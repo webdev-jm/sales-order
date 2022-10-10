@@ -10,6 +10,7 @@ use App\Models\BranchLogin;
 use AccountLoginModel;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Validation\Rule;
 
 use Livewire\WithPagination;
 
@@ -25,11 +26,57 @@ class AccountBranchLogin extends Component
     public $branch, $accuracy, $longitude, $latitude;
     public $search;
 
+    public $branch_form = false;
+    public $branch_code, $branch_name, $region, $classification, $area;
+
     protected $listeners = ['setAccount' => 'setAccount'];
 
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function submitAddBranch() {
+        $this->validate([
+            'branch_code' => [
+                'max:255', 'nullable', Rule::unique((new Branch)->getTable())
+            ],
+            'branch_name' => [
+                'required'
+            ],
+            'region' => [
+                'required'
+            ],
+            'classification' => [
+                'required'
+            ],
+            'area' => [
+                'required'
+            ]
+        ]);
+
+        $branch = new Branch([
+            'account_id' => $this->account->id,
+            'branch_code' => $this->branch_code,
+            'branch_name' => $this->branch_name,
+            'region' => $this->region,
+            'classification' => $this->classification,
+            'area' => $this->area,
+        ]);
+        $branch->save();
+
+        $this->branch_form = false;
+        $this->branch = $branch;
+    }
+
+    public function addBranch() {
+        $this->branch_form = true;
+        $this->branch = 1;
+    }
+
+    public function branchBack() {
+        $this->branch_form = false;
+        $this->reset('branch');
     }
 
     public function login() {
