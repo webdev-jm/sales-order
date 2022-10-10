@@ -43,13 +43,11 @@ class SalesOrderController extends Controller
                 })
                 ->orWhereHas('account_login', function($qry) use($search) {
                     $qry->whereHas('account', function($qry1) use($search) {
-    
                         $qry1->where('account_code', 'like', '%'.$search.'%')
-                        ->orWhere('short_name', 'like', '%'.$search.'%')
-                        ->orWhereHas('users', function($qry2) use ($search) {
-                            $qry2->where('firstname', 'like', '%'.$search.'%')
-                            ->orWhere('lastname', 'like', '%'.$search.'%');
-                        });
+                        ->orWhere('short_name', 'like', '%'.$search.'%');
+                    })->orWhereHas('user', function($qry1) use ($search) {
+                        $qry1->where('firstname', 'like', '%'.$search.'%')
+                        ->orWhere('lastname', 'like', '%'.$search.'%');
                     });
                 });
             }

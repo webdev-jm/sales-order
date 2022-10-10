@@ -80,7 +80,7 @@
                             </select>
                         </td>
                         <td class="p-0 align-middle">
-                            <input type="number" class="form-control border-0 w150" min="0" wire:loading.attr="disabled" max="99999999999" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}">
+                            <input type="number" class="form-control border-0 w150" min="0" wire:loading.attr="disabled" max="99999999999" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}" {{!empty($product->status) ? 'disabled' : ''}}>
                         </td>
                     </tr>
                     @endforeach

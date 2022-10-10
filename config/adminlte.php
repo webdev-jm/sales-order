@@ -14,8 +14,8 @@ return [
     |
     */
 
-    'title' => 'Sales Order Entry',
-    'title_prefix' => 'SO Entries | ',
+    'title' => 'Sales Management System',
+    'title_prefix' => 'SMS | ',
     'title_postfix' => '',
 
     /*
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => 'Sales Order Entry',
+    'logo' => 'SMS',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Sales Order',
+    'logo_img_alt' => 'SMS',
 
     /*
     |--------------------------------------------------------------------------
@@ -87,7 +87,7 @@ return [
         'enabled' => false,
         'img' => [
             'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'Sales Order Logo',
+            'alt' => 'Sales Management System',
             'class' => '',
             'width' => 50,
             'height' => 50,

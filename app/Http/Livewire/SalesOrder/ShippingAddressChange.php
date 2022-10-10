@@ -15,7 +15,7 @@ class ShippingAddressChange extends Component
 
     public function updatingSearchAddress()
     {
-        $this->resetPage();
+        $this->resetPage('address-page');
     }
 
     public $account_id, $account;
