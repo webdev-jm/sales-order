@@ -159,7 +159,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('region/upload', [RegionController::class, 'upload'])->name('region.upload')->middleware('permission:region create');
 
         Route::get('region/{id}/edit', [RegionController::class, 'edit'])->name('region.edit')->middleware('permission:region edit');
-        Route::post('region/{id}', [RegionController::class, 'update'])->name('region.edit')->middleware('permission:region edit');
+        Route::post('region/{id}', [RegionController::class, 'update'])->name('region.update')->middleware('permission:region edit');
     });
 
     // CLASSIFICATIONS
@@ -171,7 +171,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('classification/upload', [ClassificationController::class, 'upload'])->name('classification.upload')->middleware('permission:classification create');
 
         Route::get('classification/{id}/edit', [ClassificationController::class, 'edit'])->name('classification.edit')->middleware('permission:classification edit');
-        Route::post('classification/{id}', [ClassificationController::class, 'update'])->name('classification.update')->middleware('permission:classification update');
+        Route::post('classification/{id}', [ClassificationController::class, 'update'])->name('classification.update')->middleware('permission:classification edit');
     });
 
     // AREAS

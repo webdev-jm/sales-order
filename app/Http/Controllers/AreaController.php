@@ -46,7 +46,7 @@ class AreaController extends Controller
      */
     public function create()
     {
-        //
+        return view('areas.create');
     }
 
     /**
@@ -57,7 +57,20 @@ class AreaController extends Controller
      */
     public function store(StoreAreaRequest $request)
     {
-        //
+        $area = new Area([
+            'area_code' => $request->area_code,
+            'area_name' => $request->area_name
+        ]);
+        $area->save();
+
+        // logs
+        activity('create')
+        ->performedOn($area)
+        ->log(':causer.firstname :causer.lastname has created area :subject.area_name');
+
+        return redirect()->route('area.index')->with([
+            'message_success' => 'Area '.$area->are_name.' was created.'
+        ]);
     }
 
     /**
@@ -77,9 +90,13 @@ class AreaController extends Controller
      * @param  \App\Models\Area  $area
      * @return \Illuminate\Http\Response
      */
-    public function edit(Area $area)
+    public function edit($id)
     {
-        //
+        $area = Area::findOrFail($id);
+
+        return view('areas.edit')->with([
+            'area' => $area
+        ]);
     }
 
     /**
@@ -89,9 +106,30 @@ class AreaController extends Controller
      * @param  \App\Models\Area  $area
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateAreaRequest $request, Area $area)
+    public function update(UpdateAreaRequest $request, $id)
     {
-        //
+        $area = Area::findOrFail($id);
+
+        $old = $area;
+
+        $area->update([
+            'area_code' => $request->area_code,
+            'area_name' => $request->area_name
+        ]);
+
+        // logs
+        activity('update')
+        ->performedOn($area)
+        ->withProperties([
+            'old' => $old,
+            'changes' => $area->getChanges()
+        ])
+        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name.');
+
+        return redirect()->route('area.index')->with([
+            'message_success' => 'Area '.$area->area_name.' was updated.'
+        ]);
+
     }
 
     /**

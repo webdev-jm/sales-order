@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Area;
 
 class StoreAreaRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class StoreAreaRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('area create');
     }
 
     /**
@@ -24,7 +26,12 @@ class StoreAreaRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'area_code' => [
+                'required', Rule::unique((new Area)->getTable())
+            ],
+            'area_name' => [
+                'required'
+            ]
         ];
     }
 }
