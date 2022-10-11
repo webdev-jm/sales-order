@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Classification;
 
 class StoreClassificationRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class StoreClassificationRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('classification create');
     }
 
     /**
@@ -24,7 +26,12 @@ class StoreClassificationRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'classification_code' => [
+                'required', Rule::unique((new Classification)->getTable())
+            ],
+            'classification_name' => [
+                'required'
+            ]
         ];
     }
 }

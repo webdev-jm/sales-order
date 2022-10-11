@@ -31,8 +31,8 @@ class ProductImport implements ToModel, WithStartRow
     */
     public function model(array $row)
     {
-        $check = Product::where('stock_code', trim($row[1]))->first();
-        if(empty($check) && !empty($row[1])) {
+        $product = Product::where('stock_code', trim($row[1]))->first();
+        if(empty($product) && !empty($row[1])) {
             return new Product([
                 'stock_code' => trim($row[1]),
                 'description' => $row[2] ?? '',
@@ -51,6 +51,12 @@ class ProductImport implements ToModel, WithStartRow
                 'status' => null
             ]);
         } else {
+            if(!empty($product)) {
+                $product->update([
+                    'bar_code' => (string)$row[15]
+                ]);
+            }
+
             return null;
         }
 

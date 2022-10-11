@@ -46,7 +46,7 @@ class RegionController extends Controller
      */
     public function create()
     {
-        //
+        return view('regions.create');
     }
 
     /**
@@ -57,7 +57,19 @@ class RegionController extends Controller
      */
     public function store(StoreRegionRequest $request)
     {
-        //
+        $region = new Region([
+            'region_name' => $request->region_name
+        ]);
+        $region->save();
+
+        // logs
+        activity('create')
+        ->performedOn($region)
+        ->log(':causer.firstname :causer.lastname has created region :subject.region_name');
+
+        return redirect()->route('region.index')->with([
+            'message_success' => 'Region '.$region->region_name.' was created.'
+        ]);
     }
 
     /**
@@ -77,9 +89,13 @@ class RegionController extends Controller
      * @param  \App\Models\Region  $region
      * @return \Illuminate\Http\Response
      */
-    public function edit(Region $region)
+    public function edit($id)
     {
-        //
+        $region = Region::findOrFail($id);
+
+        return view('regions.edit')->with([
+            'region' => $region
+        ]);
     }
 
     /**
@@ -89,9 +105,28 @@ class RegionController extends Controller
      * @param  \App\Models\Region  $region
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateRegionRequest $request, Region $region)
+    public function update(UpdateRegionRequest $request, $id)
     {
-        //
+        $region = Region::findOrFail($id);
+
+        $old = $region;
+
+        $region->update([
+            'region_name' => $request->region_name
+        ]);
+
+        // logs
+        activity('update')
+        ->performedOn($region)
+        ->withProperties([
+            'old' => $old,
+            'changes' => $region->getChanges()
+        ])
+        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name.');
+
+        return redirect()->route('region.index')->with([
+            'message_success' => 'Region '.$region->region_name.' was updated.'
+        ]);
     }
 
     /**

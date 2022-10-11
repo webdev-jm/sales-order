@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Region;
 
 class UpdateRegionRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class UpdateRegionRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('region edit');
     }
 
     /**
@@ -24,7 +26,9 @@ class UpdateRegionRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'region_name' => [
+                'required', Rule::unique((new Region)->getTable())->ignore($this->id)
+            ]
         ];
     }
 }

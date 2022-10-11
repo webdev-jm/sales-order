@@ -31,6 +31,7 @@ class CreateProductsTable extends Migration
             $table->string('other_uom_operator');
             $table->string('status')->nullable();
             $table->boolean('special_product')->default(false);
+            $table->string('bar_code')->nullable();
             $table->timestamps();
 
             $table->softDeletes();

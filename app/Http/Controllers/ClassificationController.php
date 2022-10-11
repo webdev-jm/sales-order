@@ -46,7 +46,7 @@ class ClassificationController extends Controller
      */
     public function create()
     {
-        //
+        return view('classifications.create');
     }
 
     /**
@@ -57,7 +57,20 @@ class ClassificationController extends Controller
      */
     public function store(StoreClassificationRequest $request)
     {
-        //
+        $classification = new Classification([
+            'classification_code' => $request->classification_code,
+            'classification_name' => $request->classification_name
+        ]);
+        $classification->save();
+
+        // logs
+        activity('create')
+        ->performedOn($classification)
+        ->log(':causer.firstname :causer.lastname has created classification :subject.classification_name');
+
+        return redirect()->route('classification.index')->with([
+            'message_success' => 'Classification '.$classification->classification_name.' was created.'
+        ]);
     }
 
     /**
@@ -77,9 +90,13 @@ class ClassificationController extends Controller
      * @param  \App\Models\Classification  $classification
      * @return \Illuminate\Http\Response
      */
-    public function edit(Classification $classification)
+    public function edit($id)
     {
-        //
+        $classification = Classification::findOrFail($id);
+
+        return view('classifications.edit')->with([
+            'classification' => $classification
+        ]);
     }
 
     /**
@@ -89,9 +106,29 @@ class ClassificationController extends Controller
      * @param  \App\Models\Classification  $classification
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateClassificationRequest $request, Classification $classification)
+    public function update(UpdateClassificationRequest $request, $id)
     {
-        //
+        $classification = Classification::findOrFail($id);
+
+        $old = $classification;
+
+        $classification->update([
+            'classification_code' => $request->classification_code,
+            'classification_name' => $request->classification_name
+        ]);
+
+        // logs
+        activity('update')
+        ->performedOn($classification)
+        ->withProperties([
+            'old' => $old,
+            'changes' => $classification->getChanges()
+        ])
+        ->log(':causer.firstname :causer.lastname has updated product :subject.classification_name.');
+
+        return redirect()->route('classification.index')->with([
+            'message_success' => 'Classification '.$classification->classification_name.' was updated.'
+        ]);
     }
 
     /**

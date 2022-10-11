@@ -17,6 +17,8 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\SalesOrder;
 use App\Models\OperationProcess;
+use App\Models\Region;
+use App\Models\Area;
 
 class ConfirmDelete extends Component
 {
@@ -50,7 +52,7 @@ class ConfirmDelete extends Component
             ->log(':causer.firstname :causer.lastname has deleted '.$this->name);
 
             return redirect()->to($this->route)->with([
-                'message_success' => 'Message Success '.$this->name.' was deleted.'
+                'message_success' => $this->name.' was deleted.'
             ]);
         }
 
@@ -117,6 +119,16 @@ class ConfirmDelete extends Component
                 $this->model = OperationProcess::findOrFail($model_id);
                 $this->name = $this->model->operation_process;
                 $this->route = '/operation-process';
+                break;
+            case 'Region':
+                $this->model = Region::findOrFail($model_id);
+                $this->name = $this->model->region_name;
+                $this->route = '/region';
+                break;
+            case 'Area':
+                $this->model = Area::findOrFail($model_id);
+                $this->name = $this->model->area_name;
+                $this->route = '/area';
                 break;
         }
     }

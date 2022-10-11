@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use App\Models\Classification;
 
 class UpdateClassificationRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class UpdateClassificationRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('classification edit');
     }
 
     /**
@@ -24,7 +26,12 @@ class UpdateClassificationRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'classification_code' => [
+                'required', Rule::unique((new Classification)->getTable())->ignore($this->id)
+            ],
+            'classification_name' => [
+                'required'
+            ]
         ];
     }
 }
