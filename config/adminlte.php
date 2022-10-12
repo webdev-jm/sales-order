@@ -395,6 +395,13 @@ return [
             'active'    => ['account*', 'shipping-address*']
         ],
         [
+            'text'      => 'Account Reference',
+            'url'       => '/reference-account',
+            'icon'      => 'fas fa-fw fa-hashtag',
+            'can'       => 'account reference access',
+            'active'    => ['reference-account*']
+        ],
+        [
             'text'      => 'Branches',
             'url'       => '/branch',
             'icon'      => 'fas fa-fw fa-code-branch',

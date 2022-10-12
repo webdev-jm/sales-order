@@ -23,6 +23,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ClassificationController;
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\AccountProductReferenceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,9 +60,11 @@ Route::group(['middleware' => 'auth'], function () {
     // AJAX
     Route::post('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
     Route::post('account/ajax',[AccountController::class, 'ajax'])->name('account.ajax');
+    Route::post('product/ajax', [ProductController::class, 'ajax'])->name('product.ajax');
 
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
     Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');
+    Route::get('product/get-ajax/{id}', [ProductController::class, 'getAjax'])->name('product.getAjax');
 
     // DASHBOARD
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -122,6 +125,18 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('account/{id}/edit', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
         Route::post('account/{id}', [AccountController::class, 'update'])->name('account.update')->middleware('permission:account edit');
+    });
+
+    // ACCOUNT REFERENCE
+    Route::group(['middleware' => 'permission:account reference access'], function() {
+        Route::get('reference-account', [AccountProductReferenceController::class, 'index'])->name('account-reference.index');
+        Route::get('reference-account/create', [AccountProductReferenceController::class, 'create'])->name('account-reference.create')->middleware('permission:account reference create');
+        Route::post('reference-account', [AccountProductReferenceController::class, 'store'])->name('account-reference.store')->middleware('permission:account reference create');
+
+        Route::post('reference-account/upload', [AccountProductReferenceController::class, 'upload'])->name('account-reference.upload')->middleware('permission:account reference create');
+
+        Route::get('reference-account/{id}/edit', [AccountProductReferenceController::class, 'edit'])->name('account-reference.edit')->middleware('permission:account reference edit');
+        Route::post('reference-account/{id}', [AccountProductReferenceController::class, 'update'])->name('account-reference.update')->middleware('permission:account reference edit');
     });
 
     // SHIPPING ADDRESS

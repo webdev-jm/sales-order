@@ -46,6 +46,11 @@ class PermissionSeeder extends Seeder
             'account create',
             'account edit',
             'account delete',
+            // Account Reference
+            'account reference access',
+            'account reference create',
+            'account reference edit',
+            'account reference delete',
             // Shipping Address
             'shipping address access',
             'shipping address create',

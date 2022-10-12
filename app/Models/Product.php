@@ -40,6 +40,10 @@ class Product extends Model
         return $this->belongsToMany('App\Models\Account')->withPivot('price_code');
     }
 
+    public function references() {
+        return $this->hasMany('App\Models\AccountProductReference');
+    }
+
     public function scopeProductSearch($query, $search, $limit) {
         if($search != '') {
             $products = $query->orderBy('id', 'DESC')
@@ -54,5 +58,30 @@ class Product extends Model
         }
 
         return $products;
+    }
+
+    public function scopeProductAjax($query, $search) {
+        if($search != '') {
+            $products = $query->select('id', 'stock_code', 'description', 'size')
+            ->limit(5)
+            ->get();
+        } else {
+            $products = $query->select('id', 'stock_code', 'description', 'size')
+            ->where('stock_code', 'like', '%'.$search.'%')
+            ->orWhere('description', 'like', '%'.$search.'%')
+            ->orWhere('size', 'like', '%'.$search.'%')
+            ->limit(5)
+            ->get();
+        }
+
+        $response = [];
+        foreach($products as $product) {
+            $response[] = [
+                'id' => $product->id,
+                'text' => '['.$product->stock_code.'] '.$product->description.' '.$product->size
+            ];
+        }
+
+        return $response;
     }
 }
