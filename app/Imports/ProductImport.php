@@ -51,11 +51,11 @@ class ProductImport implements ToModel, WithStartRow
                 'status' => null
             ]);
         } else {
-            if(!empty($product)) {
-                $product->update([
-                    'bar_code' => (string)$row[15]
-                ]);
-            }
+            // if(!empty($product)) {
+            //     $product->update([
+            //         'bar_code' => (string)$row[15]
+            //     ]);
+            // }
 
             return null;
         }

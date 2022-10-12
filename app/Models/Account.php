@@ -65,6 +65,10 @@ class Account extends Model
         return $this->belongsToMany('App\Models\Product')->withPivot('price_code');
     }
 
+    public function references() {
+        return $this->hasMany('App\Models\AccountProductReference');
+    }
+
     public function scopeAccountSearch($query, $search, $limit) {
         if($search != '') {
             $accounts = $query->orderBy('id', 'DESC')

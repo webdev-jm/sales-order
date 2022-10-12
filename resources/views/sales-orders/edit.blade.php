@@ -11,9 +11,21 @@
         white-space: inherit !important;
     }
 
+    .w150 {
+        width: 200px;
+    }
+
+    .w100 {
+        width: 75px;
+    }
+
     .fast-spin {
         -webkit-animation: fa-spin 500ms infinite linear;
         animation: fa-spin 500ms infinite linear;
+    }
+
+    .bg-disabled {
+        background-color: #e9ecef;
     }
 </style>
 @endsection

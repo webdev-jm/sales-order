@@ -7,7 +7,7 @@
                     <div class="col">
                         <div class="input-group input-group-sm">
                             <select name="" class="form-control form-control-sm" wire:model="brand">
-                                <option value="ALL">ALL</option>
+                                <option value="ALL">ALL BRANDS</option>
                                 @foreach($brands as $brand)
                                 <option value="{{$brand->brand}}">{{$brand->brand}}</option>
                                 @endforeach
@@ -50,6 +50,9 @@
                             $product->other_uom
                         ];
                         $uom_arr = array_unique($uom_arr);
+
+                        $reference = $product->references()->where('account_id', $account->id)->first();
+                        $price_code = $product->price_codes()->where('company_id', $this->account->company_id)->where('code', $this->account->price_code)->first();
                     @endphp
                     <tr>
                         <td class="p-0 text-center align-middle">
@@ -63,8 +66,16 @@
                         </td>
                         <td class="align-middle px-2">
                             <span class="font-weight-bold">[{{$product->stock_code}}]</span>
-                            <span>{{$product->description}} </span>
+                            @if(isset($reference->description) && trim($reference->description) != '')
+                                <span>{{$reference->description}}</span>
+                            @else
+                                <span>{{$product->description}}</span>
+                            @endif
                             <span class="text-muted">[{{$product->size}}]</span>
+                            @if(!empty($reference))
+                                <br>
+                                <span class=""><i class="fa fa-barcode mr-2"></i>{{$reference->account_reference}}</span>
+                            @endif
                         </td>
                         <td class="align-middle text-center px-1">
                             {{$product->category}}
@@ -75,12 +86,20 @@
                         <td class="p-0 align-middle">
                             <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">
                                 @foreach($uom_arr as $key => $val)
-                                <option value="{{$val}}" {{$val == $product->order_uom ? 'selected' : ''}}>{{$val}}</option>
+                                    <option value="{{$val}}" {{$val == $product->order_uom ? 'selected' : ''}}>{{$val}}</option>
                                 @endforeach
                             </select>
                         </td>
-                        <td class="p-0 align-middle">
-                            <input type="number" class="form-control border-0 w150" min="0" wire:loading.attr="disabled" max="99999999999" wire:change="change" wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}" {{!empty($product->status) ? 'disabled' : ''}}>
+                        <td class="p-0 align-middle{{!empty($product->status) || empty($price_code) ? ' bg-disabled' : ''}}" wire:loading.class="bg-disabled">
+                            <input type="number" class="form-control border-0 w150{{!empty($product->status) || empty($price_code) ? ' text-center' : ''}}"
+                                min="0" 
+                                wire:loading.attr="disabled" 
+                                max="99999999999" 
+                                wire:change="change"
+                                wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}" 
+                                {{!empty($product->status) || empty($price_code) ? 'disabled' : ''}} 
+                                placeholder="{{empty($price_code) ? 'no price code' : ''}}"
+                            >
                         </td>
                     </tr>
                     @endforeach

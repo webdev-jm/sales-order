@@ -205,4 +205,15 @@ class ProductController extends Controller
             'message_success' => 'Products has been uploaded.'
         ]);
     }
+
+    public function ajax(Request $request) {
+        $search = $request->search;
+        $response = Product::ProductAjax($search);
+        return response()->json($response);
+    }
+
+    public function getAjax($id) {
+        $product = Product::findOrFail($id);
+        return response()->json($product);
+    }
 }

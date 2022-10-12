@@ -23,6 +23,10 @@
         -webkit-animation: fa-spin 500ms infinite linear;
         animation: fa-spin 500ms infinite linear;
     }
+
+    .bg-disabled {
+        background-color: #e9ecef;
+    }
 </style>
 @endsection
 

@@ -55,8 +55,8 @@
         
         <div class="col-sm-4 invoice-col">
             <b>PO Number: {{$sales_order->po_number}}</b><br>
-            <br>
-           <b>Order Date:</b> {{$sales_order->order_date}}<br>
+            <b>PO Value:</b> {{number_format($sales_order->po_value, 2)}}<br>
+            <b>Order Date:</b> {{$sales_order->order_date}}<br>
             <b>Ship Date:</b> {{$sales_order->ship_date}}<br>
             <b>Discount:</b> {{$sales_order->account_login->account->discount->description ?? ''}}<br>
             <b>Account:</b> [{{$sales_order->account_login->account->account_code}}] {{$sales_order->account_login->account->short_name}}
@@ -113,9 +113,9 @@
                         @endphp
                         <tr>
                             <td>{{$uom->uom}}</td>
-                            <td>{{$uom->quantity}}</td>
-                            <td>{{number_format($uom->uom_total, 2)}}</td>
-                            <td>{{number_format($uom->uom_total_less_disc, 2)}}</td>
+                            <td class="text-right">{{$uom->quantity}}</td>
+                            <td class="text-right">{{number_format($uom->uom_total, 2)}}</td>
+                            <td class="text-right">{{number_format($uom->uom_total_less_disc, 2)}}</td>
                         </tr>
                         @endforeach
                     @endforeach
@@ -123,9 +123,9 @@
                 <tfoot>
                     <tr>
                         <th colspan="4">TOTAL</th>
-                        <th>{{number_format($quantity_total)}}</th>
-                        <th>{{number_format($sales_total, 2)}}</th>
-                        <th>{{number_format($sales_total_less_disc, 2)}}</th>
+                        <th class="text-right">{{number_format($quantity_total)}}</th>
+                        <th class="text-right">{{number_format($sales_total, 2)}}</th>
+                        <th class="text-right">{{number_format($sales_total_less_disc, 2)}}</th>
                     </tr>
                 </tfoot>
             </table>
@@ -140,15 +140,15 @@
                 <table class="table">
                     <tr>
                         <th style="width:50%">Total:</th>
-                        <td>{{number_format($sales_order->total_sales, 2)}}</td>
+                        <td class="text-right">{{number_format($sales_order->total_sales, 2)}}</td>
                     </tr>
                     <tr>
                         <th>Discount</th>
-                        <td>{{$sales_order->account_login->account->discount->description ?? ''}}</td>
+                        <td class="text-right">{{$sales_order->account_login->account->discount->description ?? ''}}</td>
                     </tr>
                     <tr>
                         <th>Total Less Discount</th>
-                        <td>{{number_format($sales_order->grand_total, 2)}}</td>
+                        <td class="text-right">{{number_format($sales_order->grand_total, 2)}}</td>
                     </tr>
                 </table>
             </div>

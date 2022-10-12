@@ -39,6 +39,7 @@ class StoreSalesOrderRequest extends FormRequest
             'po_number' => [
                 'required',
                 // 'alpha_dash',
+                'regex:/^[a-zA-Z0-9\s\-]+$/',
                 Rule::unique((new SalesOrder)->getTable()),
                 Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id)
             ],
