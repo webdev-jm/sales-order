@@ -88,9 +88,9 @@ class SalesOrderProducts extends Component
                         $query->whereHas('references', function($qry) {
                             $qry->where('account_id', $this->account->id);
                         })
-                        // ->orWhereHas('price_codes', function($qry) {
-                        //     $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        // })
+                        ->orWhereHas('price_codes', function($qry) {
+                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+                        })
                         ->orWhere(function($qry) use ($special_products) {
                             $qry->where('special_product', 1)
                             ->whereIn('id', $special_products->pluck('id'));
@@ -116,10 +116,10 @@ class SalesOrderProducts extends Component
                     ->where(function($query) {
                         $query->whereHas('references', function($qry) {
                             $qry->where('account_id', $this->account->id);
+                        })
+                        ->orWhereHas('price_codes', function($qry) {
+                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
                         });
-                        // ->orWhereHas('price_codes', function($qry) {
-                        //     $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        // });
                     })
                     ->paginate(10)->onEachSide(1);
                 }
@@ -146,9 +146,9 @@ class SalesOrderProducts extends Component
                         $query->whereHas('references', function($qry) {
                             $qry->where('account_id', $this->account->id);
                         })
-                        // ->orWhereHas('price_codes', function($qry) {
-                        //     $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        // })
+                        ->orWhereHas('price_codes', function($qry) {
+                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+                        })
                         ->orWhere(function($qry) use ($special_products) {
                             $qry->where('special_product', 1)
                             ->whereIn('id', $special_products->pluck('id'));
@@ -177,10 +177,10 @@ class SalesOrderProducts extends Component
                     ->where(function($query) {
                         $query->whereHas('references', function($qry) {
                             $qry->where('account_id', $this->account->id);
+                        })
+                        ->orWhereHas('price_codes', function($qry) {
+                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
                         });
-                        // ->orWhereHas('price_codes', function($qry) {
-                        //     $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        // });
                     })
                     ->paginate(10)->onEachSide(1);
                 }
@@ -190,9 +190,9 @@ class SalesOrderProducts extends Component
             ->whereHas('references', function($query) {
                 $query->where('account_id', $this->account->id);
             })
-            // ->orWhereHas('price_codes', function($qry) {
-            //     $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-            // })
+            ->orWhereHas('price_codes', function($qry) {
+                $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
+            })
             ->get('brand');
         } else {
 

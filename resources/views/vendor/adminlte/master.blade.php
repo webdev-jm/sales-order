@@ -108,6 +108,21 @@
     @yield('adminlte_js')
 
     <livewire:changelogs/>
+    
+    <div class="modal fade" id="online-users-modal">
+        <div class="modal-dialog">
+            <livewire:online-users/>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('livewire:load', function() {
+            $('#btn-online-users').on('click', function(e) {
+                e.preventDefault();
+                $('#online-users-modal').modal('show');
+            });
+        });
+    </script>
 
 </body>
 
