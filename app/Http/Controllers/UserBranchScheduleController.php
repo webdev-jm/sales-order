@@ -46,7 +46,7 @@ class UserBranchScheduleController extends Controller
 
                     if($schedules->count() > 0) {
                         $schedule_data[] = [
-                            'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $request_color,
@@ -61,7 +61,7 @@ class UserBranchScheduleController extends Controller
 
                     if($schedules->count() > 0) {
                         $schedule_data[] = [
-                            'title' => $schedules->count().($schedules->count() > 1 ? ' requests' : ' request'),
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $request_color,
@@ -91,7 +91,7 @@ class UserBranchScheduleController extends Controller
 
                     if($count > 0) {
                         $schedule_data[] = [
-                            'title' => $count.($count > 1 ? ' requests' : ' request'),
+                            'title' => $count.($count > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $request_color,
