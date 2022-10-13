@@ -332,11 +332,11 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
-            'text'      => 'Calendar',
-            'url'       => '/calendar',
+            'text'      => 'Schedules',
+            'url'       => '/schedule',
             'icon'      => 'fas fa-fw fa-calendar-alt',
-            'can'       => 'calendar access',
-            'active'    => ['calendar*']
+            'can'       => 'schedule access',
+            'active'    => ['schedule*']
         ],
         [
             'header'    => 'maintenance',

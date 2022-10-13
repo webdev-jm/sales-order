@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Calendar
+    Schedules
 @endsection
 
 @section('css')
@@ -15,7 +15,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Calendar</h1>
+        <h1>Schedules</h1>
     </div>
     <div class="col-md-6 text-right">
     </div>
@@ -23,7 +23,7 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['calendar.index'], 'id' => 'search_form']) !!}
+{!! Form::open(['method' => 'GET', 'route' => ['schedule.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
 <div class="row">
@@ -31,12 +31,7 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Actions</h3>
-                <div class="card-tools">
-                    @can('calendar create')
-                    <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload"></i> Upload</button>
-                    @endif
-                </div>
+                <h3 class="card-title">Filters</h3>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -62,9 +57,26 @@
                 {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
             </div>
         </div>
+
+        @can('schedule create')
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Add Schedule</h3>
+                    <div class="card-tools">
+                        <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload"></i> Upload</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    
+                </div>
+                <div class="card-footer text-right">
+                    
+                </div>
+            </div>
+        @endcan
     </div>
     
-    <div class="{{auth()->user()->can('calendar create') ? 'col-lg-8' : 'col-12'}}">
+    <div class="col-lg-8">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Calendar</h3>
@@ -83,8 +95,15 @@
                 <h4 class="modal-title">Upload Schedule</h4>
             </div>
             <div class="modal-body">
-                {!! Form::open(['method' => 'POST', 'route' => ['calendar.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::open(['method' => 'POST', 'route' => ['schedule.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
                 {!! Form::close() !!}
+
+                <label>Columns are:</label>
+                <ol>
+                    <li><b>User Name</b> - Required</li>
+                    <li><b>Branch Code</b> - Required</li>
+                    <li><b>Date</b> - Required, Must follow date format of YYYY-MM-DD</li>
+                </ol>
 
                 <div class="row">
                     <div class="col-12">

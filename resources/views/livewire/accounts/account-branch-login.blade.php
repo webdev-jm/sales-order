@@ -19,8 +19,9 @@
         <div class="modal-body text-left">
 
             <div class="row">
-                <div class="col-12">
+                <div class="col-lg-12">
                     <button class="btn btn-primary" wire:click.prevent="addBranch"><i class="fa fa-plus mr-1"></i>Add Branch</button>
+                    <button class="btn {{empty($scheduled) ? 'btn-default' : ' btn-success'}}" wire:click.prevent="showScheduled"><i class="fa fa-calendar-alt mr-1"></i>Show Scheduled</button>
                 </div>
             </div>
 
@@ -28,8 +29,14 @@
 
             <div class="row">
                 @foreach($branches as $branch)
+                @php
+                    $curr_date = date('Y-m-d', time());
+                    $schedule = $branch->schedules()->where('user_id', auth()->user()->id)
+                    ->where('date', $curr_date)
+                    ->first();
+                @endphp
                 <div class="col-lg-4 my-2">
-                    <button type="button" class="btn btn-default btn-block h-100" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
+                    <button type="button" class="btn {{!empty($schedule) ? 'btn-success' : 'btn-default'}} btn-block h-100" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
                 </div>
                 @endforeach
             </div>

@@ -40,4 +40,8 @@ class Branch extends Model
     public function area() {
         return $this->belongsTo('App\Models\Area');
     }
+
+    public function schedules() {
+        return $this->hasMany('App\Models\UserBranchSchedule');
+    }
 }

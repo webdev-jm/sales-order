@@ -67,8 +67,14 @@ class ScheduleEvent extends Component
 
     public function render()
     {
-        $branch_schedules = UserBranchSchedule::where('date', $this->date)
-        ->paginate(10)->onEachSide(1);
+        if(auth()->user()->hasRole('superadmin')) {
+            $branch_schedules = UserBranchSchedule::where('date', $this->date)
+            ->paginate(10)->onEachSide(1);
+        } else {
+            $branch_schedules = UserBranchSchedule::where('date', $this->date)
+            ->where('user_id', auth()->user()->id)
+            ->paginate(10)->onEachSide(1);
+        }
 
         return view('livewire.schedules.schedule-event')->with([
             'branch_schedules' => $branch_schedules
