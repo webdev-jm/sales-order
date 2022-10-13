@@ -5,7 +5,11 @@ namespace App\Http\Livewire\Schedules;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use AccountLoginModel;
+use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
+
+use Illuminate\Support\Facades\Session;
 
 class ScheduleEvent extends Component
 {
@@ -16,6 +20,8 @@ class ScheduleEvent extends Component
     public $action;
     public $status, $reschedule_date;
 
+    public $accuracy, $longitude, $latitude;
+
     protected $listeners = [
         'showEvents' => 'setDate'
     ];
@@ -23,6 +29,50 @@ class ScheduleEvent extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    public function sign_in() {
+        $this->validate([
+            'accuracy' => 'required',
+            'longitude' => 'required',
+            'latitude' => 'required',
+        ]);
+
+        // check if logged in to account or branch
+        $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
+        ->whereNull('time_out')
+        ->first();
+
+        $logged_branch = BranchLogin::where('user_id', auth()->user()->id)
+        ->whereNull('time_out')
+        ->first();
+
+        if(empty($logged_account) && empty($logged_branch)) {
+            $branch_login = new BranchLogin([
+                'user_id' => auth()->user()->id,
+                'branch_id' => $this->schedule_data->branch_id,
+                'longitude' => $this->longitude,
+                'latitude' => $this->latitude,
+                'accuracy' => $this->accuracy,
+                'time_in' => now(),
+            ]);
+            $branch_login->save();
+
+            Session::put('logged_branch', $branch_login);
+            
+            return redirect()->to('/home')->with([
+                'message_success' => 'You are logged in.'
+            ]);
+        } else {
+            return redirect()->to('/home')->with([
+                'message_error' => 'Your are currently logged in to a branch.'
+            ]);
+        }
+        
+    }
+
+    public function loadLocation() {
+        $this->dispatchBrowserEvent('reloadLocation');
     }
 
     public function submit() {

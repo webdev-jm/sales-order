@@ -39,11 +39,21 @@ class ScheduleImport implements ToModel, WithStartRow, WithBatchInserts, WithChu
         $branch = Branch::where('branch_code', $row[1])->first();
 
         if(!empty($user) && !empty($branch)) {
-            return new UserBranchSchedule([
-                'user_id' => $user->id,
-                'branch_id' => $branch->id,
-                'date' => $this->transformDate($row[2]),
-            ]);
+            $check = UserBranchSchedule::where('user_id', $user->id)
+            ->where('branch_id', $branch->id)
+            ->where('date', $this->transformDate($row[2]))
+            ->first();
+
+            if(empty($check)) {
+                return new UserBranchSchedule([
+                    'user_id' => $user->id,
+                    'branch_id' => $branch->id,
+                    'date' => $this->transformDate($row[2]),
+                ]);
+            } else {
+                return null;
+            }
+
         } else {
             return null;
         }

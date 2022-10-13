@@ -102,7 +102,7 @@
                 <ol>
                     <li><b>User Name</b> - Required</li>
                     <li><b>Branch Code</b> - Required</li>
-                    <li><b>Date</b> - Required, Must follow date format of YYYY-MM-DD</li>
+                    <li><b>Date</b> - Required, Date format can be YYYY-MM-DD or DD/MM/YYYY</li>
                 </ol>
 
                 <div class="row">
