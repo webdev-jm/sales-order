@@ -84,10 +84,11 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // CALENDAR
-    Route::group(['middleware' => 'permission:calendar access'], function() {
-        Route::get('calendar', [UserBranchScheduleController::class, 'index'])->name('calendar.index');
+    Route::group(['middleware' => 'permission:schedule access'], function() {
+        Route::get('schedule', [UserBranchScheduleController::class, 'index'])->name('schedule.index');
+        Route::post('schedule',[UserBranchScheduleController::class, 'store'])->name('schedule.store')->middleware('permission:schedule create');
 
-        Route::post('calendar/upload', [UserBranchScheduleController::class, 'upload'])->name('calendar.upload')->middleware('permission:calendar create');
+        Route::post('schedule/upload', [UserBranchScheduleController::class, 'upload'])->name('schedule.upload')->middleware('permission:schedule create');
     });
 
     // COMPANY

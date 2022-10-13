@@ -24,6 +24,7 @@ class AccountBranchLogin extends Component
 
     protected $paginationTheme = 'bootstrap';
     
+    public $scheduled;
     
     public $account, $branch_accuracy, $branch_longitude, $branch_latitude;
     public $branch, $accuracy, $longitude, $latitude;
@@ -37,7 +38,18 @@ class AccountBranchLogin extends Component
 
     public function updatingSearch()
     {
-        $this->resetPage();
+        $this->resetPage('branchPage');
+    }
+
+    public function showScheduled() {
+        if(!empty($this->scheduled)) {
+            $this->reset('scheduled'); 
+        } else {
+            $curr_date = date('Y-m-d',time());
+            $this->scheduled = $curr_date;
+        }
+
+        $this->resetPage('branchPage');
     }
 
     public function submitAddBranch() {
@@ -152,14 +164,29 @@ class AccountBranchLogin extends Component
     {
         $branches = [];
         if(!empty($this->account)) {
-            $branches = Branch::orderBy('branch_code', 'ASC')
-            ->where('account_id', $this->account->id)
-            ->where(function($query) {
-                $query->where('branch_code', 'like', '%'.$this->search.'%')
-                ->orWhere('branch_name', 'like', '%'.$this->search.'%');
-            })
-            ->paginate(12, ['*'], 'branchPage')
-            ->onEachSide(1)->appends(request()->query());
+            if(!empty($this->scheduled)) {
+                $branches = Branch::orderBy('branch_code', 'ASC')
+                ->where('account_id', $this->account->id)
+                ->whereHas('schedules', function($query) {
+                    $query->where('date', $this->scheduled)
+                    ->where('user_id', auth()->user()->id);
+                })
+                ->where(function($query) {
+                    $query->where('branch_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('branch_name', 'like', '%'.$this->search.'%');
+                })
+                ->paginate(12, ['*'], 'branchPage')
+                ->onEachSide(1)->appends(request()->query());
+            } else {
+                $branches = Branch::orderBy('branch_code', 'ASC')
+                ->where('account_id', $this->account->id)
+                ->where(function($query) {
+                    $query->where('branch_code', 'like', '%'.$this->search.'%')
+                    ->orWhere('branch_name', 'like', '%'.$this->search.'%');
+                })
+                ->paginate(12, ['*'], 'branchPage')
+                ->onEachSide(1)->appends(request()->query());
+            }
         }
 
         return view('livewire.accounts.account-branch-login')->with([

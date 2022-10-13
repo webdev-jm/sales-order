@@ -108,7 +108,7 @@ class UserBranchScheduleController extends Controller
 
                     if($count > 0) {
                         $schedule_data[] = [
-                            'title' => $count.($count > 1 ? ' requests' : ' request'),
+                            'title' => $count.($count > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $request_color,
@@ -133,7 +133,7 @@ class UserBranchScheduleController extends Controller
             $branches_arr[$branch_val->id] = $branch_val->branch_code.' '.$branch_val->branch_name;
         }
         
-        return view('calendars.index')->with([
+        return view('schedules.index')->with([
             'user_id' => $user_id,
             'branch_id' => $branch_id,
             'schedule_data' => $schedule_data,
