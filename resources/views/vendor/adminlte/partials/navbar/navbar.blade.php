@@ -13,12 +13,21 @@
         {{-- Custom left links --}}
         @yield('content_top_nav_left')
 
-        <li class="nav-item">
+        {{-- <li class="nav-item">
             <a href="" class="nav-link" id="btn-changelog">
                 <i class="fas fa-clipboard-list text-warning"></i>
                 <span class="navbar-badge animation__shake"><i class="fa fa-asterisk text-danger"></i></span>
             </a>
+        </li> --}}
+
+        @if(auth()->user()->hasRole('superadmin'))
+        <li class="nav-item">
+            <a href="" class="nav-link" id="btn-online-users">
+                <i class="fas fa-user"></i>
+                <span class="navbar-badge"><i class="fa fa-circle text-success"></i></span>
+            </a>
         </li>
+        @endif
         
     </ul>
 
