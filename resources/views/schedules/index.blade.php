@@ -18,6 +18,9 @@
         <h1>Schedules</h1>
     </div>
     <div class="col-md-6 text-right">
+        @can('schedule list')
+        <a href="{{route('schedule.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>Schedule Requests</a>
+        @endcan
     </div>
 </div>
 @endsection
@@ -32,34 +35,6 @@
 <div class="row">
     
     <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Filters</h3>
-            </div>
-            <div class="card-body">
-                <div class="row">
-
-                    <div class="col-lg-6">
-                        <div class="form-group">
-                            {!! Form::label('user_id', 'User') !!}
-                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'user']) !!}
-                        </div>
-                    </div>
-    
-                    <div class="col-lg-6">
-                        <div class="form-group">
-                            {!! Form::label('branch_id', 'Branch') !!}
-                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'branch']) !!}
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-            <div class="card-footer text-right">
-                {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
-            </div>
-        </div>
 
         @can('schedule create')
             <div class="card">
@@ -104,6 +79,36 @@
                 </div>
             </div>
         @endcan
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Filters</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('user_id', 'User') !!}
+                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'user']) !!}
+                        </div>
+                    </div>
+    
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('branch_id', 'Branch') !!}
+                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'branch']) !!}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="card-footer text-right">
+                {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
+            </div>
+        </div>
+        
     </div>
     
     <div class="col-lg-8">

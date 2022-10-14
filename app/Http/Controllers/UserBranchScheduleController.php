@@ -375,6 +375,20 @@ class UserBranchScheduleController extends Controller
         ]);
     }
 
+    // List
+    public function list(Request $request) {
+        $search = trim($request->get('search'));
+
+        $schedules = UserBranchSchedule::orderBy('id', 'DESC')
+        ->whereNotNull('status')
+        ->paginate(10)->onEachSide(1);
+
+        return view('schedules.list')->with([
+            'search' => $search,
+            'schedules' => $schedules
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -396,7 +410,8 @@ class UserBranchScheduleController extends Controller
         $schedule = new UserBranchSchedule([
             'user_id' => $request->user_id,
             'branch_id' => $request->branch_id,
-            'date' => $request->date
+            'date' => $request->date,
+            'source' => 'create'
         ]);
         $schedule->save();
 

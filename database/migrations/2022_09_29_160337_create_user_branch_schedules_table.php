@@ -20,6 +20,7 @@ class CreateUserBranchSchedulesTable extends Migration
             $table->date('date');
             $table->string('status')->nullable();
             $table->date('reschedule_date')->nullable();
+            $table->string('source')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')

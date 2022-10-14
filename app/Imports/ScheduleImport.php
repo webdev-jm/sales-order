@@ -49,6 +49,7 @@ class ScheduleImport implements ToModel, WithStartRow, WithBatchInserts, WithChu
                     'user_id' => $user->id,
                     'branch_id' => $branch->id,
                     'date' => $this->transformDate($row[2]),
+                    'source' => 'upload'
                 ]);
             } else {
                 return null;
