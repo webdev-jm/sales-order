@@ -37,7 +37,8 @@ class ScheduleChange extends Component
             'branch_id' => $this->schedule_data->branch_id,
             'date'  => $this->schedule_data->reschedule_date,
             'status' => NULL,
-            'reschedule_date' => NULL
+            'reschedule_date' => NULL,
+            'source' => 'reschedule'
         ]);
         $new_schedule->save();
 

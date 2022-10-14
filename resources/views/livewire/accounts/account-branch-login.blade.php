@@ -135,6 +135,22 @@
                 </div>
             </div>
             <div class="modal-body text-left">
+                @php
+                    $curr_date = date('Y-m-d', time());
+                    $schedule = $branch->schedules()->where('user_id', auth()->user()->id)
+                    ->where('date', $curr_date)
+                    ->first();
+                @endphp
+
+                @if(empty($schedule))
+                <div class="alert alert-danger">
+                    <h5>
+                        <i class="fa fa-ban mr-1"></i>
+                        Warning
+                    </h5>
+                    You have no schedule in this branch.
+                </div>
+                @endif
                 
                 <div class="row">
                     <div class="col-md-4">
