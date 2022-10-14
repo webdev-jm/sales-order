@@ -13,7 +13,7 @@ class StoreUserBranchScheduleRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('schedule create');
     }
 
     /**
@@ -24,7 +24,15 @@ class StoreUserBranchScheduleRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'user_id' => [
+                'required'
+            ],
+            'branch_id' => [
+                'required'
+            ],
+            'date' => [
+                'required'
+            ]
         ];
     }
 }

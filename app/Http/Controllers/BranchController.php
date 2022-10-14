@@ -205,4 +205,10 @@ class BranchController extends Controller
             'message_success' => 'Branches has been uploaded.'
         ]);
     }
+
+    public function ajax(Request $request) {
+        $search = $request->search;
+        $response = Branch::BranchAjax($search);
+        return response()->json($response);
+    }
 }

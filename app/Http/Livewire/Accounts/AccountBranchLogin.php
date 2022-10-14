@@ -169,7 +169,8 @@ class AccountBranchLogin extends Component
                 ->where('account_id', $this->account->id)
                 ->whereHas('schedules', function($query) {
                     $query->where('date', $this->scheduled)
-                    ->where('user_id', auth()->user()->id);
+                    ->where('user_id', auth()->user()->id)
+                    ->whereNull('status');
                 })
                 ->where(function($query) {
                     $query->where('branch_code', 'like', '%'.$this->search.'%')

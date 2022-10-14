@@ -61,6 +61,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
     Route::post('account/ajax',[AccountController::class, 'ajax'])->name('account.ajax');
     Route::post('product/ajax', [ProductController::class, 'ajax'])->name('product.ajax');
+    Route::post('branch/ajax', [BranchController::class, 'ajax'])->name('branch.ajax');
 
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
     Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');

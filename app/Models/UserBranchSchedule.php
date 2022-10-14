@@ -24,4 +24,8 @@ class UserBranchSchedule extends Model
     public function branch() {
         return $this->belongsTo('App\Models\Branch');
     }
+
+    public function approvals() {
+        return $this->hasMany('App\Models\UserBranchScheduleApproval');
+    }
 }

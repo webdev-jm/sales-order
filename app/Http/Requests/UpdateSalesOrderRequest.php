@@ -35,7 +35,9 @@ class UpdateSalesOrderRequest extends FormRequest
             ],
             'po_number' => [
                 'regex:/^[a-zA-Z0-9\s\-]+$/',
-                'required', Rule::unique((new SalesOrder)->getTable())->ignore($this->id)
+                'required',
+                Rule::unique((new SalesOrder)->getTable())->ignore($this->id),
+                Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id)
             ],
             'order_date' => [
                 'required'
