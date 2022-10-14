@@ -31,8 +31,41 @@
                                         </div>
                                     </div>
 
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label for="">Remarks</label>
+                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model.defer="remarks"></textarea>
+                                            @error('remarks')
+                                            <p class="text-danger">{{$message}}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
                                     <div class="col-12">
-                                        <button class="btn btn-primary" type="submit">Submit</button>
+                                        <button class="btn btn-warning float-right" type="submit">Reschedule</button>
+                                    </div>
+                                </div>
+                            </form>
+                        @elseif($action == 'delete-request')
+                            {{-- Delete Request --}}
+                            <form wire:submit.prevent="submit">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label>DELETE REQUEST</label>
+                                    </div>
+
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label for="">Remarks</label>
+                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model.defer="remarks"></textarea>
+                                            @error('remarks')
+                                            <p class="text-danger">{{$message}}</p>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-2">
+                                        <button class="btn btn-danger float-right" type="submit">Delete Request</button>
                                     </div>
                                 </div>
                             </form>
@@ -81,9 +114,15 @@
                     </div>
                 @else
                     <div class="col-12">
-                        {{-- <button class="btn btn-warning" wire:click.prevent="setAction('reschedule-request')"><i class="fa fa-clock mr-2"></i>Reschedule Request</button>
-                        <button class="btn btn-danger" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button> --}}
-                        <button class="btn btn-info" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>
+                        @can('schedule reschedule')
+                            <button class="btn btn-warning my-1" wire:click.prevent="setAction('reschedule-request')"><i class="fa fa-clock mr-2"></i>Reschedule Request</button>
+                        @endcan
+                        @can('schedule delete request')
+                            <button class="btn btn-danger my-1" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button>
+                        @endcan
+                        @if($schedule_data->user_id == auth()->user()->id)
+                        <button class="btn btn-info my-1" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>
+                        @endif
                     </div>
 
                     <div class="col-12 mt-2">
@@ -122,7 +161,7 @@
                 getLocation();
             });
 
-            getLocation();
+            // getLocation();
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {

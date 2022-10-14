@@ -26,11 +26,15 @@ class PermissionSeeder extends Seeder
             'sales order create',
             'sales order edit',
             'sales order delete',
-            // calendar
+            // schedules
             'schedule access',
             'schedule create',
             'schedule edit',
             'schedule delete',
+            'schedule reschedule',
+            'schedule delete request',
+            'schedule approve reschedule',
+            'schedule approve delete request',
             // company
             'company access',
             'company create',

@@ -44,4 +44,33 @@ class Branch extends Model
     public function schedules() {
         return $this->hasMany('App\Models\UserBranchSchedule');
     }
+
+    public function scopeBranchAjax($query, $search) {
+        if($search == '') {
+            $branches = $query->orderBy('branch_code', 'ASC')
+            ->select('id', 'branch_code', 'branch_name')
+            ->limit(5)->get();
+        } else {
+            $branches = $query->orderBy('branch_code', 'ASC')
+            ->select('id', 'branch_code', 'branch_name')
+            ->where('branch_code', 'like', '%'.$search.'%')
+            ->orWhere('branch_name', 'like', '%'.$search.'%')
+            ->orWhereHas('account', function($qry) use($search) {
+                $qry->where('account_code', 'like', '%'.$search.'%')
+                ->orWhere('account_name', 'like', '%'.$search.'%')
+                ->orWhere('short_name', 'like', '%'.$search.'%');
+            })
+            ->limit(5)->get();
+        }
+
+        $response = [];
+        foreach($branches as $branch) {
+            $response[] = [
+                'id' => $branch->id,
+                'text' => '['.$branch->branch_code.'] '.$branch->branch_name
+            ];
+        }
+
+        return $response;
+    }
 }

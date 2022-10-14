@@ -24,16 +24,24 @@ class UserBranchScheduleController extends Controller
         $user_id = trim($request->get('user_id'));
         $branch_id = trim($request->get('branch_id'));
 
-        $request_color = '#25b8b5';
+        $schedule_color = '#25b8b5';
+        $reschedule_color = '#f37206';
+        $delete_color = '#c90518';
 
         $schedule_data = [];
         if(auth()->user()->hasRole('superadmin')) {
 
+            // check filter
             if(!empty($user_id) || !empty($branch_id)) {
-                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+                // Schedules
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->whereNull('status')
+                ->get();
                 
                 foreach($schedules_date as $schedule) {
                     $schedules = UserBranchSchedule::whereNotNull('id')
+                    ->whereNull('status')
+
                     ->where('date', $schedule->date);
                     if(!empty($user_id)) {
                         $schedules->where('user_id', $user_id);
@@ -49,29 +57,143 @@ class UserBranchScheduleController extends Controller
                             'title' => $schedules->count().($schedules->count() > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
-                            'backgroundColor' => $request_color,
-                            'borderColor' => $request_color,
+                            'backgroundColor' => $schedule_color,
+                            'borderColor' => $schedule_color,
+                            'type' => 'schedule'
                         ];
                     }
                 }
-            } else {
-                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+
+                // for reschedule
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for reschedule')
+                ->get();
+                
                 foreach($schedules_date as $schedule) {
-                    $schedules = UserBranchSchedule::where('date', $schedule->date);
+                    $schedules = UserBranchSchedule::whereNotNull('id')
+                    ->where('status', 'for reschedule')
+                    ->where('date', $schedule->date);
+
+                    if(!empty($user_id)) {
+                        $schedules->where('user_id', $user_id);
+                    }
+                    if(!empty($branch_id)) {
+                        $schedules->where('branch_id', $branch_id);
+                    }
+                    $schedules = $schedules->get();
 
                     if($schedules->count() > 0) {
                         $schedule_data[] = [
-                            'title' => $schedules->count().($schedules->count() > 1 ? ' schedules' : ' schedule'),
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' reschedule requests' : ' reschedule request'),
                             'start' => $schedule->date,
                             'allDay' => true,
-                            'backgroundColor' => $request_color,
-                            'borderColor' => $request_color,
+                            'backgroundColor' => $reschedule_color,
+                            'borderColor' => $reschedule_color,
+                            'type' => 'reschedule'
                         ];
                     }
                 }
+
+                // for deletion
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for deletion')
+                ->get();
+                
+                foreach($schedules_date as $schedule) {
+                    $schedules = UserBranchSchedule::whereNotNull('id')
+                    ->where('status', 'for deletion')
+                    ->where('date', $schedule->date);
+
+                    if(!empty($user_id)) {
+                        $schedules->where('user_id', $user_id);
+                    }
+                    if(!empty($branch_id)) {
+                        $schedules->where('branch_id', $branch_id);
+                    }
+                    $schedules = $schedules->get();
+
+                    if($schedules->count() > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedules->count().($schedules->count() > 1 ? ' delete requests' : ' delete request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $delete_color,
+                            'borderColor' => $delete_color,
+                            'type' => 'delete'
+                        ];
+                    }
+                }
+
+            } else { // no filter
+
+                // Schedules
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->whereNull('status')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $schedule_count = UserBranchSchedule::where('date', $schedule->date)
+                    ->whereNull('status')->count();
+
+                    if($schedule_count > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedule_count.($schedule_count > 1 ? ' schedules' : ' schedule'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $schedule_color,
+                            'borderColor' => $schedule_color,
+                            'type' => 'schedule'
+                        ];
+                    }
+                }
+
+                // for reschedule
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for reschedule')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $schedule_count = UserBranchSchedule::where('date', $schedule->date)
+                    ->where('status', 'for reschedule')->count();
+                    
+                    if($schedule_count > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedule_count.($schedule_count > 1 ? ' reschedule requests' : ' reschedule request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $reschedule_color,
+                            'borderColor' => $reschedule_color,
+                            'type' => 'reschedule'
+                        ];
+                    }
+                }
+
+                // for deletion
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for deletion')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $schedule_count = UserBranchSchedule::where('date', $schedule->date)
+                    ->where('status', 'for deletion')->count();
+                    
+                    if($schedule_count > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedule_count.($schedule_count > 1 ? ' delete requests' : ' delete request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $delete_color,
+                            'borderColor' => $delete_color,
+                            'type' => 'delete'
+                        ];
+                    }
+                }
+
             }
 
-            $users = UserBranchSchedule::select('user_id')->distinct()->get('user_id');
+            // user filter options
+            $users = UserBranchSchedule::select('user_id')->distinct()
+            ->get('user_id');
 
             $users_arr = [
                 '' => 'All'
@@ -80,11 +202,18 @@ class UserBranchScheduleController extends Controller
                 $user_data = User::findOrFail($user->user_id);
                 $users_arr[$user_data->id] = $user_data->firstname.' '.$user_data->lastname;
             }
+
         } else {
-            if(!empty($branch_id)) {
-                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+
+             // check branch filter
+             if(!empty($branch_id)) {
+                // Schedules
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->whereNull('status')
+                ->get();
                 foreach($schedules_date as $schedule) {
                     $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->whereNull('status')
                     ->where('branch_id', $branch_id)
                     ->where('date', $schedule->date)
                     ->count();
@@ -94,15 +223,69 @@ class UserBranchScheduleController extends Controller
                             'title' => $count.($count > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
-                            'backgroundColor' => $request_color,
-                            'borderColor' => $request_color,
+                            'backgroundColor' => $schedule_color,
+                            'borderColor' => $schedule_color,
+                            'type' => 'schedule'
                         ];
                     }
                 }
-            } else {
-                $schedules_date = UserBranchSchedule::select('date')->distinct()->get();
+
+                // For Reschedule
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for reschedule')
+                ->get();
+
                 foreach($schedules_date as $schedule) {
                     $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('status', 'for reschedule')
+                    ->where('branch_id', $branch_id)
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' reschedule requests' : ' reschedule request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $reschedule_color,
+                            'borderColor' => $reschedule_color,
+                            'type' => 'reschedule'
+                        ];
+                    }
+                }
+
+                // for deletion
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for deletion')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('status', 'for deletion')
+                    ->where('branch_id', $branch_id)
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' delete requests' : ' delete request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $delete_color,
+                            'borderColor' => $delete_color,
+                            'type' => 'delete'
+                        ];
+                    }
+                }
+
+            } else { // no branch filter
+                // Schedules
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->whereNull('status')
+                ->get();
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->whereNull('status')
                     ->where('date', $schedule->date)
                     ->count();
 
@@ -111,11 +294,59 @@ class UserBranchScheduleController extends Controller
                             'title' => $count.($count > 1 ? ' schedules' : ' schedule'),
                             'start' => $schedule->date,
                             'allDay' => true,
-                            'backgroundColor' => $request_color,
-                            'borderColor' => $request_color,
+                            'backgroundColor' => $schedule_color,
+                            'borderColor' => $schedule_color,
+                            'type' => 'schedule'
                         ];
                     }
                 }
+
+                // For Reschedule
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for reschedule')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('status', 'for reschedule')
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' reschedule requests' : ' reschedule request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $reschedule_color,
+                            'borderColor' => $reschedule_color,
+                            'type' => 'reschedule'
+                        ];
+                    }
+                }
+
+                // for deletion
+                $schedules_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'for deletion')
+                ->get();
+
+                foreach($schedules_date as $schedule) {
+                    $count = UserBranchSchedule::where('user_id', auth()->user()->id)
+                    ->where('status', 'for deletion')
+                    ->where('date', $schedule->date)
+                    ->count();
+
+                    if($count > 0) {
+                        $schedule_data[] = [
+                            'title' => $count.($count > 1 ? ' delete requests' : ' delete request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $delete_color,
+                            'borderColor' => $delete_color,
+                            'type' => 'delete'
+                        ];
+                    }
+                }
+
             }
 
             $users_arr = [
@@ -123,7 +354,9 @@ class UserBranchScheduleController extends Controller
             ];
         }
     
-        $branches = UserBranchSchedule::select('branch_id')->distinct()->get('branch_id');
+        $branches = UserBranchSchedule::select('branch_id')->distinct()
+        ->whereNull('status')
+        ->get('branch_id');
 
         $branches_arr = [
             '' => 'All'
@@ -136,9 +369,9 @@ class UserBranchScheduleController extends Controller
         return view('schedules.index')->with([
             'user_id' => $user_id,
             'branch_id' => $branch_id,
-            'schedule_data' => $schedule_data,
             'users' => $users_arr,
-            'branches' => $branches_arr
+            'branches' => $branches_arr,
+            'schedule_data' => $schedule_data
         ]);
     }
 
@@ -160,7 +393,16 @@ class UserBranchScheduleController extends Controller
      */
     public function store(StoreUserBranchScheduleRequest $request)
     {
-        //
+        $schedule = new UserBranchSchedule([
+            'user_id' => $request->user_id,
+            'branch_id' => $request->branch_id,
+            'date' => $request->date
+        ]);
+        $schedule->save();
+
+        return back()->with([
+            'message_success' => 'Schedule was created'
+        ]);
     }
 
     /**

@@ -26,6 +26,9 @@
 {!! Form::open(['method' => 'GET', 'route' => ['schedule.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
+{!! Form::open(['method' => 'POST', 'route' => ['schedule.store'], 'id' => 'add_schedule']) !!}
+{!! Form::close() !!}
+
 <div class="row">
     
     <div class="col-lg-4">
@@ -39,14 +42,14 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('user_id', 'User') !!}
-                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'user']) !!}
                         </div>
                     </div>
     
                     <div class="col-lg-6">
                         <div class="form-group">
                             {!! Form::label('branch_id', 'Branch') !!}
-                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'branch']) !!}
                         </div>
                     </div>
 
@@ -68,9 +71,36 @@
                 </div>
                 <div class="card-body">
                     
+                    <div class="row">
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                {!! Form::label('user_id', 'User') !!}
+                                {!! Form::select('user_id', [], null, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
+                                <p class="text-danger">{{$errors->first('user_id')}}</p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                {!! Form::label('branch_id', 'Branch') !!}
+                                {!! Form::select('branch_id', [], null, ['class' => 'form-control'.($errors->has('branch_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
+                                <p class="text-danger">{{$errors->first('branch_id')}}</p>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                {!! Form::label('date', 'Date') !!}
+                                {!! Form::date('date', now(), ['class' => 'form-control'.($errors->has('date') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
+                                <p class="text-danger">{{$errors->first('date')}}</p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
                 <div class="card-footer text-right">
-                    
+                    {!! Form::submit('Add Schedule', ['class' => 'btn btn-primary', 'form' => 'add_schedule']) !!}
                 </div>
             </div>
         @endcan
@@ -149,6 +179,18 @@
     </div>
 </div>
 
+<div class="modal fade" id="reschedule-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-change/>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-delete/>
+    </div>
+</div>
+
 @endsection
 
 @section('plugins.Fullcalendar', true);
@@ -178,18 +220,78 @@
             eventClick: function(info) {
                 var eventObj = info.event;
                 var date = eventObj.start;
+                var type = eventObj.extendedProps.type;
+
                 var year = date.getFullYear();
                 var month = date.getMonth() + 1;
                 var day = date.getDate();
                 var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
+
+                if(type == 'schedule') {
+                    Livewire.emit('showEvents', date_format);
+                    $('#event-modal').modal('show');
+                } else if(type == 'reschedule') {
+                    Livewire.emit('setDate', date_format);
+                    $('#reschedule-modal').modal('show');
+                } else if(type == 'delete') {
+                    Livewire.emit('getDate', date_format);
+                    $('#delete-modal').modal('show');
+                }
                 
-                Livewire.emit('showEvents', date_format);
-                $('#event-modal').modal('show');
             },
             themeSystem: 'bootstrap',
             events: @php echo json_encode($schedule_data); @endphp
         });
         calendar.render();
+    });
+
+    // select options
+    $(function () {
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $('#user_id').select2({
+            ajax: { 
+                url: '{{route("user.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
+
+        $('#branch_id').select2({
+            ajax: { 
+                url: '{{route("branch.ajax")}}',
+                type: "POST",
+                dataType: 'json',
+                delay: 50,
+                data: function (params) {
+                    return {
+                        search: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            }
+        });
     });
 </script>
 @endsection

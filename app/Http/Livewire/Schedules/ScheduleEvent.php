@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use AccountLoginModel;
 use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
+use App\Models\UserBranchScheduleApproval;
 
 use Illuminate\Support\Facades\Session;
 
@@ -18,7 +19,7 @@ class ScheduleEvent extends Component
     
     public $date, $schedule_data;
     public $action;
-    public $status, $reschedule_date;
+    public $status, $reschedule_date, $remarks;
 
     public $accuracy, $longitude, $latitude;
 
@@ -31,6 +32,7 @@ class ScheduleEvent extends Component
         $this->resetPage();
     }
 
+    // Sign In
     public function sign_in() {
         $this->validate([
             'accuracy' => 'required',
@@ -75,31 +77,66 @@ class ScheduleEvent extends Component
         $this->dispatchBrowserEvent('reloadLocation');
     }
 
+    // Re-schedule && Delete Request
     public function submit() {
         if($this->action == 'reschedule-request') {
             $this->validate([
-                'reschedule_date' => 'required'
+                'reschedule_date' => 'required',
+                'remarks' => 'required'
             ]);
+
             $this->schedule_data->update([
                 'reschedule_date' => $this->reschedule_date,
-                'status' => 'reschedule-request'
+                'status' => 'for reschedule'
             ]);
+
+            $approval = new UserBranchScheduleApproval([
+                'user_branch_schedule_id' => $this->schedule_data->id,
+                'user_id' => auth()->user()->id,
+                'status' => 'for reschedule',
+                'remarks' => $this->remarks
+            ]);
+            $approval->save();
 
             $this->reset('action');
             $this->reset('schedule_data');
             $this->reset('reschedule_date');
+            $this->reset('remarks');
+
+            return redirect(request()->header('Referer'));
         }
+
         if($this->action == 'delete-request') {
-            
+            $this->validate([
+                'remarks' => 'required'
+            ]);
+
+            $this->schedule_data->update([
+                'status' => 'for deletion'
+            ]);
+
+            $approval = new UserBranchScheduleApproval([
+                'user_branch_schedule_id' => $this->schedule_data->id,
+                'user_id' => auth()->user()->id,
+                'status' => 'for deletion',
+                'remarks' => $this->remarks
+            ]);
+            $approval->save();
+
+            return redirect(request()->header('Referer'));
         }
     }
 
     public function setAction($action) {
         $this->action = $action;
+        $this->dispatchBrowserEvent('reloadLocation');
+        if($action == 'reschedule-request') {
+            $this->reschedule_date = $this->date;
+        }
     }
 
     public function backAction() {
-        $this->reset('action');
+        $this->reset(['action', 'reschedule_date']);
     }
 
     public function viewSchedule($schedule_id) {
@@ -119,9 +156,11 @@ class ScheduleEvent extends Component
     {
         if(auth()->user()->hasRole('superadmin')) {
             $branch_schedules = UserBranchSchedule::where('date', $this->date)
+            ->whereNull('status')
             ->paginate(10)->onEachSide(1);
         } else {
             $branch_schedules = UserBranchSchedule::where('date', $this->date)
+            ->whereNull('status')
             ->where('user_id', auth()->user()->id)
             ->paginate(10)->onEachSide(1);
         }
