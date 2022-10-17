@@ -379,7 +379,7 @@ class UserBranchScheduleController extends Controller
     public function list(Request $request) {
         $search = trim($request->get('search'));
 
-        $schedules = UserBranchSchedule::orderBy('id', 'DESC')
+        $schedules = UserBranchSchedule::orderBy('updated_at', 'DESC')
         ->where(function($query) {
             $query->whereNotNull('status')
             ->orWhereHas('approvals');

@@ -6,6 +6,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\SalesOrder;
 
+use Illuminate\Support\Facades\Session;
+
 class UpdateSalesOrderRequest extends FormRequest
 {
     /**
@@ -26,6 +28,8 @@ class UpdateSalesOrderRequest extends FormRequest
      */
     public function rules()
     {
+        $logged_account = Session::get('logged_account');
+
         return [
             'control_number' => [
                 'required', Rule::unique((new SalesOrder)->getTable())->ignore($this->id)

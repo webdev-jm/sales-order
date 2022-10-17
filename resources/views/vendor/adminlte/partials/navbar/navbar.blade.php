@@ -23,7 +23,7 @@
         @if(auth()->user()->hasRole('superadmin'))
         <li class="nav-item">
             <a href="" class="nav-link" id="btn-online-users">
-                <i class="fas fa-user"></i>
+                <i class="far fa-user"></i>
                 <span class="navbar-badge"><i class="fa fa-circle text-success"></i></span>
             </a>
         </li>

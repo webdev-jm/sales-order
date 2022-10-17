@@ -23,7 +23,7 @@ class UserActivity
             $expiresAt = now()->addMinutes(2); /* keep online for 2 min */
             Cache::put('user-is-online-' . Auth::user()->id, true, $expiresAt);
 
-            /* last seen */
+            /* last activity */
             User::where('id', Auth::user()->id)->update(['last_activity' => now()]);
         }
 
