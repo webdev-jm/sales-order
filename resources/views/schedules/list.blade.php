@@ -80,13 +80,12 @@
                             @endif
                         </td>
                         <td class="text-right">
-                            @if($schedule->status == 'rescheduled' || $schedule->status == 'deletion approved' || empty($schedule->status))
-                                <a href="#" title="details" class="btn-detail" data-id="{{$schedule->id}}"><i class="fa fa-info-circle text-primary"></i></a>
-                            @elseif($schedule->status == 'for deletion')
+                            @if($schedule->status == 'for deletion')
                                 <a href="#" title="approvals" class="btn-delete" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
                             @elseif($schedule->status == 'for reschedule')
                                 <a href="#" title="approvals" class="btn-reschedule" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
                             @endif
+                            <a href="#" title="details" class="btn-detail" data-id="{{$schedule->id}}"><i class="fa fa-info-circle text-primary"></i></a>
                         </td>
                     </tr>
                 @endforeach

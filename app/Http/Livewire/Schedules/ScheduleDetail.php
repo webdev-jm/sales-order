@@ -3,11 +3,16 @@
 namespace App\Http\Livewire\Schedules;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 use App\Models\UserBranchSchedule;
 
 class ScheduleDetail extends Component
 {
+
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
+
     public $schedule;
 
     public $status_colors = [
@@ -30,6 +35,15 @@ class ScheduleDetail extends Component
 
     public function render()
     {
-        return view('livewire.schedules.schedule-detail');
+        $approvals = [];
+        if(!empty($this->schedule)) {
+            $approvals = $this->schedule->approvals()
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10, ['*'], 'schedule-request')->onEachSide(1);
+        }
+
+        return view('livewire.schedules.schedule-detail')->with([
+            'approvals' => $approvals
+        ]);
     }
 }

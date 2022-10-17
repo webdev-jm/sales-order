@@ -16,6 +16,12 @@ class ScheduleEvent extends Component
 {
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
+
+    public $user_id, $branch_id;
+    protected $queryString = [
+        'user_id',
+        'branch_id'
+    ];
     
     public $date, $schedule_data;
     public $action;
@@ -154,15 +160,43 @@ class ScheduleEvent extends Component
 
     public function render()
     {
-        if(auth()->user()->hasRole('superadmin')) {
-            $branch_schedules = UserBranchSchedule::where('date', $this->date)
-            ->whereNull('status')
-            ->paginate(10)->onEachSide(1);
+        if(!empty($this->user_id) || !empty($this->branch_id)) {
+            if(auth()->user()->hasRole('superadmin')) {
+                $branch_schedules = UserBranchSchedule::where('date', $this->date)
+                ->whereNull('status');
+
+                if(!empty($this->user_id)) {
+                    $branch_schedules->where('user_id', $this->user_id);
+                }
+
+                if(!empty($this->branch_id)) {
+                    $branch_schedules->where('branch_id', $this->branch_id);
+                }
+
+                $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);
+            } else {
+                $branch_schedules = UserBranchSchedule::where('date', $this->date)
+                ->whereNull('status')
+                ->where('user_id', auth()->user()->id);
+                
+                if(!empty($this->branch_id)) {
+                    $branch_schedules->where('branch_id', $this->branch_id);
+                }
+
+                $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);
+            }
+
         } else {
-            $branch_schedules = UserBranchSchedule::where('date', $this->date)
-            ->whereNull('status')
-            ->where('user_id', auth()->user()->id)
-            ->paginate(10)->onEachSide(1);
+            if(auth()->user()->hasRole('superadmin')) {
+                $branch_schedules = UserBranchSchedule::where('date', $this->date)
+                ->whereNull('status')
+                ->paginate(10)->onEachSide(1);
+            } else {
+                $branch_schedules = UserBranchSchedule::where('date', $this->date)
+                ->whereNull('status')
+                ->where('user_id', auth()->user()->id)
+                ->paginate(10)->onEachSide(1);
+            }
         }
 
         return view('livewire.schedules.schedule-event')->with([

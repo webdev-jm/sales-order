@@ -1,7 +1,7 @@
 <div>
     <div class="modal-content">
         <div class="modal-header">
-            <h4 class="modal-title">Request Detail</h4>
+            <h4 class="modal-title">Request History</h4>
         </div>
         <div class="modal-body">
 
@@ -31,7 +31,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($schedule->approvals as $approval)
+                                @foreach($approvals as $approval)
                                 <tr>
                                     <td>
                                         {{$approval->user->firstname}} {{$approval->user->lastname}}
@@ -50,6 +50,10 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div class="col-12">
+                    {{$approvals->links()}}
                 </div>
             </div>
             @endif
