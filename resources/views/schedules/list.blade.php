@@ -66,15 +66,26 @@
                         <td>{{$schedule->date}}</td>
                         <td>{{$schedule->reschedule_date}}</td>
                         <td>
+                            @if(!empty($schedule->status))
                             <span class="badge {{$status_colors[$schedule->status]}}">
                                 {{$schedule->status}}
                             </span>
+                            @else
+                                @php
+                                    $status = $schedule->approvals()->orderBy('id', 'DESC')->first()->status;
+                                @endphp
+                                <span class="badge {{$status_colors[$status]}}">
+                                    {{$status}}
+                                </span>
+                            @endif
                         </td>
                         <td class="text-right">
-                            @if($schedule->status == 'rescheduled' || $schedule->status == 'deletion approved')
-                                <a href="#" title="details" class="btn-detail"><i class="fa fa-info-circle text-primary"></i></a>
-                            @else
-                                <a href="#" title="approvals" class="btn-setting"><i class="fa fa-wrench text-secondary mr-1"></i></a>
+                            @if($schedule->status == 'rescheduled' || $schedule->status == 'deletion approved' || empty($schedule->status))
+                                <a href="#" title="details" class="btn-detail" data-id="{{$schedule->id}}"><i class="fa fa-info-circle text-primary"></i></a>
+                            @elseif($schedule->status == 'for deletion')
+                                <a href="#" title="approvals" class="btn-delete" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
+                            @elseif($schedule->status == 'for reschedule')
+                                <a href="#" title="approvals" class="btn-reschedule" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
                             @endif
                         </td>
                     </tr>
@@ -87,13 +98,47 @@
     </div>
 </div>
 
+<div class="modal fade" id="detail-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-detail/>
+    </div>
+</div>
+
+<div class="modal fade" id="delete-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-delete/>
+    </div>
+</div>
+
+<div class="modal fade" id="reschedule-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-change/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
-    $('body').on('click', '.btn-detail', function() {
+    $(function() {
+        $('body').on('click', '.btn-detail', function() {
+            var id = $(this).data('id');
+            Livewire.emit('setDetail', id);
+            $('#detail-modal').modal('show');
+        });
 
-    });
+        $('body').on('click', '.btn-delete', function() {
+            var id = $(this).data('id');
+            Livewire.emit('showDetail', id);
+            $('#delete-modal').modal('show');
+        });
+
+        $('body').on('click', '.btn-reschedule', function() {
+            var id = $(this).data('id');
+            Livewire.emit('showChange', id);
+            $('#reschedule-modal').modal('show');
+        });
+    })
 </script>
 @endsection
 
