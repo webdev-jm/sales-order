@@ -59,7 +59,7 @@
                                         <p>
                                             <b>Are you sure to appove this reschedule?</b>
                                             <br>
-                                            This schedule will be moved to {{$date}}
+                                            This schedule will be moved to {{$schedule_data->reschedule_date}}
                                         </p>
                                     </div>
                                     <div class="col-lg-12 mt-2">

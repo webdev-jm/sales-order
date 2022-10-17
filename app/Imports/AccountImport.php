@@ -38,21 +38,36 @@ class AccountImport implements ToModel, WithStartRow
         ->where('discount_code', $row[8])
         ->first();
 
-        return new Account([
-            'invoice_term_id' => $invoice_term->id ?? null,
-            'company_id' => $company->id,
-            'discount_id' => $discount->id ?? null,
-            'account_code' => $row[1],
-            'account_name' => $row[2],
-            'short_name' => $row[3],
-            'line_discount_code' => $row[7] ?? null,
-            'price_code' => $row[6],
-            'ship_to_address1' => $row[9],
-            'ship_to_address2' => $row[10],
-            'ship_to_address3' => $row[11],
-            'postal_code' => $row[12],
-            'tax_number' => $row[13],
-            'on_hold' => trim($row[14]) == 'Y' ? true : false,
-        ]);
+        // check
+        $check = Account::where('account_code', $row[1])->first();
+        if(empty($check)) {
+
+            return new Account([
+                'invoice_term_id' => $invoice_term->id ?? null,
+                'company_id' => $company->id,
+                'discount_id' => $discount->id ?? null,
+                'account_code' => $row[1],
+                'account_name' => $row[2],
+                'short_name' => $row[3],
+                'line_discount_code' => $row[7] ?? null,
+                'price_code' => $row[6],
+                'ship_to_address1' => $row[9],
+                'ship_to_address2' => $row[10],
+                'ship_to_address3' => $row[11],
+                'postal_code' => $row[12],
+                'tax_number' => $row[13],
+                'on_hold' => trim($row[14]) == 'Y' ? true : false,
+            ]);
+        } else {
+            $check->update([
+                'ship_to_address1' => $row[9],
+                'ship_to_address2' => $row[10],
+                'ship_to_address3' => $row[11],
+                'postal_code' => $row[12],
+            ]);
+
+            return null;
+        }
+
     }
 }
