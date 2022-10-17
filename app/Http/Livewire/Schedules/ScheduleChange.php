@@ -17,7 +17,8 @@ class ScheduleChange extends Component
     public $action, $remarks;
 
     protected $listeners = [
-        'setDate' => 'getDate'
+        'setDate' => 'getDate',
+        'showChange' => 'showDetail'
     ];
 
     public function submitApprove() {
@@ -51,7 +52,7 @@ class ScheduleChange extends Component
         ]);
 
         $this->schedule_data->update([
-            'status' => 'reschedule rejected'
+            'status' => null
         ]);
 
         $approval = new UserBranchScheduleApproval([
@@ -87,6 +88,7 @@ class ScheduleChange extends Component
     public function showDetail($schedule_id) {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
         $this->approvals =  $this->schedule_data->approvals;
+        $this->date = $this->schedule_data->date;
     }
 
     public function getDate($date) {

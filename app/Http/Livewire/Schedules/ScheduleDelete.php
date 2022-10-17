@@ -18,7 +18,8 @@ class ScheduleDelete extends Component
     public $action, $remarks;
 
     protected $listeners = [
-        'getDate' => 'setDate'
+        'getDate' => 'setDate',
+        'showDetail' => 'viewDetail'
     ];
 
     public function submitApprove() {
@@ -83,6 +84,7 @@ class ScheduleDelete extends Component
     public function viewDetail($schedule_id) {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
         $this->approvals = $this->schedule_data->approvals;
+        $this->date = $this->schedule_data->date;
     }
 
     public function setDate($date) {

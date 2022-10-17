@@ -5,7 +5,6 @@
         </div>
         <div class="modal-body">
             @if(!empty($schedules))
-
                 @if(!empty($schedule_data))
                     <div class="row">
                         <div class="col-12">

@@ -380,7 +380,10 @@ class UserBranchScheduleController extends Controller
         $search = trim($request->get('search'));
 
         $schedules = UserBranchSchedule::orderBy('id', 'DESC')
-        ->whereNotNull('status')
+        ->where(function($query) {
+            $query->whereNotNull('status')
+            ->orWhereHas('approvals');
+        })
         ->paginate(10)->onEachSide(1);
 
         return view('schedules.list')->with([
