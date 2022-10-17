@@ -110,7 +110,7 @@ class AreaController extends Controller
     {
         $area = Area::findOrFail($id);
 
-        $old = $area;
+        $old = $area->getOriginal();
 
         $area->update([
             'area_code' => $request->area_code,
@@ -124,7 +124,7 @@ class AreaController extends Controller
             'old' => $old,
             'changes' => $area->getChanges()
         ])
-        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name.');
+        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name .');
 
         return redirect()->route('area.index')->with([
             'message_success' => 'Area '.$area->area_name.' was updated.'

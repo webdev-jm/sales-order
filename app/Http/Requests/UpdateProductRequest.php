@@ -72,7 +72,7 @@ class UpdateProductRequest extends FormRequest
                 'required'
             ],
             'special_product' => [
-                'required'
+                'max:2'
             ]
         ];
     }

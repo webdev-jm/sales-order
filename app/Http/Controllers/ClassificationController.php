@@ -110,7 +110,7 @@ class ClassificationController extends Controller
     {
         $classification = Classification::findOrFail($id);
 
-        $old = $classification;
+        $old = $classification->getOriginal();
 
         $classification->update([
             'classification_code' => $request->classification_code,
@@ -124,7 +124,7 @@ class ClassificationController extends Controller
             'old' => $old,
             'changes' => $classification->getChanges()
         ])
-        ->log(':causer.firstname :causer.lastname has updated product :subject.classification_name.');
+        ->log(':causer.firstname :causer.lastname has updated product :subject.classification_name .');
 
         return redirect()->route('classification.index')->with([
             'message_success' => 'Classification '.$classification->classification_name.' was updated.'

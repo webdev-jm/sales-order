@@ -109,7 +109,7 @@ class RegionController extends Controller
     {
         $region = Region::findOrFail($id);
 
-        $old = $region;
+        $old = $region->getOriginal();
 
         $region->update([
             'region_name' => $request->region_name
@@ -122,7 +122,7 @@ class RegionController extends Controller
             'old' => $old,
             'changes' => $region->getChanges()
         ])
-        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name.');
+        ->log(':causer.firstname :causer.lastname has updated product :subject.region_name .');
 
         return redirect()->route('region.index')->with([
             'message_success' => 'Region '.$region->region_name.' was updated.'

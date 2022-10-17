@@ -40,7 +40,7 @@ class SettingController extends Controller
     {
         $setting = Setting::findOrFail($id);
 
-        $changes_arr['old'] = $setting;
+        $changes_arr['old'] = $setting->getOriginal();
 
         $setting->update([
             'data_per_page' => $request->data_per_page,

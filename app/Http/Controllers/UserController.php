@@ -82,7 +82,7 @@ class UserController extends Controller
         // logs
         activity('create')
         ->performedOn($user)
-        ->log(':causer.firstname :causer.lastname has created user :subject.firstname :subject.lastname.');
+        ->log(':causer.firstname :causer.lastname has created user :subject.firstname :subject.lastname .');
 
         return redirect()->route('user.index')->with([
             'message_success' => 'User '.$user->firstname.' was created.'
@@ -128,7 +128,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $changes_arr['old'] = $user;
+        $changes_arr['old'] = $user->getOriginal();
 
         $user->update([
             'firstname' => $request->firstname,
@@ -147,7 +147,7 @@ class UserController extends Controller
         activity('update')
         ->performedOn($model)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated user :subject.firstname :subject.lastname.');
+        ->log(':causer.firstname :causer.lastname has updated user :subject.firstname :subject.lastname .');
 
         return back()->with([
             'message_success' => 'User '.$user->firstname.' was updated.'

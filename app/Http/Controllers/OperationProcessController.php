@@ -73,8 +73,11 @@ class OperationProcessController extends Controller
         ]);
         $operation_process->save();
 
+        $number = 0;
         foreach($request->description as $key => $description) {
+            $number++;
             $activity = new Activity([
+                'number' => $number,
                 'operation_process_id' => $operation_process->id,
                 'description' => $request->description[$key],
                 'remarks' => $request->remarks[$key],
@@ -135,20 +138,34 @@ class OperationProcessController extends Controller
     public function update(UpdateOperationProcessRequest $request, $id)
     {
         $operation_process = OperationProcess::findOrFail($id);
+
+        $changes_arr['old'] = $operation_process->getOriginal();
+
         $operation_process->update([
             'company_id' => $request->company_id,
             'operation_process' => $request->operation_process
         ]);
         
         $operation_process->activities()->forceDelete();
+        $number = 0;
         foreach($request->description as $key => $description) {
+            $number++;
             $activity = new Activity([
+                'number' => $number,
                 'operation_process_id' => $operation_process->id,
                 'description' => $request->description[$key],
                 'remarks' => $request->remarks[$key],
             ]);
             $activity->save();
         }
+
+        $changes_arr['changes'] = $operation_process->getChanges();
+
+        // logs
+        activity('update')
+        ->performedOn($operation_process)
+        ->withProperties($changes_arr)
+        ->log(':causer.firstname :causer.lastname has updated operation process :subject.operation_process .');
 
         return back()->with([
             'message_success' => 'Operation process was updated.'

@@ -140,7 +140,7 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product_code = $product->stock_code;
 
-        $changes_arr['old'] = $product;
+        $changes_arr['old'] = $product->getOriginal();
 
         $status = $request->status == 'active' ? null : $request->status;
         $special_product = $request->special_product ?? false;
@@ -170,7 +170,7 @@ class ProductController extends Controller
         activity('update')
         ->performedOn($product)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated product :subject.stock_code :subject.description.');
+        ->log(':causer.firstname :causer.lastname has updated product :subject.stock_code :subject.description .');
 
         return back()->with([
             'message_success' => 'Product '.$product_code.' was updated.'

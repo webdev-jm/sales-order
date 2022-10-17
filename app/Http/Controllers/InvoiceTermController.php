@@ -112,7 +112,7 @@ class InvoiceTermController extends Controller
         $invoice_term = InvoiceTerm::findOrFail($id);
         $invoice_term_code = $invoice_term->term_code;
 
-        $changes_arr['old'] = $invoice_term;
+        $changes_arr['old'] = $invoice_term->getOriginal();
 
         $invoice_term->update([
             'term_code' => $request->term_code,
@@ -128,7 +128,7 @@ class InvoiceTermController extends Controller
         activity('update')
         ->performedOn($invoice_term)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated invoice term :subject.description.');
+        ->log(':causer.firstname :causer.lastname has updated invoice term :subject.description .');
 
         return back()->with([
             'message_success' => 'Invoice Term '.$invoice_term_code.' was updated.'
