@@ -107,7 +107,7 @@ class AccountController extends Controller
         // logs
         activity('create')
         ->performedOn($account)
-        ->log(':causer.firstname :causer.lastname has created account [:subject.account_code] :subject.account_name');
+        ->log(':causer.firstname :causer.lastname has created account [ :subject.account_code ] :subject.account_name');
 
         return redirect()->route('account.index')->with([
             'message_success' => 'Account '.$account->account_code.' was created.'
@@ -179,7 +179,7 @@ class AccountController extends Controller
         $account = Account::findOrFail($id);
         $account_name = '['.$account->account_code.'] '.$account->account_name;
 
-        $changes_arr['old'] = $account;
+        $changes_arr['old'] = $account->getOriginal();
 
         $account->update([
             'invoice_term_id' => $request->invoice_term_id,
@@ -203,7 +203,7 @@ class AccountController extends Controller
         activity('update')
         ->performedOn($account)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated account [:subject.account_code] :subject.account_name.');
+        ->log(':causer.firstname :causer.lastname has updated account [ :subject.account_code ] :subject.account_name .');
 
         return back()->with([
             'message_success' => 'Account '.$account_name.' was updated'

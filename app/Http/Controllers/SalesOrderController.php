@@ -386,7 +386,7 @@ class SalesOrderController extends Controller
 
         $sales_order = SalesOrder::findOrFail($id);
 
-        $changes_arr['old'] = $sales_order;
+        $changes_arr['old'] = $sales_order->getOriginal();
 
         $sales_order->update([
             'shipping_address_id' => $shipping_address_id,
@@ -447,7 +447,7 @@ class SalesOrderController extends Controller
         activity('update')
         ->performedOn($sales_order)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated sales order :subject.control_number :subject.po_number.');
+        ->log(':causer.firstname :causer.lastname has updated sales order :subject.control_number :subject.po_number .');
 
         if($sales_order->status == 'draft') {
             return back()->with([

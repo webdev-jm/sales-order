@@ -117,7 +117,7 @@ class AccountProductReferenceController extends Controller
     {
         $account_product_reference = AccountProductReference::findOrFail($id);
 
-        $old = $account_product_reference;
+        $old = $account_product_reference->getOriginal();
 
         $account_product_reference->update([
             'account_id' => $request->account_id,
@@ -133,7 +133,7 @@ class AccountProductReferenceController extends Controller
             'old' => $old,
             'changes' => $account_product_reference->getChanges()
         ])
-        ->log(':causer.firstname :causer.lastname has updated account product reference :subject.account_reference.');
+        ->log(':causer.firstname :causer.lastname has updated account product reference :subject.account_reference .');
 
         return back()->with([
             'message_success' => 'Account product reference '.$account_product_reference->account_reference.' was updated.'

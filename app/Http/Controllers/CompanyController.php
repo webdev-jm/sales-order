@@ -106,7 +106,7 @@ class CompanyController extends Controller
         $company = Company::findOrFail($id);
         $company_name = $company->name;
 
-        $changes_arr['old'] = $company;
+        $changes_arr['old'] = $company->getOriginal();
 
         $company->update([
             'name' => $request->name,
@@ -119,7 +119,7 @@ class CompanyController extends Controller
         activity('update')
         ->performedOn($company)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated company :subject.name.');
+        ->log(':causer.firstname :causer.lastname has updated company :subject.name .');
 
         return back()->with([
             'message_success' => 'Company '.$company_name.' was updated.'

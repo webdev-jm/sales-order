@@ -87,7 +87,7 @@ class BranchController extends Controller
         // logs
         activity('create')
         ->performedOn($branch)
-        ->log(':causer.firstname :causer.lastname has created branch [:subject.branch_code] :subject.branch_name');
+        ->log(':causer.firstname :causer.lastname has created branch [ :subject.branch_code ] :subject.branch_name');
 
         return redirect()->route('branch.index')->with([
             'message_success' => 'Branch '.$branch->branch_code.' was created.'
@@ -152,7 +152,7 @@ class BranchController extends Controller
     {
         $branch = Branch::findOrFail($id);
 
-        $changes_arr['old'] = $branch;
+        $changes_arr['old'] = $branch->getOriginal();
 
         $branch->update([
             'account_id' => $request->account_id,
@@ -169,7 +169,7 @@ class BranchController extends Controller
         activity('update')
         ->performedOn($branch)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated branch :subject.branch_code.');
+        ->log(':causer.firstname :causer.lastname has updated branch :subject.branch_code .');
 
         return back()->with([
             'message_success' => 'Branch '.$branch->branch_code.' was updated.'

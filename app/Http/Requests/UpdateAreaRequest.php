@@ -27,7 +27,7 @@ class UpdateAreaRequest extends FormRequest
     {
         return [
             'area_code' => [
-                'required', Rule::unique((new Area)->getTable())
+                'required', Rule::unique((new Area)->getTable())->ignore($this->id)
             ],
             'area_name' => [
                 'required'

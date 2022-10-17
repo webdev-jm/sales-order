@@ -104,7 +104,7 @@ class SalesPersonController extends Controller
         $sales_person = SalesPerson::findOrFail($id);
         $code = $sales_person->code;
 
-        $changes_arr['old'] = $sales_person;
+        $changes_arr['old'] = $sales_person->getOriginal();
 
         $sales_person->update([
             'user_id' => $request->user_id,
@@ -120,7 +120,7 @@ class SalesPersonController extends Controller
         activity('update')
         ->performedOn($sales_person)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated sales person :subject.code.');
+        ->log(':causer.firstname :causer.lastname has updated sales person :subject.code .');
 
         return back()->with([
             'message_success' => 'Sales Person '.$sales_person->code.' was update.'

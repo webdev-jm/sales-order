@@ -122,7 +122,7 @@ class ShippingAddressController extends Controller
     {
         $shipping_address = ShippingAddress::findOrFail($id);
 
-        $changes_arr['old'] = $shipping_address;
+        $changes_arr['old'] = $shipping_address->getOriginal();
 
         $shipping_address->update([
             'account_id' => $request->account_id,
@@ -141,7 +141,7 @@ class ShippingAddressController extends Controller
         activity('update')
         ->performedOn($shipping_address)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated shipping address :subject.address_code.');
+        ->log(':causer.firstname :causer.lastname has updated shipping address :subject.address_code .');
 
         return back()->with([
             'message_success' => 'Shipping address '.$shipping_address->address_code.' was updated.'

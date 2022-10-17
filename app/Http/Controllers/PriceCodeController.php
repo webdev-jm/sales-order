@@ -160,7 +160,7 @@ class PriceCodeController extends Controller
         $price_code = PriceCode::findOrFail($id);
         $code = $price_code->code;
 
-        $changes_arr['old'] = $price_code;
+        $changes_arr['old'] = $price_code->getOriginal();
 
         $price_code->update([
             'company_id' => $request->company_id,
@@ -176,7 +176,7 @@ class PriceCodeController extends Controller
         activity('update')
         ->performedOn($price_code)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated price code :subject.code.');
+        ->log(':causer.firstname :causer.lastname has updated price code :subject.code .');
 
         return back()->with([
             'message_success' => 'Price Code '.$code.' was updated.'

@@ -130,7 +130,7 @@ class DiscountController extends Controller
         $discount = Discount::findOrFail($id);
         $discount_code = $discount->discount_code;
 
-        $changes_arr['old'] = $discount;
+        $changes_arr['old'] = $discount->getOriginal();
 
         $discount->update([
             'company_id' => $request->company_id,
@@ -147,7 +147,7 @@ class DiscountController extends Controller
         activity('update')
         ->performedOn($discount)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated discount :subject.description.');
+        ->log(':causer.firstname :causer.lastname has updated discount :subject.description .');
 
         return redirect()->route('discount.index')->with([
             'message_success' => 'Discount '.$discount_code.' was updated.'

@@ -56,7 +56,7 @@ class RoleController extends Controller
         $role = Role::findOrFail($id);
         $role_name = $role->name;
 
-        $changes_arr['old'] = $role;
+        $changes_arr['old'] = $role->getOriginal();
 
         $role->update([
             'name' => $request->name
@@ -69,7 +69,7 @@ class RoleController extends Controller
         activity('update')
         ->performedOn($role)
         ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated role :subject.name.');
+        ->log(':causer.firstname :causer.lastname has updated role :subject.name .');
 
         return back()->with([
             'message_success' => $role_name
