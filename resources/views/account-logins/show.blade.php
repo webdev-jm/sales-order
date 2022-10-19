@@ -49,6 +49,7 @@
                     <th>User</th>
                     <th>Longitude</th>
                     <th>Latitude</th>
+                    {{-- <th>Address</th> --}}
                     <th>Time In</th>
                     <th>Time Out</th>
                     <th></th>
@@ -60,6 +61,7 @@
                     <td>{{$account_login->user->firstname}} {{$account_login->user->lastname}}</td>
                     <td>{{$account_login->longitude}}</td>
                     <td>{{$account_login->latitude}}</td>
+                    {{-- <td>{{ \App\Helpers\AppHelper::instance()->getAddress($account_login->latitude, $account_login->longitude) }}</td> --}}
                     <td>{{$account_login->time_in}}</td>
                     <td>{{$account_login->time_out}}</td>
                     <td class="text-right">
