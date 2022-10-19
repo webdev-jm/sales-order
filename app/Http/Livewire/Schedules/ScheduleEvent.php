@@ -6,11 +6,16 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 use AccountLoginModel;
+use App\Models\User;
 use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 
 use Illuminate\Support\Facades\Session;
+
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ScheduleDeleteRequest;
+use App\Notifications\ScheduleRescheduleRequest;
 
 class ScheduleEvent extends Component
 {
@@ -91,6 +96,8 @@ class ScheduleEvent extends Component
                 'remarks' => 'required'
             ]);
 
+            $changes_arr['old'] = $this->schedule_data->getOriginal();
+
             $this->schedule_data->update([
                 'reschedule_date' => $this->reschedule_date,
                 'status' => 'for reschedule'
@@ -104,10 +111,19 @@ class ScheduleEvent extends Component
             ]);
             $approval->save();
 
-            $this->reset('action');
-            $this->reset('schedule_data');
-            $this->reset('reschedule_date');
-            $this->reset('remarks');
+            // notification
+            $users = User::permission('schedule approve reschedule')->get();
+            if(!empty($users)) {
+                Notification::send($users, new ScheduleRescheduleRequest($this->schedule_data));
+            }
+
+            $changes_arr['changes'] = $this->schedule_data->getChanges();
+
+            // logs
+            activity('update')
+            ->performedOn($this->schedule_data)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
 
             return redirect(request()->header('Referer'));
         }
@@ -116,6 +132,8 @@ class ScheduleEvent extends Component
             $this->validate([
                 'remarks' => 'required'
             ]);
+
+            $changes_arr['old'] = $this->schedule_data->getOriginal();
 
             $this->schedule_data->update([
                 'status' => 'for deletion'
@@ -128,6 +146,20 @@ class ScheduleEvent extends Component
                 'remarks' => $this->remarks
             ]);
             $approval->save();
+
+            // notification
+            $users = User::permission('schedule approve delete request')->get();
+            if(!empty($users)) {
+                Notification::send($users, new ScheduleDeleteRequest($this->schedule_data));
+            }
+
+            $changes_arr['changes'] = $this->schedule_data->getChanges();
+
+            // logs
+            activity('update')
+            ->performedOn($this->schedule_data)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
 
             return redirect(request()->header('Referer'));
         }

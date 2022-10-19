@@ -53,6 +53,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('profile', [ProfileController::class, 'index'])->name('profile');
 
+    Route::get('notifications', [ProfileController::class, 'notifications'])->name('notifications');
+
     // SYSTEM LOGS
     Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs');
     // ->middleware('permission:system logs')

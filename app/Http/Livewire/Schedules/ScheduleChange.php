@@ -8,6 +8,10 @@ use Livewire\WithPagination;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ScheduleRescheduleApproved;
+use App\Notifications\ScheduleRescheduleRejected;
+
 class ScheduleChange extends Component
 {
     use WithPagination;
@@ -43,6 +47,13 @@ class ScheduleChange extends Component
         ]);
         $new_schedule->save();
 
+        // notification
+        $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
+        $user = $delete_request->user;
+        if(!empty($user)) {
+            Notification::send($user, new ScheduleRescheduleApproved($this->schedule_data));
+        }
+
         return redirect(request()->header('Referer'));
     }
 
@@ -62,6 +73,13 @@ class ScheduleChange extends Component
             'remarks' => $this->remarks
         ]);
         $approval->save();
+
+        // notification
+        $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
+        $user = $delete_request->user;
+        if(!empty($user)) {
+            Notification::send($user, new ScheduleRescheduleRejected($this->schedule_data));
+        }
 
         return redirect(request()->header('Referer'));
     }
