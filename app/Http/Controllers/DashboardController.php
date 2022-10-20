@@ -13,9 +13,21 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $accounts = Account::paginate(12)->onEachSide(1);
+
+        $search = trim($request->get('search'));
+
+        if($search != '') {
+            $accounts = Account::orderBy('account_code', 'ASC')
+            ->where('account_code', 'like', '%'.$search.'%')
+            ->orWhere('account_name', 'like', '%'.$search.'%')
+            ->orWhere('short_name', 'like', '%'.$search.'%')
+            ->paginate(12)->onEachSide(1);
+        } else {
+            $accounts = Account::orderBy('account_code', 'ASC')
+            ->paginate(12)->onEachSide(1);
+        }
 
         $count_data = [];
         foreach($accounts as $account) {
@@ -28,7 +40,8 @@ class DashboardController extends Controller
 
         return view('dashboard')->with([
             'accounts' => $accounts,
-            'count_data' => $count_data
+            'count_data' => $count_data,
+            'search' => $search,
         ]);
     }
 

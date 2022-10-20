@@ -80,6 +80,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\SalesPerson');
     }
 
+    public function schedules() {
+        return $this->hasMany('App\Models\UserBranchSchedule');
+    }
+
     public function logged_account() {
         return $this->account_logins()->whereNull('time_out')->first();
     }

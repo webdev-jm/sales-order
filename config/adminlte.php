@@ -339,6 +339,13 @@ return [
             'active'    => ['schedule*']
         ],
         [
+            'text'      => 'Reports',
+            'url'       => '/report',
+            'icon'      => 'fas fa-fw fa-chart-bar',
+            'can'       => 'report access',
+            'active'    => ['report*']
+        ],
+        [
             'header'    => 'maintenance',
             'can'       => [
                 'company access',
