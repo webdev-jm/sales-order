@@ -24,9 +24,22 @@
 @endsection
 
 @section('content')
+{!! Form::open(['method' => 'GET', 'route' => ['dashboard'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Dashboard</h3>
+        <div class="card-tools">
+            <div class="input-group input-group-sm" style="width: 150px;">
+                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-default" form="search_form">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
 
@@ -36,7 +49,6 @@
                 <div class="small-box bg-secondary h-90 account-card" data-id="{{$account->id}}">
                     <div class="inner h-100">
                         <h3>{{$count_data[$account->id]}}</h3>
-      
                         <b>{{$account->account_code}}</b>
                         <p class="mb-0">{{$account->account_name}}</p>
                         <span>{{$account->short_name}}</span>

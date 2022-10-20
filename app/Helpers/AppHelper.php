@@ -1,21 +1,22 @@
 <?php
 namespace App\Helpers;
 
+use Illuminate\Support\Facades\Http;
+
 class AppHelper
 {
-    public function getAddress($lat,$lng)
+    public function getAddress($lat,$long)
     {
-        $url = 'https://maps.googleapis.com/maps/api/geocode/json?latlng='.trim($lat).','.trim($lng).'&sensor=false';
-        $json = @file_get_contents($url);
-        $data=json_decode($json);
-        $status = $data->status;
+        $url = 'https://nominatim.openstreetmap.org/reverse?format=json&lat='.trim($lat).'&lon='.trim($long).'&zoom=18&addressdetails=1';
 
-        if($status=="OK")
-        {
-            return $data->results[0]->formatted_address;
+        if(request()->secure()) {
+            $response = Http::get($url);
+            $address = $response['display_name'];
         } else {
-            return $data->error_message;
+            $address = 'cannot display address because the site is not secure.';
         }
+
+        return $address;
     }
 
     public static function instance()

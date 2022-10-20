@@ -24,6 +24,7 @@ use App\Http\Controllers\RegionController;
 use App\Http\Controllers\ClassificationController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AccountProductReferenceController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,16 +49,12 @@ Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
-
     Route::get('profile', [ProfileController::class, 'index'])->name('profile');
-
     Route::get('notifications', [ProfileController::class, 'notifications'])->name('notifications');
 
     // SYSTEM LOGS
-    Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs');
-    // ->middleware('permission:system logs')
+    Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs')->middleware('permission:system logs');
 
     // AJAX
     Route::post('user/ajax', [UserController::class, 'ajax'])->name('user.ajax');
@@ -94,6 +91,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('schedule/list', [UserBranchScheduleController::class, 'list'])->name('schedule.list')->middleware('permission:schedule list');
 
         Route::post('schedule/upload', [UserBranchScheduleController::class, 'upload'])->name('schedule.upload')->middleware('permission:schedule create');
+    });
+
+    // REPORTS
+    Route::group(['middleware' => 'permission:report access'], function() {
+        Route::get('report', [ReportController::class, 'index'])->name('report.index');
     });
 
     // COMPANY
