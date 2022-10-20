@@ -87,6 +87,13 @@
 <script>
     $(function() {
         $('[data-toggle="tooltip"]').tooltip();
+
+        $('body').on('click', '[data-toggle="lightbox"]', function(event) {
+            event.preventDefault();
+            $(this).ekkoLightbox({
+                alwaysShowClose: true
+            });
+        });
     });
 </script>
 @endsection

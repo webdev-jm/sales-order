@@ -21,6 +21,11 @@ class Report extends Component
         $this->resetPage('report-page');
     }
 
+    public function showDetail($login_id) {
+        $this->emit('showDetail', $login_id);
+        $this->dispatchBrowserEvent('showDetail');
+    }
+
     public function render()
     {
         // get schedule dates of user
@@ -41,13 +46,13 @@ class Report extends Component
                 }
             }
 
-            $schedules_dates = $schedules_dates->paginate(5, ['*'], 'report-page')->onEachSide(1);
+            $schedules_dates = $schedules_dates->paginate(7, ['*'], 'report-page')->onEachSide(1);
 
         } else {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
             ->orderBy('date', 'ASC')
             ->select('date', 'user_id')->distinct()
-            ->paginate(5, ['*'], 'report-page')->onEachSide(1);
+            ->paginate(7, ['*'], 'report-page')->onEachSide(1);
         }
 
         foreach($schedules_dates as $schedule_date) {
