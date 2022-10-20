@@ -82,7 +82,9 @@
                                         @foreach($actuals[$schedule->id] as $actual)
                                         <p class="mb-0">
                                             {{$actual->latitude}}, {{$actual->longitude}}
-                                            <i class="fa fa-info-circle text-primary ml-2" data-toggle="tooltip" data-placement="right" title="{{ \App\Helpers\AppHelper::instance()->getAddress($actual->latitude, $actual->longitude) }}"></i>
+                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
+                                                <i class="fa fa-info-circle text-primary ml-2"></i>
+                                            </a>
                                         </p>
                                         @endforeach
                                     </td>
@@ -107,6 +109,7 @@
                                             <i class="fa fa-times text-danger"></i>
                                         @endif
                                     </td>
+                                    <td></td>
                                 @endif
                             </tr>
                             @endforeach
@@ -121,7 +124,17 @@
         </div>
     </div>
 
+    <div class="modal fade" id="detail-modal">
+        <div class="modal-dialog modal-lg">
+            <livewire:reports.mcp.login-detail/>
+        </div>
+    </div>
+
     <script>
+        window.addEventListener('showDetail', event => {
+            $('#detail-modal').modal('show');
+        });
+
         document.addEventListener('livewire:load', function () {
             $('[data-toggle="tooltip"]').tooltip();
         });
