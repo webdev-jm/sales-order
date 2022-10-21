@@ -11,10 +11,11 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithProperties;
+use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties
+class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor
 {
 
     protected $user_id, $date_from, $date_to;
@@ -23,6 +24,11 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
         $this->user_id = $user_id;
         $this->date_from = $date_from;
         $this->date_to = $date_to;
+    }
+
+    public function backgroundColor()
+    {
+        return null;
     }
 
     public function properties(): array
@@ -44,9 +50,30 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
     {
         return [
             // Title
-            1 => ['font' => ['bold' => true, 'size' => 15]],
+            1 => [
+                'font' => ['bold' => true, 'size' => 15],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'color' => ['argb' => 'E7FDEC']
+                ]
+            ],
             // header
-            3 => ['font' => ['bold' => true, 'size' => 12]],
+            3 => [
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'color' => ['argb' => 'ddfffd']
+                ]
+            ],
         ];
     }
     
