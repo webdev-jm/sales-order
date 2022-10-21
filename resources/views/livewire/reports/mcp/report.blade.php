@@ -60,7 +60,7 @@
                         <span class="ml-2">Deviated</span>
                     </div>
                 </div>
-            </div>
+            </div>  
         </div>
 
     </div>
