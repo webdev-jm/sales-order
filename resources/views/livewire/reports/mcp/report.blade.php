@@ -40,9 +40,6 @@
                 </div>
             </div>
         </form>
-    </div>
-
-    <div class="col-lg-8">
 
         <div class="card">
             <div class="card-header">
@@ -50,15 +47,15 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <i class="fa fa-check text-success"></i>
                         <span class="ml-2">Visited</span>
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <i class="fa fa-times text-danger"></i>
                         <span class="ml-2">Not Visited</span>
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <i class="fa fa-plus text-warning"></i>
                         <span class="ml-2">Deviated</span>
                     </div>
@@ -66,13 +63,16 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="col-lg-8">
+        
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">MCP Reports</h3>
                 <div class="card-tools">
                     @can('report export')
-                    <a href="" class="btn btn-success btn-sm"><i class="fa fa-file-export mr-2"></i>Export</a>
-                    <a href="" class="btn btn-info btn-sm"><i class="fa fa-print mr-2"></i>Print</a>
+                        <a href="" class="btn btn-success btn-sm" wire:click.prevent="export" wire:loading.attr="disabled"><i class="fa fa-file-export mr-2"></i>Export</a>
                     @endcan
                 </div>
             </div>
