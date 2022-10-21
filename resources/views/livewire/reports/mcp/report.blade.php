@@ -43,6 +43,29 @@
     </div>
 
     <div class="col-lg-8">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Legends</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-3">
+                        <i class="fa fa-check text-success"></i>
+                        <span class="ml-2">Visited</span>
+                    </div>
+                    <div class="col-lg-3">
+                        <i class="fa fa-times text-danger"></i>
+                        <span class="ml-2">Not Visited</span>
+                    </div>
+                    <div class="col-lg-3">
+                        <i class="fa fa-plus text-warning"></i>
+                        <span class="ml-2">Deviated</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">MCP Reports</h3>
@@ -73,12 +96,13 @@
                             <td class="font-weight-bold text-center">{{$schedule_date->date}}</td>
                             <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
                         </tr>
+                            {{-- Scheduled --}}
                             @foreach($schedules[$schedule_date->user_id][$schedule_date->date] as $schedule)
                             <tr>
                                 <td class="align-middle text-center">{{$schedule->date}}</td>
                                 <td class="align-middle">{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
                                 @if(isset($actuals[$schedule->id]))
-                                    <td>
+                                    <td class="text-center">
                                         @foreach($actuals[$schedule->id] as $actual)
                                         <p class="mb-0">
                                             {{$actual->latitude}}, {{$actual->longitude}}
@@ -88,31 +112,73 @@
                                         </p>
                                         @endforeach
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @foreach($actuals[$schedule->id] as $actual)
                                         <p class="mb-0">
-                                            {{date('H:i:s', strtotime($actual->time_in))}}
+                                            {{date('h:i:s a', strtotime($actual->time_in))}}
                                         </p>
                                         @endforeach
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         @foreach($actuals[$schedule->id] as $actual)
                                         <p class="mb-0">
-                                            {{date('H:i:s', strtotime($actual->time_out))}}
+                                            {{date('h:i:s a', strtotime($actual->time_out))}}
                                         </p>
                                         @endforeach
                                     </td>
                                     <td class="text-center align-middle p-0">
                                         @if(!empty($actuals[$schedule->id]->count()))
-                                            <i class="fa fa-check text-success"></i>
+                                            <i class="fa fa-check text-success" title="Visited"></i>
                                         @else
-                                            <i class="fa fa-times text-danger"></i>
+                                            <i class="fa fa-times text-danger" title="Not Visited"></i>
                                         @endif
                                     </td>
                                     <td></td>
                                 @endif
                             </tr>
                             @endforeach
+                            {{-- Deviations --}}
+                            @if(isset($deviations[$schedule_date->user_id][$schedule_date->date]))
+                                
+                                @foreach($deviations[$schedule_date->user_id][$schedule_date->date] as $branch_id => $deviation)
+                                <tr>
+                                    <td class="align-middle text-center">
+                                        {{$deviation['date']}}
+                                    </td>
+                                    <td class="align-middle">
+                                        {{$deviation['branch_code']}} {{$deviation['branch_name']}}
+                                    </td>
+                                    <td class="text-center">
+                                        @foreach($deviation['actuals'] as $actual)
+                                        <p class="mb-0">
+                                            {{$actual['latitude']}}, {{$actual['longitude']}}
+                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual['id']}})">
+                                                <i class="fa fa-info-circle text-primary ml-2"></i>
+                                            </a>
+                                        </p>
+                                        @endforeach
+                                    </td>
+                                    <td class="text-center">
+                                        @foreach($deviation['actuals'] as $actual)
+                                        <p class="mb-0">
+                                            {{date('h:i:s a', strtotime($actual['time_in']))}}
+                                        </p>
+                                        @endforeach
+                                    </td>
+                                    <td class="text-center">
+                                        @foreach($deviation['actuals'] as $actual)
+                                        <p class="mb-0">
+                                            {{date('h:i:s a', strtotime($actual['time_out']))}}
+                                        </p>
+                                        @endforeach
+                                    </td>
+                                    <td class="text-center align-middle p-0">
+                                        <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                @endforeach
+                            @endif
                         @endforeach
                     </tbody>
                 </table>
