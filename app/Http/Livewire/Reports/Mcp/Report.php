@@ -9,6 +9,9 @@ use App\Models\UserBranchSchedule;
 use App\Models\BranchLogin;
 use App\Models\User;
 
+use App\Exports\MCPReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class Report extends Component
 {
     use WithPagination;
@@ -19,6 +22,10 @@ class Report extends Component
 
     public function filter() {
         $this->resetPage('report-page');
+    }
+
+    public function export() {
+        return Excel::download(new MCPReportExport($this->user_id, $this->date_from, $this->date_to), 'MCPReports'.time().'.xlsx');
     }
 
     public function showDetail($login_id) {
@@ -48,13 +55,14 @@ class Report extends Component
                 $schedules_dates->where('date', '<=', $this->date_to);
             }
 
-            $schedules_dates = $schedules_dates->paginate(7, ['*'], 'report-page')->onEachSide(1);
+            $schedules_dates = $schedules_dates->groupBy('date', 'user_id')->paginate(7, ['*'], 'report-page')->onEachSide(1);
 
         } else {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
             ->orderBy('date', 'ASC')
             ->select('date', 'user_id')->distinct()
             ->whereNull('status')
+            ->groupBy('date', 'user_id')
             ->paginate(7, ['*'], 'report-page')->onEachSide(1);
         }
 
@@ -104,7 +112,7 @@ class Report extends Component
             }
 
         }
-
+        
         // Filter options
         $users = User::orderBy('firstname', 'ASC')
         ->whereHas('schedules')->get();
