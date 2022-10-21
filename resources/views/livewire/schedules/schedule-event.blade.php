@@ -72,6 +72,17 @@
                         @elseif($action == 'sign-in')
                             {{-- Sign In --}}
                             <form action="" wire:submit.prevent="sign_in">
+
+                                @if(empty($schedule))
+                                    <div class="alert alert-warning">
+                                        <h5>
+                                            <i class="fa fa-ban mr-1"></i>
+                                            Warning
+                                        </h5>
+                                        This branch was not on your schedule for today.
+                                    </div>
+                                @endif
+
                                 <div class="row my-2">
                                     <div class="col-12">
                                         <button type="button" class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="loadLocation">Reload Location</button>

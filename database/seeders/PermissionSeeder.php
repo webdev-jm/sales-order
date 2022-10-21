@@ -35,8 +35,8 @@ class PermissionSeeder extends Seeder
             'schedule approve reschedule',
             'schedule approve delete request',
             // reports
-            'reports access',
-            'reports export',
+            'report access',
+            'report export',
             // company
             'company access',
             'company create',
