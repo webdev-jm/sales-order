@@ -34,6 +34,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>PO value</label>
+                        <small class="ml-1"><i class="fas fa-asterisk text-danger"></i></small>
                         <input type="number" class="form-control bg-white{{isset($po_message) && $po_message != '' ? ' is-invalid' : ''}}" wire:model.lazy="po_value" wire:change="change_po_value">
                         @if(isset($po_message) && $po_message != '')
                             <p class="text-danger"><b>NOTE:</b> {{$po_message}}</p>
