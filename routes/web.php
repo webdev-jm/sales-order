@@ -96,6 +96,7 @@ Route::group(['middleware' => 'auth'], function () {
     // REPORTS
     Route::group(['middleware' => 'permission:report access'], function() {
         Route::get('report', [ReportController::class, 'index'])->name('report.index');
+        Route::get('report/sales-order', [ReportController::class, 'sales_orders'])->name('report.sales-order');
     });
 
     // COMPANY

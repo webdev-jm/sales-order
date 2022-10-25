@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Reports
+    Reports - MCP
 @endsection
 
 @section('css')
@@ -10,7 +10,15 @@
 @endsection
 
 @section('content_header')
-    <h1>Reports</h1>
+<div class="row">
+    <div class="col-md-6">
+        <h1>Reports / Sales Orders</h1>
+    </div>
+    <div class="col-md-6 text-right">
+        <a href="{{route('report.index')}}" class="btn btn-primary"><i class="fa fa-calendar-alt mr-2"></i>MCP</a>
+        <a href="{{route('report.sales-order')}}" class="btn btn-default"><i class="fa fa-chart-pie mr-2"></i>Sales Order</a>
+    </div>
+</div>
 @endsection
 
 @section('content')
