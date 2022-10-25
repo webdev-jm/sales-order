@@ -33,4 +33,9 @@ class ReportController extends Controller
             'delete_count' => $delete_count
         ]);
     }
+
+    public function sales_orders() {
+
+        return view('reports.orders');
+    }
 }
