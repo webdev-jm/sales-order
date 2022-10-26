@@ -84,6 +84,7 @@
         </table>
     </div>
     <div class="card-footer">
+        {{$shipping_addresses->links()}}
     </div>
 </div>
 
