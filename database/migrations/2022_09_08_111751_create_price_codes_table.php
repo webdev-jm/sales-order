@@ -18,7 +18,7 @@ class CreatePriceCodesTable extends Migration
             $table->unsignedBigInteger('company_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
             $table->string('code');
-            $table->decimal('selling_price', 10, 2);
+            $table->decimal('selling_price', 10, 3);
             $table->string('price_basis');
             $table->timestamps();
 

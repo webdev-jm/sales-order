@@ -29,6 +29,10 @@ class ClassificationImport implements ToModel, WithStartRow
                 'classification_code' => $row[1],
             ]);
         } else {
+            $check->update([
+                'classification_name' => $row[0],
+                'classification_code' => $row[1],
+            ]);
             return null;
         }
 
