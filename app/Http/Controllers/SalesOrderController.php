@@ -86,6 +86,10 @@ class SalesOrderController extends Controller
         ]);
     }
 
+    public function dashboard() {
+        return view('sales-orders.dashboard');
+    }
+
     /**
      * Display a listing of the resource.
      *

@@ -12,6 +12,11 @@
     <div class="col-md-6">
         <h1>Sales Orders List</h1>
     </div>
+    <div class="col-md-6 text-right">
+        @can('sales order list')
+        <a href="{{route('sales-order.dashboard')}}" class="btn btn-primary"><i class="fas fa-chart-line mr-1"></i>Dashboard</a>
+        @endcan
+    </div>
 </div>
 @endsection
 

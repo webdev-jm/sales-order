@@ -81,6 +81,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales-order.update')->middleware('permission:sales order edit');
 
         Route::get('list-sales-order/list', [SalesOrderController::class, 'list'])->name('sales-order.list')->middleware('permission:sales order list');
+        Route::get('list-sales-order/dashboard', [SalesOrderController::class, 'dashboard'])->name('sales-order.dashboard')->middleware('permission:sales order list');
     });
 
     // SCHEDULE
