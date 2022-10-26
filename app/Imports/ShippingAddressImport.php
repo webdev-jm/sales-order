@@ -35,15 +35,24 @@ class ShippingAddressImport implements ToModel, WithStartRow, WithBatchInserts, 
     {
         $account = Account::where('account_code', $row[1])->first();
 
-        return new ShippingAddress([
-            'account_id' => $account->id ?? null,
-            'address_code' => $row[2],
-            'ship_to_name' => $row[3],
-            'building' => $row[4],
-            'street' => $row[5],
-            'city' => $row[6],
-            'tin' => $row[7],
-            'postal' => $row[9],
-        ]);
+        // Check
+        $check = ShippingAddress::where('account_id', $account->id)
+        ->where('account_code', $row[2])->first();
+
+        if(empty($check)) {
+            return new ShippingAddress([
+                'account_id' => $account->id ?? null,
+                'address_code' => $row[2],
+                'ship_to_name' => $row[3],
+                'building' => $row[4],
+                'street' => $row[5],
+                'city' => $row[6],
+                'tin' => $row[7],
+                'postal' => $row[9],
+            ]);
+        } else {
+            return null;
+        }
+
     }
 }
