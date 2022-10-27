@@ -43,6 +43,14 @@
     <div class="col-lg-12">
         <livewire:reports.sales-orders.top-sku/>
     </div>
+
+    <div class="col-lg-6">
+        <livewire:reports.sales-orders.brand/>
+    </div>
+
+    <div class="col-lg-6">
+        <livewire:reports.sales-orders.category/>
+    </div>
 </div>
 @endsection
 

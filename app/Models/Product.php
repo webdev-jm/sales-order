@@ -44,6 +44,10 @@ class Product extends Model
         return $this->hasMany('App\Models\AccountProductReference');
     }
 
+    public function sales_order_product() {
+        return $this->hasMany('App\Models\SalesOrderProduct');
+    }
+
     public function scopeProductSearch($query, $search, $limit) {
         if($search != '') {
             $products = $query->orderBy('id', 'DESC')

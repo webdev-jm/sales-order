@@ -88,6 +88,9 @@ class Months extends Component
         $group_codes = User::select('group_code')->distinct()
         ->whereNotNull('group_code')
         ->orderBy('group_code', 'ASC')
+        ->whereHas('account_logins', function($query) {
+            $query->whereHas('sales_orders');
+        })
         ->get();
 
         return view('livewire.reports.sales-orders.months')->with([
