@@ -1,11 +1,11 @@
 <div>
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Per account sales contribution</h3>
+            <h3 class="card-title">Per brand sales contribution</h3>
         </div>
         <div class="card-body">
             <figure class="highcharts-figure">
-                <div id="container-accounts"></div>
+                <div id="container-brand"></div>
                 <p class="highcharts-description">
                     Sales Order Grand Total: <h4>{{number_format($grand_total, 2)}}</h4>
                 </p>
@@ -15,7 +15,7 @@
 
     <script>
         document.addEventListener('livewire:load', function() {
-            Highcharts.chart('container-accounts', {
+            Highcharts.chart('container-brand', {
                 chart: {
                     type: 'pie',
                     options3d: {
@@ -24,10 +24,10 @@
                     }
                 },
                 title: {
-                    text: 'Per Account'
+                    text: 'Per Brand'
                 },
                 subtitle: {
-                    text: 'Grand Total Per Account'
+                    text: 'Grand Total Per Brand'
                 },
                 plotOptions: {
                     pie: {

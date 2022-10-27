@@ -43,14 +43,25 @@
     <div class="col-lg-12">
         <livewire:reports.sales-orders.top-sku/>
     </div>
+
+    <div class="col-lg-6">
+        <livewire:reports.sales-orders.brand/>
+    </div>
+
+    <div class="col-lg-6">
+        <livewire:reports.sales-orders.category/>
+    </div>
 </div>
 @endsection
 
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-3d.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<!-- optional -->
+<script src="https://code.highcharts.com/modules/offline-exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script>
     $(function() {
 
