@@ -77,10 +77,10 @@
     </ul>
     
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-3">
 
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Select Day</h3>
@@ -88,14 +88,14 @@
                         <button class="btn btn-default btn-sm" wire:click.prevent="clearDay">Clear</button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-center">
                     @for($i = 1; $i <= $total_days; $i++)
                     <button class="btn {{isset($days[$year][(int)$month]) && in_array($i, $days[$year][(int)$month]) ? 'btn-primary' : 'btn-default'}} my-1" wire:click.prevent="selectDay('{{$i}}')">{{$i < 10 ? '0'.$i : $i}}</button>
                     @endfor
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             
         </div>
     </div>

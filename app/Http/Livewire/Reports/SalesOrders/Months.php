@@ -4,15 +4,45 @@ namespace App\Http\Livewire\Reports\SalesOrders;
 
 use Livewire\Component;
 
+use App\Models\User;
+
 class Months extends Component
 {
     public $year, $month, $prev_year, $prev_month, $next_year, $next_month;
+    public $group_code;
+
+    protected $queryString = [
+        'year',
+        'month',
+        'group_code'
+    ];
+
+    public function selectGroup($code) {
+        if($this->group_code == $code) {
+            $this->reset('group_code');
+        } else {
+            $this->group_code = $code;
+        }
+
+        return redirect()->route('report.sales-order', [
+            'year' => $this->year,
+            'month' => $this->month,
+            'group_code' => $this->group_code
+        ]);
+        
+    }
 
     public function selectDate($year, $month) {
         $this->year = $year;
         $this->month = $month;
 
         $this->setPagination();
+
+        return redirect()->route('report.sales-order', [
+            'year' => $this->year,
+            'month' => $this->month,
+            'group_code' => $this->group_code
+        ]);
     }
 
     public function setPagination() {
@@ -55,6 +85,13 @@ class Months extends Component
 
     public function render()
     {
-        return view('livewire.reports.sales-orders.months');
+        $group_codes = User::select('group_code')->distinct()
+        ->whereNotNull('group_code')
+        ->orderBy('group_code', 'ASC')
+        ->get();
+
+        return view('livewire.reports.sales-orders.months')->with([
+            'group_codes' => $group_codes
+        ]);
     }
 }

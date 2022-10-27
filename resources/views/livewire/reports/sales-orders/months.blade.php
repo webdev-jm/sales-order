@@ -8,7 +8,7 @@
             </a>
         </li>
         <li class="page-item{{$month == '02' ? ' active' : ''}}">
-            <a class="page-link" href="#" wire:click.prevent="selectDate({{$year}}, '02')">
+            <a class="page-link" href="" wire:click.prevent="selectDate({{$year}}, '02')">
                 <p class="page-month">Feb</p>
                 <p class="page-year">{{$year}}</p>
             </a>
@@ -75,4 +75,12 @@
         </li>
         <li class="page-item"><a class="page-link" href="#" wire:click.prevent="selectDate({{$next_year}}, {{$next_month}})">»</a></li>
     </ul>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            @foreach($group_codes as $code)
+                <a href="{{route('report.sales-order')}}" class="btn {{$group_code == $code->group_code ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="selectGroup('{{$code->group_code}}')" wire:loading.attr="disabled">{{$code->group_code}}</a>
+            @endforeach
+        </div>
+    </div>
 </div>

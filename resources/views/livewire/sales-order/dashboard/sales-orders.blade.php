@@ -15,10 +15,11 @@
                         <th>Control Number</th>
                         <th>PO Number</th>
                         <th>Order Date</th>
+                        <th>Account</th>
                         <th>Username</th>
                         <th>Name</th>
-                        <th>Grand Total</th>
-                        <th>Grand Total Less Discount</th>
+                        <th class="text-right">Grand Total</th>
+                        <th class="text-right">Grand Total Less Discount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,10 @@
                         <td>{{$sales_order->control_number}}</td>
                         <td>{{$sales_order->po_number}}</td>
                         <td>{{$sales_order->order_date}}</td>
+                        <td>
+                            [{{$sales_order->account_login->account->account_code}}]
+                            {{$sales_order->account_login->account->short_name}}
+                        </td>
                         <td>{{$sales_order->account_login->user->email}}</td>
                         <td>
                             {{$sales_order->account_login->user->firstname}}
