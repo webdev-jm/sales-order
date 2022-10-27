@@ -33,133 +33,26 @@
 
 <div class="row">
     <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Per salesman sales contribution</h3>
-            </div>
-            <div class="card-body">
-                <figure class="highcharts-figure">
-                    <div id="container"></div>
-                    <p class="highcharts-description">
-                        A variation of a 3D pie chart with an inner radius added.
-                        These charts are often referred to as donut charts.
-                    </p>
-                </figure>
-            </div>
-        </div>
+        <livewire:reports.sales-orders.salesman/>
     </div>
 
     <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Per Account sales contribution</h3>
-            </div>
-            <div class="card-body">
-                <figure class="highcharts-figure">
-                    <div id="container-accounts"></div>
-                    <p class="highcharts-description">
-                        A variation of a 3D pie chart with an inner radius added.
-                        These charts are often referred to as donut charts.
-                    </p>
-                </figure>
-            </div>
-        </div>
+        <livewire:reports.sales-orders.account/>
     </div>
 
     <div class="col-lg-12">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Top SKUs</h3>
-            </div>
-            <div class="card-body">
-                
-            </div>
-        </div>
+        <livewire:reports.sales-orders.top-sku/>
     </div>
 </div>
 @endsection
 
 @section('js')
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-3d.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
 <script>
     $(function() {
-        Highcharts.chart('container', {
-            chart: {
-                type: 'pie',
-                options3d: {
-                    enabled: true,
-                    alpha: 45
-                }
-            },
-            title: {
-                text: 'Beijing 2022 gold medals by country'
-            },
-            subtitle: {
-                text: '3D donut in Highcharts'
-            },
-            plotOptions: {
-                pie: {
-                    innerSize: 100,
-                    depth: 45
-                }
-            },
-            series: [{
-                name: 'Medals',
-                data: [
-                    ['Norway', 16],
-                    ['Germany', 12],
-                    ['USA', 8],
-                    ['Sweden', 8],
-                    ['Netherlands', 8],
-                    ['ROC', 6],
-                    ['Austria', 7],
-                    ['Canada', 4],
-                    ['Japan', 3]
-
-                ]
-            }]
-        });
-
-        Highcharts.chart('container-accounts', {
-            chart: {
-                type: 'pie',
-                options3d: {
-                    enabled: true,
-                    alpha: 45
-                }
-            },
-            title: {
-                text: 'Beijing 2022 gold medals by country'
-            },
-            subtitle: {
-                text: '3D donut in Highcharts'
-            },
-            plotOptions: {
-                pie: {
-                    innerSize: 100,
-                    depth: 45
-                }
-            },
-            series: [{
-                name: 'Medals',
-                data: [
-                    ['Norway', 16],
-                    ['Germany', 12],
-                    ['USA', 8],
-                    ['Sweden', 8],
-                    ['Netherlands', 8],
-                    ['ROC', 6],
-                    ['Austria', 7],
-                    ['Canada', 4],
-                    ['Japan', 3]
-
-                ]
-            }]
-        });
 
     });
 </script>

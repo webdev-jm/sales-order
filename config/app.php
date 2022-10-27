@@ -233,6 +233,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'AccountLoginModel' => App\Models\AccountLogin::class,
+        'AccountModel' => App\Models\Account::class,
 
     ],
 
