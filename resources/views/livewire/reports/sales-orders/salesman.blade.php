@@ -37,6 +37,7 @@
                 },
                 series: [{
                     name: 'TOTAL',
+                    allowPointSelect: true,
                     data: @php echo json_encode($chart_data); @endphp
                 }]
             });
