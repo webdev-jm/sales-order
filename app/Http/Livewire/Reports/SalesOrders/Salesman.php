@@ -93,9 +93,19 @@ class Salesman extends Component
             $grand_total += (float)$sales_orders_total;
         }
 
-        $this->chart_data = $chart_data;
+        $chart = [];
+        foreach($chart_data as $data) {
+            $percent = ($data[1] / $grand_total) * 100;
+            $chart[] = [
+                $data[0].' ('.number_format($percent, 2).'%)',
+                $data[1]
+            ];
+        }
+
+        $this->chart_data = $chart;
         $this->grand_total = $grand_total;
     }
+
 
     public function render()
     {

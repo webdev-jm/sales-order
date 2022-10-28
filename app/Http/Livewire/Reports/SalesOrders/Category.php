@@ -92,8 +92,17 @@ class Category extends Component
             }
         }
 
+        $chart = [];
+        foreach($chart_data as $data) {
+            $percent = ($data[1] / $grand_total) * 100;
+            $chart[] = [
+                $data[0].' ('.number_format($percent, 2).'%)',
+                $data[1]
+            ];
+        }
+
         return view('livewire.reports.sales-orders.category')->with([
-            'chart_data' => $chart_data,
+            'chart_data' => $chart,
             'grand_total' => $grand_total
         ]);
     }

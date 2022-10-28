@@ -24,7 +24,7 @@
                     }
                 },
                 title: {
-                    text: 'Per Brand'
+                    text: 'Per Category'
                 },
                 subtitle: {
                     text: 'Grand Total Per Brand'
@@ -37,6 +37,7 @@
                 },
                 series: [{
                     name: 'TOTAL',
+                    allowPointSelect: true,
                     data: @php echo json_encode($chart_data); @endphp
                 }]
             });

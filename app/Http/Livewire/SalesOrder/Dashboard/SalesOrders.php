@@ -28,6 +28,8 @@ class SalesOrders extends Component
         $this->year = $year;
         $this->month = $month;
         $this->days = $days;
+
+        $this->resetPage('order-page');
     }
 
     public function render()

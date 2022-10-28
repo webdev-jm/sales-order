@@ -98,15 +98,24 @@ class Account extends Component
             }
 
             $chart_data[] = [
-                $account->account_code.' '.$account->short_name,
+                $account->short_name,
                 (float)$total
             ];
 
             $grand_total += (float)$total;
         }
 
+        $chart = [];
+        foreach($chart_data as $data) {
+            $percent = ($data[1] / $grand_total) * 100;
+            $chart[] = [
+                $data[0].' ('.number_format($percent, 2).'%)',
+                $data[1]
+            ];
+        }
+
         return view('livewire.reports.sales-orders.account')->with([
-            'chart_data' => $chart_data,
+            'chart_data' => $chart,
             'grand_total' => $grand_total
         ]);
     }

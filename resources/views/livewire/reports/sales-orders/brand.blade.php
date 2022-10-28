@@ -32,11 +32,22 @@
                 plotOptions: {
                     pie: {
                         innerSize: 100,
-                        depth: 45
+                        depth: 45,
+                        colors: [
+                            '#f54242', // bellic
+                            '#eded07', // defensil
+                            '#a807ed', // danarra
+                            '#5b07ed', // dreamwhite
+                            '#eda807', // bare soap
+                            '#0404b0', // men products
+                            '#ff0808', // kojiesan
+                        ]
                     }
+                    
                 },
                 series: [{
                     name: 'TOTAL',
+                    allowPointSelect: true,
                     data: @php echo json_encode($chart_data); @endphp
                 }]
             });
