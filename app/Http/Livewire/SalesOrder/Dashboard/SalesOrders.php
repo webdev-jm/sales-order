@@ -57,6 +57,10 @@ class SalesOrders extends Component
                             $qry1->where('email', 'like', '%'.$this->search.'%')
                             ->orWhere('firstname', 'like', '%'.$this->search.'%')
                             ->orWhere('lastname', 'like', '%'.$this->search.'%');
+                        })
+                        ->orWhereHas('account', function($qry1) {
+                            $qry1->where('account_code', 'like', '%'.$this->search.'%')
+                            ->orWhere('short_name', 'like', '%'.$this->search.'%');
                         });
                     });
                 });
@@ -91,6 +95,10 @@ class SalesOrders extends Component
                                 $qry1->where('email', 'like', '%'.$this->search.'%')
                                 ->orWhere('firstname', 'like', '%'.$this->search.'%')
                                 ->orWhere('lastname', 'like', '%'.$this->search.'%');
+                            })
+                            ->orWhereHas('account', function($qry1) {
+                                $qry1->where('account_code', 'like', '%'.$this->search.'%')
+                                ->orWhere('short_name', 'like', '%'.$this->search.'%');
                             });
                         });
                     });
@@ -122,6 +130,10 @@ class SalesOrders extends Component
                                 $qry1->where('email', 'like', '%'.$this->search.'%')
                                 ->orWhere('firstname', 'like', '%'.$this->search.'%')
                                 ->orWhere('lastname', 'like', '%'.$this->search.'%');
+                            })
+                            ->orWhereHas('account', function($qry1) {
+                                $qry1->where('account_code', 'like', '%'.$this->search.'%')
+                                ->orWhere('short_name', 'like', '%'.$this->search.'%');
                             });
                         });
                     });
@@ -153,6 +165,10 @@ class SalesOrders extends Component
                             $qry1->where('email', 'like', '%'.$this->search.'%')
                             ->orWhere('firstname', 'like', '%'.$this->search.'%')
                             ->orWhere('lastname', 'like', '%'.$this->search.'%');
+                        })
+                        ->orWhereHas('account', function($qry1) {
+                            $qry1->where('account_code', 'like', '%'.$this->search.'%')
+                            ->orWhere('short_name', 'like', '%'.$this->search.'%');
                         });
                     });
                 });
