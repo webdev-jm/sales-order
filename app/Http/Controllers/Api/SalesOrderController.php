@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\SalesOrder;
+use App\Models\SalesOrderProduct;
+use App\Models\SalesOrderProductUom;
 use App\Models\Account;
+use App\Models\Product;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,9 +14,9 @@ use Illuminate\Http\Request;
 class SalesOrderController extends Controller
 {
     public $product_ids = [
-        227, // 350ml
-        228, // 500ml
-        229, // 1000ml
+        228,
+        229,
+        230,
     ];
 
     public function index(Request $request) {
@@ -36,20 +39,36 @@ class SalesOrderController extends Controller
 
         $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
         ->where('status', '<>', 'draft')
+        ->whereHas('order_products', function($query) {
+            $query->whereIn('product_id', $this->product_ids);
+        })
         ->whereHas('account_login', function($query) use($account) {
             $query->where('account_id', $account->id);
-        })->get();
+        })
+        ->get();
         // ->paginate($request->get('limit'), ['*'], 'page', $request->get('page'));
 
         foreach($sales_orders as $sales_order) {
 
-            $order_products = $sales_order->order_products;
+            $order_product_data = [];
+            $order_products = SalesOrderProduct::where('sales_order_id', $sales_order->id)->whereIn('product_id', $this->product_ids)->get();
             foreach($order_products as $order_product) {
-                $product = $order_product->product;
-                $uoms = $order_product->product_uoms;
+                $product = Product::find($order_product->product_id);
+                $uoms = SalesOrderProductUom::where('sales_order_product_id', $order_product->id)->get();
+
+                $order_product_data[] = [
+                    $order_product,
+                    'product' => $product,
+                    'uom' => $uoms
+                ];
             }
 
-            $data['sales_orders'][] = $sales_order;
+            $order_data = [
+                'sales_order' => $sales_order,
+                'order_products' => $order_product_data
+            ];
+
+            $data['sales_orders'][] = $order_data;
         }
 
         return response()->json($data, 200);
