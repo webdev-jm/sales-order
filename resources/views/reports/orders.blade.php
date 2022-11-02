@@ -16,7 +16,7 @@
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('report.index')}}" class="btn btn-default"><i class="fa fa-calendar-alt mr-2"></i>MCP</a>
-        <a href="{{route('report.sales-order')}}" class="btn btn-primary"><i class="fa fa-chart-line mr-2"></i>Sales Order</a>
+        <a href="{{route('report.sales-order', ['year' => date('Y'), 'month' => date('m')])}}" class="btn btn-primary"><i class="fa fa-chart-line mr-2"></i>Sales Order</a>
     </div>
 </div>
 @endsection

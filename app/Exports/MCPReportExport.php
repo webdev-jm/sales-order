@@ -6,6 +6,7 @@ use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -105,19 +106,30 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             ->select('date', 'user_id')->distinct()
             ->whereNull('status');
 
+            // get branch login not in schedule
+            $deviation_logins_date = BranchLogin::orderBy('user_id', 'ASC')
+            ->orderBy(DB::raw("date(time_in)"), 'ASC')
+            ->select(DB::raw("date(time_in) as date"), 'user_id')->distinct();
+
             if(!empty($this->user_id)) {
                 $schedules_dates->where('user_id', $this->user_id);
+                $deviation_logins_date->where('user_id', $this->user_id);
             }
 
             if(!empty($this->date_from)) {
                 $schedules_dates->where('date', '>=', $this->date_from);
+                $deviation_logins_date->where(DB::raw("date(time_in)"), '>=', $this->date_from);
             }
             
             if(!empty($this->date_to)) {
                 $schedules_dates->where('date', '<=', $this->date_to);
+                $deviation_logins_date->where(DB::raw("date(time_in)"), '<=', $this->date_to);
             }
 
             $schedules_dates = $schedules_dates->get();
+
+            $deviation_logins_date = $deviation_logins_date->whereNotIn(DB::raw("date(time_in)"), $schedules_dates->pluck('date'))
+            ->get();
 
         } else {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
@@ -125,9 +137,58 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             ->select('date', 'user_id')->distinct()
             ->whereNull('status')
             ->get();
+
+            // get branch login not in schedule
+            $deviation_logins_date = BranchLogin::orderBy('user_id', 'ASC')
+            ->orderBy(DB::raw("date(time_in)"), 'ASC')
+            ->select(DB::raw("date(time_in) as date"), 'user_id')->distinct()
+            ->whereNotIn(DB::raw("date(time_in)"), $schedules_dates->pluck('date'))
+            ->get();
         }
 
+        // get branch login not in schedule
+        $deviation_logins = [];
+        foreach($deviation_logins_date as $deviation_login) {
+            $logins = BranchLogin::where(DB::raw('date(time_in)'), $deviation_login->date)
+            ->where('user_id', $deviation_login->user_id)->get();
+
+            foreach($logins as $login) {
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['data'][] = $login;
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_code'] = $login->branch->branch_code;
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_name'] = $login->branch->branch_name;
+            }
+        }
+
+        $prev_date = '';
         foreach($schedules_dates as $schedule_date) {
+
+            if(isset($deviation_logins[$schedule_date->user_id])) {
+                foreach($deviation_logins[$schedule_date->user_id] as $date => $logins) {
+                    if(($prev_date == '' || $prev_date < $date) && $schedule_date->date > $date) {
+                        foreach($logins as $branch_id => $login) {
+                            foreach($login['data'] as $actual) {
+                                $data[] = [
+                                    $schedule_date->user->email,
+                                    $schedule_date->user->firstname.' '.$schedule_date->user->lastname,
+                                    $date,
+                                    $login['branch_code'],
+                                    $login['branch_name'],
+                                    $actual->latitude,
+                                    $actual->longitude,
+                                    \App\Helpers\AppHelper::instance()->getAddress($actual->latitude, $actual->longitude),
+                                    $actual->time_in,
+                                    $actual->time_out,
+                                    'deviated'
+                                ];
+                            }
+                        }
+
+                        // remove data
+                        unset($deviation_logins[$schedule_date->user_id][$date]);
+                    }
+                }
+            }
+
             // get schedules
             $schedules = UserBranchSchedule::where('user_id', $schedule_date->user_id)
             ->where('date', $schedule_date->date)

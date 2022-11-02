@@ -16,7 +16,7 @@
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('report.index')}}" class="btn btn-primary"><i class="fa fa-calendar-alt mr-2"></i>MCP</a>
-        <a href="{{route('report.sales-order')}}" class="btn btn-default"><i class="fa fa-chart-pie mr-2"></i>Sales Order</a>
+        <a href="{{route('report.sales-order', ['year' => date('Y'), 'month' => date('m')])}}" class="btn btn-default"><i class="fa fa-chart-pie mr-2"></i>Sales Order</a>
     </div>
 </div>
 @endsection
@@ -43,7 +43,7 @@
             
             <div class="small-box bg-success">
                 <div class="inner">
-                    <h3>{{$visited_count->total}}</h3>
+                    <h3>{{$visited_count}}</h3>
     
                     <p>Visited</p>
                 </div>
@@ -87,7 +87,13 @@
 
     <hr>
 
+    {{-- MCP Data --}}
     <livewire:reports.mcp.report/>
+
+    <hr>
+
+    {{-- MCP percentage --}}
+    <livewire:reports.mcp.percentage :schedules_count="$schedules_count" :visited_count="$visited_count" :unscheduled_count="$unscheduled_count"/>
 
 @endsection
 
