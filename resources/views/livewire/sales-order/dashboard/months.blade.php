@@ -93,6 +93,17 @@
                     <button class="btn {{isset($days[$year][(int)$month]) && in_array($i, $days[$year][(int)$month]) ? 'btn-primary' : 'btn-default'}} my-1" wire:click.prevent="selectDay('{{$i}}')">{{$i < 10 ? '0'.$i : $i}}</button>
                     @endfor
                 </div>
+                <div class="card-footer">
+                    @if(isset($days))
+                        @foreach($days as $year => $months)
+                            @foreach($months as $month => $days)
+                                @foreach($days as $day)
+                                <span class="badge badge-primary">{{$year.'-'.$month.'-'.($day < 10 ? '0'.(int)$day : $day)}}</span>
+                                @endforeach
+                            @endforeach
+                        @endforeach
+                    @endisset
+                </div>
             </div>
         </div>
         <div class="col-lg-3">

@@ -73,4 +73,25 @@ class Branch extends Model
 
         return $response;
     }
+
+    public function scopeBranchSearch($query, $search, $limit) {
+        if($search != '') {
+            $branches = $query->orderBy('id', 'DESC')
+            ->where(function($qry) use ($search) {
+                $qry->where('branch_code', 'like', '%'.$search.'%')
+                ->orWhere('branch_name', 'like', '%'.$search.'%');
+            })
+            ->orWhereHas('account', function($qry) use($search) {
+                $qry->where('account_code', 'like', '%'.$search.'%')
+                ->orWhere('account_name', 'like', '%'.$search.'%')
+                ->orWhere('short_name', 'like', '%'.$search.'%');
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $branches = $query->orderBy('id', 'DESC')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $branches;
+    }
 }

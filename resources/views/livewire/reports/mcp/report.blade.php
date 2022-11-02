@@ -91,11 +91,67 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php
+                            $prev_date = '';
+                        @endphp
                         @foreach($schedule_dates as $schedule_date)
-                        <tr class="bg-secondary">
-                            <td class="font-weight-bold text-center">{{$schedule_date->date}}</td>
-                            <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
-                        </tr>
+
+                            {{-- check deviations --}}
+                            @if(isset($deviation_logins[$schedule_date->user_id]))
+                                @foreach($deviation_logins[$schedule_date->user_id] as $date => $logins)
+                                    @if(($prev_date == '' || $prev_date < $date) && ($schedule_date->date > $date))
+                                        <tr class="bg-secondary">
+                                            <td class="font-weight-bold text-center">{{$date}}</td>
+                                            <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
+                                        </tr>
+                                        @foreach($logins as $branch_id => $login)
+                                            <tr>
+                                                <td class="align-middle text-center">
+                                                    {{$date}}
+                                                </td>
+                                                <td class="align-middle">
+                                                    {{$login['branch_code']}} {{$login['branch_name']}}
+                                                </td>
+                                                <td class="text-center">
+                                                    @foreach($login['data'] as $actual)
+                                                    <p class="mb-0">
+                                                        {{$actual->latitude}}, {{$actual->longitude}}
+                                                        <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
+                                                            <i class="fa fa-info-circle text-primary ml-2"></i>
+                                                        </a>
+                                                    </p>
+                                                    @endforeach
+                                                </td>
+                                                <td class="text-center">
+                                                    @foreach($login['data'] as $actual)
+                                                    <p class="mb-0">
+                                                        {{date('h:i:s a', strtotime($actual->time_in))}}
+                                                    </p>
+                                                    @endforeach
+                                                </td>
+                                                <td class="text-center">
+                                                    @foreach($login['data'] as $actual)
+                                                        @if(!empty($actual->time_out))
+                                                        <p class="mb-0">
+                                                            {{date('h:i:s a', strtotime($actual->time_out))}}
+                                                        </p>
+                                                        @endif
+                                                    @endforeach
+                                                </td>
+                                                <td class="text-center align-middle p-0">
+                                                    <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
+                                @endforeach
+                            @endif
+
+                            <tr class="bg-secondary">
+                                <td class="font-weight-bold text-center">{{$schedule_date->date}}</td>
+                                <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
+                            </tr>
                             {{-- Scheduled --}}
                             @foreach($schedules[$schedule_date->user_id][$schedule_date->date] as $schedule)
                             <tr>
@@ -121,9 +177,11 @@
                                     </td>
                                     <td class="text-center">
                                         @foreach($actuals[$schedule->id] as $actual)
-                                        <p class="mb-0">
-                                            {{date('h:i:s a', strtotime($actual->time_out))}}
-                                        </p>
+                                            @if(!empty($actual->time_out))
+                                            <p class="mb-0">
+                                                {{date('h:i:s a', strtotime($actual->time_out))}}
+                                            </p>
+                                            @endif
                                         @endforeach
                                     </td>
                                     <td class="text-center align-middle p-0">
@@ -167,9 +225,11 @@
                                     </td>
                                     <td class="text-center">
                                         @foreach($deviation['actuals'] as $actual)
-                                        <p class="mb-0">
-                                            {{date('h:i:s a', strtotime($actual['time_out']))}}
-                                        </p>
+                                            @if(!empty($actual['time_out']))
+                                            <p class="mb-0">
+                                                {{date('h:i:s a', strtotime($actual['time_out']))}}
+                                            </p>
+                                            @endif
                                         @endforeach
                                     </td>
                                     <td class="text-center align-middle p-0">
@@ -179,6 +239,10 @@
                                 </tr>
                                 @endforeach
                             @endif
+
+                            @php
+                                $prev_date = $schedule_date->date;
+                            @endphp
                         @endforeach
                     </tbody>
                 </table>

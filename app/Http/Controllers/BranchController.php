@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BranchImport;
 
+use App\Http\Traits\GlobalTrait;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -21,15 +23,26 @@ ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class BranchController extends Controller
 {
+    use GlobalTrait;
+    public $settings;
+
+    public function __construct() {
+        $this->settings = $this->getSettings();
+    }
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $branches = Branch::orderBy('id', 'DESC')->paginate(10);
+
+        $search = trim($request->get('search'));
+
+        $branches = Branch::BranchSearch($search, $this->settings->data_per_page);
         return view('branches.index')->with([
+            'search' => $search,
             'branches' => $branches
         ]);
     }

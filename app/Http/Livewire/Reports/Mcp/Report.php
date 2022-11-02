@@ -9,6 +9,8 @@ use App\Models\UserBranchSchedule;
 use App\Models\BranchLogin;
 use App\Models\User;
 
+use Illuminate\Support\Facades\DB;
+
 use App\Exports\MCPReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -43,19 +45,30 @@ class Report extends Component
             ->select('date', 'user_id')->distinct()
             ->whereNull('status');
 
+            // get branch login not in schedule
+            $deviation_logins_date = BranchLogin::orderBy('user_id', 'ASC')
+            ->orderBy(DB::raw("date(time_in)"), 'ASC')
+            ->select(DB::raw("date(time_in) as date"), 'user_id')->distinct();
+
             if(!empty($this->user_id)) {
                 $schedules_dates->where('user_id', $this->user_id);
+                $deviation_logins_date->where('user_id', $this->user_id);
             }
 
             if(!empty($this->date_from)) {
                 $schedules_dates->where('date', '>=', $this->date_from);
+                $deviation_logins_date->where(DB::raw("date(time_in)"), '>=', $this->date_from);
             }
             
             if(!empty($this->date_to)) {
                 $schedules_dates->where('date', '<=', $this->date_to);
+                $deviation_logins_date->where(DB::raw("date(time_in)"), '<=', $this->date_to);
             }
 
             $schedules_dates = $schedules_dates->groupBy('date', 'user_id')->paginate(7, ['*'], 'report-page')->onEachSide(1);
+
+            $deviation_logins_date = $deviation_logins_date->whereNotIn(DB::raw("date(time_in)"), $schedules_dates->pluck('date'))
+            ->get();
 
         } else {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
@@ -64,6 +77,13 @@ class Report extends Component
             ->whereNull('status')
             ->groupBy('date', 'user_id')
             ->paginate(7, ['*'], 'report-page')->onEachSide(1);
+
+            // get branch login not in schedule
+            $deviation_logins_date = BranchLogin::orderBy('user_id', 'ASC')
+            ->orderBy(DB::raw("date(time_in)"), 'ASC')
+            ->select(DB::raw("date(time_in) as date"), 'user_id')->distinct()
+            ->whereNotIn(DB::raw("date(time_in)"), $schedules_dates->pluck('date'))
+            ->get();
         }
 
         foreach($schedules_dates as $schedule_date) {
@@ -112,13 +132,27 @@ class Report extends Component
             }
 
         }
-        
+
+        // get branch login not in schedule
+        $deviation_logins = [];
+        foreach($deviation_logins_date as $deviation_login) {
+            $logins = BranchLogin::where(DB::raw('date(time_in)'), $deviation_login->date)
+            ->where('user_id', $deviation_login->user_id)->get();
+
+            foreach($logins as $login) {
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['data'][] = $login;
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_code'] = $login->branch->branch_code;
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_name'] = $login->branch->branch_name;
+            }
+        }
+
         // Filter options
         $users = User::orderBy('firstname', 'ASC')
         ->whereHas('schedules')->get();
 
         return view('livewire.reports.mcp.report')->with([
             'schedule_dates' => $schedules_dates,
+            'deviation_logins' => $deviation_logins,
             'users' => $users,
         ]);
     }
