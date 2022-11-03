@@ -54,7 +54,7 @@ class SalesOrderController extends Controller
             $order_products = SalesOrderProduct::where('sales_order_id', $sales_order->id)->whereIn('product_id', $this->product_ids)->get();
             foreach($order_products as $order_product) {
                 $product = Product::find($order_product->product_id);
-                $uoms = SalesOrderProductUom::where('sales_order_product_id', $order_product->id)->get();
+                $uoms = SalesOrderProductUom::where('sales_order_product_id', $order_product->id)->first();
 
                 $order_product_data[] = [
                     $order_product,

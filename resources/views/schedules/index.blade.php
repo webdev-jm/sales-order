@@ -37,6 +37,7 @@
     <div class="col-lg-4">
 
         @can('schedule create')
+        {{-- Add Schedule --}}
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Add Schedule</h3>
@@ -59,7 +60,7 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 {!! Form::label('branch_id', 'Branch') !!}
-                                {!! Form::select('branch_id', [], null, ['class' => 'form-control'.($errors->has('branch_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
+                                {!! Form::select('branch_id', [], null, ['class' => 'form-control branch_id'.($errors->has('branch_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
                                 <p class="text-danger">{{$errors->first('branch_id')}}</p>
                             </div>
                         </div>
@@ -80,6 +81,7 @@
             </div>
         @endcan
 
+        {{-- Filter --}}
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Filters</h3>
@@ -112,9 +114,13 @@
     </div>
     
     <div class="col-lg-8">
+        {{-- Calendar --}}
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Calendar</h3>
+                <div class="card-tools">
+                    <button class="btn btn-success" id="btn-request-schedule" type="button"><i class="fas fa-calendar-check mr-1"></i>Schedule Request</button>
+                </div>
             </div>
             <div class="card-body">
                 <div id="calendar"></div>
@@ -196,6 +202,19 @@
     </div>
 </div>
 
+<div class="modal fade" id="request-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:schedules.schedule-request/>
+    </div>
+</div>
+
+
+<div class="modal fade" id="add-modal">
+    <div class="modal-dialog">
+        <livewire:schedules.schedule-add/>
+    </div>
+</div>
+
 @endsection
 
 @section('plugins.Fullcalendar', true);
@@ -212,6 +231,11 @@
         $('#upload_form').on('submit', function() {
             $('#modal-upload').modal('hide');
             $('#loadingModal').modal('show');
+        });
+
+        $('#btn-request-schedule').on('click', function(e) {
+            e.preventDefault();
+            $('#add-modal').modal('show');
         });
 
         var calendarEl = document.getElementById('calendar');
@@ -241,6 +265,9 @@
                 } else if(type == 'delete') {
                     Livewire.emit('getDate', date_format);
                     $('#delete-modal').modal('show');
+                } else if(type == 'request') {
+                    Livewire.emit('setRequestDate', date_format);
+                    $('#request-modal').modal('show');
                 }
                 
             },
@@ -278,7 +305,7 @@
             }
         });
 
-        $('#branch_id').select2({
+        $('.branch_id').select2({
             ajax: { 
                 url: '{{route("branch.ajax")}}',
                 type: "POST",
