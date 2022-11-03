@@ -31,6 +31,7 @@ class PermissionSeeder extends Seeder
             'schedule create',
             'schedule list',
             'schedule reschedule',
+            'schedule approve request',
             'schedule delete request',
             'schedule approve reschedule',
             'schedule approve delete request',

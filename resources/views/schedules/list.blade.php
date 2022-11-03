@@ -58,6 +58,8 @@
                             'rescheduled' => 'bg-teal',
                             'deletion rejected' => 'bg-maroon',
                             'deletion approved' => 'bg-olive',
+                            'schedule request rejected' => 'bg-purple',
+                            'schedule request approved' => 'bg-lime',
                         ];
                     @endphp
                     <tr>

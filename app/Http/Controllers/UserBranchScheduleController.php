@@ -27,9 +27,10 @@ class UserBranchScheduleController extends Controller
         $schedule_color = '#25b8b5';
         $reschedule_color = '#f37206';
         $delete_color = '#c90518';
+        $request_color = '#32a852';
 
         $schedule_data = [];
-        if(auth()->user()->hasRole('superadmin')) {
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
 
             // check filter
             if(!empty($user_id) || !empty($branch_id)) {
@@ -124,6 +125,36 @@ class UserBranchScheduleController extends Controller
                     }
                 }
 
+                // for schedule request
+                $schedule_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'schedule request')
+                ->get();
+
+                foreach($schedule_date as $schedule) {
+                    $schedules = UserBranchSchedule::whereNotNull('id')
+                    ->where('status', 'schedule request')
+                    ->where('date', $schedule->date);
+                    if(!empty($user_id)) {
+                        $schedules->where('user_id', $user_id);
+                    }
+                    if(!empty($branch_id)) {
+                        $schedules->where('branch_id', $branch_id);
+                    }
+
+                    $schedule_count = $schedules->count();
+                    if($schedule_count > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedule_count.($schedule_count > 1 ? ' schedule requests' : ' schedule request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                            'type' => 'request'
+                        ];
+                    }
+
+                }
+
             } else { // no filter
 
                 // Schedules
@@ -187,6 +218,29 @@ class UserBranchScheduleController extends Controller
                             'type' => 'delete'
                         ];
                     }
+                }
+
+                // for schedule request
+                $schedule_date = UserBranchSchedule::select('date')->distinct()
+                ->where('status', 'schedule request')
+                ->get();
+
+                foreach($schedule_date as $schedule) {
+                    $schedule_count = UserBranchSchedule::whereNotNull('id')
+                    ->where('status', 'schedule request')
+                    ->where('date', $schedule->date)->count();
+                    
+                    if($schedule_count > 0) {
+                        $schedule_data[] = [
+                            'title' => $schedule_count.($schedule_count > 1 ? ' schedule requests' : ' schedule request'),
+                            'start' => $schedule->date,
+                            'allDay' => true,
+                            'backgroundColor' => $request_color,
+                            'borderColor' => $request_color,
+                            'type' => 'request'
+                        ];
+                    }
+
                 }
 
             }
