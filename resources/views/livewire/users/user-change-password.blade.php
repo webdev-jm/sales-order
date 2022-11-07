@@ -4,7 +4,7 @@
         <div class="modal-header">
             <h4 class="modal-title">Change Password</h4>
             <div class="card-tools">
-                <span class="badge badge-primary">{{$user->firstname}} {{$user->lastname}}</span>
+                <span class="badge badge-primary">{{$user->fullName()}}</span>
             </div>
         </div>
         <div class="modal-body">

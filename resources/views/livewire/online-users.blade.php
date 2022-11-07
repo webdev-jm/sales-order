@@ -7,7 +7,7 @@
             <ul class="list-group" wire:poll.visible.3000ms>
                 @foreach($users as $user)
                 <li class="list-group-item">
-                    {{$user->firstname}} {{$user->lastname}}
+                    {{$user->fullName()}}
                     @if(Cache::has('user-is-online-' . $user->id))
                         <span class="text-success float-right">Online</span>
                     @elseif(!empty($user->last_activity))

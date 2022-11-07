@@ -118,6 +118,11 @@ class PermissionSeeder extends Seeder
             'user edit',
             'user change password',
             'user delete',
+            // organizational structure
+            'organizational structure access',
+            'organizational structure create',
+            'organizational structure edit',
+            'organizational structure delete',
             // roles
             'role access',
             'role create',

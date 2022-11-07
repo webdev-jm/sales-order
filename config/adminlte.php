@@ -474,6 +474,13 @@ return [
             'active'    => ['user*']
         ],
         [
+            'text'      => 'Organization Structure',
+            'url'       => '/organizational-structure',
+            'icon'      => 'fas fa-fw fa-sitemap',
+            'can'       => 'organizational structure access',
+            'active'    => ['organizational-structure*']
+        ],
+        [
             'text'      => 'Roles',
             'url'       => '/role',
             'icon'      => 'fas fa-fw fa-user-tag',

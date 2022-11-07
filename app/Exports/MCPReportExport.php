@@ -169,7 +169,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                             foreach($login['data'] as $actual) {
                                 $data[] = [
                                     $schedule_date->user->email,
-                                    $schedule_date->user->firstname.' '.$schedule_date->user->lastname,
+                                    $schedule_date->user->fullName(),
                                     $date,
                                     $login['branch_code'],
                                     $login['branch_name'],
@@ -207,7 +207,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                     foreach($branch_logins as $branch_login) {
                         $data[] = [
                             $schedule_date->user->email,
-                            $schedule_date->user->firstname.' '.$schedule_date->user->lastname,
+                            $schedule_date->user->fullName(),
                             $schedule_date->date,
                             $schedule->branch->branch_code,
                             $schedule->branch->branch_name,
@@ -222,7 +222,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                 } else {
                     $data[] = [
                         $schedule_date->user->email,
-                        $schedule_date->user->firstname.' '.$schedule_date->user->lastname,
+                        $schedule_date->user->fullName(),
                         $schedule_date->date,
                         $schedule->branch->branch_code,
                         $schedule->branch->branch_name,
@@ -248,7 +248,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
 
                 $data[] = [
                     $schedule_date->user->email,
-                    $schedule_date->user->firstname.' '.$schedule_date->user->lastname,
+                    $schedule_date->user->fullName(),
                     date('Y-m-d', strtotime($deviation->time_in)),
                     $deviation->branch->branch_code,
                     $deviation->branch->branch_name,

@@ -14,7 +14,7 @@
                                 <select id="user_id" class="form-control" wire:model.lazy="user_id" wire:change="filter">
                                     <option value=""></option>
                                     @foreach($users as $user)
-                                    <option value="{{$user->id}}">{{$user->firstname}} {{$user->lastname}} ({{$user->email}})</option>
+                                    <option value="{{$user->id}}">{{$user->fullName()}} ({{$user->email}})</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -102,7 +102,7 @@
                                     @if(($prev_date == '' || $prev_date < $date) && ($schedule_date->date > $date))
                                         <tr class="bg-secondary">
                                             <td class="font-weight-bold text-center">{{$date}}</td>
-                                            <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
+                                            <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->fullName()}}</td>
                                         </tr>
                                         @foreach($logins as $branch_id => $login)
                                             <tr>
@@ -150,7 +150,7 @@
 
                             <tr class="bg-secondary">
                                 <td class="font-weight-bold text-center">{{$schedule_date->date}}</td>
-                                <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->firstname}} {{$schedule_date->user->lastname}}</td>
+                                <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->fullName()}}</td>
                             </tr>
                             {{-- Scheduled --}}
                             @foreach($schedules[$schedule_date->user_id][$schedule_date->date] as $schedule)

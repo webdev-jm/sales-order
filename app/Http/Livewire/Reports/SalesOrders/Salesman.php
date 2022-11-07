@@ -86,7 +86,7 @@ class Salesman extends Component
             }
 
             $chart_data[] = [
-                $user->firstname.' '.$user->lastname,
+                $user->fullName(),
                 (float)$sales_orders_total
             ];
 

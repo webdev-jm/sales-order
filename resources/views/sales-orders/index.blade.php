@@ -71,7 +71,7 @@
                     <td>
                         {{$sales_order->reference}}
                     </td>
-                    <td>{{$sales_order->account_login->user->firstname}} {{$sales_order->account_login->user->lastname}}</td>
+                    <td>{{$sales_order->account_login->user->fullName()}}</td>
                     <td class="text-right">
                         @if($sales_order->status == 'draft')
                             @can('sales order edit')
