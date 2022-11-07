@@ -63,7 +63,7 @@
                         ];
                     @endphp
                     <tr>
-                        <td>{{$schedule->user->firstname}} {{$schedule->user->lastname}}</td>
+                        <td>{{$schedule->user->fullName()}}</td>
                         <td>{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
                         <td>{{$schedule->date}}</td>
                         <td>{{$schedule->reschedule_date}}</td>

@@ -47,7 +47,7 @@ class ScheduleRescheduleRequest extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Reschedule Request')
             ->greeting('Hello!')
-            ->line('The schedule of '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.'  at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be rescheduled to '.$this->schedule->reschedule_date.'.')
+            ->line('The schedule of '.$this->schedule->user->fullName().'  at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be rescheduled to '.$this->schedule->reschedule_date.'.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class ScheduleRescheduleRequest extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'warning',
-            'message' => 'The schedule of '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.'  at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be rescheduled to '.$this->schedule->reschedule_date.'.',
+            'message' => 'The schedule of '.$this->schedule->user->fullName().'  at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be rescheduled to '.$this->schedule->reschedule_date.'.',
             'color' => 'warning',
             'url' => url('/schedule/list')
         ];

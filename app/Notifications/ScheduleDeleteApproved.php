@@ -47,7 +47,7 @@ class ScheduleDeleteApproved extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Delete Request Approved')
             ->greeting('Hello!')
-            ->line('Schedule Delete request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been approved.')
+            ->line('Schedule Delete request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been approved.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class ScheduleDeleteApproved extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'olive',
-            'message' => 'Schedule Delete request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been approved.',
+            'message' => 'Schedule Delete request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been approved.',
             'color' => 'olive',
             'url' => url('/schedule/list')
         ];

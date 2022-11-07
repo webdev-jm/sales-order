@@ -34,8 +34,7 @@
                         </td>
                         <td>{{$sales_order->account_login->user->email}}</td>
                         <td>
-                            {{$sales_order->account_login->user->firstname}}
-                            {{$sales_order->account_login->user->lastname}}
+                            {{$sales_order->account_login->user->fullName()}}
                         </td>
                         <td class="text-right">
                             {{number_format($sales_order->total_sales, 2)}}

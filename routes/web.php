@@ -25,6 +25,7 @@ use App\Http\Controllers\ClassificationController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AccountProductReferenceController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\OrganizationStructureController;
 
 /*
 |--------------------------------------------------------------------------
@@ -285,6 +286,11 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit')->middleware('permission:user edit');
         Route::post('user/{id}', [UserController::class, 'update'])->name('user.update')->middleware('permission:user edit');
+    });
+
+    // ORGANIZATION STRUCTURE
+    Route::group(['middleware' => 'permission:organizational structure access'], function() {
+        Route::get('organizational-structure', [OrganizationStructureController::class, 'index'])->name('organization-structure.index');
     });
 
     // ROLES

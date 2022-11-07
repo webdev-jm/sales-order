@@ -47,7 +47,7 @@ class ScheduleRequestRejected extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Request Rejected')
             ->greeting('Hello!')
-            ->line('Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been rejected.')
+            ->line('Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been rejected.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class ScheduleRequestRejected extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'danger',
-            'message' => 'Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been rejected.',
+            'message' => 'Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been rejected.',
             'color' => 'danger',
             'url' => url('/schedule/list')
         ];

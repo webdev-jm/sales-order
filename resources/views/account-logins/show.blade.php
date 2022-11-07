@@ -58,7 +58,7 @@
             <tbody>
                 @foreach($account_logins as $account_login)
                 <tr>
-                    <td>{{$account_login->user->firstname}} {{$account_login->user->lastname}}</td>
+                    <td>{{$account_login->user->fullName()}}</td>
                     <td>{{$account_login->longitude}}</td>
                     <td>{{$account_login->latitude}}</td>
                     <td>

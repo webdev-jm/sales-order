@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-12">
                             <h4>{{$schedule_data->branch->branch_code}} {{$schedule_data->branch->branch_name}}</h4>
-                            <label class="text-uppercase">{{$schedule_data->user->firstname}} {{$schedule_data->user->lastname}}</label>
+                            <label class="text-uppercase">{{$schedule_data->user->fullName()}}</label>
                         </div>
 
                         @can('schedule approve request')
@@ -66,7 +66,7 @@
                         @foreach($schedules as $schedule)
                             <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="selectSchedule({{$schedule->id}})" wire:loading.attr="disabled">
                                 {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
-                                <span class="float-right">{{$schedule->user->firstname}} {{$schedule->user->lastname}}</span>
+                                <span class="float-right">{{$schedule->user->fullName()}}</span>
                             </a>
                         @endforeach
                     </div>

@@ -47,7 +47,7 @@ class ScheduleRequestApproved extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Request Approved')
             ->greeting('Hello!')
-            ->line('Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been approved.')
+            ->line('Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been approved.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class ScheduleRequestApproved extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'success',
-            'message' => 'Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' has been approved.',
+            'message' => 'Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been approved.',
             'color' => 'success',
             'url' => url('/schedule/list')
         ];

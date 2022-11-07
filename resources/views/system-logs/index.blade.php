@@ -48,7 +48,7 @@
                 @foreach($activities as $activity)
                 <tr>
                     <td>{{$activity->log_name}}</td>
-                    <td>{{$activity->causer->firstname}} {{$activity->causer->lastname}}</td>
+                    <td>{{$activity->causer->fullName()}}</td>
                     <td>{{$activity->description}}</td>
                     <td>{{$activity->created_at->diffForHumans()}}</td>
                     <td class="text-right">

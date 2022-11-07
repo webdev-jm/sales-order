@@ -56,8 +56,8 @@
             <tbody>
                 @foreach($users as $user)
                 <tr>
-                    <td>{{$user->firstname}}</td>
-                    <td>{{$user->lastname}}</td>
+                    <td>{{ucwords(strtolower($user->firstname))}}</td>
+                    <td>{{ucwords(strtolower($user->lastname))}}</td>
                     <td>{{$user->email}}</td>
                     <td>{{$user->group_code}}</td>
                     <td>{{implode(', ', $user->getRoleNames()->toArray())}}</td>

@@ -60,6 +60,10 @@ class User extends Authenticatable
         return '';
     }
 
+    public function fullName() {
+        return ucwords(strtolower($this->firstname.' '.$this->lastname));
+    }
+
     public function accounts() {
         return $this->belongsToMany('App\Models\Account');
     }

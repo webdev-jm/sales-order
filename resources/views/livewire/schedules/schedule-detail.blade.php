@@ -34,7 +34,7 @@
                                 @foreach($approvals as $approval)
                                 <tr>
                                     <td>
-                                        {{$approval->user->firstname}} {{$approval->user->lastname}}
+                                        {{$approval->user->fullName()}}
                                     </td>
                                     <td>
                                         <span class="badge {{$status_colors[$approval->status]}}">{{$approval->status}}</span>

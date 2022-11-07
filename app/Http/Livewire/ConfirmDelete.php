@@ -98,12 +98,12 @@ class ConfirmDelete extends Component
                 break;
             case 'SalesPerson':
                 $this->model = SalesPerson::findOrFail($model_id);
-                $this->name = '['.$this->model->code.'] '.$this->model->user->firstname.' '.$this->model->user->lastname;
+                $this->name = '['.$this->model->code.'] '.$this->model->user->fullName();
                 $this->route = '/sales-people';
                 break;
             case 'User':
                 $this->model = User::findOrFail($model_id);
-                $this->name = $this->model->firstname.' '.$this->model->lastname;
+                $this->name = $this->model->fullName();
                 $this->route = '/user';
                 break;
             case 'Role':

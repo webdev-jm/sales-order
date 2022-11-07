@@ -20,10 +20,10 @@
         @if(config('adminlte.usermenu_image'))
             <img src="{{ Auth::user()->adminlte_image() }}"
                  class="user-image img-circle elevation-2"
-                 alt="{{ Auth::user()->firstname.(empty(Auth::user()->middlename) ? '' : ' '.Auth::user()->middlename).' '.Auth::user()->lastname }}">
+                 alt="{{ Auth::user()->fullName() }}">
         @endif
         <span @if(config('adminlte.usermenu_image')) class="d-none d-md-inline" @endif>
-            {{ Auth::user()->firstname.(empty(Auth::user()->middlename) ? '' : ' '.Auth::user()->middlename).' '.Auth::user()->lastname }}
+            {{ Auth::user()->fullName() }}
         </span>
     </a>
 
@@ -37,10 +37,10 @@
                 @if(config('adminlte.usermenu_image'))
                     <img src="{{ Auth::user()->adminlte_image() }}"
                          class="img-circle elevation-2"
-                         alt="{{ Auth::user()->firstname.(empty(Auth::user()->middlename) ? '' : ' '.Auth::user()->middlename).' '.Auth::user()->lastname }}">
+                         alt="{{ Auth::user()->fullName() }}">
                 @endif
                 <p class="@if(!config('adminlte.usermenu_image')) mt-0 @endif">
-                    {{ Auth::user()->firstname.(empty(Auth::user()->middlename) ? '' : ' '.Auth::user()->middlename).' '.Auth::user()->lastname }}
+                    {{ Auth::user()->fullName() }}
                     @if(config('adminlte.usermenu_desc'))
                         <small>{{ Auth::user()->adminlte_desc() }}</small>
                     @endif

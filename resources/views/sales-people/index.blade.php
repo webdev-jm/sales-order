@@ -47,7 +47,7 @@
             <tbody>
                 @foreach($sales_people as $sales_person)
                 <tr>
-                    <td>{{$sales_person->user->firstname}} {{$sales_person->user->lastname}}</td>
+                    <td>{{$sales_person->user->fullName()}}</td>
                     <td>{{$sales_person->code}}</td>
                     <td class="text-right">
                         @can('sales person edit')

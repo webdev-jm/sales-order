@@ -33,7 +33,7 @@ class AccountReport extends Component
             })->count();
 
             $this->data[] = [
-                'name' => $user->user->firstname.' '.$user->user->lastname,
+                'name' => $user->user->fullName(),
                 'count' => $count
             ];
         }

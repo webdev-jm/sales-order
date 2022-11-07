@@ -98,7 +98,7 @@
                     <td>
                         {{$sales_order->reference}}
                     </td>
-                    <td>{{$sales_order->account_login->user->firstname}} {{$sales_order->account_login->user->lastname}}</td>
+                    <td>{{$sales_order->account_login->user->fullName()}}</td>
                     <td class="text-right">
                         @can('sales order change status')
                         <livewire:sales-order.change-status :sales_order_id="$sales_order->id"/>

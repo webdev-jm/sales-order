@@ -31,11 +31,11 @@ class ScheduleCalendar extends Component
                 ];
                 foreach($users as $user) {
                     $user_data = User::findOrFail($user->user_id);
-                    $users_arr[$user_data->id] = $user_data->firstname.' '.$user_data->lastname;
+                    $users_arr[$user_data->id] = $user_data->fullName();
                 }
             } else {
                 $users_arr = [
-                    auth()->user()->id => auth()->user()->firstname.' '.auth()->user()->lastname
+                    auth()->user()->id => auth()->user()->fullName()
                 ];
             }
 

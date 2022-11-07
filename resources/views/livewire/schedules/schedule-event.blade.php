@@ -7,7 +7,7 @@
         @if(!empty($schedule_data))
             <div class="row">
                 <div class="col-12">
-                    <label>{{$schedule_data->user->firstname}} {{$schedule_data->user->lastname}}</label>
+                    <label>{{$schedule_data->user->fullName()}}</label>
                     <h3>[{{$schedule_data->branch->branch_code}}] {{$schedule_data->branch->branch_name}}</h3>
                 </div>
 
@@ -153,7 +153,7 @@
                 @foreach($branch_schedules as $schedule)
                 <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="viewSchedule({{$schedule->id}})"  wire:loading.attr="disabled">
                     {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
-                    <span class="float-right">{{$schedule->user->firstname}} {{$schedule->user->lastname}}</span>
+                    <span class="float-right">{{$schedule->user->fullName()}}</span>
                 </a>
                 @endforeach
             </div>

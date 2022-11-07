@@ -47,7 +47,7 @@ class ScheduleDeleteRequest extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Delete Request')
             ->greeting('Hello!')
-            ->line('Schedule for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' was requested to be deleted.')
+            ->line('Schedule for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' was requested to be deleted.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class ScheduleDeleteRequest extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'danger',
-            'message' => 'The schedule of '.$this->schedule->user->firstname.' '.$this->schedule->user->lastname.' at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be deleted.',
+            'message' => 'The schedule of '.$this->schedule->user->fullName().' at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be deleted.',
             'color' => 'danger',
             'url' => url('/schedule/list')
         ];
