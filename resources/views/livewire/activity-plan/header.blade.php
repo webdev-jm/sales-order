@@ -2,7 +2,7 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Activity Plan</h3>
-            <div class="card-tools" wire:loading>
+            <div class="card-tools text-sm" wire:loading>
                 <i class="fa fa-spinner fa-spin"></i>
             </div>
         </div>
