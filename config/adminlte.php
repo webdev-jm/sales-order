@@ -346,6 +346,13 @@ return [
             'active'    => ['report*']
         ],
         [
+            'text'      => 'MCP',
+            'url'       => '/mcp',
+            'icon'      => 'fas fa-fw fa-clock',
+            'can'       => 'mcp access',
+            'active'    => ['mcp*']
+        ],
+        [
             'header'    => 'maintenance',
             'can'       => [
                 'company access',

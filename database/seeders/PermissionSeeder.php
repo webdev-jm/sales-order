@@ -38,6 +38,12 @@ class PermissionSeeder extends Seeder
             // reports
             'report access',
             'report export',
+            //mcp
+            'mcp access',
+            'mcp create',
+            'mcp edit',
+            'mcp delete',
+            'mcp approval',
             // company
             'company access',
             'company create',

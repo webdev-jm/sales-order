@@ -26,6 +26,7 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\AccountProductReferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OrganizationStructureController;
+use App\Http\Controllers\ActivityPlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:report access'], function() {
         Route::get('report', [ReportController::class, 'index'])->name('report.index');
         Route::get('report/sales-order', [ReportController::class, 'sales_orders'])->name('report.sales-order');
+    });
+
+    // MCP
+    Route::group(['middleware' => 'permission:mcp access'], function() {
+        Route::get('mcp', [ActivityPlanController::class, 'index'])->name('mcp.index');
+        Route::get('mcp/create', [ActivityPlanController::class, 'create'])->name('mcp.create')->middleware('permission:mcp create');
+        Route::post('mcp', [ActivityPlanController::class, 'store'])->name('mcp.store')->middleware('permission:mcp create');
+
+        Route::get('mcp/{id}', [ActivityPlanController::class, 'show'])->name('mcp.show');
+        
+        Route::get('mcp/{id}/edit', [ActivityPlanController::class, 'edit'])->name('mcp.edit')->middleware('permission:mcp edit');
+        Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');
     });
 
     // COMPANY
