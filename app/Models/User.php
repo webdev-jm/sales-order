@@ -96,6 +96,10 @@ class User extends Authenticatable
         return $this->branch_logins()->whereNull('time_out')->first();
     }
 
+    public function organizations() {
+        return $this->hasMany('App\Models\OrganizationStructure');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')
