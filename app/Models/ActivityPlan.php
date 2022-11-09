@@ -30,4 +30,23 @@ class ActivityPlan extends Model
     public function approvals() {
         return $this->hasMany('App\Models\ActivityPlanApproval');
     }
+
+    public function scopeActivityPlanSearch($query, $search, $limit) {
+        if($search != '') {
+            $activity_plans = $query->orderBy('id', 'DESC')
+            ->where('month', 'like', '%'.$search.'%')
+            ->orWhere('year', 'like', '%'.$search.'%')
+            ->orWhere('status', 'like', '%'.$search.'%')
+            ->orWhereHas('user', function($qry) use($search) {
+                $qry->where('firstname', 'like', '%'.$search.'%')
+                ->orWhere('lastname', 'like', '%'.$search.'%');
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $activity_plans = $query->orderBy('id', 'DESC')
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $activity_plans;
+    }
 }

@@ -13,7 +13,7 @@ class UpdateActivityPlanRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('mcp edit');
     }
 
     /**
@@ -24,7 +24,9 @@ class UpdateActivityPlanRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'status' => [
+                'required'
+            ]
         ];
     }
 }

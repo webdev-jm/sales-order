@@ -17,7 +17,7 @@ class CreateActivityPlanDetailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('activity_plan_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable()->comment('work with');
-            $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('branch_id')->nullable();
             $table->string('day');
             $table->date('date');
             $table->text('exact_location')->nullable();
@@ -32,8 +32,8 @@ class CreateActivityPlanDetailsTable extends Migration
             ->references('id')->on('users')
             ->onDelete('cascade');
 
-            $table->foreign('account_id')
-            ->references('id')->on('accounts')
+            $table->foreign('branch_id')
+            ->references('id')->on('branches')
             ->onDelete('cascade');
 
             $table->softDeletes();

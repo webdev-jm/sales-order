@@ -7,21 +7,56 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Branch;
 
+use Illuminate\Support\Facades\Session;
+
 class Detail extends Component
 {
     public $year, $month, $last_day, $lines;
+
+    public $branch_query, $searchQuery;
 
     protected $listeners = [
         'setDate' => 'setDate'
     ];
 
+    public function updatedLines() {
+        $this->setSession();
+    }
+
+    public function selectBranch($date, $key, $branch_id, $branch_name) {
+        $this->lines[$date]['lines'][$key]['branch_id'] = $branch_id;
+        $this->lines[$date]['lines'][$key]['branch_name'] = $branch_name;
+        $this->resetQuery();
+
+        $this->setSession();
+    }
+
+    public function setQuery($date, $key) {
+        $query = $this->branch_query[$date][$key];
+        // remove other query
+        $this->resetQuery();
+        $this->branch_query[$date][$key] = $query;
+
+        $this->searchQuery = $query;
+    }
+
+    public function resetQuery() {
+        $this->reset([
+            'branch_query',
+            'searchQuery'
+        ]);
+    }
+
     public function addLine($date) {
         $this->lines[$date]['lines'][] = [
             'location' => '',
-            'account_id' => '',
+            'branch_id' => '',
+            'branch_name' => '',
             'purpose' => '',
             'user_id' => ''
         ];
+
+        $this->setSession();
     }
 
     public function setDate($year, $month) {
@@ -34,6 +69,9 @@ class Detail extends Component
     }
 
     public function setLine() {
+
+        $activity_plan_data = Session::get('activity_plan_data');
+
         $lines = [];
         for($i = 1; $i <= (int)$this->last_day; $i++) {
             $date = $this->year.'-'.$this->month.'-'.($i < 10 ? '0'.$i : $i);
@@ -45,21 +83,47 @@ class Detail extends Component
                 $class = 'bg-secondary';
             }
 
+            if(isset($activity_plan_data[$this->year][$this->month]['details'][$date]['lines']) && !empty($activity_plan_data[$this->year][$this->month]['details'][$date]['lines'])) {
+                $data = $activity_plan_data[$this->year][$this->month]['details'][$date]['lines'];
+            } else {
+                $data = [
+                    [
+                        'location' => '',
+                        'branch_id' => '',
+                        'branch_name' => '',
+                        'purpose' => '',
+                        'user_id' => ''
+                    ]
+                ];
+            }
+            
             $lines[$date] = [
                 'day' => $day,
                 'date' => date('M', strtotime($this->year.'-'.$this->month.'-01')).'. '.($i < 10 ? '0'.$i : $i),
                 'class' => $class,
-                'lines' => [
-                    [
-                        'location' => '',
-                        'account_id' => '',
-                        'purpose' => '',
-                        'user_id' => ''
-                    ]
-                ]
+                'lines' => $data
             ];
         }
+
         $this->lines = $lines;
+    }
+
+    public function setSession() {
+        $activity_plan_data = Session::get('activity_plan_data');
+        if(empty($activity_plan_data)) { // no session
+            $plan_data[$this->year][$this->month] = [
+                'year' => $this->year,
+                'month' => $this->month,
+                'objectives' => '',
+                'details' => $this->lines
+            ];
+            // initialize data
+            Session::put('activity_plan_data', $plan_data);
+        } else { // with session
+            $activity_plan_data[$this->year][$this->month]['details'] = $this->lines;
+            // replace details
+            Session::put('activity_plan_data', $activity_plan_data);
+        }
     }
 
     public function mount() {
@@ -79,13 +143,27 @@ class Detail extends Component
 
     public function render()
     {
-        $branches = Branch::orderBy('branch_code')
-        ->whereHas('account', function($query) {
-            $query->whereHas('users', function($qry) {
-                $qry->where('id', auth()->user()->id);
-            });
-        })
-        ->limit(10)->get();
+        if(!empty($this->searchQuery)) {
+            $branches = Branch::orderBy('branch_code')
+            ->whereHas('account', function($query) {
+                $query->whereHas('users', function($qry) {
+                    $qry->where('id', auth()->user()->id);
+                });
+            })
+            ->where(function($query) {
+                $query->where('branch_code', 'like', '%'.$this->searchQuery.'%')
+                ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%');
+            })
+            ->limit(10)->get();
+        } else {
+            $branches = Branch::orderBy('branch_code')
+            ->whereHas('account', function($query) {
+                $query->whereHas('users', function($qry) {
+                    $qry->where('id', auth()->user()->id);
+                });
+            })
+            ->limit(10)->get();
+        }
         
         $users = User::orderBy('firstname', 'ASC')
         ->get();

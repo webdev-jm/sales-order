@@ -13,7 +13,7 @@
                         <th>Day</th>
                         <th>Date</th>
                         <th>Exact Location</th>
-                        <th>Account</th>
+                        <th>Branch</th>
                         <th>Purpose/Activity</th>
                         <th>Work With</th>
                     </tr>
@@ -28,23 +28,49 @@
                                 {{$line['date']}}
                             </td>
                         </tr>
-                        @foreach($line['lines'] as $row)
+                        @foreach($line['lines'] as $key => $row)
                         <tr class=" {{$line['class']}}">
                             {{-- location --}}
                             <td class="p-0 align-middle">
-                                <textarea class="form-control border-0 {{$line['class']}}"></textarea>
+                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.location"></textarea>
                             </td>
                             {{-- branches --}}
                             <td class="p-0">
-                                <input type="text" class="form-control border-0 {{$line['class']}}"/>
+                                <input type="text" class="form-control border-0 {{$line['class']}}" 
+                                    wire:model="branch_query.{{$date}}.{{$key}}" 
+                                    wire:keyup="setQuery('{{$date}}', '{{$key}}')"
+                                    wire:keydown.escape="resetQuery"
+                                    wire:keydown.tab.prevent="resetQuery"
+                                    
+                                    @if(!empty($row['branch_name']))
+                                        placeholder="{{$row['branch_name']}}"
+                                    @endif
+                                />
+
+                                @if(isset($branch_query[$date][$key]) && !empty($branch_query[$date][$key]))
+
+                                <div class="list-group position-absolute" wire:loading>
+                                    <button class="list-group-item">Searching...</button>
+                                </div>
+
+                                <div class="list-group position-absolute" wire:loading.remove>
+                                    @if($branches->count() > 0)
+                                        @foreach($branches as $branch)
+                                            <button class="list-group-item text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '{{$branch->branch_name}}')">{{$branch->branch_name}}</button>
+                                        @endforeach
+                                    @else
+                                        <button class="list-group-item">No Results</button>
+                                    @endif
+                                </div>
+                                @endif
                             </td>
                             {{-- purpose/activity --}}
                             <td class="p-0 align-middle">
-                                <textarea class="form-control border-0 {{$line['class']}}"></textarea>
+                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
                             {{-- work with --}}
                             <td class="p-0">
-                                <select class="form-control border-0 {{$line['class']}}">
+                                <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.user_id">
                                     <option value=""></option>
                                     @foreach($users as $user)
                                     <option value="{{$user->id}}">{{$user->fullName()}}</option>
@@ -54,8 +80,8 @@
                         </tr>
                         @endforeach
                         <tr class="bg-light">
-                            <td class="text-right px-2" colspan="6">
-                                <button class="btn btn-xs btn-info" wire:click.prevent="addLine('{{$date}}')"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            <td class="px-2" colspan="6">
+                                <button class="btn btn-xs btn-info" wire:click.prevent="addLine('{{$date}}')" wire:loading.attr="disabled"><i class="fa fa-plus mr-1"></i>Add Line</button>
                             </td>
                         </tr>
                     @endforeach
