@@ -14,7 +14,7 @@ class ActivityPlanDetail extends Model
     protected $fillable = [
         'activity_plan_id',
         'user_id',
-        'account_id',
+        'branch_id',
         'day',
         'date',
         'exact_location',
@@ -29,7 +29,7 @@ class ActivityPlanDetail extends Model
         return $this->belongsTo('App\Models\User');
     }
 
-    public function account() {
-        return $this->belongsTo('App\Models\Account');
+    public function branch() {
+        return $this->belongsTo('App\Models\Branch');
     }
 }

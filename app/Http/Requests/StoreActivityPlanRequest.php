@@ -13,7 +13,7 @@ class StoreActivityPlanRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return auth()->user()->can('mcp create');
     }
 
     /**
@@ -24,7 +24,9 @@ class StoreActivityPlanRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'status' => [
+                'required'
+            ]
         ];
     }
 }

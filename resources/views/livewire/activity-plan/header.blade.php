@@ -7,17 +7,6 @@
             </div>
         </div>
         <div class="card-body">
-
-            <div class="row mb-2">
-                <div class="col-12">
-                    <b>NAME:</b> {{auth()->user()->fullName()}}<br>
-                    @if(!empty($position))
-                    <b>POSITION:</b> {{implode(', ', $position)}}
-                    @endif
-                </div>
-            </div>
-
-            <hr>
             
             <div class="row">
                 <div class="col-xl-4">
@@ -45,7 +34,7 @@
                 <div class="col-xl-8">
                     <div class="form-group">
                         <label>Objectives for the month</label>
-                        <textarea class="form-control"></textarea>
+                        <textarea class="form-control" wire:model.lazy="objectives"></textarea>
                     </div>
                 </div>
                 
