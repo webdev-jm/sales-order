@@ -19,6 +19,13 @@ class Detail extends Component
         'setDate' => 'setDate'
     ];
 
+    public function clearBranch($date, $key) {
+        $this->lines[$date]['lines'][$key]['branch_id'] = '';
+        $this->lines[$date]['lines'][$key]['branch_name'] = '';
+
+        $this->setSession();
+    }
+
     public function updatedLines() {
         $this->setSession();
     }
@@ -144,12 +151,12 @@ class Detail extends Component
     public function render()
     {
         if(!empty($this->searchQuery)) {
-            $branches = Branch::orderBy('branch_code')
-            ->whereHas('account', function($query) {
-                $query->whereHas('users', function($qry) {
-                    $qry->where('id', auth()->user()->id);
-                });
-            })
+            $branches = Branch::orderBy('branch_name')
+            // ->whereHas('account', function($query) {
+            //     $query->whereHas('users', function($qry) {
+            //         $qry->where('id', auth()->user()->id);
+            //     });
+            // })
             ->where(function($query) {
                 $query->where('branch_code', 'like', '%'.$this->searchQuery.'%')
                 ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%');

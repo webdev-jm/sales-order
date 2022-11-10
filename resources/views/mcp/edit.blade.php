@@ -88,7 +88,7 @@
                     $('#'+$(this).attr('form')).submit();
                 }
             } else {
-                status = 'draft';
+                status_val = 'draft';
                 $('#status').val(status_val);
                 $('#'+$(this).attr('form')).submit();
             }
