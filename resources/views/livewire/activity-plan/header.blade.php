@@ -34,7 +34,10 @@
                 <div class="col-xl-8">
                     <div class="form-group">
                         <label>Objectives for the month</label>
-                        <textarea class="form-control" wire:model.lazy="objectives"></textarea>
+                        <textarea class="form-control @error('objectives') is-invalid @enderror" wire:model.lazy="objectives"></textarea>
+                        @error('objectives')
+                        <p class="text-danger">{{$message}}</p>
+                        @enderror
                     </div>
                 </div>
                 

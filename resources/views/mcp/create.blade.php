@@ -60,6 +60,16 @@
     </div>
 </div>
 
+@error('status')
+<div class="alert alert-danger">
+    <h5>
+        <i class="icon fas fa-ban"></i>
+        Error
+    </h5>
+    {{$message}}
+</div>
+@enderror
+
 <div class="row">
     <div class="col-12">
         <livewire:activity-plan.header/>
@@ -88,10 +98,11 @@
                     $('#'+$(this).attr('form')).submit();
                 }
             } else {
-                status = 'draft';
+                status_val = 'draft';
                 $('#status').val(status_val);
                 $('#'+$(this).attr('form')).submit();
             }
+
         });
     })
 </script>

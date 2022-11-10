@@ -18,7 +18,7 @@ class CreateActivityPlanApprovalsTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('activity_plan_id')->nullable();
             $table->string('status');
-            $table->text('remarks');
+            $table->text('remarks')->nullable();
             $table->timestamps();
 
             $table->softDeletes();
