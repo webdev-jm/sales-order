@@ -6,6 +6,7 @@ use Livewire\Component;
 
 use App\Models\ActivityPlan;
 use App\Models\ActivityPlanApproval;
+use App\Models\UserBranchSchedule;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityPlanRejected;
@@ -49,13 +50,40 @@ class Approval extends Component
             if(!empty($user)) {
                 Notification::send($user, new ActivityPlanRejected($this->activity_plan));
             }
-        } else {
+        } else if($status == 'approved') { // approved
             if(!empty($user)) {
                 Notification::send($user, new ActivityPlanApproved($this->activity_plan));
             }
+
+            // convert to schedule
+            $details = $this->activity_plan->details;
+            foreach($details as $detail) {
+                if(isset($detail->branch)) {
+                    // check if already exist
+                    $check = UserBranchSchedule::where('user_id', $this->activity_plan->user_id)
+                    ->where('branch_id', $detail->branch_id)
+                    ->where('date', $detail->date)
+                    ->whereNull('status')
+                    ->first();
+                    
+                    if(empty($check)) {
+                        $schedule = new UserBranchSchedule([
+                            'user_id' => $this->activity_plan->user_id,
+                            'branch_id' => $detail->branch_id,
+                            'date' => $detail->date,
+                            'status' => NULL,
+                            'source' => 'activity-plan'
+                        ]);
+                        $schedule->save();
+                    }
+
+                }
+            }
         }
 
-        return redirect(request()->header('Referer'));
+        return redirect(request()->header('Referer'))->with([
+            'message_success' => 'Activity Plan has been updated.'
+        ]);
     }
 
     public function setActivity($action, $activity_plan_id) {
