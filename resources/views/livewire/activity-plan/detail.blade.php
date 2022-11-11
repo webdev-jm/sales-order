@@ -56,11 +56,11 @@
                                 
                                 @if(isset($branch_query[$date][$key]) && !empty($branch_query[$date][$key]))
 
-                                <div class="list-group position-absolute" wire:loading>
+                                <div class="list-group position-absolute search-branch" wire:loading>
                                     <button class="list-group-item">Searching...</button>
                                 </div>
 
-                                <div class="list-group position-absolute" wire:loading.remove>
+                                <div class="list-group position-absolute search-branch" wire:loading.remove>
                                     @if($branches->count() > 0)
                                         @foreach($branches as $branch)
                                             <button class="list-group-item text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->branch_code}}] {{$branch->branch_name}}')">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
