@@ -49,4 +49,33 @@ class ActivityPlan extends Model
 
         return $activity_plans;
     }
+
+    public function scopeActivityPlanSearchRestricted($query, $search, $limit, $subordinate_ids) {
+        if($search != '') {
+            $activity_plans = $query->orderBy('id')
+            ->where(function($qry) use($subordinate_ids) {
+                $qry->where('user_id', auth()->user()->id)
+                ->orWhereIn('user_id', $subordinate_ids);
+            })
+            ->where(function($qry) {
+                $qry->where('month', 'like', '%'.$search.'%')
+                ->orWhere('year', 'like', '%'.$search.'%')
+                ->orWhere('status', 'like', '%'.$search.'%')
+                ->orWhereHas('user', function($qry) use($search) {
+                    $qry->where('firstname', 'like', '%'.$search.'%')
+                    ->orWhere('lastname', 'like', '%'.$search.'%');
+                });
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $activity_plans = $query->orderBy('id')
+            ->where(function($qry)  use($subordinate_ids) {
+                $qry->where('user_id', auth()->user()->id)
+                ->orWhereIn('user_id', $subordinate_ids);
+            })
+            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $activity_plans;
+    }
 }

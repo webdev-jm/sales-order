@@ -43,7 +43,40 @@ class ActivityPlanController extends Controller
 
         $settings = $this->getSettings();
 
-        $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
+        } else { // restricted to self and supervisors
+            // get user subordinates
+            $organizations = auth()->user()->organizations;
+            $subordinate_ids = [];
+            foreach($organizations as $organization) {
+                $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
+                ->get();
+                foreach($subordinates as $subordinate) {
+                    if(!empty($subordinate->user_id)) {
+                        $subordinate_ids[] = $subordinate->user_id;
+                    }
+                    // get second level subordinates
+                    $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
+                    ->get();
+                    foreach($subordinates2 as $subordinate2) {
+                        if(!empty($subordinate2->user_id)) {
+                            $subordinate_ids[] = $subordinate2->user_id;
+                        }
+                        // get third level subordinates
+                        $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
+                        ->get();
+                        foreach($subordinates3 as $subordinate3) {
+                            if(!empty($subordinate3->user_id)) {
+                                $subordinate_ids[] = $subordinate3->user_id;
+                            }
+                        }
+                    }
+                }
+            }
+
+            $activity_plans = ActivityPlan::ActivityPlanSearchRestricted($search, $settings->data_per_page, $subordinate_ids);
+        }
 
         return view('mcp.index')->with([
             'search' => $search,
@@ -202,11 +235,41 @@ class ActivityPlanController extends Controller
             }
         }
 
+        // get user subordinates
+        $organizations = auth()->user()->organizations;
+        $subordinate_ids = [];
+        foreach($organizations as $organization) {
+            $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
+            ->get();
+            foreach($subordinates as $subordinate) {
+                if(!empty($subordinate->user_id)) {
+                    $subordinate_ids[] = $subordinate->user_id;
+                }
+                // get second level subordinates
+                $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
+                ->get();
+                foreach($subordinates2 as $subordinate2) {
+                    if(!empty($subordinate2->user_id)) {
+                        $subordinate_ids[] = $subordinate2->user_id;
+                    }
+                    // get third level subordinates
+                    $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
+                    ->get();
+                    foreach($subordinates3 as $subordinate3) {
+                        if(!empty($subordinate3->user_id)) {
+                            $subordinate_ids[] = $subordinate3->user_id;
+                        }
+                    }
+                }
+            }
+        }
+
         return view('mcp.show')->with([
             'position' => $position,
             'activity_plan' => $activity_plan,
             'schedule_data' => $schedule_data,
-            'status_arr' => $this->status_arr
+            'status_arr' => $this->status_arr,
+            'subordinate_ids' => $subordinate_ids
         ]);
     }
 

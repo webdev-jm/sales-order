@@ -16,6 +16,9 @@
     .sticky-top {
         top: 58px;
     }
+    .search-branch {
+        z-index: 999;
+    }
 </style>
 @endsection
 
