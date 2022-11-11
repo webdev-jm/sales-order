@@ -312,9 +312,10 @@ return [
             'icon'        => 'fas fa-fw fa-home',
         ],
         [
-            'text'        => 'Dashboard',
-            'url'         => 'dashboard',
-            'icon'        => 'fas fa-fw fa-chart-pie',
+            'text'      => 'Dashboard',
+            'url'       => 'dashboard',
+            'icon'      => 'fas fa-fw fa-chart-pie',
+            'can'       => 'system logs',
             'active'    => ['dashboard*']
         ],
         [
