@@ -100,6 +100,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:report access'], function() {
         Route::get('report', [ReportController::class, 'index'])->name('report.index');
         Route::get('report/sales-order', [ReportController::class, 'sales_orders'])->name('report.sales-order');
+
+        Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('report export');
     });
 
     // MCP

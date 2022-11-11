@@ -25,6 +25,9 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Select Month</h3>
+        @can('report export')
+        <livewire:reports.sales-orders.export/>
+        @endcan
     </div>
     <div class="card-body">
         <livewire:reports.sales-orders.months/>
