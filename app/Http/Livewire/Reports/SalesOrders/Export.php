@@ -24,8 +24,6 @@ class Export extends Component
 
     public function export() {
         return Excel::download(new SOReportExport($this->year, $this->month, $this->group_code), 'SO Reports'.time().'.xlsx');
-
-        return redirect(request()->header('Referer'));
     }
 
     public function render()

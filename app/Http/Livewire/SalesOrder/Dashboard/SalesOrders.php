@@ -40,10 +40,6 @@ class SalesOrders extends Component
             if($this->search != '') {
                 $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')
                 ->where('status', 'finalized')
-                ->where('upload_status', 1);
-            } else {
-                $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')
-                ->where('status', 'finalized')
                 ->where('upload_status', 1)
                 ->where(function($query) {
                     $query->where('control_number', 'like', '%'.$this->search.'%')
@@ -64,6 +60,10 @@ class SalesOrders extends Component
                         });
                     });
                 });
+            } else {
+                $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')
+                ->where('status', 'finalized')
+                ->where('upload_status', 1);
             }
 
         } else if(!empty($this->days)) {

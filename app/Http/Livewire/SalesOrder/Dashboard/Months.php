@@ -4,9 +4,16 @@ namespace App\Http\Livewire\SalesOrder\Dashboard;
 
 use Livewire\Component;
 
+use App\Exports\SODashboardExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class Months extends Component
 {
     public $year, $month, $days, $total_days, $prev_year, $prev_month, $next_year, $next_month;
+
+    public function export() {
+        return Excel::download(new SODashboardExport($this->year, $this->month, $this->days), 'SO Dashboard'.time().'.xlsx');
+    }
 
     public function selectDate($year, $month) {
         $this->year = $year;

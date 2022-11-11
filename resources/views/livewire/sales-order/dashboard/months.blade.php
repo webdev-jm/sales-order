@@ -85,12 +85,15 @@
                 <div class="card-header">
                     <h3 class="card-title">Select Day</h3>
                     <div class="card-tools">
-                        <button class="btn btn-default btn-sm" wire:click.prevent="clearDay">Clear</button>
+                        <button class="btn btn-default btn-sm" wire:click.prevent="clearDay" wire:loading.attr="disabled">Clear</button>
+                        <button class="btn btn-success btn-sm" wire:click.prevent="export" wire:loading.attr="disabled"><i class="fa fa-file-export mr-1"></i>Export</button>
                     </div>
                 </div>
                 <div class="card-body text-center">
                     @for($i = 1; $i <= $total_days; $i++)
-                    <button class="btn {{isset($days[$year][(int)$month]) && in_array($i, $days[$year][(int)$month]) ? 'btn-primary' : 'btn-default'}} my-1" wire:click.prevent="selectDay('{{$i}}')">{{$i < 10 ? '0'.$i : $i}}</button>
+                    <button class="btn {{isset($days[$year][(int)$month]) && in_array($i, $days[$year][(int)$month]) ? 'btn-primary' : 'btn-default'}} my-1" wire:click.prevent="selectDay('{{$i}}')" wire:loading.attr="disabled">
+                        {{$i < 10 ? '0'.$i : $i}}
+                    </button>
                     @endfor
                 </div>
                 <div class="card-footer">

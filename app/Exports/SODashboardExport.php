@@ -15,15 +15,14 @@ use Maatwebsite\Excel\Concerns\WithCustomChunkSize;
 
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SOReportExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor, WithCustomChunkSize
+class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor, WithCustomChunkSize
 {
+    protected $year, $month, $days;
 
-    protected $year, $month, $group_code;
-
-    public function __construct($year, $month, $group_code) {
+    public function __construct($year, $month, $days) {
         $this->year = $year;
         $this->month = $month;
-        $this->group_code = $group_code;
+        $this->days = $days;
     }
 
     public function backgroundColor()
@@ -36,11 +35,11 @@ class SOReportExport implements FromCollection, ShouldAutoSize, WithStyles, With
         return [
             'creator'        => 'Sales Management System',
             'lastModifiedBy' => 'SMS',
-            'title'          => 'SO Reports',
+            'title'          => 'SO Dashboard',
             'description'    => 'List of Sales Orders',
-            'subject'        => 'SO Reports',
-            'keywords'       => 'mcp reports,export,spreadsheet',
-            'category'       => 'Reports',
+            'subject'        => 'SO Dashboard',
+            'keywords'       => 'so dashboard,export,spreadsheet',
+            'category'       => 'Dashboard',
             'manager'        => 'SMS Application',
             'company'        => 'BEVI',
         ];
@@ -124,30 +123,64 @@ class SOReportExport implements FromCollection, ShouldAutoSize, WithStyles, With
             'TOTAL',
         ];
 
-        // query date
-        $date_string = $this->year.'-'.$this->month;
+        $date = '';
 
-        $date = date('F Y', strtotime($date_string.'-01'));
+        // check if days was selected
+        if(!empty($this->year) && !empty($this->month) && empty($this->days)) { // no days selected
+            $date_string = $this->year.'-'.$this->month;
 
-        $data = [];
-        // get sales orders
-        if(!empty($this->group_code)) {
-            $date .= ' - '.$this->group_code;
+            $date = date('F Y', strtotime($date_string.'-01'));
 
-            $sales_orders = SalesOrder::orderBy('control_number', 'ASC')
-            ->where('order_date', 'like', $date_string.'%')
-            ->whereHas('account_login', function($query) {
-                $query->whereHas('user', function($qry) {
-                    $qry->where('group_code', $this->group_code);
-                });
-            })
+            $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')
+            ->where('status', 'finalized')
+            ->where('upload_status', 1)
             ->get();
-        } else {
-            $sales_orders = SalesOrder::orderBy('control_number', 'ASC')
-            ->where('order_date', 'like', $date_string.'%')
+
+        } else if(!empty($this->days)) { // days selected
+            $dates = [];
+            foreach($this->days as $year => $months) {
+                foreach($months as $month => $days) {
+                    foreach($days as $day) {
+                        $dates[] = $year.'-'.$month.'-'.$day;
+                    }
+                }
+            }
+
+            if(!empty($dates)) {
+
+                $date = implode(', ', $dates);
+
+                $sales_orders = SalesOrder::whereIn('order_date', $dates)
+                ->where('status', 'finalized')
+                ->where('upload_status', 1)
+                ->get();
+            } else {
+                if(!empty($this->year) && !empty($this->month)) {
+                    $date_string = $this->year.'-'.$this->month;
+                } else {
+                    $date_string = date('Y-m');
+                }
+
+                $date = date('F Y', strtotime($date_string.'-01'));
+
+                $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'-%')
+                ->where('status', 'finalized')
+                ->where('upload_status', 1)
+                ->get();
+            }
+
+        } else { // default current date
+            $date_string = date('Y-m-d');
+
+            $date = $date_string;
+
+            $sales_orders = SalesOrder::where('order_date', $date_string)
+            ->where('status', 'finalized')
+            ->where('upload_status', 1)
             ->get();
         }
 
+        $data = [];
         $total_quantity = 0;
         $total_amount = 0;
         foreach($sales_orders as $sales_order) {
@@ -200,7 +233,6 @@ class SOReportExport implements FromCollection, ShouldAutoSize, WithStyles, With
                     $total_quantity += $product_uom->quantity;
                     $total_amount += $product_uom->uom_total;
                 }
-
             }
 
         }
@@ -236,7 +268,7 @@ class SOReportExport implements FromCollection, ShouldAutoSize, WithStyles, With
             [$date],
             $header,
             $data,
-            $footer
+            $footer,
         ]);
     }
 }
