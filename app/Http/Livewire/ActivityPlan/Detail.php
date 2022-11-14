@@ -6,6 +6,7 @@ use Livewire\Component;
 
 use App\Models\User;
 use App\Models\Branch;
+use App\Models\ActivityPlanDetail;
 
 use Illuminate\Support\Facades\Session;
 
@@ -33,6 +34,17 @@ class Detail extends Component
     public function selectBranch($date, $key, $branch_id, $branch_name) {
         $this->lines[$date]['lines'][$key]['branch_id'] = $branch_id;
         $this->lines[$date]['lines'][$key]['branch_name'] = $branch_name;
+
+        // get previous record of location
+        $detail = ActivityPlanDetail::orderBy('id', 'DESC')
+        ->where('branch_id', $branch_id)
+        ->where('exact_location', '<>', '')
+        ->first();
+
+        if(!empty($detail)) {
+            $this->lines[$date]['lines'][$key]['location'] = $detail->exact_location;
+        }
+
         $this->resetQuery();
 
         $this->setSession();
