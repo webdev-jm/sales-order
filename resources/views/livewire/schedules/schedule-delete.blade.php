@@ -8,8 +8,12 @@
                 @if(!empty($schedule_data))
                     <div class="row">
                         <div class="col-12">
-                            <h4>{{$schedule_data->branch->branch_code}} {{$schedule_data->branch->branch_name}}</h4>
                             <label class="text-uppercase">{{$schedule_data->user->fullName()}}</label>
+                            <h4>{{$schedule_data->branch->branch_code}} {{$schedule_data->branch->branch_name}}</h4>
+                            <p>
+                                <b>Objective</b><br>
+                                {{$schedule_data->objective}}
+                            </p>
                         </div>
 
                         <div class="col-12">

@@ -15,6 +15,7 @@ class UserBranchSchedule extends Model
         'date',
         'status',
         'reschedule_date',
+        'objective',
         'source'
     ];
 

@@ -22,10 +22,10 @@ class ScheduleEvent extends Component
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
-    public $user_id, $branch_id;
+    public $user_id, $account_id;
     protected $queryString = [
         'user_id',
-        'branch_id'
+        'account_id'
     ];
     
     public $date, $schedule_data;
@@ -185,14 +185,18 @@ class ScheduleEvent extends Component
         $this->reset('schedule_data');
     }
 
-    public function setDate($date) {
+    public function setDate($date, $schedule_id) {
         $this->date = $date;
-        $this->reset('schedule_data');
+        if(!empty($schedule_id)) {
+            $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+        }
+
+        // $this->reset('schedule_data');
     }
 
     public function render()
     {
-        if(!empty($this->user_id) || !empty($this->branch_id)) {
+        if(!empty($this->user_id) || !empty($this->account_id)) {
             if(auth()->user()->hasRole('superadmin')) {
                 $branch_schedules = UserBranchSchedule::where('date', $this->date)
                 ->whereNull('status');
@@ -201,8 +205,10 @@ class ScheduleEvent extends Component
                     $branch_schedules->where('user_id', $this->user_id);
                 }
 
-                if(!empty($this->branch_id)) {
-                    $branch_schedules->where('branch_id', $this->branch_id);
+                if(!empty($this->account_id)) {
+                    $branch_schedules->whereHas('branch', function($query) {
+                        $query->where('account_id', $this->account_id);
+                    });
                 }
 
                 $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);
@@ -211,8 +217,10 @@ class ScheduleEvent extends Component
                 ->whereNull('status')
                 ->where('user_id', auth()->user()->id);
                 
-                if(!empty($this->branch_id)) {
-                    $branch_schedules->where('branch_id', $this->branch_id);
+                if(!empty($this->account_id)) {
+                    $branch_schedules->whereHas('branch', function($query) {
+                        $query->where('account_id', $this->account_id);
+                    });
                 }
 
                 $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);

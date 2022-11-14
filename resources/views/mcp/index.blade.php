@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    MCP
+    Activity Plans
 @endsection
 
 @section('css')
@@ -19,11 +19,11 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>MCP</h1>
+        <h1>Activity Plans</h1>
     </div>
     <div class="col-lg-6 text-right">
         @can('mcp create')
-        <a href="{{route('mcp.create')}}" class="btn btn-primary"><i class="fa fa-plus mr-1"></i>Add MCP</a>
+        <a href="{{route('mcp.create')}}" class="btn btn-primary"><i class="fa fa-plus mr-1"></i>Add Activity Plan</a>
         @endcan
     </div>
 </div>
@@ -35,7 +35,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">MCP List</h3>
+        <h3 class="card-title">Activity Plan List</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
                 {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}

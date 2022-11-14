@@ -9,6 +9,10 @@
     .fc-daygrid-event {
         cursor: pointer;
     }
+    .fc-event-time, .fc-event-title {
+        padding: 0 1px;
+        white-space: normal;
+    }
 </style>
 @endsection
 
@@ -33,73 +37,30 @@
 {!! Form::close() !!}
 
 <div class="row">
-    
-    <div class="col-lg-4">
 
-        @can('schedule create')
-        {{-- Add Schedule --}}
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Add Schedule</h3>
-                    <div class="card-tools">
-                        <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload"></i> Upload</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    
-                    <div class="row">
-
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                {!! Form::label('user_id', 'User') !!}
-                                {!! Form::select('user_id', [], null, ['class' => 'form-control'.($errors->has('user_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
-                                <p class="text-danger">{{$errors->first('user_id')}}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                {!! Form::label('branch_id', 'Branch') !!}
-                                {!! Form::select('branch_id', [], null, ['class' => 'form-control branch_id'.($errors->has('branch_id') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
-                                <p class="text-danger">{{$errors->first('branch_id')}}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                {!! Form::label('date', 'Date') !!}
-                                {!! Form::date('date', now(), ['class' => 'form-control'.($errors->has('date') ? ' is-invalid' : ''), 'form' => 'add_schedule']) !!}
-                                <p class="text-danger">{{$errors->first('date')}}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-                <div class="card-footer text-right">
-                    {!! Form::submit('Add Schedule', ['class' => 'btn btn-primary', 'form' => 'add_schedule']) !!}
-                </div>
-            </div>
-        @endcan
-
-        {{-- Filter --}}
+    {{-- Filter --}}
+    <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Filters</h3>
+                <h3 class="card-title">Filter</h3>
             </div>
-            <div class="card-body">
+            <div class="card-header">
+                
                 <div class="row">
 
-                    <div class="col-lg-6">
+                    {{-- account --}}
+                    <div class="col-lg-3">
                         <div class="form-group">
-                            {!! Form::label('user_id', 'User') !!}
-                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'user']) !!}
+                            {!! Form::label('account_id', 'Account') !!}
+                            {!! Form::select('account_id', $accounts, $account_id, ['class' => 'form-control', 'form' => 'search_form']) !!}
                         </div>
                     </div>
-    
-                    <div class="col-lg-6">
+
+                    {{-- user --}}
+                    <div class="col-lg-3">
                         <div class="form-group">
-                            {!! Form::label('branch_id', 'Branch') !!}
-                            {!! Form::select('branch_id', $branches, $branch_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'branch']) !!}
+                            {!! Form::label('user_id', 'User') !!}
+                            {!! Form::select('user_id', $users, $user_id, ['class' => 'form-control', 'form' => 'search_form', 'id' => 'user_filter']) !!}
                         </div>
                     </div>
 
@@ -110,10 +71,9 @@
                 {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
             </div>
         </div>
-        
     </div>
     
-    <div class="col-lg-8">
+    <div class="col-lg-12">
         {{-- Calendar --}}
         <div class="card">
             <div class="card-header">
@@ -250,6 +210,7 @@
                 var eventObj = info.event;
                 var date = eventObj.start;
                 var type = eventObj.extendedProps.type;
+                var id = eventObj.id;
 
                 var year = date.getFullYear();
                 var month = date.getMonth() + 1;
@@ -257,13 +218,13 @@
                 var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
                 if(type == 'schedule') {
-                    Livewire.emit('showEvents', date_format);
+                    Livewire.emit('showEvents', date_format, id);
                     $('#event-modal').modal('show');
                 } else if(type == 'reschedule') {
-                    Livewire.emit('setDate', date_format);
+                    Livewire.emit('setDate', date_format, id);
                     $('#reschedule-modal').modal('show');
                 } else if(type == 'delete') {
-                    Livewire.emit('getDate', date_format);
+                    Livewire.emit('getDate', date_format, id);
                     $('#delete-modal').modal('show');
                 } else if(type == 'request') {
                     Livewire.emit('setRequestDate', date_format);
@@ -285,45 +246,45 @@
             }
         });
 
-        $('#user_id').select2({
-            ajax: { 
-                url: '{{route("user.ajax")}}',
-                type: "POST",
-                dataType: 'json',
-                delay: 50,
-                data: function (params) {
-                    return {
-                        search: params.term // search term
-                    };
-                },
-                processResults: function (response) {
-                    return {
-                        results: response
-                    };
-                },
-                cache: true
-            }
-        });
+        // $('#user_id').select2({
+        //     ajax: { 
+        //         url: '{{route("user.ajax")}}',
+        //         type: "POST",
+        //         dataType: 'json',
+        //         delay: 50,
+        //         data: function (params) {
+        //             return {
+        //                 search: params.term // search term
+        //             };
+        //         },
+        //         processResults: function (response) {
+        //             return {
+        //                 results: response
+        //             };
+        //         },
+        //         cache: true
+        //     }
+        // });
 
-        $('.branch_id').select2({
-            ajax: { 
-                url: '{{route("branch.ajax")}}',
-                type: "POST",
-                dataType: 'json',
-                delay: 50,
-                data: function (params) {
-                    return {
-                        search: params.term // search term
-                    };
-                },
-                processResults: function (response) {
-                    return {
-                        results: response
-                    };
-                },
-                cache: true
-            }
-        });
+        // $('.branch_id').select2({
+        //     ajax: { 
+        //         url: '{{route("branch.ajax")}}',
+        //         type: "POST",
+        //         dataType: 'json',
+        //         delay: 50,
+        //         data: function (params) {
+        //             return {
+        //                 search: params.term // search term
+        //             };
+        //         },
+        //         processResults: function (response) {
+        //             return {
+        //                 results: response
+        //             };
+        //         },
+        //         cache: true
+        //     }
+        // });
     });
 </script>
 @endsection

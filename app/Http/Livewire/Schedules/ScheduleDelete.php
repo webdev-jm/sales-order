@@ -105,8 +105,13 @@ class ScheduleDelete extends Component
         $this->date = $this->schedule_data->date;
     }
 
-    public function setDate($date) {
+    public function setDate($date, $schedule_id) {
         $this->date = $date;
+        if(!empty($schedule_id)) {
+            $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+            $this->approvals = $this->schedule_data->approvals;
+            $this->date = $this->schedule_data->date;
+        }
     }
 
     public function render()

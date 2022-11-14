@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    MCP - Details
+    Activity Plan - Details
 @endsection
 
 @section('css')
@@ -42,7 +42,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>MCP / Details <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span></h1>
+        <h1>Activity Plan / Details <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('mcp.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left mr-1"></i>Back</a>

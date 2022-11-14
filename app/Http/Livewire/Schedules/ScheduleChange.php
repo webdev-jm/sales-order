@@ -43,6 +43,7 @@ class ScheduleChange extends Component
             'date'  => $this->schedule_data->reschedule_date,
             'status' => NULL,
             'reschedule_date' => NULL,
+            'objective' => $this->schedule_data->objective,
             'source' => 'reschedule'
         ]);
         $new_schedule->save();
@@ -109,8 +110,13 @@ class ScheduleChange extends Component
         $this->date = $this->schedule_data->date;
     }
 
-    public function getDate($date) {
+    public function getDate($date, $schedule_id) {
         $this->date = $date;
+        if(!empty($schedule_id)) {
+            $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+            $this->approvals =  $this->schedule_data->approvals;
+            $this->date = $this->schedule_data->date;
+        }
     }
 
     public function render()
