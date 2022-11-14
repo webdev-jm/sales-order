@@ -72,6 +72,7 @@ class Approval extends Component
                             'branch_id' => $detail->branch_id,
                             'date' => $detail->date,
                             'status' => NULL,
+                            'objective' => $detail->activity,
                             'source' => 'activity-plan'
                         ]);
                         $schedule->save();

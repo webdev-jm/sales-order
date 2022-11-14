@@ -340,18 +340,18 @@ return [
             'active'    => ['schedule*']
         ],
         [
+            'text'      => 'Activity Plan',
+            'url'       => '/mcp',
+            'icon'      => 'fas fa-fw fa-clock',
+            'can'       => 'mcp access',
+            'active'    => ['mcp*']
+        ],
+        [
             'text'      => 'Reports',
             'url'       => '/report',
             'icon'      => 'fas fa-fw fa-chart-bar',
             'can'       => 'report access',
             'active'    => ['report*']
-        ],
-        [
-            'text'      => 'MCP',
-            'url'       => '/mcp',
-            'icon'      => 'fas fa-fw fa-clock',
-            'can'       => 'mcp access',
-            'active'    => ['mcp*']
         ],
         [
             'header'    => 'maintenance',

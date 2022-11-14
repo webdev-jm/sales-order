@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    MCP - Create
+    Activity Plan - Create
 @endsection
 
 @section('css')
@@ -25,7 +25,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>MCP / Create</h1>
+        <h1>Activity Plan / Create</h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('mcp.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
