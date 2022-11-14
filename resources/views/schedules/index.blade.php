@@ -227,7 +227,7 @@
                     Livewire.emit('getDate', date_format, id);
                     $('#delete-modal').modal('show');
                 } else if(type == 'request') {
-                    Livewire.emit('setRequestDate', date_format);
+                    Livewire.emit('setRequestDate', date_format, id);
                     $('#request-modal').modal('show');
                 }
                 

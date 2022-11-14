@@ -10,8 +10,8 @@
                     {{-- Request Data --}}
                     <div class="row">
                         <div class="col-12">
-                            <h4>{{$schedule_data->branch->branch_code}} {{$schedule_data->branch->branch_name}}</h4>
                             <label class="text-uppercase">{{$schedule_data->user->fullName()}}</label>
+                            <h4>{{$schedule_data->branch->branch_code}} {{$schedule_data->branch->branch_name}}</h4>
                         </div>
 
                         @can('schedule approve request')

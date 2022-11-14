@@ -93,8 +93,11 @@ class ScheduleRequest extends Component
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
     }
 
-    public function setDate($date) {
+    public function setDate($date, $schedule_id) {
         $this->date = $date;
+        if(!empty($schedule_id)) {
+            $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+        }
     }
 
     public function render()
