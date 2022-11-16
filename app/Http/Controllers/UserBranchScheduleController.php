@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Branch;
 use App\Models\Account;
 use App\Models\UserBranchSchedule;
+use App\Models\OrganizationStructure;
 use App\Http\Requests\StoreUserBranchScheduleRequest;
 use App\Http\Requests\UpdateUserBranchScheduleRequest;
 use Illuminate\Http\Request;
@@ -29,6 +30,8 @@ class UserBranchScheduleController extends Controller
         $reschedule_color = '#f37206';
         $delete_color = '#c90518';
         $request_color = '#32a852';
+
+        $subordinate_ids = $this->getSubordinates(auth()->user()->id);
 
         $schedule_data = [];
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
@@ -216,9 +219,15 @@ class UserBranchScheduleController extends Controller
             }
 
             // user filter options
-            $users = UserBranchSchedule::select('user_id')->distinct()
-            ->get('user_id');
-
+            if(!empty($subordinate_ids)) {
+                $users = UserBranchSchedule::select('user_id')->distinct()
+                ->whereIn('user_id', $subordinate_ids)
+                ->get('user_id');
+            } else {
+                $users = UserBranchSchedule::select('user_id')->distinct()
+                ->get('user_id');
+            }
+            
             $users_arr = [
                 '' => 'select'
             ];
@@ -231,18 +240,31 @@ class UserBranchScheduleController extends Controller
             
             // Schedules
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->whereNull('status')
-            ->where('user_id', auth()->user()->id)
-            ->get();
+            ->whereNull('status');
+            
+            if(!empty($user_id)) {
+                $schedules_date->where('user_id', $user_id);
+            } else {
+                $schedules_date->where('user_id', auth()->user()->id);
+            }
+            $schedules_date = $schedules_date->get();
+
             foreach($schedules_date as $schedule) {
-                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
-                ->whereNull('status')
+                $schedules = UserBranchSchedule::whereNull('status')
                 ->where('date', $schedule->date);
 
+                // account filter
                 if(!empty($account_id)) {
                     $schedules->whereHas('branch', function($query) use($account_id) {
                         $query->where('account_id', $account_id);
                     });
+                }
+
+                // user filter
+                if(!empty($user_id)) {
+                    $schedules->where('user_id', $user_id);
+                } else {
+                    $schedules->where('user_id', auth()->user()->id);
                 }
 
                 $schedules = $schedules->get();
@@ -273,19 +295,31 @@ class UserBranchScheduleController extends Controller
 
             // For Reschedule
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'for reschedule')
-            ->where('user_id', auth()->user()->id)
-            ->get();
+            ->where('status', 'for reschedule');
+
+            if(!empty($user_id)) {
+                $schedules_date->where('user_id', $user_id);
+            } else {
+                $schedules_date->where('user_id', auth()->user()->id);
+            }
+            $schedules_date = $schedules_date->get();
 
             foreach($schedules_date as $schedule) {
-                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
-                ->where('status', 'for reschedule')
+                $schedules = UserBranchSchedule::where('status', 'for reschedule')
                 ->where('date', $schedule->date);
 
+                // account filter
                 if(!empty($account_id)) {
                     $schedules->whereHas('branch', function($query) use($account_id) {
                         $query->where('account_id', $account_id);
                     });
+                }
+
+                // user filter
+                if(!empty(!empty($user_id))) {
+                    $schedules->where('user_id', $user_id);
+                } else {
+                    $schedules->where('user_id', auth()->user()->id);
                 }
 
                 $schedules = $schedules->get();
@@ -316,19 +350,32 @@ class UserBranchScheduleController extends Controller
 
             // for deletion
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'for deletion')
-            ->where('user_id', auth()->user()->id)
-            ->get();
+            ->where('status', 'for deletion');
+
+            if(!empty($user_id)) {
+                $schedules_date->where('user_id', $user_id);
+            } else {
+                $schedules_date->where('user_id', auth()->user()->id);
+            }
+            $schedules_date = $schedules_date->get();
 
             foreach($schedules_date as $schedule) {
                 $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
                 ->where('status', 'for deletion')
                 ->where('date', $schedule->date);
 
+                // account filter
                 if(!empty($account_id)) {
                     $schedules->whereHas('branch', function($query) use($account_id) {
                         $query->where('account_id', $account_id);
                     });
+                }
+
+                // user filter
+                if(!empty($user_id)) {
+                    $schedules->where('user_id', $user_id);
+                } else {
+                    $schedules->where('user_id', auth()->user()->id);
                 }
 
                 $schedules = $schedules->get();
@@ -358,20 +405,32 @@ class UserBranchScheduleController extends Controller
             }
 
             // for schedule request
-            $schedule_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'schedule request')
-            ->where('user_id', auth()->user()->id)
-            ->get();
+            $schedules_date = UserBranchSchedule::select('date')->distinct()
+            ->where('status', 'schedule request');
 
-            foreach($schedule_date as $schedule) {
-                $schedules = UserBranchSchedule::where('user_id', auth()->user()->id)
-                ->where('status', 'schedule request')
+            if(!empty($user_id)) {
+                $schedules_date->where('user_id', $user_id);
+            } else {
+                $schedules_date->where('user_id', auth()->user()->id);
+            }
+            $schedules_date = $schedules_date->get();
+
+            foreach($schedules_date as $schedule) {
+                $schedules = UserBranchSchedule::where('status', 'schedule request')
                 ->where('date', $schedule->date);
 
+                // account filter
                 if(!empty($account_id)) {
                     $schedules->whereHas('branch', function($query) use($account_id) {
                         $query->where('account_id', $account_id);
                     });
+                }
+
+                // user filter
+                if(!empty($user_id)) {
+                    $schedules->where('user_id', $user_id);
+                } else {
+                    $schedules->where('user_id', auth()->user()->id);
                 }
 
                 $schedules = $schedules->get();
@@ -389,9 +448,27 @@ class UserBranchScheduleController extends Controller
                 }
             }
 
+            // $users_arr = [
+            //     auth()->user()->id => auth()->user()->fullName()
+            // ];
+
+            // user filter options
+            if(!empty($subordinate_ids)) {
+                $users = UserBranchSchedule::select('user_id')->distinct()
+                ->whereIn('user_id', $subordinate_ids)
+                ->get('user_id');
+            } else {
+                $users = UserBranchSchedule::select('user_id')->distinct()
+                ->get('user_id');
+            }
+            
             $users_arr = [
                 auth()->user()->id => auth()->user()->fullName()
             ];
+            foreach($users as $user) {
+                $user_data = User::findOrFail($user->user_id);
+                $users_arr[$user_data->id] = $user_data->fullName();
+            }
         }
     
         $branches = UserBranchSchedule::select('branch_id')->distinct()
@@ -528,5 +605,38 @@ class UserBranchScheduleController extends Controller
         return back()->with([
             'message_success' => 'Schedule has been uploaded.'
         ]);
+    }
+
+    public function getSubordinates($user_id) {
+        $user = User::findOrFail($user_id);
+        $organizations = $user->organizations;
+        $subordinate_ids = [];
+        foreach($organizations as $organization) {
+            $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
+            ->get();
+            foreach($subordinates as $subordinate) {
+                if(!empty($subordinate->user_id)) {
+                    $subordinate_ids[] = $subordinate->user_id;
+                }
+                // get second level subordinates
+                $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
+                ->get();
+                foreach($subordinates2 as $subordinate2) {
+                    if(!empty($subordinate2->user_id)) {
+                        $subordinate_ids[] = $subordinate2->user_id;
+                    }
+                    // get third level subordinates
+                    $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
+                    ->get();
+                    foreach($subordinates3 as $subordinate3) {
+                        if(!empty($subordinate3->user_id)) {
+                            $subordinate_ids[] = $subordinate3->user_id;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $subordinate_ids;
     }
 }

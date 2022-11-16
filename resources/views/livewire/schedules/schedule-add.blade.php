@@ -16,6 +16,16 @@
                     </div>
                 </div>
 
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="">Objective</label>
+                        <textarea class="form-control @error('objective') is-invalid @enderror" wire:model="objective"></textarea>
+                        @error('objective')
+                            <p class="text-danger">{{$message}}</p>
+                        @enderror
+                    </div>
+                </div>
+
                 {{-- search --}}
                 <div class="col-12">
                     <hr class="mb-1">
