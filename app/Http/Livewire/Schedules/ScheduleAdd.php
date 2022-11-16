@@ -16,7 +16,7 @@ class ScheduleAdd extends Component
 
     public $search;
 
-    public $date, $branch_id;
+    public $date, $objective, $branch_id;
 
     public function updatingSearch() {
         $this->resetPage('branch-page');
@@ -25,6 +25,7 @@ class ScheduleAdd extends Component
     public function submitRequest() {
         $this->validate([
             'date' => 'required',
+            'objective' => 'required',
             'branch_id' => 'required'
         ]);
 
@@ -33,6 +34,7 @@ class ScheduleAdd extends Component
             'branch_id' => $this->branch_id,
             'date' => $this->date,
             'status' => 'schedule request',
+            'objective' => $this->objective,
             'source' => 'request'
         ]);
         $schedule->save();
