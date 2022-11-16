@@ -13,6 +13,19 @@
         padding: 0 1px;
         white-space: normal;
     }
+
+    .schedule {
+        color: rgb(37, 184, 181);
+    }
+    .reschedule {
+        color: rgb(243, 114, 6);
+    }
+    .delete-request {
+        color: rgb(201, 5, 24);
+    }
+    .schedule-request {
+        color: rgb(50, 168, 82);
+    }
 </style>
 @endsection
 
@@ -72,9 +85,38 @@
             </div>
         </div>
     </div>
-    
+
+    {{-- color codes --}}
     <div class="col-lg-12">
-        {{-- Calendar --}}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Color Codes</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2">
+                        <i class="fa fa-square schedule"></i>
+                        <span>Schedules</span>
+                    </div>
+                    <div class="col-lg-2">
+                        <i class="fa fa-square reschedule"></i>
+                        <span>Reschedule Request</span>
+                    </div>
+                    <div class="col-lg-2">
+                        <i class="fa fa-square delete-request"></i>
+                        <span>Delete Request</span>
+                    </div>
+                    <div class="col-lg-2">
+                        <i class="fa fa-square schedule-request"></i>
+                        <span>Schedule Request</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{-- Calendar --}}
+    <div class="col-lg-12">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Calendar</h3>

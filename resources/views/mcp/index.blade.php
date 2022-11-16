@@ -33,6 +33,8 @@
 {!! Form::open(['method' => 'GET', 'route' => ['mcp.index', $search], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
+<livewire:activity-plan.submit-report/>
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Activity Plan List</h3>
