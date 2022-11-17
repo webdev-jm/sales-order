@@ -63,7 +63,7 @@
                                 <div class="list-group position-absolute search-branch" wire:loading.remove>
                                     @if($branches->count() > 0)
                                         @foreach($branches as $branch)
-                                            <button class="list-group-item text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->branch_code}}] {{$branch->branch_name}}')">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
+                                            <button class="list-group-item text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}')">[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}</button>
                                         @endforeach
                                     @else
                                         <button class="list-group-item">No Results</button>

@@ -26,8 +26,8 @@ class CreateWeeklyActivityReportCollectionsTable extends Migration
             $table->string('balance_to_sell')->nullable();
             $table->timestamps();
 
-            $table->foreign('weekly_activity_report_id')
-            ->foreign('id')->on('weekly_activity_reports')
+            $table->foreign('weekly_activity_report_id', 'war_collections_weekly_activity_report_id_foreign')
+            ->references('id')->on('weekly_activity_reports')
             ->onDelete('cascade');
 
             $table->softDeletes();

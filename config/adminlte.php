@@ -347,6 +347,13 @@ return [
             'active'    => ['mcp*']
         ],
         [
+            'text'      => 'Weekly Activity Report',
+            'url'       => '/war',
+            'icon'      => 'fas fa-fw fa-chart-bar',
+            'can'       => 'war access',
+            'active'    => ['war*']
+        ],
+        [
             'text'      => 'Reports',
             'url'       => '/report',
             'icon'      => 'fas fa-fw fa-chart-bar',

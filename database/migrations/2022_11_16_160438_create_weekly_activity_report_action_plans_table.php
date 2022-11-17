@@ -21,7 +21,7 @@ class CreateWeeklyActivityReportActionPlansTable extends Migration
             $table->string('person_responsible');
             $table->timestamps();
 
-            $table->foreign('weekly_activity_report_id')
+            $table->foreign('weekly_activity_report_id', 'war_action_plans_weekly_activity_report_id_foreign')
             ->references('id')->on('weekly_activity_reports')
             ->onDelete('cascade');
 
