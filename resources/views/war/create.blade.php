@@ -70,29 +70,29 @@
                 {{-- header --}}
                     <tr>
                         <th class="war-label">NAME:</th>
-                        <td colspan="6">{{auth()->user()->fullName()}}</td>
+                        <td colspan="6" class="px-3">{{auth()->user()->fullName()}}</td>
 
                         {{-- space --}}
                         <td class="border-0" colspan="3"></td>
 
                         <th class="war-label">DATE:</th>
-                        <td class="p-0">
+                        <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                <input type="date" class="form-control border-0" value="{{date('Y-m-d')}}">
+                                {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td>to</td>
-                        <td class="p-0">
+                        <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                <input type="date" class="form-control border-0" value="{{date('Y-m-d')}}">
+                                {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                             </div>
-                         </td>
+                            </td>
                     </tr>
                     <tr>
                         <th class="war-label">AREA:</th>
-                        <td colspan="6" class="p-0">
+                        <td colspan="6" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                <input type="text" class="form-control border-0">
+                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                             </div>
                         </td>
 
@@ -100,9 +100,9 @@
                         <td class="border-0" colspan="3"></td>
 
                         <th class="war-label">WEEK:</th>
-                        <td colspan="3" class="p-0">
+                        <td colspan="3" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                <input type="text" class="form-control border-0">
+                                {!! Form::number('week', 0, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -110,7 +110,7 @@
                         <th class="war-label">AREA VISITED:</th>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                <input type="text" class="form-control border-0">
+                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                             </div>
                         </td>
 
@@ -127,14 +127,14 @@
                     </tr>
                     <tr>
                         <td class="p-0" colspan="14">
-                            <textarea class="form-control border-0"></textarea>
+                            {!! Form::textarea('objective', '', ['class' => 'form-control border-0', 'form' => 'add_war', 'rows' => 5]) !!}
                         </td>
                     </tr>
                 {{-- areas --}}
                     <tr>
                         <th class="align-middle war-label pr-1" colspan="14">
                             II. AREAS
-                            <button class="btn btn-primary btn-xs float-right"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button>
                         </th>
                     </tr>
                     <tr class="text-center section-header">
@@ -144,21 +144,34 @@
                         <th colspan="3">IN/OUT BASE</th>
                         <th colspan="4">ACTIVITIES/REMARKS</th>
                     </tr>
-                    <tr>
-                        <td colspan="2" class="p-0">
-                            <input type="text" class="form-control border-0">
+                    <tr class="line-row areas">
+                        <td colspan="2" class="p-0 align-middle">
+                            <div class="input-group input-group-sm">
+                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
-                        <td colspan="2" class="p-0">
-                            <input type="text" class="form-control border-0">
+                        <td colspan="2" class="p-0 align-middle">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('area_covered[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('area_in_base[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                <span class="input-group-prepend align-middle">
+                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 {{-- Highlights --}}
@@ -167,7 +180,7 @@
                     </tr>
                     <tr>
                         <td class="p-0" colspan="14">
-                            <textarea class="form-control border-0"></textarea>
+                            {!! Form::textarea('highlights', '', ['class' => 'form-control border-0', 'form' => 'add_war', 'rows' => 5]) !!}
                         </td>
                     </tr>
                 {{-- collections --}}
@@ -178,17 +191,25 @@
                         <th colspan="4">TARGET RECONCILIATIONS</th>
                     </tr>
                     <tr>
-                        <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                        <td colspan="3" class="p-0 align-middle">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('beginning_ar', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('due_for_collection', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('beginning_hanging_balance', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('target_reconciliations', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                     </tr>
                     <tr class="text-center section-header">
@@ -199,23 +220,31 @@
                     </tr>
                     <tr>
                         <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('week_to_date', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('month_to_date', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="3" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('month_target', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('balance_to_sell', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                     </tr>
                 {{-- action plans --}}
                     <tr>
                         <th class="align-middle war-label pr-1" colspan="14">
                             IV. SALES ACTION PLAN (to achieve sales/collection targets/to accomplish a project):
-                            <button class="btn btn-primary btn-xs float-right"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button>
                         </th>
                     </tr>
                     <tr class="text-center section-header">
@@ -223,22 +252,31 @@
                         <th colspan="2">TIMETABLE</th>
                         <th colspan="6">PERSON/S RESPONSIBLE</th>
                     </tr>
-                    <tr>
+                    <tr class="line-row action-plans">
                         <td colspan="6" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('action_plan[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="2" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::date('time_table', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="6" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('person_reponsible[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                <span class="input-group-prepend align-middle">
+                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                 {{-- activities --}}
                     <tr>
                         <th class="align-middle war-label pr-1" colspan="14">
                             V. ACTIVITIES
-                            <button class="btn btn-primary btn-xs float-right"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button>
                         </th>
                     </tr>
                     <tr class="text-center section-header">
@@ -249,24 +287,39 @@
                         <th>NO. OF DAYS (YTD)</th>
                         <th colspan="4">% to TOTAL WORKING DAYS</th>
                     </tr>
-                    <tr>
+                    <tr class="line-row activities">
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('activity[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('no_of_days_weekly[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::number('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::text('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                            </div>
                         </td>
                         <td colspan="4" class="p-0">
-                            <input type="text" class="form-control border-0">
+                            <div class="input-group input-group-sm">
+                                {!! Form::number('total_working_days[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                <span class="input-group-prepend align-middle">
+                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                </span>
+                            </div>
                         </td>
                     </tr>
                     <tr class="text-center">
@@ -292,6 +345,28 @@
 @endsection
 
 @section('js')
+<script>
+    $(function() {
+        $('body').on('click', '.btn-add-line', function(e) {
+            e.preventDefault();
+            var line = $(this).closest('tr').nextAll('.line-row:first');
+            var row = line.clone(true);
+            row.find('input').val('');
+            line.after(row);
+        });
+
+        $('body').on('click', '.btn-remove-row', function(e) {
+            e.preventDefault();
+            var row = $(this).closest('tr');
+            var classes = row.prop('class');
+            var classes_arr = classes.split(' ');
+            var part = classes_arr.pop();
+            if(($('.'+part).length) > 1) {
+                row.remove();
+            }
+        });
+    });
+</script>
 @endsection
 
 @section('footer')

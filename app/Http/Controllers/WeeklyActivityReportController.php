@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\OrganizationStructure;
+use App\Models\Area;
 use App\Models\WeeklyActivityReport;
 use App\Http\Requests\StoreWeeklyActivityReportRequest;
 use App\Http\Requests\UpdateWeeklyActivityReportRequest;
@@ -45,7 +46,19 @@ class WeeklyActivityReportController extends Controller
      */
     public function create()
     {
-        return view('war.create');
+        $areas = Area::orderBy('area_code', 'ASC')
+        ->get();
+
+        $areas_arr = [
+            '' => ''
+        ];
+        foreach($areas as $area) {
+            $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
+        }
+
+        return view('war.create')->with([
+            'areas' => $areas_arr
+        ]);
     }
 
     /**
@@ -129,11 +142,20 @@ class WeeklyActivityReportController extends Controller
                         if(!empty($subordinate3->user_id)) {
                             $subordinate_ids[] = $subordinate3->user_id;
                         }
+                        // get fourth level subordinates
+                        $subordinates4 = OrganizationStructure::where('reports_to_id', $subordinate3->id)
+                        ->get();
+                        foreach($subordinates4 as $subordinate4) {
+                            if(!empty($subordinate4->user_id)) {
+                                $subordinate_ids[] = $subordinate4->user_id;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        return $subordinate_ids;
+        // return and remove duplicates
+        return array_unique($subordinate_ids);
     }
 }
