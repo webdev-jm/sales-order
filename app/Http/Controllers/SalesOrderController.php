@@ -132,7 +132,7 @@ class SalesOrderController extends Controller
 
         $date_code = date('Ymd', time());
         $control_number = 'SO-'.$date_code.'-001';
-        $sales_order = SalesOrder::orderBy('control_number', 'DESC')->first();
+        $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
         if(!empty($sales_order)) {
             // increment control number
             $control_number_arr = explode('-', $sales_order->control_number);
