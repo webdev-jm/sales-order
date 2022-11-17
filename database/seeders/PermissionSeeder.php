@@ -44,6 +44,12 @@ class PermissionSeeder extends Seeder
             'mcp edit',
             'mcp delete',
             'mcp approval',
+            // weekly activity report
+            'war access',
+            'war create',
+            'war edit',
+            'war delete',
+            'war approve',
             // company
             'company access',
             'company create',

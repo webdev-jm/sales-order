@@ -27,6 +27,7 @@ use App\Http\Controllers\AccountProductReferenceController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OrganizationStructureController;
 use App\Http\Controllers\ActivityPlanController;
+use App\Http\Controllers\WeeklyActivityReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,7 +105,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('report export');
     });
 
-    // MCP
+    // Activity Plan / MCP
     Route::group(['middleware' => 'permission:mcp access'], function() {
         Route::get('mcp', [ActivityPlanController::class, 'index'])->name('mcp.index');
         Route::get('mcp/create', [ActivityPlanController::class, 'create'])->name('mcp.create')->middleware('permission:mcp create');
@@ -114,6 +115,18 @@ Route::group(['middleware' => 'auth'], function () {
         
         Route::get('mcp/{id}/edit', [ActivityPlanController::class, 'edit'])->name('mcp.edit')->middleware('permission:mcp edit');
         Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');
+    });
+
+    // Weekly Activity Plan / WAR
+    Route::group(['middleware' => 'permission:war access'], function() {
+        Route::get('war', [WeeklyActivityReportController::class, 'index'])->name('war.index');
+        Route::get('war/create', [WeeklyActivityReportController::class, 'create'])->name('war.create')->middleware('permission:war create');
+        Route::post('war', [WeeklyActivityReportController::class, 'store'])->name('war.store')->middleware('permission:war create');
+
+        Route::get('war/{id}', [WeeklyActivityReportController::class, 'show'])->name('war.show');
+
+        Route::get('war/{id}/edit', [WeeklyActivityReportController::class, 'edit'])->name('war.edit')->middleware('permission:war edit');
+        Route::post('war/{id}', [WeeklyActivityReportController::class, 'update'])->name('war.update')->middleware('permission:war edit');
     });
 
     // COMPANY

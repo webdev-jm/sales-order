@@ -15,11 +15,11 @@ class CreateWeeklyActivityReportObjectivesTable extends Migration
     {
         Schema::create('weekly_activity_report_objectives', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('weekly_activty_report_id')->nullable();
+            $table->unsignedBigInteger('weekly_activity_report_id')->nullable();
             $table->text('objective');
             $table->timestamps();
             
-            $table->foreign('weekly_activity_report_id')
+            $table->foreign('weekly_activity_report_id', 'war_weekly_activity_report_id_foreign')
             ->references('id')->on('weekly_activity_reports')
             ->onDelete('cascade');
 

@@ -171,7 +171,10 @@ class Detail extends Component
             // })
             ->where(function($query) {
                 $query->where('branch_code', 'like', '%'.$this->searchQuery.'%')
-                ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%');
+                ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%')
+                ->orWhereHas('account', function($qry) {
+                    $qry->where('short_name', 'like', '%'.$this->searchQuery.'%');
+                });
             })
             ->limit(10)->get();
         } else {
