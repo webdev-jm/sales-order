@@ -18,7 +18,7 @@ class CreateWeeklyActivityReportActionPlansTable extends Migration
             $table->unsignedBigInteger('weekly_activity_report_id')->nullable();
             $table->text('action_plan')->nullable();
             $table->date('time_table')->nullable();
-            $table->string('person_responsible');
+            $table->string('person_responsible')->nullable();
             $table->timestamps();
 
             $table->foreign('weekly_activity_report_id', 'war_action_plans_weekly_activity_report_id_foreign')

@@ -21,7 +21,7 @@ class CreateWeeklyActivityReportActivitiesTable extends Migration
             $table->integer('no_of_days_mtd')->nullable();
             $table->integer('no_of_days_ytd')->nullable();
             $table->text('remarks')->nullable();
-            $table->decimal('percent_to_total_working_days')->nullable();
+            $table->string('percent_to_total_working_days')->nullable();
             $table->timestamps();
 
             $table->foreign('weekly_activity_report_id', 'war_activities_weekly_activity_report_id_foreign')

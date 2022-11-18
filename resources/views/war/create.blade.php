@@ -78,13 +78,13 @@
                         <th class="war-label">DATE:</th>
                         <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0'.($errors->has('date_from') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td>to</td>
                         <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
                             </div>
                             </td>
                     </tr>
@@ -92,7 +92,7 @@
                         <th class="war-label">AREA:</th>
                         <td colspan="6" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
                             </div>
                         </td>
 
@@ -102,7 +102,7 @@
                         <th class="war-label">WEEK:</th>
                         <td colspan="3" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('week', 0, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::number('week', 0, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -110,7 +110,7 @@
                         <th class="war-label">AREA VISITED:</th>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::select('area_visited_id', $areas, null, ['class' => 'form-control border-0'.($errors->has('area_visited_id') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
                             </div>
                         </td>
 
@@ -127,7 +127,7 @@
                     </tr>
                     <tr>
                         <td class="p-0" colspan="14">
-                            {!! Form::textarea('objective', '', ['class' => 'form-control border-0', 'form' => 'add_war', 'rows' => 5]) !!}
+                            {!! Form::textarea('objective', '', ['class' => 'form-control border-0'.($errors->has('objective') ? ' is-invalid' : ''), 'form' => 'add_war', 'rows' => 5]) !!}
                         </td>
                     </tr>
                 {{-- areas --}}
@@ -147,12 +147,12 @@
                     <tr class="line-row areas">
                         <td colspan="2" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center area-date', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td colspan="2" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center area-day', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td colspan="3" class="p-0">
@@ -260,12 +260,12 @@
                         </td>
                         <td colspan="2" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('time_table', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::date('time_table[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('person_reponsible[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::text('person_responsible[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
                                 <span class="input-group-prepend align-middle">
                                     <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
                                 </span>
@@ -295,39 +295,39 @@
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('no_of_days_weekly[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_weekly[]', '', ['class' => 'form-control border-0 text-center days-weekly', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center days-mtd', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center days-ytd', 'form' => 'add_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('total_working_days[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('total_working_days[]', '', ['class' => 'form-control border-0 text-center days-percent bg-white', 'form' => 'add_war', 'readonly']) !!}
                                 <span class="input-group-prepend align-middle">
                                     <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
                                 </span>
                             </div>
                         </td>
                     </tr>
-                    <tr class="text-center">
+                    <tr class="text-center war-label">
                         <th colspan="4" class="">TOTAL</th>
-                        <td></td>
-                        <td></td>
+                        <td id="total-weekly" class="p-0 pr-3 align-middle font-weight-bold"></td>
+                        <td id="total-mtd" class="p-0 pr-3 align-middle font-weight-bold"></td>
                         <td colspan="4"></td>
-                        <td></td>
+                        <td id="total-ytd" class="p-0 pr-3 align-middle font-weight-bold"></td>
                         <td colspan="4"></td>
                     </tr>
                 {{-- spacing --}}
@@ -364,6 +364,63 @@
             if(($('.'+part).length) > 1) {
                 row.remove();
             }
+        });
+
+        $('body').on('keyup', '.days-weekly, .days-mtd, .days-ytd', function() {
+            computeTotal();
+        });
+
+        function computeTotal() {
+            // weekly
+            var total_weekly = 0;
+            $('.days-weekly').each(function() {
+                var weekly = $(this).val();
+                total_weekly += weekly * 1;
+            });
+            $('#total-weekly').text(total_weekly);
+
+            // mtd
+            var total_mtd = 0;
+            $('.days-mtd').each(function() {
+                var mtd = $(this).val();
+                total_mtd += mtd * 1;
+            });
+            $('#total-mtd').text(total_mtd);
+
+            // ytd
+            var total_ytd = 0;
+            $('.days-ytd').each(function() {
+                var ytd = $(this).val();
+                total_ytd += ytd * 1;
+            });
+            $('#total-ytd').text(total_ytd);
+
+            // compute percentage
+            $('.days-percent').each(function() {
+                var ytd = $(this).closest('tr').find('.days-ytd').val();
+                if(ytd != '') {
+                    var percent = (ytd / total_ytd) * 100;
+                    $(this).val(percent.toFixed(2)+'%');
+                }
+            });
+        }
+
+        let days_arr = [];
+        days_arr[0] = 'Sunday';
+        days_arr[1] = 'Monday';
+        days_arr[2] = 'Tuesday';
+        days_arr[3] = 'Wednesday';
+        days_arr[4] = 'Thursday';
+        days_arr[5] = 'Friday';
+        days_arr[6] = 'Saturday';
+
+        // set day on selected date
+        $('body').on('change', '.area-date', function() {
+            var date = $(this).val();
+            const d = new Date(date);
+            let day = d.getDay(); 
+
+            $(this).closest('tr').find('.area-day').val(days_arr[day]);
         });
     });
 </script>
