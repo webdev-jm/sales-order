@@ -6,6 +6,11 @@ use App\Models\User;
 use App\Models\OrganizationStructure;
 use App\Models\Area;
 use App\Models\WeeklyActivityReport;
+use App\Models\WeeklyActivityReportActionPlan;
+use App\Models\WeeklyActivityReportActivity;
+use App\Models\WeeklyActivityReportArea;
+use App\Models\WeeklyActivityReportCollection;
+use App\Models\WeeklyActivityReportObjective;
 use App\Http\Requests\StoreWeeklyActivityReportRequest;
 use App\Http\Requests\UpdateWeeklyActivityReportRequest;
 
@@ -69,7 +74,80 @@ class WeeklyActivityReportController extends Controller
      */
     public function store(StoreWeeklyActivityReportRequest $request)
     {
-        //
+        $war = new WeeklyActivityReport([
+            'user_id' => auth()->user()->id,
+            'area_id' => $request->area_id,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+            'week_number' => $request->week,
+            'date_submitted' => NULL,
+            'highlights' => $request->highlights,
+            'status' => 'draft',
+        ]);
+        $war->save();
+
+        // objectives
+        $objective = new WeeklyActivityReportObjective([
+            'weekly_activity_report_id' => $war->id,
+            'objective' => $request->objective
+        ]);
+        $objective->save();
+
+        // areas
+        foreach($request->area_date as $key => $date) {
+            $area = new WeeklyActivityReportArea([
+                'weekly_activity_report_id' => $war->id,
+                'date' => $date,
+                'day' => $request->area_day[$key],
+                'location' => $request->area_covered[$key],
+                'in_base' => $request->area_in_base[$key],
+                'remarks' => $request->area_remarks[$key]
+            ]);
+            $area->save();
+        }
+
+        // collections
+        $collection = new WeeklyActivityReportCollection([
+            'weekly_activity_report_id' => $war->id,
+            'beginning_ar' => $request->beginning_ar,
+            'due_for_collection' => $request->due_for_collection,
+            'beginning_hanging_balance' => $request->beginning_hanging_balance,
+            'target_reconciliations' => $request->target_reconciliations,
+            'week_to_date' => $request->week_to_date,
+            'month_to_date' => $request->month_to_date,
+            'month_target' => $request->month_target,
+            'balance_to_sell' => $request->balance_to_sell,
+        ]);
+        $collection->save();
+
+        // action plans
+        foreach($request->action_plan as $key => $plan) {
+            $action_plan = new WeeklyActivityReportActionPlan([
+                'weekly_activity_report_id' => $war->id,
+                'action_plan' => $plan,
+                'time_table' => $request->time_table[$key],
+                'person_responsible' => $request->person_responsible[$key],
+            ]);
+            $action_plan->save();
+        }
+
+        // ativities
+        foreach($request->activity as $key => $activity) {
+            $war_activity = new WeeklyActivityReportActivity([
+                'weekly_activity_report_id' => $war->id,
+                'activity' => $activity,
+                'no_of_days_weekly' => $request->no_of_days_weekly[$key],
+                'no_of_days_mtd' => $request->no_of_days_mtd[$key],
+                'no_of_days_ytd' => $request->no_of_days_ytd[$key],
+                'remarks' => $request->activity_remarks[$key],
+                'percent_to_total_working_days' => $request->total_working_days[$key]
+            ]);
+            $war_activity->save();
+        }
+
+        return redirect()->route('war.index')->with([
+            'message_success' => 'Weekly Activity Report was created.'
+        ]);
     }
 
     /**
