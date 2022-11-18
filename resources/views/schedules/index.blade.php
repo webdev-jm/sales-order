@@ -26,6 +26,10 @@
     .schedule-request {
         color: rgb(50, 168, 82);
     }
+
+    .w100 {
+        width: 100px !important;
+    }
 </style>
 @endsection
 
@@ -217,6 +221,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="deviation-modal">
+    <div class="modal-dialog modal-xl">
+        <livewire:schedules.schedule-deviation/>
+    </div>
+</div>
+
 @endsection
 
 @section('plugins.Fullcalendar', true);
@@ -273,6 +283,11 @@
                     $('#request-modal').modal('show');
                 }
                 
+            },
+            dateClick: function(info) {
+                var date = info.dateStr;
+                Livewire.emit('setDeviation', date);
+                $('#deviation-modal').modal('show');
             },
             themeSystem: 'bootstrap',
             events: @php echo json_encode($schedule_data); @endphp
