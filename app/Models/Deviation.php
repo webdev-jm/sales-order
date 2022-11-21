@@ -12,6 +12,7 @@ class Deviation extends Model
     protected $fillable = [
         'user_id',
         'cost_center',
+        'date',
         'reason_for_deviation',
         'status',
     ];

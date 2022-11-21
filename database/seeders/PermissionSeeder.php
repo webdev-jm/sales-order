@@ -35,6 +35,7 @@ class PermissionSeeder extends Seeder
             'schedule delete request',
             'schedule approve reschedule',
             'schedule approve delete request',
+            'schedule approve deviation',
             // reports
             'report access',
             'report export',

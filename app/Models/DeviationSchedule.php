@@ -11,6 +11,7 @@ class DeviationSchedule extends Model
 
     protected $fillable = [
         'deviation_id',
+        'user_branch_schedule_id',
         'branch_id',
         'date',
         'activity',

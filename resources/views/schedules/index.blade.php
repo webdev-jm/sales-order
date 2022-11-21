@@ -26,6 +26,9 @@
     .schedule-request {
         color: rgb(50, 168, 82);
     }
+    .deviation-request {
+        color: rgb(14, 22, 173);
+    }
 
     .w100 {
         width: 100px !important;
@@ -98,21 +101,25 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-2">
+                    <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square schedule"></i>
                         <span>Schedules</span>
                     </div>
-                    <div class="col-lg-2">
+                    <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square reschedule"></i>
                         <span>Reschedule Request</span>
                     </div>
-                    <div class="col-lg-2">
+                    <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square delete-request"></i>
                         <span>Delete Request</span>
                     </div>
-                    <div class="col-lg-2">
+                    <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square schedule-request"></i>
                         <span>Schedule Request</span>
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <i class="fa fa-square deviation-request"></i>
+                        <span>Deviation Request</span>
                     </div>
                 </div>
             </div>
@@ -227,6 +234,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="deviation-approval-modal">
+    <div class="modal-dialog modal-xl">
+        <livewire:schedules.schedule-deviation-approval/>
+    </div>
+</div>
+
 @endsection
 
 @section('plugins.Fullcalendar', true);
@@ -281,6 +294,9 @@
                 } else if(type == 'request') {
                     Livewire.emit('setRequestDate', date_format, id);
                     $('#request-modal').modal('show');
+                } else if(type == 'deviation') {
+                    Livewire.emit('setDeviationApproval', id);
+                    $('#deviation-approval-modal').modal('show');
                 }
                 
             },

@@ -22,9 +22,11 @@ class ScheduleDetail extends Component
         'rescheduled' => 'bg-teal',
         'deletion rejected' => 'bg-maroon',
         'deletion approved' => 'bg-olive',
-        'schedule request' => 'bg-success',
         'schedule request rejected' => 'bg-purple',
         'schedule request approved' => 'bg-lime',
+        'schedule request' => 'bg-success',
+        'for deviation' => 'bg-primary',
+        'deviated' => 'bg-warning'
     ];
 
     protected $listeners = [
