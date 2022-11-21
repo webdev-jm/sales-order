@@ -60,7 +60,9 @@
                             'deletion approved' => 'bg-olive',
                             'schedule request rejected' => 'bg-purple',
                             'schedule request approved' => 'bg-lime',
-                            'schedule request' => 'bg-success'
+                            'schedule request' => 'bg-success',
+                            'for deviation' => 'bg-primary',
+                            'deviated' => 'bg-success'
                         ];
                     @endphp
                     <tr>

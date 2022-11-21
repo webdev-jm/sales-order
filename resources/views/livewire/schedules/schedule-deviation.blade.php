@@ -40,7 +40,7 @@
                     </tr>
                     <tr>
                         <td colspan="4" class="p-0 @error('reason_for_deviation') border border-danger @enderror">
-                            <textarea class="form-control border-0 @error('reason_for_deviation') is-invalid @enderror" wire:model="reason_for_deviation"></textarea>
+                            <textarea class="form-control border-0 textarea @error('reason_for_deviation') is-invalid @enderror" wire:model="reason_for_deviation"></textarea>
                         </td>
                     </tr>
                     <tr class="bg-gray">
@@ -92,14 +92,13 @@
                                 <input type="date" class="form-control border-0 text-center" wire:model.lazy="new_schedules.{{$key}}.date">
                             </td>
                             <td class="align-middle">
-                                <input type="text" class="form-control border-0" 
-                                    wire:model="branchQuery.{{$key}}"
-                                    wire:keyup="setQuery('{{$key}}')"
-                                    wire:keydown.escape="resetQuery"
-                                    wire:keydown.tab.prevent="resetQuery"
+                                <textarea class="form-control border-0 textarea" 
+                                wire:model="branchQuery.{{$key}}"
+                                wire:keyup="setQuery('{{$key}}')"
+                                wire:keydown.escape="resetQuery"
+                                wire:keydown.tab.prevent="resetQuery"
 
-                                    placeholder="{{$schedule['branch_name']}}"
-                                >
+                                placeholder="{{$schedule['branch_name']}}" style="min-width: 250px"></textarea>
 
                                 @if(isset($branchQuery[$key]) && !empty($branchQuery[$key]))
                                     <div class="list-group position-absolute" wire:loading>
@@ -118,11 +117,26 @@
                                 @endif
                             </td>
                             <td class="p-0">
-                                <textarea class="form-control border-0" wire:model.lazy="new_schedules.{{$key}}.activity">{{$schedule['activity']}}</textarea>
+                                <textarea class="form-control border-0 textarea" wire:model.lazy="new_schedules.{{$key}}.activity">{{$schedule['activity']}}</textarea>
                             </td>
                         </tr>
                         @endforeach
                     @endif
+                    <tr class="bg-gray">
+                        <th class="align-middle" colspan="4">APPROVAL</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">DATE FILED:</th>
+                        <td class="text-center">{{date('Y-m-d')}}</td>
+                        
+                        <th class="text-left">DATE APPROVED:</th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">DATE OF DEVIATION:</th>
+                        <td class="text-center">{{$date}}</td>
+
+                        <th class="text-left">APPROVED BY:</th>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -132,5 +146,9 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button class="btn btn-primary" wire:click="submitForm">Submit</button>
     </div>
+
+    <script>
+        
+    </script>
     
 </div>

@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Account;
 use App\Models\UserBranchSchedule;
 use App\Models\OrganizationStructure;
+use App\Models\Deviation;
 use App\Http\Requests\StoreUserBranchScheduleRequest;
 use App\Http\Requests\UpdateUserBranchScheduleRequest;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ class UserBranchScheduleController extends Controller
         $reschedule_color = '#f37206';
         $delete_color = '#c90518';
         $request_color = '#32a852';
+        $deviation_color = '#0e16ad';
 
         $subordinate_ids = $this->getSubordinates(auth()->user()->id);
 
@@ -216,12 +218,43 @@ class UserBranchScheduleController extends Controller
 
                 }
 
+                // for deviation
+                $deviation_dates = Deviation::select('date')->distinct()
+                ->where('status', 'submitted')
+                ->get();
+
+                foreach($deviation_dates as $deviation) {
+                    $deviations = Deviation::where('date', $deviation->date)
+                    ->where('status', 'submitted');
+
+                    if(!empty($user_id)) {
+                        $deviations->where('user_id', $user_id);
+                    }
+
+                    $deviations = $deviations->get();
+
+                    foreach($deviations as $data) {
+                        $schedule_data[] = [
+                            'title' => '['.$data->user->fullName().'] - '.$data->reason_for_deviation,
+                            'start' => $data->date,
+                            'allDay' => true,
+                            'backgroundColor' => $deviation_color,
+                            'borderColor' => $deviation_color,
+                            'type' => 'deviation',
+                            'id' => $data->id,
+                        ];
+                    }
+                }
+
             }
 
             // user filter options
             if(!empty($subordinate_ids)) {
                 $users = UserBranchSchedule::select('user_id')->distinct()
-                ->whereIn('user_id', $subordinate_ids)
+                ->where(function($query) use($subordinate_ids){
+                    $query->whereIn('user_id', $subordinate_ids)
+                    ->orWhere('user_id', auth()->user()->id);
+                })
                 ->get('user_id');
             } else {
                 $users = UserBranchSchedule::select('user_id')->distinct()

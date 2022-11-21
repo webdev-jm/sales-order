@@ -13,6 +13,9 @@ use App\Models\DeviationApproval;
 
 use Illuminate\Validation\ValidationException;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DeviationSubmitted;
+
 class ScheduleDeviation extends Component
 {
     public $date, $original_schedules, $user, $reason_for_deviation, $cost_center;
@@ -41,6 +44,7 @@ class ScheduleDeviation extends Component
             $deviation = new Deviation([
                 'user_id' => $this->user->id,
                 'cost_center' => $this->cost_center,
+                'date' => $this->date,
                 'reason_for_deviation' => $this->reason_for_deviation,
                 'status' => 'submitted'
             ]);
@@ -49,7 +53,8 @@ class ScheduleDeviation extends Component
             // original schedules
             foreach($this->original_schedules as $schedule) {
                 $deviation_schedule = new DeviationSchedule([
-                    'deciation_id' => $deviation->id,
+                    'deviation_id' => $deviation->id,
+                    'user_branch_schedule_id' => $schedule->id,
                     'branch_id' => $schedule->branch_id,
                     'date' => $schedule->date,
                     'activity' => $schedule->objective,
@@ -58,20 +63,22 @@ class ScheduleDeviation extends Component
                 $deviation_schedule->save();
 
                 // change status
+                $schedule->update([
+                    'status' => 'for deviation'
+                ]);
             }
 
             // new schedules
             foreach($this->new_schedules as $schedule) {
                 $deviation_schedule = new DeviationSchedule([
-                    'deciation_id' => $deviation->id,
+                    'deviation_id' => $deviation->id,
+                    'user_branch_schedule_id' => NULL,
                     'branch_id' => $schedule['branch_id'],
                     'date' => $schedule['date'],
                     'activity' => $schedule['activity'],
                     'type' => 'new'
                 ]);
                 $deviation_schedule->save();
-
-                // create request
             }
 
             // approvals
@@ -82,6 +89,18 @@ class ScheduleDeviation extends Component
                 'remarks' => NULL
             ]);
             $approvals->save();
+
+            // notifications
+            $user_ids = auth()->user()->getSupervisorIds();
+            foreach($user_ids as $user_id) {
+                if(auth()->user()->id != $user_id) {
+                    $user = User::find($user_id);
+                    Notification::send($user, new DeviationSubmitted($deviation));
+                }
+            }
+
+            // reload page
+            return redirect(request()->header('Referer'));
 
         } else {
             throw ValidationException::withMessages(['new plans' => 'new plans is required']);
@@ -143,7 +162,9 @@ class ScheduleDeviation extends Component
 
         $this->original_schedules = $original_schedules->get();
 
-        $this->new_schedules[0]['date'] = $this->date;
+        foreach($this->new_schedules as $key => $schdule) {
+            $this->new_schedules[$key]['date'] = $this->date;
+        }
     }
 
     public function mount() {

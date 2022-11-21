@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+use Illuminate\Support\Facades\DB;
+
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -135,5 +137,104 @@ class User extends Authenticatable
         }
 
         return $response;
+    }
+
+    public function getSubordinateIds() {
+        $organizations = $this->organizations;
+        $subordinate_ids = [];
+        foreach($organizations as $organization) {
+            $subordinates = DB::table('organization_structures')->where('reports_to_id', $organization->id)
+            ->get();
+            foreach($subordinates as $subordinate) {
+                if(!empty($subordinate->user_id)) {
+                    $subordinate_ids['first'][] = $subordinate->user_id;
+                }
+                // get second level subordinates
+                $subordinates2 = DB::table('organization_structures')->where('reports_to_id', $subordinate->id)
+                ->get();
+                foreach($subordinates2 as $subordinate2) {
+                    if(!empty($subordinate2->user_id)) {
+                        $subordinate_ids['second'][] = $subordinate2->user_id;
+                    }
+                    // get third level subordinates
+                    $subordinates3 = DB::table('organization_structures')->where('reports_to_id', $subordinate2->id)
+                    ->get();
+                    foreach($subordinates3 as $subordinate3) {
+                        if(!empty($subordinate3->user_id)) {
+                            $subordinate_ids['third'][] = $subordinate3->user_id;
+                        }
+                        // get fourth level subordinates
+                        $subordinates4 = DB::table('organization_structures')->where('reports_to_id', $subordinate3->id)
+                        ->get();
+                        foreach($subordinates4 as $subordinate4) {
+                            if(!empty($subordinate4->user_id)) {
+                                $subordinate_ids['fourth'][] = $subordinate4->user_id;
+                            }
+                            // get fifth level subordinates
+                            $subordinates5 = DB::table('organization_structures')->where('reports_to_id', $subordinate4->id)
+                            ->get();
+                            foreach($subordinates5 as $subordinate5) {
+                                if(!empty($subordinate5->user_id)) {
+                                    $subordinate_ids['fifth'][] = $subordinate5->user_id;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // return and remove duplicates
+        return array_filter($subordinate_ids);
+    }
+
+    public function getSupervisorIds() {
+        $organizations = $this->organizations;
+        $supervisor_ids = [];
+        foreach($organizations as $organization) {
+            // check if has supervisor
+            if(!empty($organization->reports_to_id)) {
+                // first level
+                $supervisor = DB::table('organization_structures')
+                ->where('id', $organization->reports_to_id)
+                ->first();
+                $supervisor_ids['first'] = $supervisor->user_id;
+
+                if(!empty($supervisor->reports_to_id)) {
+                    // second level
+                    $supervisor1 = DB::table('organization_structures')
+                    ->where('id', $supervisor->reports_to_id)
+                    ->first();
+                    $supervisor_ids['second'] = $supervisor1->user_id;
+
+                    if(!empty($supervisor1->reports_to_id)) {
+                        // third level
+                        $supervisor2 = DB::table('organization_structures')
+                        ->where('id', $supervisor1->reports_to_id)
+                        ->first();
+                        $supervisor_ids['third'] = $supervisor2->user_id;
+                        
+                        if(!empty($supervisor2->reports_to_id)) {
+                            // fourth level
+                            $supervisor3 = DB::table('organization_structures')
+                            ->where('id', $supervisor2->reports_to_id)
+                            ->first();
+                            $supervisor_ids['fourth'] = $supervisor3->user_id;
+
+                            if(!empty($supervisor3->reports_to_id)) {
+                                //fifth level
+                                $supervisor4 = DB::table('organization_structures')
+                                ->where('id', $supervisor3->reports_to_id)
+                                ->first();
+                                $supervisor_ids['fifth'] = $supervisor4->user_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // return and remove duplicates
+        return array_unique(array_filter($supervisor_ids));
     }
 }

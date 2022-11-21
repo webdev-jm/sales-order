@@ -17,6 +17,7 @@ class CreateDeviationsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('cost_center')->nullable();
+            $table->date('date');
             $table->text('reason_for_deviation')->nullable();
             $table->string('status');
             $table->timestamps();

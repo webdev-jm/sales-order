@@ -26,7 +26,7 @@
                     @foreach($users as $user)
                     <tr>
                         <td>{{$user->fullName()}}</td>
-                        <td>{{$submission_arr[$user->id]['status']}}</td>
+                        <td class="{{$submission_arr[$user->id]['status'] == 'submitted' ? 'text-success' : 'text-danger'}}">{{$submission_arr[$user->id]['status']}}</td>
                     </tr>
                     @endforeach
                 </tbody>

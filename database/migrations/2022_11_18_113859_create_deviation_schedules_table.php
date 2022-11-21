@@ -16,6 +16,7 @@ class CreateDeviationSchedulesTable extends Migration
         Schema::create('deviation_schedules', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('deviation_id')->nullable();
+            $table->unsignedBigInteger('user_branch_schedule_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->date('date');
             $table->text('activity');
@@ -24,6 +25,10 @@ class CreateDeviationSchedulesTable extends Migration
 
             $table->foreign('deviation_id')
             ->references('id')->on('deviations')
+            ->onDelete('cascade');
+
+            $table->foreign('user_branch_schedule_id')
+            ->references('id')->on('user_branch_schedules')
             ->onDelete('cascade');
 
             $table->foreign('branch_id')
