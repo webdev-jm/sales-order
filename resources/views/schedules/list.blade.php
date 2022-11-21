@@ -62,7 +62,7 @@
                             'schedule request approved' => 'bg-lime',
                             'schedule request' => 'bg-success',
                             'for deviation' => 'bg-primary',
-                            'deviated' => 'bg-success'
+                            'deviated' => 'bg-warning'
                         ];
                     @endphp
                     <tr>
