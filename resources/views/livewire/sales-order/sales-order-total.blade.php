@@ -5,6 +5,10 @@
             <div class="card-tools" wire:loading>
                 <i class="fa fa-sm fa-circle-notch fast-spin"></i>
             </div>
+            <div class="card-tools" wire:offline>
+                <i class="fa fa-circle text-danger mr-1"></i>
+                Your are currently offline
+            </div>
         </div>
         <div class="card-body">
             
@@ -58,6 +62,10 @@
             <h3 class="card-title pb-1">ORDER DETAILS</h3>
             <div class="card-tools" wire:loading>
                 <i class="fa fa-sm fa-circle-notch fast-spin"></i>
+            </div>
+            <div class="card-tools" wire:offline>
+                <i class="fa fa-circle text-danger mr-1"></i>
+                Your are currently offline
             </div>
         </div>
         <div class="card-body table-responsive p-0">

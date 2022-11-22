@@ -24,6 +24,9 @@ class StoreWeeklyActivityReportRequest extends FormRequest
     public function rules()
     {
         return [
+            'status' => [
+                'required'
+            ],
             'area_id' => [
                 'required'
             ],

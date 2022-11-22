@@ -189,7 +189,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        if($order_data['po_value'] <= 0) {
+        if(empty($order_data['po_value']) || $order_data['po_value'] <= 0) {
             return back()->with([
                 'message_error' => 'PO value is required.',
                 'shipping_address_id' => $request->shipping_address_id,
@@ -371,7 +371,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        if($order_data['po_value'] <= 0) {
+        if(empty($order_data['po_value']) || $order_data['po_value'] <= 0) {
             return back()->with([
                 'message_error' => 'PO value is required.',
                 'shipping_address_id' => $request->shipping_address_id,
@@ -470,7 +470,7 @@ class SalesOrderController extends Controller
      *
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
-     */
+    */
     public function destroy(SalesOrder $salesOrder)
     {
         //

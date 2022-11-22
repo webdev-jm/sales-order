@@ -131,6 +131,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('war/{id}/edit', [WeeklyActivityReportController::class, 'edit'])->name('war.edit')->middleware('permission:war edit');
         Route::post('war/{id}', [WeeklyActivityReportController::class, 'update'])->name('war.update')->middleware('permission:war edit');
+
+        Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
     });
 
     // COMPANY
