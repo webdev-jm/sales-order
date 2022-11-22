@@ -32,7 +32,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>Weekly Activity Reports / Add</h1>
+        <h1>Weekly Activity Reports / Edit <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
@@ -41,8 +41,8 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'POST', 'route' => ['war.store'], 'id' => 'add_war']) !!}
-{!! Form::hidden('status', 'draft', ['id' => 'status', 'form' => 'add_war']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['war.update', $weekly_activity_report->id], 'id' => 'update_war']) !!}
+{!! Form::hidden('status', $weekly_activity_report->status, ['id' => 'status', 'form' => 'update_war']) !!}
 {!! Form::close() !!}
 
 @if(!empty($errors->all()))
@@ -59,8 +59,8 @@
     <div class="card-header">
         <h3 class="card-title">Weekly Activity Report Form</h3>
         <div class="card-tools">
-            {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'add_war']) !!}
-            {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_war']) !!}
+            {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_war']) !!}
+            {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_war']) !!}
         </div>
     </div>
     <div class="card-body table-responsive p-0">
@@ -73,7 +73,7 @@
                     <th class="text-center align-middle war-title" colspan="10">WEEKLY ACTIVITY REPORT</th>
                     <th class="w300 align-top" colspan="3">
                         DATE SUBMITTED: <br>
-                        <p class="text-center mb-0 mt-2"></p>
+                        <p class="text-center mb-0 mt-2">{{$weekly_activity_report->date_submitted}}</p>
                     </th>
                 </tr>
                 {{-- space --}}
@@ -85,7 +85,7 @@
                 {{-- header --}}
                     <tr>
                         <th class="war-label">NAME:</th>
-                        <td colspan="6" class="px-3">{{auth()->user()->fullName()}}</td>
+                        <td colspan="6" class="px-3">{{$weekly_activity_report->user->fullName()}}</td>
     
                         {{-- space --}}
                         <td class="border-0" colspan="3"></td>
@@ -93,13 +93,13 @@
                         <th class="war-label">DATE:</th>
                         <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
+                                {!! Form::date('date_from', $weekly_activity_report->date_from, ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td>to</td>
                         <td class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
+                                {!! Form::date('date_to', $weekly_activity_report->date_to, ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -107,7 +107,7 @@
                         <th class="war-label">AREA:</th>
                         <td colspan="6" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::select('area_id', $areas, null, ['class' => 'form-control border-0'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
+                                {!! Form::select('area_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
                         </td>
     
@@ -117,7 +117,7 @@
                         <th class="war-label">WEEK:</th>
                         <td colspan="3" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('week', 0, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
+                                {!! Form::number('week', $weekly_activity_report->week_number, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -125,7 +125,7 @@
                         <th class="war-label">AREA VISITED:</th>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::select('area_visited_id', $areas, null, ['class' => 'form-control border-0'.($errors->has('area_visited_id') ? ' is-invalid' : ''), 'form' => 'add_war']) !!}
+                                {!! Form::select('area_visited_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_visited_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
                         </td>
     
@@ -142,7 +142,7 @@
                     </tr>
                     <tr>
                         <td class="p-0" colspan="14">
-                            {!! Form::textarea('objective', '', ['class' => 'form-control border-0'.($errors->has('objective') ? ' is-invalid' : ''), 'form' => 'add_war', 'rows' => 5]) !!}
+                            {!! Form::textarea('objective', $weekly_activity_report->objectives()->first()->objective, ['class' => 'form-control border-0'.($errors->has('objective') ? ' is-invalid' : ''), 'form' => 'update_war', 'rows' => 5]) !!}
                         </td>
                     </tr>
                 {{-- areas --}}
@@ -159,43 +159,78 @@
                         <th colspan="3">IN/OUT BASE</th>
                         <th colspan="4">ACTIVITIES/REMARKS</th>
                     </tr>
+                    @if(!empty($weekly_activity_report->areas))
+                        @foreach($weekly_activity_report->areas as $area)
+                        <tr class="line-row areas">
+                            <td colspan="2" class="p-0 align-middle">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::date('area_date[]', $area->date, ['class' => 'form-control border-0 text-center area-date', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="2" class="p-0 align-middle">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('area_day[]', $area->day, ['class' => 'form-control border-0 text-center area-day', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="3" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('area_covered[]', $area->location, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="3" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('area_in_base[]', $area->in_base, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="4" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('area_remarks[]', $area->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
+                                    <span class="input-group-prepend align-middle">
+                                        <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    @else
                     <tr class="line-row areas">
                         <td colspan="2" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center area-date', 'form' => 'add_war']) !!}
+                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center area-date', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="2" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center area-day', 'form' => 'add_war']) !!}
+                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center area-day', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="3" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('area_covered[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('area_covered[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="3" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('area_in_base[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('area_in_base[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                                 <span class="input-group-prepend align-middle">
                                     <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
                                 </span>
                             </div>
                         </td>
                     </tr>
+                    @endif
                 {{-- Highlights --}}
                     <tr>
                         <th class="align-middle war-label" colspan="14">III. Highlight(s) of week’s field visit (use 2nd page for more highlights when necessary):</th>
                     </tr>
                     <tr>
                         <td class="p-0" colspan="14">
-                            {!! Form::textarea('highlights', '', ['class' => 'form-control border-0', 'form' => 'add_war', 'rows' => 5]) !!}
+                            {!! Form::textarea('highlights', $weekly_activity_report->highlights, ['class' => 'form-control border-0', 'form' => 'update_war', 'rows' => 5]) !!}
                         </td>
                     </tr>
                 {{-- collections --}}
@@ -208,22 +243,22 @@
                     <tr>
                         <td colspan="3" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('beginning_ar', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('beginning_ar', $weekly_activity_report->collection->beginning_ar, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('due_for_collection', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('due_for_collection', $weekly_activity_report->collection->due_for_collection, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="3" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('beginning_hanging_balance', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('beginning_hanging_balance', $weekly_activity_report->collection->beginning_hanging_balance, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('target_reconciliations', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('target_reconciliations', $weekly_activity_report->collection->target_reconciliations, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -236,22 +271,22 @@
                     <tr>
                         <td colspan="3" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('week_to_date', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('week_to_date', $weekly_activity_report->collection->week_to_date, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('month_to_date', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('month_to_date', $weekly_activity_report->collection->month_to_date, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="3" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('month_target', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('month_target', $weekly_activity_report->collection->month_target, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('balance_to_sell', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('balance_to_sell', $weekly_activity_report->collection->balance_to_sell, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                     </tr>
@@ -267,26 +302,51 @@
                         <th colspan="2">TIMETABLE</th>
                         <th colspan="6">PERSON/S RESPONSIBLE</th>
                     </tr>
+                    @if(!empty($weekly_activity_report->action_plans))
+                        @foreach($weekly_activity_report->action_plans as $action_plan)
+                        <tr class="line-row action-plans">
+                            <td colspan="6" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('action_plan[]', $action_plan->action_plan, ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="2" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::date('time_table[]', $action_plan->time_table, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
+                                </div>
+                            </td>
+                            <td colspan="6" class="p-0">
+                                <div class="input-group input-group-sm">
+                                    {!! Form::text('person_responsible[]', $action_plan->person_responsible, ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
+                                    <span class="input-group-prepend align-middle">
+                                        <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    @else
                     <tr class="line-row action-plans">
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('action_plan[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::text('action_plan[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="2" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::date('time_table[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::date('time_table[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('person_responsible[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::text('person_responsible[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
                                 <span class="input-group-prepend align-middle">
                                     <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
                                 </span>
                             </div>
                         </td>
                     </tr>
+                    @endif
                 {{-- activities --}}
                     <tr>
                         <th class="align-middle war-label pr-1" colspan="14">
@@ -302,41 +362,91 @@
                         <th>NO. OF DAYS (YTD)</th>
                         <th colspan="4">% to TOTAL WORKING DAYS</th>
                     </tr>
+                    @php
+                        $total_weekly = 0;
+                        $total_mtd = 0;
+                        $total_ytd = 0;
+                    @endphp
+                    @if(!empty($weekly_activity_report->activities))
+                        @foreach($weekly_activity_report->activities as $activity)
+                            @php
+                                $total_weekly += $activity->no_of_days_weekly;
+                                $total_mtd += $activity->no_of_days_mtd;
+                                $total_ytd += $activity->no_of_days_ytd;
+                            @endphp
+                            <tr class="line-row activities">
+                                <td colspan="4" class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::text('activity[]', $activity->activity, ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
+                                    </div>
+                                </td>
+                                <td class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::number('no_of_days_weekly[]', $activity->no_of_days_weekly, ['class' => 'form-control border-0 text-center days-weekly', 'form' => 'update_war']) !!}
+                                    </div>
+                                </td>
+                                <td class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::number('no_of_days_mtd[]', $activity->no_of_days_mtd, ['class' => 'form-control border-0 text-center days-mtd', 'form' => 'update_war']) !!}
+                                    </div>
+                                </td>
+                                <td colspan="4" class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::text('activity_remarks[]', $activity->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
+                                    </div>
+                                </td>
+                                <td class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::number('no_of_days_ytd[]', $activity->no_of_days_ytd, ['class' => 'form-control border-0 text-center days-ytd', 'form' => 'update_war']) !!}
+                                    </div>
+                                </td>
+                                <td colspan="4" class="p-0">
+                                    <div class="input-group input-group-sm">
+                                        {!! Form::text('total_working_days[]', $activity->percent_to_total_working_days, ['class' => 'form-control border-0 text-center days-percent bg-white', 'form' => 'update_war', 'readonly']) !!}
+                                        <span class="input-group-prepend align-middle">
+                                            <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
                     <tr class="line-row activities">
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('activity[]', '', ['class' => 'form-control border-0', 'form' => 'add_war']) !!}
+                                {!! Form::text('activity[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_weekly[]', '', ['class' => 'form-control border-0 text-center days-weekly', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_weekly[]', '', ['class' => 'form-control border-0 text-center days-weekly', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center days-mtd', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center days-mtd', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war']) !!}
+                                {!! Form::text('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center days-ytd', 'form' => 'add_war']) !!}
+                                {!! Form::number('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center days-ytd', 'form' => 'update_war']) !!}
                             </div>
                         </td>
                         <td colspan="4" class="p-0">
                             <div class="input-group input-group-sm">
-                                {!! Form::text('total_working_days[]', '', ['class' => 'form-control border-0 text-center days-percent bg-white', 'form' => 'add_war', 'readonly']) !!}
+                                {!! Form::text('total_working_days[]', '', ['class' => 'form-control border-0 text-center days-percent bg-white', 'form' => 'update_war', 'readonly']) !!}
                                 <span class="input-group-prepend align-middle">
                                     <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
                                 </span>
                             </div>
                         </td>
                     </tr>
+                    @endif
                     <tr class="text-center war-label">
                         <th colspan="4" class="">TOTAL</th>
                         <td id="total-weekly" class="p-0 pr-3 align-middle font-weight-bold"></td>
@@ -397,7 +507,6 @@
             $('input[name="week"]').val(week);
         });
 
-        // add line
         $('body').on('click', '.btn-add-line', function(e) {
             e.preventDefault();
             var line = $(this).closest('tr').nextAll('.line-row:first');
@@ -407,7 +516,6 @@
             line.after(row);
         });
 
-        // remove line
         $('body').on('click', '.btn-remove-row', function(e) {
             e.preventDefault();
             var row = $(this).closest('tr');
@@ -415,11 +523,12 @@
             var classes_arr = classes.split(' ');
             var part = classes_arr.pop();
             if(($('.'+part).length) > 1) {
-                row.remove();
+                if(confirm('Are you sure to delete this line?')) {
+                    row.remove();
+                }
             }
         });
 
-        // compute activity total
         $('body').on('keyup', '.days-weekly, .days-mtd, .days-ytd', function() {
             computeTotal();
         });

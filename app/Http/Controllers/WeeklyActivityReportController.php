@@ -16,12 +16,21 @@ use App\Http\Requests\UpdateWeeklyActivityReportRequest;
 
 use Illuminate\Http\Request;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use App\Http\Traits\GlobalTrait;
 
 class WeeklyActivityReportController extends Controller
 {
 
     use GlobalTrait;
+
+    public $status_arr = [
+        'draft' => 'secondary',
+        'submitted' => 'primary',
+        'approved' => 'success',
+        'rejected' => 'danger'
+    ];
 
     /**
      * Display a listing of the resource.
@@ -34,13 +43,14 @@ class WeeklyActivityReportController extends Controller
 
         $search = trim($request->get('search'));
 
-        $subordinate_ids = $this->getSubordinates(auth()->user()->id);
+        $subordinate_ids = auth()->user()->getSubordinateIds();
 
         $weekly_activity_reports = WeeklyActivityReport::WeeklyActivityReportSearch($search, $settings->data_per_page, $subordinate_ids);
 
         return view('war.index')->with([
             'search' => $search,
-            'weekly_activity_reports' => $weekly_activity_reports
+            'weekly_activity_reports' => $weekly_activity_reports,
+            'status_arr' => $this->status_arr
         ]);
     }
 
@@ -51,6 +61,7 @@ class WeeklyActivityReportController extends Controller
      */
     public function create()
     {
+        // area options
         $areas = Area::orderBy('area_code', 'ASC')
         ->get();
 
@@ -60,6 +71,8 @@ class WeeklyActivityReportController extends Controller
         foreach($areas as $area) {
             $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
         }
+
+        // areas data
 
         return view('war.create')->with([
             'areas' => $areas_arr
@@ -74,15 +87,20 @@ class WeeklyActivityReportController extends Controller
      */
     public function store(StoreWeeklyActivityReportRequest $request)
     {
+        $date_submitted = NULL;
+        if($request->status == 'submitted') {
+            $date_submitted = date('Y-m-d');
+        }
+
         $war = new WeeklyActivityReport([
             'user_id' => auth()->user()->id,
             'area_id' => $request->area_id,
             'date_from' => $request->date_from,
             'date_to' => $request->date_to,
             'week_number' => $request->week,
-            'date_submitted' => NULL,
+            'date_submitted' => $date_submitted,
             'highlights' => $request->highlights,
-            'status' => 'draft',
+            'status' => $request->status,
         ]);
         $war->save();
 
@@ -145,6 +163,8 @@ class WeeklyActivityReportController extends Controller
             $war_activity->save();
         }
 
+        // notifications
+
         return redirect()->route('war.index')->with([
             'message_success' => 'Weekly Activity Report was created.'
         ]);
@@ -156,9 +176,14 @@ class WeeklyActivityReportController extends Controller
      * @param  \App\Models\WeeklyActivityReport  $weeklyActivityReport
      * @return \Illuminate\Http\Response
      */
-    public function show(WeeklyActivityReport $weeklyActivityReport)
+    public function show($id)
     {
-        //
+        $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
+
+        return view('war.show')->with([
+            'weekly_activity_report' => $weekly_activity_report,
+            'status_arr' => $this->status_arr
+        ]);
     }
 
     /**
@@ -167,9 +192,26 @@ class WeeklyActivityReportController extends Controller
      * @param  \App\Models\WeeklyActivityReport  $weeklyActivityReport
      * @return \Illuminate\Http\Response
      */
-    public function edit(WeeklyActivityReport $weeklyActivityReport)
+    public function edit($id)
     {
-        //
+        $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
+
+        // area options
+        $areas = Area::orderBy('area_code', 'ASC')
+        ->get();
+
+        $areas_arr = [
+            '' => ''
+        ];
+        foreach($areas as $area) {
+            $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
+        }
+
+        return view('war.edit')->with([
+            'areas' => $areas_arr,
+            'weekly_activity_report' => $weekly_activity_report,
+            'status_arr' => $this->status_arr
+        ]);
     }
 
     /**
@@ -179,9 +221,98 @@ class WeeklyActivityReportController extends Controller
      * @param  \App\Models\WeeklyActivityReport  $weeklyActivityReport
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateWeeklyActivityReportRequest $request, WeeklyActivityReport $weeklyActivityReport)
+    public function update(UpdateWeeklyActivityReportRequest $request, $id)
     {
-        //
+        $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
+
+        $date_submitted = NULL;
+        if($request->status == 'submitted') {
+            $date_submitted = date('Y-m-d');
+        }
+
+        $weekly_activity_report->update([
+            'area_id' => $request->area_id,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+            'week_number' => $request->week,
+            'date_submitted' => $date_submitted,
+            'highlights' => $request->highlights,
+            'status' => $request->status
+        ]);
+
+        // objectives
+        $weekly_activity_report->objectives()->delete();
+        $objective = new WeeklyActivityReportObjective([
+            'weekly_activity_report_id' => $weekly_activity_report->id,
+            'objective' => $request->objective
+        ]);
+        $objective->save();
+
+        // areas
+        $weekly_activity_report->areas()->delete();
+        foreach($request->area_date as $key => $date) {
+            $area = new WeeklyActivityReportArea([
+                'weekly_activity_report_id' => $weekly_activity_report->id,
+                'date' => $date,
+                'day' => $request->area_day[$key],
+                'location' => $request->area_covered[$key],
+                'in_base' => $request->area_in_base[$key],
+                'remarks' => $request->area_remarks[$key]
+            ]);
+            $area->save();
+        }
+
+        // collections
+        $collection = $weekly_activity_report->collection;
+        $collection->update([
+            'beginning_ar' => $request->beginning_ar,
+            'due_for_collection' => $request->due_for_collection,
+            'beginning_hanging_balance' => $request->beginning_hanging_balance,
+            'target_reconciliations' => $request->target_reconciliations,
+            'week_to_date' => $request->week_to_date,
+            'month_to_date' => $request->month_to_date,
+            'month_target' => $request->month_target,
+            'balance_to_sell' => $request->balance_to_sell,
+        ]);
+
+        // action plans
+        $weekly_activity_report->action_plans()->delete();
+        foreach($request->action_plan as $key => $plan) {
+            $action_plan = new WeeklyActivityReportActionPlan([
+                'weekly_activity_report_id' => $weekly_activity_report->id,
+                'action_plan' => $plan,
+                'time_table' => $request->time_table[$key],
+                'person_responsible' => $request->person_responsible[$key],
+            ]);
+            $action_plan->save();
+        }
+
+        // activities
+        $weekly_activity_report->activities()->delete();
+        foreach($request->activity as $key => $activity) {
+            $war_activity = new WeeklyActivityReportActivity([
+                'weekly_activity_report_id' => $weekly_activity_report->id,
+                'activity' => $activity,
+                'no_of_days_weekly' => $request->no_of_days_weekly[$key],
+                'no_of_days_mtd' => $request->no_of_days_mtd[$key],
+                'no_of_days_ytd' => $request->no_of_days_ytd[$key],
+                'remarks' => $request->activity_remarks[$key],
+                'percent_to_total_working_days' => $request->total_working_days[$key]
+            ]);
+            $war_activity->save();
+        }
+
+        // notifications
+
+        if($request->status == 'submitted') {
+            return redirect()->route('war.index')->with([
+                'message_success' => 'Weekly activity report has been updated.'
+            ]);
+        } else {
+            return back()->with([
+                'message_success' => 'Weekly activity report has been updated.'
+            ]);
+        }
     }
 
     /**
@@ -195,45 +326,13 @@ class WeeklyActivityReportController extends Controller
         //
     }
 
-    public function getSubordinates($user_id) {
-        $user = User::findOrFail($user_id);
-        $organizations = $user->organizations;
-        $subordinate_ids = [];
-        foreach($organizations as $organization) {
-            $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
-            ->get();
-            foreach($subordinates as $subordinate) {
-                if(!empty($subordinate->user_id)) {
-                    $subordinate_ids[] = $subordinate->user_id;
-                }
-                // get second level subordinates
-                $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
-                ->get();
-                foreach($subordinates2 as $subordinate2) {
-                    if(!empty($subordinate2->user_id)) {
-                        $subordinate_ids[] = $subordinate2->user_id;
-                    }
-                    // get third level subordinates
-                    $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
-                    ->get();
-                    foreach($subordinates3 as $subordinate3) {
-                        if(!empty($subordinate3->user_id)) {
-                            $subordinate_ids[] = $subordinate3->user_id;
-                        }
-                        // get fourth level subordinates
-                        $subordinates4 = OrganizationStructure::where('reports_to_id', $subordinate3->id)
-                        ->get();
-                        foreach($subordinates4 as $subordinate4) {
-                            if(!empty($subordinate4->user_id)) {
-                                $subordinate_ids[] = $subordinate4->user_id;
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    public function printPDF($id) {
+        $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
 
-        // return and remove duplicates
-        return array_unique($subordinate_ids);
+        $pdf = PDF::loadView('war.pdf', [
+            'weekly_activity_report' => $weekly_activity_report
+        ]);
+
+        return $pdf->stream('weekly-activity-report-'.$weekly_activity_report->date.'-'.time().'.pdf');
     }
 }

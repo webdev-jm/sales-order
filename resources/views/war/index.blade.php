@@ -51,6 +51,7 @@
                     <th>Date From</th>
                     <th>Date To</th>
                     <th>Status</th>
+                    <th>Created at</th>
                     <th></th>
                 </tr>
             </thead>
@@ -62,8 +63,19 @@
                     <td>{{$weekly_activity_report->date_submitted}}</td>
                     <td>{{$weekly_activity_report->date_from}}</td>
                     <td>{{$weekly_activity_report->date_to}}</td>
-                    <td>{{$weekly_activity_report->status}}</td>
-                    <td></td>
+                    <td>
+                        <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span>
+                    </td>
+                    <td>{{$weekly_activity_report->created_at->diffForHumans()}}</td>
+                    <td class="text-right">
+                        @if(auth()->user()->can('war edit') && $weekly_activity_report->status == 'draft')
+                            <a href="{{route('war.edit', $weekly_activity_report->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                        @endif
+                        <a href="{{route('war.show', $weekly_activity_report->id)}}" title="view details"><i class="fa fa-eye text-primary"></i></a>
+                        @can('war delete')
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$weekly_activity_report->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                        @endcan
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

@@ -29,14 +29,14 @@ class WeeklyActivityReport extends Model
     }
 
     public function objectives() {
-        return $this->haMany('App\Models\WeeklyActivityReportObjective');
+        return $this->hasMany('App\Models\WeeklyActivityReportObjective');
     }
 
     public function areas() {
         return $this->hasMany('App\Models\WeeklyActivityReportArea');
     }
 
-    public function collections() {
+    public function collection() {
         return $this->hasOne('App\Models\WeeklyActivityReportCollection');
     }
 
