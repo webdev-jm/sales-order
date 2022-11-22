@@ -3,7 +3,7 @@
         <h4 class="modal-title">Deviation Form</h4>
         @if(!empty($deviation))
         <div class="card-tools">
-            <button class="btn btn-primary"><i class="fa fa-print mr-1"></i>Print</button>
+            <a href="{{route('schedule.deviation-print', $deviation->id)}}" target="_blank" class="btn btn-primary"><i class="fa fa-print mr-1"></i>Print</a>
         </div>
         @endif
     </div>
@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th>NAME:</th>
+                        <th class="text-uppercase">NAME:</th>
                         <td colspan="2">{{$deviation->user->fullName()}}</td>
 
                         <th>COST CENTER:
