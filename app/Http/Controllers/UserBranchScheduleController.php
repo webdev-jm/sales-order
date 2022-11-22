@@ -15,10 +15,15 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ScheduleImport;
 
+use App\Http\Traits\GlobalTrait;
+
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserBranchScheduleController extends Controller
 {
+
+    use GlobalTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -548,6 +553,27 @@ class UserBranchScheduleController extends Controller
         ]);
     }
 
+    // deviations
+    public function deviations(Request $request) {
+        $search = trim($request->get('search'));
+
+        $status_arr = [
+            'submitted' => 'warning',
+            'approved' => 'success',
+            'rejected' => 'danger'
+        ];
+
+        $settings = $this->getSettings();
+
+        $deviations = Deviation::DeviationSearch($search, $settings->data_per_page);
+
+        return view('schedules.deviations')->with([
+            'search' => $search,
+            'deviations' => $deviations,
+            'status_arr' => $status_arr
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -686,7 +712,7 @@ class UserBranchScheduleController extends Controller
             'new_schedules' => $new_schedules
         ]);
 
-        return $pdf->stream('deviation-form-'.time().'.pdf');
+        return $pdf->stream('deviation-form-'.$deviation->date.'-'.time().'.pdf');
 
         // return view('schedules.deviation-pdf')->with([
         //     'deviation' => $deviation,

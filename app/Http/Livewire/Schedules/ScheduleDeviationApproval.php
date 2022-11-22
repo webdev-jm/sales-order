@@ -8,10 +8,20 @@ use App\Models\UserBranchSchedule;
 use App\Models\Deviation;
 use App\Models\DeviationApproval;
 
+use Livewire\WithPagination;
+
 class ScheduleDeviationApproval extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
+    
     public $deviation, $original_schedules, $new_schedules;
-    public $remarks;
+    public $remarks, $supervisor_ids;
+    public $status_arr = [
+        'submitted' => 'warning',
+        'approved' => 'success',
+        'rejected' => 'danger'
+    ];
 
     protected $listeners = [
         'setDeviationApproval' => 'setDeviation'
@@ -88,6 +98,7 @@ class ScheduleDeviationApproval extends Component
 
     public function setDeviation($deviation_id) {
         $this->deviation = Deviation::find($deviation_id);
+        $this->supervisor_ids = $this->deviation->user->getSupervisorIds();
 
         $this->original_schedules = $this->deviation->schedules()->where('type', 'original')->get();
         $this->new_schedules = $this->deviation->schedules()->where('type', 'new')->get();
@@ -95,6 +106,14 @@ class ScheduleDeviationApproval extends Component
 
     public function render()
     {
-        return view('livewire.schedules.schedule-deviation-approval');
+        $approvals = [];
+        if(!empty($this->deviation)) {
+            $approvals = $this->deviation->approvals()->orderBy('created_at', 'DESC')
+            ->paginate(5, ['*'], 'approval-page')->onEachSide(1);
+        }
+
+        return view('livewire.schedules.schedule-deviation-approval')->with([
+            'approvals' => $approvals
+        ]);
     }
 }
