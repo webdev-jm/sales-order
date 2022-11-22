@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ScheduleImport;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class UserBranchScheduleController extends Controller
 {
     /**
@@ -671,5 +673,25 @@ class UserBranchScheduleController extends Controller
         }
 
         return $subordinate_ids;
+    }
+
+    public function printDeviationForm($id) {
+        $deviation = Deviation::findOrFail($id);
+        $original_schedules = $deviation->schedules()->where('type', 'original')->get();
+        $new_schedules = $deviation->schedules()->where('type', 'new')->get();
+
+        $pdf = PDF::loadView('schedules.deviation-pdf', [
+            'deviation' => $deviation,
+            'original_schedules' => $original_schedules,
+            'new_schedules' => $new_schedules
+        ]);
+
+        return $pdf->stream('deviation-form-'.time().'.pdf');
+
+        // return view('schedules.deviation-pdf')->with([
+        //     'deviation' => $deviation,
+        //     'original_schedules' => $original_schedules,
+        //     'new_schedules' => $new_schedules
+        // ]);
     }
 }
