@@ -42,6 +42,7 @@
         <h1>Schedules</h1>
     </div>
     <div class="col-md-6 text-right">
+        <a href="{{route('schedule.deviations')}}" class="btn btn-warning"><i class="fa fa-calendar mr-1"></i>Deviations</a>
         @can('schedule list')
         <a href="{{route('schedule.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>Schedule Requests</a>
         @endcan

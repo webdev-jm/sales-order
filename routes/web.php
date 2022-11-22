@@ -97,6 +97,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('schedule/upload', [UserBranchScheduleController::class, 'upload'])->name('schedule.upload')->middleware('permission:schedule create');
 
         Route::get('schedule/{id}/deviation-print', [UserBranchScheduleController::class, 'printDeviationForm'])->name('schedule.deviation-print');
+
+        Route::get('schedule/deviations', [UserBranchScheduleController::class, 'deviations'])->name('schedule.deviations');
     });
 
     // REPORTS
