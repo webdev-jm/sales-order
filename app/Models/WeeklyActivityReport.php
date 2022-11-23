@@ -48,12 +48,23 @@ class WeeklyActivityReport extends Model
         return $this->hasMany('App\Models\WeeklyActivityReportActivity');
     }
 
+    public function approvals() {
+        return $this->hasMany('App\Models\WeeklyActivityReportApproval');
+    }
+
     public function scopeWeeklyActivityReportSearch($query, $search, $limit, $subordinate_ids) {
+        $ids = [];
+        foreach($subordinate_ids as $level => $id_arr) {
+            foreach($id_arr as $id) {
+                $ids[] = $id;
+            }
+        }
+
         if($search != '') {
             $weekly_activity_reports = $query->orderBy('id', 'DESC')
-            ->where(function($qry) use ($subordinate_ids) {
+            ->where(function($qry) use ($ids) {
                 $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $subordinate_ids);
+                ->orWhereIn('user_id', $ids);
             })
             ->where(function($qry) use($search) {
                 $qry->whereHas('user', function($qry) use ($search) {
@@ -72,9 +83,9 @@ class WeeklyActivityReport extends Model
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $weekly_activity_reports = $query->orderBy('id', 'DESC')
-            ->where(function($qry) use ($subordinate_ids) {
+            ->where(function($qry) use ($ids) {
                 $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $subordinate_ids);
+                ->orWhereIn('user_id', $ids);
             })
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }

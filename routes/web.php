@@ -133,6 +133,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('war/{id}', [WeeklyActivityReportController::class, 'update'])->name('war.update')->middleware('permission:war edit');
 
         Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
+        Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval')->middleware('permission:war approve');
     });
 
     // COMPANY

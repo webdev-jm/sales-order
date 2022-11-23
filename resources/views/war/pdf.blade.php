@@ -13,6 +13,9 @@
         .align-middle {
             vertical-align: middle;
         }
+        .align-bottom {
+            vertical-align: bottom;
+        }
         .title {
             font-size: 20px !important;
         }
@@ -314,6 +317,9 @@
         </tfoot>
     </table>
 
+    @php
+        $approval = $weekly_activity_report->approvals()->orderBy('created_at', 'DESC')->where('status', 'approved')->first();
+    @endphp
     <table class="table table-sm">
         <thead>
             <tr>
@@ -322,7 +328,11 @@
             </tr>
             <tr>
                 <th class="text-danger">Tuesday of the ff. week</th>
-                <td rowspan="2"></td>
+                <td rowspan="2" class="align-bottom text-uppercase text-center">
+                    @if(!empty($approval))
+                    {{$approval->user->fullName()}}
+                    @endif
+                </td>
             </tr>
             <tr>
                 <th>SUBMIT TO NSM</th>
