@@ -19,7 +19,7 @@
         background-color: rgb(202, 202, 202);
     }
 
-    th, td {
+    .report-table th, .report-table td {
         border: 1.5px solid black !important;
     }
     .section-header {
@@ -40,23 +40,75 @@
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
-        <a href="{{route('war.print-pdf', $weekly_activity_report->id)}}" class="btn btn-primary"><i class="fa fa-print mr-1"></i>Print</a>
+        <a href="{{route('war.print-pdf', $weekly_activity_report->id)}}" class="btn btn-primary" target="_blank"><i class="fa fa-print mr-1"></i>Print</a>
     </div>
 </div>
 @endsection
 
 @section('content')
+@if($weekly_activity_report->status == 'submitted')
+    {!! Form::open(['method' => 'POST', 'route' => ['war.approval', $weekly_activity_report->id], 'id' => 'war_approval']) !!}
+    {!! Form::hidden('status', $weekly_activity_report->status, ['form' => 'war_approval', 'id' => 'status']) !!}
+    {!! Form::close() !!}
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Approval</h3>
+            <div class="card-tools">
+                @if(in_array(auth()->user()->id, $supervisor_ids) && auth()->user()->can('war approve'))
+                    {!! Form::submit('Approve', ['class' => 'btn btn-success btn-sm btn-approval', 'form' => 'war_approval']) !!}
+                    {!! Form::submit('Reject', ['class' => 'btn btn-danger btn-sm btn-approval', 'form' => 'war_approval']) !!}
+                @endif
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                {!! Form::label('remarks', 'Remarks') !!}
+                {!! Form::textarea('remarks', '', ['class' => 'form-control'.($errors->has('remarks') ? ' is-invalid' : ''), 'form' => 'war_approval', 'rows' => 3]) !!}
+                @if($errors->has('remarks'))
+                <p class="text-danger">{{$errors->first('remarks')}}</p>
+                @endif
+            </div>
+        </div>
+    </div>
+@elseif($weekly_activity_report->status != 'draft')
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Approval History</h3>
+        </div>
+        <div class="card-body p-0 table-reponsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($weekly_activity_report->approvals as $approval)
+                    <tr>
+                        <td>{{$approval->user->fullName()}}</td>
+                        <td>
+                            <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
+                        </td>
+                        <td>{{$approval->remarks}}</td>
+                        <td>{{$approval->created_at->diffForHumans()}}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
 
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Weekly Activity Report Form</h3>
-        <div class="card-tools">
-            <button class="btn btn-success btn-sm"><i class="fa fa-check mr-1"></i>Approve</button>
-            <button class="btn btn-danger btn-sm"><i class="fa fa-ban mr-1"></i>Reject</button>
-        </div>
     </div>
     <div class="card-body table-responsive p-0">
-        <table class="table table-bordered table-sm">
+        <table class="table table-bordered table-sm report-table">
             <thead>
                 <tr>
                     <th class="w200 text-center align-middle px-0">
@@ -102,7 +154,7 @@
     
                         <th class="war-label">WEEK:</th>
                         <td colspan="3" class="px-3 align-middle">
-                            {{$weekly_activity_report->week_number}}
+                            Week {{$weekly_activity_report->week_number}}
                         </td>
                     </tr>
                     <tr>
@@ -372,6 +424,20 @@
 @section('js')
 <script>
     $(function() {
+        // set status
+        $('body').on('click', '.btn-approval', function(e) {
+            e.preventDefault();
+            var val = $(this).val();
+            var status = 'submitted';
+            if(val == 'Approve') {
+                status = 'approved';
+            } else {
+                status = 'rejected';
+            }
+
+            $('#status').val(status);
+            $('#'+$(this).attr('form')).submit();
+        });
     });
 </script>
 @endsection

@@ -31,11 +31,18 @@ class Deviation extends Model
 
     public function scopeDeviationSearch($query, $search, $limit) {
         $subordinate_ids = auth()->user()->getSubordinateIds();
+        $ids = [];
+        foreach($subordinate_ids as $level => $id_arr) {
+            foreach($id_arr as $id) {
+                $ids[] = $id;
+            }
+        }
+
         if($search != '') {
             $deviations = $query->orderBy('created_at', 'DESC')
-            ->where(function($qry) use($subordinate_ids) {
+            ->where(function($qry) use($ids) {
                 $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $subordinate_ids);
+                ->orWhereIn('user_id', $ids);
             })
             ->where(function($qry) use($search) {
                 $qry->where('cost_center', 'like', '%'.$search.'%')
@@ -49,9 +56,9 @@ class Deviation extends Model
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $deviations = $query->orderBy('created_at', 'DESC')
-            ->where(function($qry) use($subordinate_ids) {
+            ->where(function($qry) use($ids) {
                 $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $subordinate_ids);
+                ->orWhereIn('user_id', $ids);
             })
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
         }

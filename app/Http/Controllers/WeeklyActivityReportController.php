@@ -11,6 +11,7 @@ use App\Models\WeeklyActivityReportActivity;
 use App\Models\WeeklyActivityReportArea;
 use App\Models\WeeklyActivityReportCollection;
 use App\Models\WeeklyActivityReportObjective;
+use App\Models\WeeklyActivityReportApproval;
 use App\Http\Requests\StoreWeeklyActivityReportRequest;
 use App\Http\Requests\UpdateWeeklyActivityReportRequest;
 
@@ -180,9 +181,12 @@ class WeeklyActivityReportController extends Controller
     {
         $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
 
+        $supervisor_ids = $weekly_activity_report->user->getSupervisorIds();
+
         return view('war.show')->with([
             'weekly_activity_report' => $weekly_activity_report,
-            'status_arr' => $this->status_arr
+            'status_arr' => $this->status_arr,
+            'supervisor_ids' => $supervisor_ids
         ]);
     }
 
@@ -334,5 +338,35 @@ class WeeklyActivityReportController extends Controller
         ]);
 
         return $pdf->stream('weekly-activity-report-'.$weekly_activity_report->date.'-'.time().'.pdf');
+    }
+
+    public function approval(Request $request, $id) {
+        $request->validate([
+            'status' => 'required',
+            'remarks' => 'max:2000|required_if:status,rejected'
+        ]);
+
+        $war = WeeklyActivityReport::findOrFail($id);
+
+        // update status
+        $war->update([
+            'status' => $request->status
+        ]);
+
+        // approval
+        $approval = new WeeklyActivityReportApproval([
+            'user_id' => auth()->user()->id,
+            'weekly_activity_report_id' => $war->id,
+            'status' => $request->status,
+            'remarks' => $request->remarks,
+        ]);
+        $approval->save();
+
+        // notification
+
+        return back()->with([
+            'message_success' => 'Weekly Activity Report has been updated'
+        ]);
+
     }
 }
