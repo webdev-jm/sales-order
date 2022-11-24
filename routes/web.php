@@ -119,6 +119,8 @@ Route::group(['middleware' => 'auth'], function () {
         
         Route::get('mcp/{id}/edit', [ActivityPlanController::class, 'edit'])->name('mcp.edit')->middleware('permission:mcp edit');
         Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');
+
+        Route::get('mcp/{id}/print', [ActivityPlanController::class, 'printPDF'])->name('mcp.print-pdf');
     });
 
     // Weekly Activity Plan / WAR
