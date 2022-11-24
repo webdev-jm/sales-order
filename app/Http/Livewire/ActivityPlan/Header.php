@@ -6,9 +6,14 @@ use Livewire\Component;
 
 use Illuminate\Support\Facades\Session;
 
+use App\Http\Traits\GlobalTrait;
+
 class Header extends Component
 {
+    use GlobalTrait;
+    
     public $year, $month, $objectives;
+    public $deadline_message;
 
     public function updatedObjectives() {
         $activity_plan_data = Session::get('activity_plan_data');
@@ -30,6 +35,21 @@ class Header extends Component
 
     public function change_date() {
         $this->emit('setDate', $this->year, $this->month);
+
+        // get deadline from settings
+        $settings = $this->getSettings();
+        
+        // check if date is past deadline
+        $current_date = [
+            'year' => date('Y'),
+            'month' => (int)date('m') + 1,
+            'day' => date('d')
+        ];
+        $deadline = $settings->mcp_deadline;
+        // check if date was already pass deadline
+        if($this->year < $current_date['year'] || $this->month < $current_date['month']) {
+            $this->deadline_message = 'This date was already passed deadline.';
+        }
     }
 
     public function mount() {
@@ -38,7 +58,8 @@ class Header extends Component
         }
 
         if(empty($this->month)) {
-            $this->month = date('m');
+            $month = (int)date('m') + 1;
+            $this->month = $month < 10 ? '0'.$month : $month;
         }
 
         $activity_plan_data = Session::get('activity_plan_data');

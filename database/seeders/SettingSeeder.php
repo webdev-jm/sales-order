@@ -16,7 +16,8 @@ class SettingSeeder extends Seeder
     {
         $setting = new Setting([
             'data_per_page' => 10,
-            'sales_order_limit' => 20
+            'sales_order_limit' => 20,
+            'mcp_deadline' => 25
         ]);
         $setting->save();
     }

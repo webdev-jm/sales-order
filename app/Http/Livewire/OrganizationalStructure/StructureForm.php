@@ -29,14 +29,14 @@ class StructureForm extends Component
         if(!empty($this->structure_data)) {
             $this->structure_data->update([
                 'job_title_id' => $this->job_title_id,
-                'user_id' => $this->user_id ?? NULL,
+                'user_id' => empty($this->user_id) ? NULL : $this->user_id,
                 'reports_to_id' => $this->reports_to_id ?? NULL,
                 'type' => $this->type
             ]);
         } else {
             $structure = new OrganizationStructure([
                 'job_title_id' => $this->job_title_id,
-                'user_id' => $this->user_id ?? NULL,
+                'user_id' => empty($this->user_id) ? NULL : $this->user_id,
                 'reports_to_id' => $this->reports_to_id ?? NULL,
                 'type' => $this->type
             ]);
