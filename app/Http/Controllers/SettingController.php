@@ -44,7 +44,8 @@ class SettingController extends Controller
 
         $setting->update([
             'data_per_page' => $request->data_per_page,
-            'sales_order_limit' => $request->sales_order_limit
+            'sales_order_limit' => $request->sales_order_limit,
+            'mcp_deadline' => $request->mcp_deadline
         ]);
 
         $changes_arr['changes'] = $setting->getChanges();

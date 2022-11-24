@@ -14,7 +14,7 @@
                         <div class="col-xl-6">
                             <div class="form-group">
                                 <label>Year</label>
-                                <input type="number" class="form-control" wire:model="year" wire:change="change_date">
+                                <input type="number" class="form-control" wire:model="year" wire:change="change_date" min="{{date('Y')}}">
                             </div>
                         </div>
         
@@ -42,6 +42,16 @@
                 </div>
                 
             </div>
+
+            @if(!empty($deadline_message))
+            <div class="row">
+                <div class="col-12">
+                    <span class="text-danger">
+                        {{$deadline_message}}
+                    </span>
+                </div>
+            </div>
+            @endif
 
         </div>
     </div>

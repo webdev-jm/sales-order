@@ -29,6 +29,9 @@ class UpdateSettingRequest extends FormRequest
             ],
             'sales_order_limit' => [
                 'required', 'numeric', 'min:1'
+            ],
+            'mcp_deadline' => [
+                'required', 'min:1', 'max:2'
             ]
         ];
     }
