@@ -46,6 +46,13 @@
                 </div>
             </div>
 
+            <div class="col-lg-2">
+                <div class="form-group">
+                    {!! Form::label('mcp_deadline', 'Activity Plan Deadline (date of month)') !!}
+                    {!! Form::number('mcp_deadline', $setting->mcp_deadline, ['class' => 'form-control'.($errors->has('mcp_deadline') ? ' is-invalid' : ''), 'form' => ]) !!}
+                </div>
+            </div>
+
         </div>
 
     </div>
