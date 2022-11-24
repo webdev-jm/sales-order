@@ -13,6 +13,8 @@ class SalesOrderProducts extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    public $save_warning, $so_type;
+
     public $account, $uom, $search = '', $brands, $brand = '';
     public $quantity;
 
@@ -55,6 +57,13 @@ class SalesOrderProducts extends Component
                         }
                     }
                 }
+            }
+        }
+
+        // show warning to save if items are more than 5
+        if($this->so_type == 'Sales Orders / Add') {
+            if(!empty($this->quantity) && count($this->quantity) >= 5) {
+                $this->save_warning = 'Please save your progress to avoid losing data.';
             }
         }
 
