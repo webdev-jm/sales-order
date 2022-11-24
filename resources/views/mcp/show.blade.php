@@ -34,7 +34,8 @@
             "Segoe UI Emoji",
             "Segoe UI Symbol";
         font-size: 1rem;
-
+        padding: 0 0 0 5px;
+        margin-bottom: 0;
     }
 </style>
 @endsection
@@ -45,7 +46,8 @@
         <h1>Activity Plan / Details <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
-        <a href="{{route('mcp.index')}}" class="btn btn-primary"><i class="fa fa-arrow-left mr-1"></i>Back</a>
+        <a href="{{route('mcp.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
+        <a href="{{route('mcp.print-pdf', $activity_plan->id)}}" class="btn btn-primary" target="_blank"><i class="fa fa-print mr-1"></i>Print</a>
     </div>
 </div>
 @endsection
@@ -71,7 +73,7 @@
         
         <div class="row">
             <div class="col-lg-12">
-                <label>Objectives for the month:</label>
+                <label class="mb-0">Objectives for the month:</label>
                 <pre>{{$activity_plan->objectives}}</pre>
             </div>
         </div>

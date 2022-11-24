@@ -19,6 +19,8 @@ use App\Notifications\ActivityPlanSubmitted;
 
 use App\Http\Traits\GlobalTrait;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class ActivityPlanController extends Controller
 {
     use GlobalTrait;
@@ -434,5 +436,75 @@ class ActivityPlanController extends Controller
         }
 
         return $subordinate_ids;
+    }
+
+    public function printPDF($id) {
+        $activity_plan = ActivityPlan::findOrFail($id);
+
+        $position = [];
+        $organizations = $activity_plan->user->organizations;
+        if(!empty($organizations)) {
+            foreach($organizations as $organization) {
+                $position[] = $organization->job_title->job_title;
+            }
+        }
+
+        $last_day = date('t', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'));
+        $lines = [];
+        for($i = 1; $i <= (int)$last_day; $i++) {
+            $date = $activity_plan->year.'-'.$activity_plan->month.'-'.($i < 10 ? '0'.$i : $i);
+            $day = date('D', strtotime($date));
+            $class = '';
+            if($day == 'Sun') {
+                $class = 'bg-navy';
+            } else if($day == 'Sat') {
+                $class = 'bg-secondary';
+            }
+
+            // check details
+            $details = $activity_plan->details()->where('date', $date)
+            ->get();
+            $data = [];
+            if(!empty($details)) {
+                foreach($details as $detail) {
+                    $branch_name = '';
+                    $account_name = '';
+                    if(!empty($detail->branch_id)) {
+                        $branch_name = $detail->branch->branch_code.' - '.$detail->branch->branch_name;
+                        $account_name = $detail->branch->account->short_name;
+                    }
+
+                    $data[] = [
+                        'location' => $detail->exact_location,
+                        'account_name' => $account_name,
+                        'branch_name' => $branch_name,
+                        'purpose' => $detail->activity,
+                        'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : ''
+                    ];
+                }
+            } else {
+                $data[] = [
+                    'location' => '',
+                    'account_name' => '',
+                    'branch_name' => '',
+                    'purpose' => '',
+                    'work_with' => ''
+                ];
+            }
+
+            $lines[$date] = [
+                'day' => $day,
+                'class' => $class,
+                'lines' => $data
+            ];
+        }
+
+        $pdf = PDF::loadView('mcp.pdf', [
+            'activity_plan' => $activity_plan,
+            'position' => $position,
+            'lines' => $lines
+        ]);
+
+        return $pdf->stream('weekly-activity-report-'.$activity_plan->year.'-'.$activity_plan->month.'-'.time().'.pdf');
     }
 }
