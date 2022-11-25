@@ -69,4 +69,9 @@ class ReportController extends Controller
 
         return view('reports.orders');
     }
+
+    public function combinedReports() {
+
+        return view('reports.combined');
+    }
 }
