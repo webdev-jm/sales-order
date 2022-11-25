@@ -1,12 +1,18 @@
 <div>
 
     <div class="container mb-2">
-        <select class="form-control text-center" wire:model="user_id">
-            <option value="">Select User</option>
-            @foreach($user_options as $val => $option)
-            <option value="{{$val}}">{{$option}}</option>
-            @endforeach
-        </select>
+        <div class="row">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <select class="form-control text-center" wire:model="user_id">
+                    <option value="">Select User</option>
+                    @foreach($user_options as $val => $option)
+                    <option value="{{$val}}">{{$option}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-4"></div>
+        </div>
     </div>
 
     <div class="card">

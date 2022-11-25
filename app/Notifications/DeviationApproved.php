@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DeviationSubmitted extends Notification
+class DeviationApproved extends Notification
 {
     use Queueable;
 
@@ -45,9 +45,9 @@ class DeviationSubmitted extends Notification
     {
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
-            ->subject('Deviation Request')
+            ->subject('Deviation Request Approved')
             ->greeting('Hello!')
-            ->line('Deviation request has been submitted by '.$this->deviation->user->fullName())
+            ->line('Deviation request has been approved')
             ->action('View Details', url('/schedule/deviations'))
             ->line('Thank you for using our application!');
     }
@@ -65,9 +65,9 @@ class DeviationSubmitted extends Notification
             'date' => $this->deviation->date,
             'module' => 'Deviation Request',
             'status' => $this->deviation->status,
-            'status_code' => 'primary',
-            'message' => 'Deviation request has been submitted by '.$this->deviation->user->fullName(),
-            'color' => 'primary',
+            'status_code' => 'success',
+            'message' => 'Deviation request has been approved',
+            'color' => 'success',
             'url' => url('/schedule/deviations')
         ];
     }

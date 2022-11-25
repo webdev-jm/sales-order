@@ -7,21 +7,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DeviationSubmitted extends Notification
+class WeeklyActivityReportSubmitted extends Notification
 {
     use Queueable;
 
-    public $deviation;
+    public $weekly_activity_report;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($deviation)
+    public function __construct($weekly_activity_report)
     {
         $this->afterCommit();
-        $this->deviation = $deviation;
+        $this->weekly_activity_report = $weekly_activity_report;
     }
 
     /**
@@ -45,10 +45,10 @@ class DeviationSubmitted extends Notification
     {
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
-            ->subject('Deviation Request')
+            ->subject('Weekly Activity Report')
             ->greeting('Hello!')
-            ->line('Deviation request has been submitted by '.$this->deviation->user->fullName())
-            ->action('View Details', url('/schedule/deviations'))
+            ->line($this->weekly_activity_report->user->fullName().' submitted a weekly activity report for approval.')
+            ->action('View Details', url('/war/'.$this->weekly_activity_report->id))
             ->line('Thank you for using our application!');
     }
 
@@ -61,14 +61,14 @@ class DeviationSubmitted extends Notification
     public function toArray($notifiable)
     {
         return [
-            'id' => $this->deviation->id,
-            'date' => $this->deviation->date,
-            'module' => 'Deviation Request',
-            'status' => $this->deviation->status,
+            'id' => $this->weekly_activity_report->id,
+            'date' => $this->weekly_activity_report->date_submitted,
+            'module' => 'Weekly Activity Report',
+            'status' => $this->weekly_activity_report->status,
             'status_code' => 'primary',
-            'message' => 'Deviation request has been submitted by '.$this->deviation->user->fullName(),
+            'message' => $this->weekly_activity_report->user->fullName().' submitted a weekly activity report for approval.',
             'color' => 'primary',
-            'url' => url('/schedule/deviations')
+            'url' => url('/war/'.$this->weekly_activity_report->id)
         ];
     }
 }

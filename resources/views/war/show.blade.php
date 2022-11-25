@@ -55,7 +55,7 @@
         <div class="card-header">
             <h3 class="card-title">Approval</h3>
             <div class="card-tools">
-                @if(in_array(auth()->user()->id, $supervisor_ids) && auth()->user()->can('war approve'))
+                @if((in_array(auth()->user()->id, $supervisor_ids) && auth()->user()->can('war approve')) || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin'))
                     {!! Form::submit('Approve', ['class' => 'btn btn-success btn-sm btn-approval', 'form' => 'war_approval']) !!}
                     {!! Form::submit('Reject', ['class' => 'btn btn-danger btn-sm btn-approval', 'form' => 'war_approval']) !!}
                 @endif

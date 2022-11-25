@@ -62,7 +62,7 @@ class SalesOrderProducts extends Component
 
         // show warning to save if items are more than 5
         if($this->so_type == 'Sales Orders / Add') {
-            if(!empty($this->quantity) && count($this->quantity) >= 5) {
+            if(!empty($this->quantity) && count($this->quantity) >= 6) {
                 $this->save_warning = 'Please save your progress to avoid losing data.';
             }
         }

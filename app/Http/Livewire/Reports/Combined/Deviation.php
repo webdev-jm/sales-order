@@ -41,7 +41,7 @@ class Deviation extends Component
         if(!empty($this->user_id)) {
             $deviations->where('user_id', $this->user_id);
         }
-        $deviations = $deviations->paginate(10, ['*'], 'deviation-page')
+        $deviations = $deviations->paginate(5, ['*'], 'deviation-page')
         ->onEachSide(1); 
         
         $status_arr = [

@@ -10,6 +10,9 @@ use App\Models\DeviationApproval;
 
 use Livewire\WithPagination;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DeviationApproved;
+
 class ScheduleDeviationApproval extends Component
 {
     use WithPagination;
@@ -63,6 +66,8 @@ class ScheduleDeviationApproval extends Component
         $approvals->save();
 
         // notifications
+        $user = $this->deviation->user;
+        Notification::send($user, new DeviationApproved($this->deviation));
 
         return redirect(request()->header('Referer'));
     }
@@ -92,6 +97,10 @@ class ScheduleDeviationApproval extends Component
             'remarks' => $this->remarks,
         ]);
         $approvals->save();
+
+        // notifications
+        $user = $this->deviation->user;
+        Notification::send($user, new DeviationRejected($this->deviation));
 
         return redirect(request()->header('Referer'));
     }
