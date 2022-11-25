@@ -34,14 +34,21 @@ class Header extends Component
     }
 
     public function mount() {
-        // get user options
         $user_options = [];
-        $subordinate_ids = auth()->user()->getSubordinateIds();
-        foreach($subordinate_ids as $level => $ids) {
-            foreach($ids as $id) {
-                $user = User::find($id);
-                if(!empty($user)) {
-                    $user_options[$user->id] = $user->fullName();
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            $users = User::orderBy('firstname', 'ASC')->get();
+            foreach($users as $user) {
+                $user_options[$user->id] = $user->fullName();
+            }
+        } else {
+            // get user options
+            $subordinate_ids = auth()->user()->getSubordinateIds();
+            foreach($subordinate_ids as $level => $ids) {
+                foreach($ids as $id) {
+                    $user = User::find($id);
+                    if(!empty($user)) {
+                        $user_options[$user->id] = $user->fullName();
+                    }
                 }
             }
         }

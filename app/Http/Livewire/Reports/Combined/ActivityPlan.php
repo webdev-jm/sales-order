@@ -47,7 +47,7 @@ class ActivityPlan extends Component
             $activity_plans->where('user_id', $this->user_id);
         }
 
-        $activity_plans = $activity_plans->paginate(10, ['*'], 'activity-pages')
+        $activity_plans = $activity_plans->paginate(5, ['*'], 'activity-pages')
         ->onEachSide(1);
 
         $status_arr = [

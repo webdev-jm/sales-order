@@ -21,6 +21,10 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 use App\Http\Traits\GlobalTrait;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\WeeklyActivityReportSubmitted;
+use App\Notifications\WeeklyActivityReportApproved;
+
 class WeeklyActivityReportController extends Controller
 {
 
@@ -164,7 +168,16 @@ class WeeklyActivityReportController extends Controller
             $war_activity->save();
         }
 
-        // notifications
+        if($request->status == 'submitted') {
+            // notifications
+            $users = $war->user->getSupervisorIds();
+            foreach($users as $user_id) {
+                $user = User::find($user_id);
+                if(!empty($user)) {
+                    Notification::send($user, new WeeklyActivityReportSubmitted($war));
+                }
+            }
+        }
 
         return redirect()->route('war.index')->with([
             'message_success' => 'Weekly Activity Report was created.'
@@ -363,10 +376,16 @@ class WeeklyActivityReportController extends Controller
         $approval->save();
 
         // notification
+        if($request->status == 'approved') {
+            $user = $war->user;
+            Notification::send($user, new WeeklyActivityReportApproved($war));
+        } else {
+            $user = $war->user;
+            Notification::send($user, new WeeklyActiityReportRejected($war));
+        }
 
         return back()->with([
             'message_success' => 'Weekly Activity Report has been updated'
         ]);
-
     }
 }

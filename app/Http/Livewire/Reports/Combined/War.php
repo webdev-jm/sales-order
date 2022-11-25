@@ -45,7 +45,7 @@ class War extends Component
         if(!empty($this->user_id)) {
             $weekly_activity_reports->where('user_id', $this->user_id);
         }
-        $weekly_activity_reports = $weekly_activity_reports->paginate(10, ['*'], 'war-page')
+        $weekly_activity_reports = $weekly_activity_reports->paginate(5, ['*'], 'war-page')
         ->onEachSide(1);
 
         $status_arr = [

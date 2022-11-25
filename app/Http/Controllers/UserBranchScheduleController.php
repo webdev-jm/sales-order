@@ -40,7 +40,14 @@ class UserBranchScheduleController extends Controller
         $request_color = '#32a852';
         $deviation_color = '#0e16ad';
 
-        $subordinate_ids = $this->getSubordinates(auth()->user()->id);
+        // $subordinate_ids = $this->getSubordinates(auth()->user()->id);
+        $subordinates = auth()->user()->getSubordinateIds();
+        $subordinate_ids = [];
+        foreach($subordinates as $level => $ids) {
+            foreach($ids as $id) {
+                $subordinate_ids[] = $id;
+            }
+        }
 
         $schedule_data = [];
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
@@ -255,18 +262,18 @@ class UserBranchScheduleController extends Controller
 
             }
 
-            // user filter options
-            if(!empty($subordinate_ids)) {
+            // // user filter options
+            // if(!empty($subordinate_ids)) {
+            //     $users = UserBranchSchedule::select('user_id')->distinct()
+            //     ->where(function($query) use($subordinate_ids){
+            //         $query->whereIn('user_id', $subordinate_ids)
+            //         ->orWhere('user_id', auth()->user()->id);
+            //     })
+            //     ->get('user_id');
+            // } else {
                 $users = UserBranchSchedule::select('user_id')->distinct()
-                ->where(function($query) use($subordinate_ids){
-                    $query->whereIn('user_id', $subordinate_ids)
-                    ->orWhere('user_id', auth()->user()->id);
-                })
                 ->get('user_id');
-            } else {
-                $users = UserBranchSchedule::select('user_id')->distinct()
-                ->get('user_id');
-            }
+            // }
             
             $users_arr = [
                 '' => 'select'
@@ -493,21 +500,24 @@ class UserBranchScheduleController extends Controller
             // ];
 
             // user filter options
-            if(!empty($subordinate_ids)) {
-                $users = UserBranchSchedule::select('user_id')->distinct()
-                ->whereIn('user_id', $subordinate_ids)
-                ->get('user_id');
-            } else {
-                $users = UserBranchSchedule::select('user_id')->distinct()
-                ->get('user_id');
-            }
-            
             $users_arr = [
                 auth()->user()->id => auth()->user()->fullName()
             ];
-            foreach($users as $user) {
-                $user_data = User::findOrFail($user->user_id);
-                $users_arr[$user_data->id] = $user_data->fullName();
+
+            if(!empty($subordinate_ids)) {
+                $users = User::whereIn('id', $subordinate_ids)->get();
+                
+                foreach($users as $user) {
+                    $users_arr[$user->id] = $user->fullName();
+                }
+            } else {
+                $users = User::select('user_id')->distinct()
+                ->get('user_id');
+
+                foreach($users as $user) {
+                    $user_data = User::findOrFail($user->user_id);
+                    $users_arr[$user_data->id] = $user_data->fullName();
+                }
             }
         }
     
