@@ -361,6 +361,13 @@ return [
             'active'    => ['report*']
         ],
         [
+            'text'      => 'MCP Reports',
+            'url'       => '/combined/report',
+            'icon'      => 'fas fa-fw fa-chart-pie',
+            'can'       => 'report access',
+            'active'    => ['combined*']
+        ],
+        [
             'header'    => 'maintenance',
             'can'       => [
                 'company access',

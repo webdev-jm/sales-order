@@ -107,6 +107,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('report/sales-order', [ReportController::class, 'sales_orders'])->name('report.sales-order');
 
         Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('report export');
+
+        Route::get('combined/report', [ReportController::class, 'combinedReports'])->name('report.combined');
     });
 
     // Activity Plan / MCP

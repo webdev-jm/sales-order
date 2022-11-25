@@ -234,6 +234,8 @@ return [
 
         'AccountLoginModel' => App\Models\AccountLogin::class,
         'AccountModel' => App\Models\Account::class,
+        'ActivityPlanModel' => App\Models\ActivityPlan::class,
+        'DeviationModel' => App\Models\Deviation::class,
 
     ],
 
