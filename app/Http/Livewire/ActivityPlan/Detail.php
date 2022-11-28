@@ -151,7 +151,7 @@ class Detail extends Component
         }
 
         if(empty($this->month)) {
-            $this->month = date('m');
+            $this->month = date('m') + 1;
         }
 
         $this->last_day = date('t', strtotime($this->year.'-'.$this->month.'-01'));

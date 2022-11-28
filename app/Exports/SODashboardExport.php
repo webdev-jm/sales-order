@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\SalesOrder;
+use App\Models\Product;
 
 use Illuminate\Support\Collection;
 
@@ -200,7 +201,8 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             // products
             $order_products = $sales_order->order_products;
             foreach($order_products as $order_product) {
-                $product = $order_product->product;
+                // $product = $order_product->product;
+                $product = Product::withTrashed()->where('id', $order_product->product_id)->first();
 
                 // uoms
                 $product_uoms = $order_product->product_uoms;
@@ -222,9 +224,9 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                         $sales_order->status,
                         $sales_order->reference,
                         $order_product->part,
-                        $product->stock_code,
-                        $product->description,
-                        $product->size,
+                        $product->stock_code ?? '',
+                        $product->description ?? '',
+                        $product->size ?? '',
                         $product_uom->uom,
                         $product_uom->quantity,
                         $product_uom->uom_total

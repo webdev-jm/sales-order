@@ -410,11 +410,6 @@
                         <td id="total-ytd" class="px-3 align-middle font-weight-bold">{{$total_ytd}}</td>
                         <td colspan="3"></td>
                     </tr>
-                {{-- spacing --}}
-                    <tr>
-                        <th class="border-0" colspan="14"></th>
-                    </tr>
-                {{--  --}}
             </tbody>
         </table>
     </div>
