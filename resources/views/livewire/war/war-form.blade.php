@@ -121,6 +121,8 @@
                             <div class="input-group input-group-sm">
                                 {!! Form::textarea('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war', 'rows' => 1]) !!}
                                 <span class="input-group-prepend align-middle">
+                                    <a href="" class="mx-1 btn-area-modal" data-date="{{$line['date']}}"><i class="fa fa-info-circle text-info"></i></a>
+                                </span>
                             </div>
                         </td>
                     </tr>
@@ -150,6 +152,9 @@
                     <td colspan="4" class="p-0">
                         <div class="input-group input-group-sm">
                             {!! Form::textarea('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'add_war', 'rows' => 1]) !!}
+                            <span class="input-group-prepend align-middle">
+                                <a href="" class="mx-1 btn-area-modal" data-date="{{date('Y-m-d')}}"><i class="fa fa-info-circle text-info"></i></a>
+                            </span>
                         </div>
                     </td>
                 </tr>

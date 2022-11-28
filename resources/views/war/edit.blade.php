@@ -185,6 +185,9 @@
                             <td colspan="4" class="p-0">
                                 <div class="input-group input-group-sm">
                                     {!! Form::textarea('area_remarks[]', $area->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war', 'rows' => 1]) !!}
+                                    <span class="input-group-prepend align-middle">
+                                        <a href="" class="mx-1 btn-area-modal" data-date="{{$area->date}}"><i class="fa fa-info-circle text-info"></i></a>
+                                    </span>
                                 </div>
                             </td>
                         </tr>
@@ -456,6 +459,12 @@
         </table>
     </div>
 </div>
+
+<div class="modal fade" id="area-activity-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:war.war-area-detail :user_id="$weekly_activity_report->user_id"/>
+    </div>
+</div>
 @endsection
 
 @section('js')
@@ -584,6 +593,14 @@
             let day = d.getDay();
 
             $(this).closest('tr').find('.area-day').val(days_arr[day]);
+        });
+
+        // branch login details
+        $('body').on('click', '.btn-area-modal', function(e) {
+            e.preventDefault();
+            var date = $(this).data('date');
+            Livewire.emit('setDate', date);
+            $('#area-activity-modal').modal('show');
         });
     });
 </script>
