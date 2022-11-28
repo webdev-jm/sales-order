@@ -67,6 +67,12 @@
         <livewire:war.war-form :user_id="auth()->user()->id"/>
     </div>
 </div>
+
+<div class="modal fade" id="area-activity-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:war.war-area-detail :user_id="auth()->user()->id"/>
+    </div>
+</div>
 @endsection
 
 @section('js')
@@ -198,6 +204,14 @@
             let day = d.getDay(); 
 
             $(this).closest('tr').find('.area-day').val(days_arr[day]);
+        });
+
+        // branch login details
+        $('body').on('click', '.btn-area-modal', function(e) {
+            e.preventDefault();
+            var date = $(this).data('date');
+            Livewire.emit('setDate', date);
+            $('#area-activity-modal').modal('show');
         });
     });
 </script>
