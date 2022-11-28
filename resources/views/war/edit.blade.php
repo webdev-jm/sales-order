@@ -104,7 +104,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="war-label">AREA:</th>
+                        <th class="war-label">AREA VISITED:</th>
                         <td colspan="6" class="p-0 align-middle">
                             <div class="input-group input-group-sm">
                                 {!! Form::select('area_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
@@ -122,15 +122,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="war-label">AREA VISITED:</th>
+                        {{-- <th class="war-label">AREA VISITED:</th>
                         <td colspan="6" class="p-0">
                             <div class="input-group input-group-sm">
                                 {!! Form::select('area_visited_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_visited_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
                             </div>
-                        </td>
+                        </td> --}}
     
                         {{-- space --}}
-                        <td class="border-0" colspan="7"></td>
+                        <td class="border-0" colspan="14"></td>
                     </tr>
                 {{-- spacing --}}
                     <tr>
@@ -149,7 +149,7 @@
                     <tr>
                         <th class="align-middle war-label pr-1" colspan="14">
                             II. AREAS
-                            <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            {{-- <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button> --}}
                         </th>
                     </tr>
                     <tr class="text-center section-header">
@@ -184,10 +184,7 @@
                             </td>
                             <td colspan="4" class="p-0">
                                 <div class="input-group input-group-sm">
-                                    {!! Form::text('area_remarks[]', $area->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                                    <span class="input-group-prepend align-middle">
-                                        <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
-                                    </span>
+                                    {!! Form::textarea('area_remarks[]', $area->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war', 'rows' => 1]) !!}
                                 </div>
                             </td>
                         </tr>
@@ -455,11 +452,6 @@
                         <td id="total-ytd" class="p-0 pr-3 align-middle font-weight-bold"></td>
                         <td colspan="4"></td>
                     </tr>
-                {{-- spacing --}}
-                    <tr>
-                        <th class="border-0" colspan="14"></th>
-                    </tr>
-                {{--  --}}
             </tbody>
         </table>
     </div>
@@ -578,10 +570,18 @@
         days_arr[6] = 'Saturday';
 
         // set day on selected date
+        $('body').find('.area-date').each(function() {
+            var date = $(this).val();
+            const d = new Date(date);
+            let day = d.getDay();
+
+            $(this).closest('tr').find('.area-day').val(days_arr[day]);
+        });
+
         $('body').on('change', '.area-date', function() {
             var date = $(this).val();
             const d = new Date(date);
-            let day = d.getDay(); 
+            let day = d.getDay();
 
             $(this).closest('tr').find('.area-day').val(days_arr[day]);
         });
