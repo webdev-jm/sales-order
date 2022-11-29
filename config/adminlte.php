@@ -349,7 +349,7 @@ return [
         [
             'text'      => 'Weekly Activity Report',
             'url'       => '/war',
-            'icon'      => 'fas fa-fw fa-chart-bar',
+            'icon'      => 'fas fa-fw fa-calendar-week',
             'can'       => 'war access',
             'active'    => ['war*']
         ],
