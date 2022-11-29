@@ -103,154 +103,147 @@
 </head>
 <body>
 
-    {{-- duplicate --}}
-    @for($i = 0; $i < 2;$i++)
 
-        <div class="row">
-            <div class="col-2">
-                <img src="{{public_path('/assets/images/logo.jpg')}}" alt="logo" class="logo-img">
-            </div>
-            <div class="col-10 text-center">
-                <label class="title">DEVIATION FORM</label>
-            </div>
+    <div class="row">
+        <div class="col-2">
+            <img src="{{public_path('/assets/images/logo.jpg')}}" alt="logo" class="logo-img">
         </div>
-
-        <div class="container">
-            <table class="table table-sm">
-                <tbody>
-                    <tr>
-                        <th colspan="3" class="text-left text-uppercase">NAME: {{$deviation->user->fullName()}}</th>
-
-                        <th class="text-left">
-                            COST CENTER:
-                            {{$deviation->cost_center}}
-                        </th>
-                    </tr>
-                    <tr>
-                        <th colspan="4" class="text-left">
-                            REASON FOR DEVIATION:
-                        </th>
-                    </tr>
-                    <tr>
-                        <td colspan="4" class="text-left">
-                            {{$deviation->reason_for_deviation}}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <u>ORIGINAL PLAN</u>
-
-            <table class="table table-sm mt-2">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th class="w200">ORIGINAL SCHEDULE</th>
-                        <th class="w200">ACCOUNT AND AREA</th>
-                        <th>ACTIVITY</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($original_schedules as $schedule)
-                    <tr>
-                        <td></td>
-                        <td>
-                            {{$schedule->date}}
-                        </td>
-                        <td>
-                            [{{$schedule->branch->account->short_name}}] - {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
-                        </td>
-                        <td class="text-left">
-                            {{$schedule->activity}}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    @if(empty($original_schedules->count()))
-                    <tr>
-                        <td colspan="4" class="text-center">NO DATA</td>
-                    </tr>
-                    @endif
-                </tbody>
-            </table>
-
-            <u>NEW PLAN</u>
-
-            <table class="table table-sm mt-2">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th class="w200">SCHEDULE</th>
-                        <th class="w200">ACCOUNT AND AREA</th>
-                        <th>ACTIVITY</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($new_schedules as $schedule)
-                    <tr>
-                        <td></td>
-                        <td>
-                            {{$schedule->date}}
-                        </td>
-                        <td>
-                            [{{$schedule->branch->account->short_name}}] - {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
-                        </td>
-                        <td class="text-left">
-                            {{$schedule->activity}}
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    @if(empty($new_schedules->count()))
-                    <tr>
-                        <td colspan="4" class="text-center">NO DATA</td>
-                    </tr>
-                    @endif
-                </tbody>
-            </table>
-
-            <table class="table mt-2">
-                <thead>
-                    <tr>
-                        <th class="text-left">
-                            DATE FILED: 
-                        </th>
-                        <td>
-                            {{date('Y-m-d', strtotime($deviation->created_at))}}
-                        </td>
-
-                        @php
-                            $approval = $deviation->approvals()->orderBy('created_at', 'DESC')->where('status', 'approved')->first();
-                        @endphp
-                        <th class="text-left">DATE APPROVED: </th>
-                        <td>
-                            @if(!empty($approval)) {{date('Y-m-d', strtotime($approval->created_at))}} @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="text-left">
-                            DATE OF DEVIATION: 
-                        </th>
-                        <td>{{$deviation->date}}</td>
-                        
-                        <th class="text-left">APPROVED BY:</th>
-                        <td class="text-uppercase">
-                            @if(!empty($approval)) {{$approval->user->fullName()}} @endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="border-0" colspan="3"></td>
-                        <td class="text-center border-0">(Name & Signature)</td>
-                    </tr>
-                </thead>
-            </table>
-
+        <div class="col-10 text-center">
+            <label class="title">DEVIATION FORM</label>
         </div>
+    </div>
 
-        @if($i == 0)
-        <div class="page-break"></div>
-        @endif
+    <div class="container">
+        <table class="table table-sm">
+            <tbody>
+                <tr>
+                    <th colspan="3" class="text-left text-uppercase">NAME: {{$deviation->user->fullName()}}</th>
+
+                    <th class="text-left">
+                        COST CENTER:
+                        {{$deviation->cost_center}}
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="4" class="text-left">
+                        REASON FOR DEVIATION:
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-left">
+                        {{$deviation->reason_for_deviation}}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <u>ORIGINAL PLAN</u>
+
+        <table class="table table-sm mt-2">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="w200">ORIGINAL SCHEDULE</th>
+                    <th class="w200">ACCOUNT AND AREA</th>
+                    <th>ACTIVITY</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($original_schedules as $schedule)
+                <tr>
+                    <td></td>
+                    <td>
+                        {{$schedule->date}}
+                    </td>
+                    <td>
+                        [{{$schedule->branch->account->short_name}}] - {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                    </td>
+                    <td class="text-left">
+                        {{$schedule->activity}}
+                    </td>
+                </tr>
+                @endforeach
+
+                @if(empty($original_schedules->count()))
+                <tr>
+                    <td colspan="4" class="text-center">NO DATA</td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+
+        <u>NEW PLAN</u>
+
+        <table class="table table-sm mt-2">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th class="w200">SCHEDULE</th>
+                    <th class="w200">ACCOUNT AND AREA</th>
+                    <th>ACTIVITY</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($new_schedules as $schedule)
+                <tr>
+                    <td></td>
+                    <td>
+                        {{$schedule->date}}
+                    </td>
+                    <td>
+                        [{{$schedule->branch->account->short_name}}] - {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                    </td>
+                    <td class="text-left">
+                        {{$schedule->activity}}
+                    </td>
+                </tr>
+                @endforeach
+
+                @if(empty($new_schedules->count()))
+                <tr>
+                    <td colspan="4" class="text-center">NO DATA</td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+
+        <table class="table mt-2">
+            <thead>
+                <tr>
+                    <th class="text-left">
+                        DATE FILED: 
+                    </th>
+                    <td>
+                        {{date('Y-m-d', strtotime($deviation->created_at))}}
+                    </td>
+
+                    @php
+                        $approval = $deviation->approvals()->orderBy('created_at', 'DESC')->where('status', 'approved')->first();
+                    @endphp
+                    <th class="text-left">DATE APPROVED: </th>
+                    <td>
+                        @if(!empty($approval)) {{date('Y-m-d', strtotime($approval->created_at))}} @endif
+                    </td>
+                </tr>
+                <tr>
+                    <th class="text-left">
+                        DATE OF DEVIATION: 
+                    </th>
+                    <td>{{$deviation->date}}</td>
+                    
+                    <th class="text-left">APPROVED BY:</th>
+                    <td class="text-uppercase">
+                        @if(!empty($approval)) {{$approval->user->fullName()}} @endif
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-0" colspan="3"></td>
+                    <td class="text-center border-0">(Name & Signature)</td>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
     
-    @endfor
 </body>
 </html>
