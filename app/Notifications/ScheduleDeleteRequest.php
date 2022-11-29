@@ -46,7 +46,7 @@ class ScheduleDeleteRequest extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Delete Request')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Schedule for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' was requested to be deleted.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');

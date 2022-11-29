@@ -53,6 +53,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return array|string
+     */
+    
+    public function routeNotificationForMail($notification)
+    {
+        // Return email address only...
+        return $this->notify_email;
+ 
+        // Return email address and name...
+        // return [$this->email_address => $this->name];
+    }
+
     public function adminlte_profile_url()
     {
         return route('profile');

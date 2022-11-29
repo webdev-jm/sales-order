@@ -46,7 +46,7 @@ class WeeklyActivityReportSubmitted extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Weekly Activity Report')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line($this->weekly_activity_report->user->fullName().' submitted a weekly activity report for approval.')
             ->action('View Details', url('/war/'.$this->weekly_activity_report->id))
             ->line('Thank you for using our application!');

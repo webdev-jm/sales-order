@@ -46,7 +46,7 @@ class DeviationSubmitted extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Deviation Request')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Deviation request has been submitted by '.$this->deviation->user->fullName())
             ->action('View Details', url('/schedule/deviations'))
             ->line('Thank you for using our application!');

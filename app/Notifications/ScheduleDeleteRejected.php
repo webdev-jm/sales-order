@@ -46,7 +46,7 @@ class ScheduleDeleteRejected extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Delete Request Rejected')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Schedule Delete request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been rejected.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');

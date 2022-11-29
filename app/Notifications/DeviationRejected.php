@@ -46,7 +46,7 @@ class DeviationRejected extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Deviation Request Approved')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Deviation request has been rejected')
             ->action('View Details', url('/schedule/deviations'))
             ->line('Thank you for using our application!');

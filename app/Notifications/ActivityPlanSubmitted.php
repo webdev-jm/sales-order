@@ -46,7 +46,7 @@ class ActivityPlanSubmitted extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Activity Plan Submitted for Approval')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Activity Plan for the month of '.date('F Y', strtotime($this->activity_plan->year.'-'.$this->activity_plan->month.'-01')).' by '.$this->activity_plan->user->fullName().' has been submitted for approval.')
             ->action('View Details', url('/mcp/'.$this->activity_plan->id))
             ->line('Thank you for using our application!');
