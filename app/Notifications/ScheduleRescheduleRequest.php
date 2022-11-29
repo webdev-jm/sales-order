@@ -46,7 +46,7 @@ class ScheduleRescheduleRequest extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Reschedule Request')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('The schedule of '.$this->schedule->user->fullName().'  at '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' was requested to be rescheduled to '.$this->schedule->reschedule_date.'.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');

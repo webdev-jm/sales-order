@@ -46,7 +46,7 @@ class ScheduleRequestApproved extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Request Approved')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Schedule Request for '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' on '.$this->schedule->date.' by '.$this->schedule->user->fullName().' has been approved.')
             ->action('View Details', url('/schedule/list'))
             ->line('Thank you for using our application!');

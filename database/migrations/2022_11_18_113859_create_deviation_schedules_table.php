@@ -19,7 +19,7 @@ class CreateDeviationSchedulesTable extends Migration
             $table->unsignedBigInteger('user_branch_schedule_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->date('date');
-            $table->text('activity');
+            $table->text('activity')->nullable();
             $table->string('type');
             $table->timestamps();
 

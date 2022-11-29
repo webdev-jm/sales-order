@@ -171,7 +171,7 @@
     </div>
     <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        @if(!empty($deviation) && auth()->user()->can('schedule approve deviation') && in_array(auth()->user()->id, $supervisor_ids) && $deviation->status == 'submitted')
+        @if(!empty($deviation) && auth()->user()->can('schedule approve deviation') && $deviation->status == 'submitted' && (in_array(auth()->user()->id, $supervisor_ids) || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')))
             <div>
                 <button class="btn btn-success" wire:loading.attr="disabled" wire:click.prevent="approve"><i class="fa fa-check mr-1"></i>Approve</button>
                 <button class="btn btn-danger" wire:loading.attr="disabled" wire:click.prevent="reject"><i class="fa fa-ban mr-1"></i>Reject</button>

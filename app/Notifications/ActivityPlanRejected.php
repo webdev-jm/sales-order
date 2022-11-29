@@ -46,7 +46,7 @@ class ActivityPlanRejected extends Notification
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Activity Plan has been rejected')
-            ->greeting('Hello!')
+            ->greeting('Hello! '.$notifiable->fullName())
             ->line('Activity Plan for the month of '.date('F Y', strtotime($this->activity_plan->year.'-'.$this->activity_plan->month.'-01')).' by '.$this->activity_plan->user->fullName().' has been rejected.')
             ->action('View Details', url('/mcp/'.$this->activity_plan->id))
             ->line('Thank you for using our application!');
