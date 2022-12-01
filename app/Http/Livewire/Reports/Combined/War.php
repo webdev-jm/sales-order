@@ -36,7 +36,8 @@ class War extends Component
 
     public function render()
     {
-        $weekly_activity_reports = WeeklyActivityReport::orderBy('id', 'DESC');
+        $weekly_activity_reports = WeeklyActivityReport::orderBy('id', 'DESC')
+        ->where('status', '<>', 'draft');
         if(!empty($this->month) && !empty($this->year)) {
             $date_string = $this->year.'-'.$this->month.'-';
             $weekly_activity_reports->where('date_from', 'like', '%'.$date_string.'%')

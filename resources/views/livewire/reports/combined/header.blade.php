@@ -35,6 +35,9 @@
             </ul>
             <div class="container text-center">
                 <h4 class="mb-0 mt-2 text-uppercase font-weight-bold">{{date('F Y', strtotime($selected_year.'-'.$month.'-01'))}}</h4>
+                @if(!empty($user_id) && auth()->user()->can('report export'))
+                    <a href="{{route('report.combined-print', [$user_id, $selected_year, $month])}}" class="btn btn-danger" target="_blank"><i class="fa fa-file-pdf mr-1"></i>Print to PDF</a>
+                @endif
             </div>
         </div>
     </div>
