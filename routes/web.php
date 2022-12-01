@@ -109,6 +109,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('report export');
 
         Route::get('combined/report', [ReportController::class, 'combinedReports'])->name('report.combined');
+        Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
     });
 
     // Activity Plan / MCP
