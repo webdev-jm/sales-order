@@ -146,12 +146,22 @@ class Detail extends Component
     }
 
     public function mount() {
-        if(empty($this->year)) {
-            $this->year = date('Y');
-        }
+        $activity_plan_data = Session::get('activity_plan_data');
+        if(!empty($activity_plan_data)) {
+            foreach($activity_plan_data as $year => $months) {
+                $this->year = $year;
+                foreach($months as $month => $data) {
+                    $this->month = $month;
+                }
+            }
 
-        if(empty($this->month)) {
-            $this->month = date('m') + 1;
+        } else {
+            if(empty($this->year)) {
+                $this->year = date('Y');
+            }
+            if(empty($this->month)) {
+                $this->month = date('m') + 1;
+            }
         }
 
         $this->last_day = date('t', strtotime($this->year.'-'.$this->month.'-01'));

@@ -53,16 +53,26 @@ class Header extends Component
     }
 
     public function mount() {
-        if(empty($this->year)) {
-            $this->year = date('Y');
-        }
-
-        if(empty($this->month)) {
-            $month = (int)date('m') + 1;
-            $this->month = $month < 10 ? '0'.$month : $month;
-        }
-
         $activity_plan_data = Session::get('activity_plan_data');
+        if(!empty($activity_plan_data)) {
+            foreach($activity_plan_data as $year => $months) {
+                $this->year = $year;
+                foreach($months as $month => $data) {
+                    $this->month = $month;
+                }
+            }
+
+        } else {
+            if(empty($this->year)) {
+                $this->year = date('Y');
+            }
+    
+            if(empty($this->month)) {
+                $month = (int)date('m') + 1;
+                $this->month = $month < 10 ? '0'.$month : $month;
+            }
+        }
+
         if(!empty($activity_plan_data[$this->year][$this->month])) {
             $this->objectives = $activity_plan_data[$this->year][$this->month]['objectives'];
         }
