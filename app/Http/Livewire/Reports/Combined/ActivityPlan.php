@@ -36,7 +36,9 @@ class ActivityPlan extends Component
 
     public function render()
     {
-        $activity_plans = ActivityPlanModel::orderBy('id', 'DESC');
+        $activity_plans = ActivityPlanModel::orderBy('id', 'DESC')
+        ->where('status', '<>', 'draft');
+
         if(!empty($this->month)) {
             $activity_plans->where('month', $this->month);
         }

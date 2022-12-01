@@ -28,8 +28,8 @@
                                         @foreach($branch_activities as $activity)
                                         <li>{{$activity->activity->description}}
                                             @if(!empty($activity->remarks))
-                                            <ul>
-                                                <li>{{$activity->remarks}}</li>
+                                            <ul class="list-unstyled">
+                                                <li><b>Remarks: </b>{{$activity->remarks}}</li>
                                             </ul>
                                             @endif
                                         </li>
