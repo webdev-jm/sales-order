@@ -160,7 +160,13 @@ class Detail extends Component
                 $this->year = date('Y');
             }
             if(empty($this->month)) {
-                $this->month = date('m') + 1;
+                $month = date('m');
+                if($month == 12) {
+                    $this->month = 1;
+                    $this->year = date('Y') + 1;
+                } else {
+                    $this->month = date('m') + 1;
+                }
             }
         }
 

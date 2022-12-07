@@ -319,9 +319,10 @@ class WeeklyActivityReportController extends Controller
             $war_activity->save();
         }
 
-        // notifications
-
         if($request->status == 'submitted') {
+
+            // notifications
+
             return redirect()->route('war.index')->with([
                 'message_success' => 'Weekly activity report has been updated.'
             ]);
