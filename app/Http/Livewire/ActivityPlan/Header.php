@@ -47,8 +47,10 @@ class Header extends Component
         ];
         $deadline = $settings->mcp_deadline;
         // check if date was already pass deadline
-        if($this->year < $current_date['year'] || $this->month < $current_date['month']) {
+        if($this->year <= $current_date['year'] && $this->month < $current_date['month']) {
             $this->deadline_message = 'This date was already passed deadline.';
+        } else {
+            $this->reset('deadline_message');
         }
     }
 
@@ -68,7 +70,14 @@ class Header extends Component
             }
     
             if(empty($this->month)) {
-                $month = (int)date('m') + 1;
+                $month = (int)date('m');
+                if($month == 12) {
+                    $month = 1;
+                    $this->year = $this->year + 1;
+                } else {
+                    $month = $month + 1;
+                }
+
                 $this->month = $month < 10 ? '0'.$month : $month;
             }
         }

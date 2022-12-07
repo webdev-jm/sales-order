@@ -511,13 +511,12 @@ class UserBranchScheduleController extends Controller
                     $users_arr[$user->id] = $user->fullName();
                 }
             } else {
-                $users = User::select('user_id')->distinct()
-                ->get('user_id');
+                // $users = User::find(auth()->user);
 
-                foreach($users as $user) {
-                    $user_data = User::findOrFail($user->user_id);
-                    $users_arr[$user_data->id] = $user_data->fullName();
-                }
+                // foreach($users as $user) {
+                //     $user_data = User::findOrFail($user->user_id);
+                //     $users_arr[$user_data->id] = $user_data->fullName();
+                // }
             }
         }
     
