@@ -6,6 +6,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
 use App\Models\Product;
+use App\Models\SalesOrderCutOff;
 use App\Http\Requests\StoreSalesOrderRequest;
 use App\Http\Requests\UpdateSalesOrderRequest;
 use Illuminate\Http\Request;
@@ -103,10 +104,17 @@ class SalesOrderController extends Controller
 
             Session::forget('order_data');
 
+            $date = date('Y-m-d');
+
+            // check if theres cut-off today
+            $cut_off = SalesOrderCutOff::orderBy('time', 'ASC')
+            ->where('date', $date)->first();
+
             $sales_orders = SalesOrder::SalesOrderSearch($search, $logged_account,$this->setting->data_per_page);
             return view('sales-orders.index')->with([
                 'sales_orders' => $sales_orders,
-                'search' => $search
+                'search' => $search,
+                'cut_off' => $cut_off,
             ]);
         } else {
             return redirect()->route('home')->with([
