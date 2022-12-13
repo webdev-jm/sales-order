@@ -370,6 +370,7 @@ return [
         [
             'header'    => 'maintenance',
             'can'       => [
+                'SO cut-off access',
                 'company access',
                 'discount access',
                 'account access',
@@ -380,6 +381,13 @@ return [
                 'sales people access',
                 'operation process access',
             ]
+        ],
+        [
+            'text'      => 'SO Cut-offs',
+            'url'       => '/cut-off',
+            'icon'      => 'fas fa-fw fa-clock',
+            'can'       => 'SO cut-off access',
+            'active'    => ['cut-off*']
         ],
         [
             'text'      => 'Companies',

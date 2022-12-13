@@ -110,7 +110,6 @@ class SalesPersonController extends Controller
             'user_id' => $request->user_id,
             'code' => $request->code
         ]);
-        $sales_person->save();
 
         $sales_person->accounts()->sync($request->accounts);
 

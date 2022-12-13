@@ -13,10 +13,25 @@
         <h1>Sales Orders</h1>
     </div>
     <div class="col-md-6 text-right">
-        @can('sales order create')
-        <a href="{{route('sales-order.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Sales Order</a>
-        @endcan
+        @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
+            @can('sales order create')
+            <a href="{{route('sales-order.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Sales Order</a>
+            @endcan
+        @endif
     </div>
+
+    @if(!empty($cut_off))
+    <div class="col-lg-12">
+        <div class="alert alert-warning mb-0 mt-2" role="alert">
+            <h4 class="alert-heading">NOTE:</h4>
+            <p>
+                {{$cut_off->message}}
+            </p>
+            <hr class="my-1">
+            <p class="mb-0">cut-off: <b>{{$cut_off->date}} {{$cut_off->time}}</b></p>
+          </div>
+    </div>
+    @endif
 </div>
 @endsection
 

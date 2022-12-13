@@ -28,6 +28,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\OrganizationStructureController;
 use App\Http\Controllers\ActivityPlanController;
 use App\Http\Controllers\WeeklyActivityReportController;
+use App\Http\Controllers\SalesOrderCutOffController;
 
 /*
 |--------------------------------------------------------------------------
@@ -139,6 +140,16 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
         Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval')->middleware('permission:war approve');
+    });
+
+    // SO Cut-offs
+    Route::group(['middleware' => 'permission:SO cut-off access'], function() {
+        Route::get('cut-off', [SalesOrderCutOffController::class, 'index'])->name('cut-off.index');
+        Route::get('cut-off/create', [SalesOrderCutOffController::class, 'create'])->name('cut-off.create')->middleware('permission:SO cut-off create');
+        Route::post('cut-off', [SalesOrderCutOffController::class, 'store'])->name('cut-off.store')->middleware('permission:SO cut-off create');
+
+        Route::get('cut-off/{id}/edit', [SalesOrderCutOffController::class, 'edit'])->name('cut-off.edit')->middleware('permission:SO cut-off edit');
+        Route::post('cut-off/{id}', [SalesOrderCutOffController::class, 'update'])->name('cut-off.update')->middleware('permission:SO cut-off edit');
     });
 
     // COMPANY

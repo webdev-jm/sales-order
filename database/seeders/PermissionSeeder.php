@@ -51,6 +51,11 @@ class PermissionSeeder extends Seeder
             'war edit',
             'war delete',
             'war approve',
+            // sales order cut-off
+            'SO cut-off access',
+            'SO cut-off create',
+            'SO cut-off edit',
+            'SO cut-off delete',
             // company
             'company access',
             'company create',
