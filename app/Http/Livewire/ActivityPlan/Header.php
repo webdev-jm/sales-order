@@ -60,7 +60,7 @@ class Header extends Component
             foreach($activity_plan_data as $year => $months) {
                 $this->year = $year;
                 foreach($months as $month => $data) {
-                    $this->month = $month;
+                    $this->month = $month < 10 ? '0'.(int)$month : $month;
                 }
             }
 
@@ -75,7 +75,7 @@ class Header extends Component
                     $month = 1;
                     $this->year = $this->year + 1;
                 } else {
-                    $month = $month + 1;
+                    $month = ($month + 1) > 10 ? '0'.($month + 1) : ($month + 1);
                 }
 
                 $this->month = $month < 10 ? '0'.$month : $month;
@@ -83,7 +83,7 @@ class Header extends Component
         }
 
         if(!empty($activity_plan_data[$this->year][$this->month])) {
-            $this->objectives = $activity_plan_data[$this->year][$this->month]['objectives'];
+            $this->objectives = $activity_plan_data[$this->year][$this->month]['objectives'] ?? '';
         }
     }
 

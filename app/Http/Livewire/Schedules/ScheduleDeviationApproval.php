@@ -12,6 +12,7 @@ use Livewire\WithPagination;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\DeviationApproved;
+use App\Notifications\DeviationRejected;
 
 class ScheduleDeviationApproval extends Component
 {

@@ -119,7 +119,7 @@
                 </table>
             </div>
 
-            @if(!empty($deviation) && auth()->user()->can('schedule approve deviation') && in_array(auth()->user()->id, $supervisor_ids) && $deviation->status == 'submitted')
+            @if(!empty($deviation) && auth()->user()->can('schedule approve deviation') && $deviation->status == 'submitted' && (in_array(auth()->user()->id, $supervisor_ids) || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')))
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
