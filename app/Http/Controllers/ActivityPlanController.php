@@ -96,6 +96,7 @@ class ActivityPlanController extends Controller
             
             foreach($activity_plan_data as $year => $months) {
                 foreach($months as $month => $data) {
+
                     // check objectives
                     if(!empty($data['objectives'])) {
 

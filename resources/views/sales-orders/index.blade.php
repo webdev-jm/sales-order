@@ -88,12 +88,14 @@
                     </td>
                     <td>{{$sales_order->account_login->user->fullName()}}</td>
                     <td class="text-right">
-                        @if($sales_order->status == 'draft')
-                            @can('sales order edit')
-                                <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit">
-                                    <i class="fas fa-edit text-success mx-1"></i>
-                                </a>
-                            @endcan
+                        @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
+                            @if($sales_order->status == 'draft')
+                                @can('sales order edit')
+                                    <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit">
+                                        <i class="fas fa-edit text-success mx-1"></i>
+                                    </a>
+                                @endcan
+                            @endif
                         @endif
                         <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
                             <i class="fa fa-eye text-primary mx-1"></i>

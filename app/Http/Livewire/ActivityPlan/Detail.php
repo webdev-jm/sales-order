@@ -80,7 +80,7 @@ class Detail extends Component
 
     public function setDate($year, $month) {
         $this->year = $year;
-        $this->month = $month;
+        $this->month = $month < 10 ? '0'.(int)$month : $month;
 
         $this->last_day = date('t', strtotime($this->year.'-'.$this->month.'-01'));
 
@@ -151,7 +151,7 @@ class Detail extends Component
             foreach($activity_plan_data as $year => $months) {
                 $this->year = $year;
                 foreach($months as $month => $data) {
-                    $this->month = $month;
+                    $this->month = $month < 10 ? '0'.(int)$month : $month;
                 }
             }
 
@@ -162,10 +162,10 @@ class Detail extends Component
             if(empty($this->month)) {
                 $month = date('m');
                 if($month == 12) {
-                    $this->month = 1;
+                    $this->month = '01';
                     $this->year = date('Y') + 1;
                 } else {
-                    $this->month = date('m') + 1;
+                    $this->month = ($month + 1) < 10 ? '0'.($month + 1) : ($month + 1);
                 }
             }
         }
