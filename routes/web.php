@@ -105,9 +105,10 @@ Route::group(['middleware' => 'auth'], function () {
     // REPORTS
     Route::group(['middleware' => 'permission:report access'], function() {
         Route::get('report', [ReportController::class, 'index'])->name('report.index');
+        Route::get('report/mcp-dashboard', [ReportController::class, 'mcpDashboard'])->name('report.mcp-dashboard');
         Route::get('report/sales-order', [ReportController::class, 'sales_orders'])->name('report.sales-order');
 
-        Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('report export');
+        Route::get('report/sales-order/export', [RegionController::class, 'export'])->name('report.sales-order.export')->middleware('permission:report export');
 
         Route::get('combined/report', [ReportController::class, 'combinedReports'])->name('report.combined');
         Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
