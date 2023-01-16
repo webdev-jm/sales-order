@@ -79,7 +79,12 @@ class User extends Authenticatable
     }
 
     public function fullName() {
-        return ucwords(strtolower($this->firstname.' '.$this->lastname));
+        $name = $this->firstname.' '.$this->lastname;
+        if(!empty($this->middlename)) {
+            $name = $this->firstname.' '.$this->middlename.' '.$this->lastname;
+        }
+        
+        return ucwords(strtolower($name));
     }
 
     public function accounts() {
