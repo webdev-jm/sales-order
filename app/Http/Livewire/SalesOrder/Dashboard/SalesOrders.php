@@ -26,7 +26,7 @@ class SalesOrders extends Component
 
     public function setDate($year, $month, $days) {
         $this->year = $year;
-        $this->month = $month;
+        $this->month = $month < 10 ? '0'.$month : $month;
         $this->days = $days;
 
         $this->resetPage('order-page');

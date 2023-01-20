@@ -1,6 +1,6 @@
 <div>
     <ul class="pagination pagination-month justify-content-center">
-        <li class="page-item"><a class="page-link" href="#" wire:click.prevent="selectDate({{$prev_year}}, {{$prev_month}})">«</a></li>
+        <li class="page-item"><a class="page-link" href="#" wire:click.prevent="selectDate({{$prev_year}}, '{{$prev_month}}')">«</a></li>
         <li class="page-item{{$month == '01' ? ' active' : ''}}">
             <a class="page-link" href="#" wire:click.prevent="selectDate({{$year}}, '01')">
                 <p class="page-month">Jan</p>
@@ -73,7 +73,7 @@
                 <p class="page-year">{{$year}}</p>
             </a>
         </li>
-        <li class="page-item"><a class="page-link" href="#" wire:click.prevent="selectDate({{$next_year}}, {{$next_month}})">»</a></li>
+        <li class="page-item"><a class="page-link" href="#" wire:click.prevent="selectDate({{$next_year}}, '{{$next_month}}')">»</a></li>
     </ul>
     
     <div class="row">
