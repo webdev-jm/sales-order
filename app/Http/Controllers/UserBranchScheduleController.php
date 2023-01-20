@@ -50,7 +50,7 @@ class UserBranchScheduleController extends Controller
         }
 
         $schedule_data = [];
-        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
 
             // check filter
             if(!empty($user_id) || !empty($account_id)) {

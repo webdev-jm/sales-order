@@ -21,7 +21,7 @@ class ScheduleCalendar extends Component
     public function render()
     {
         // FILTERS
-            if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+            if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
                 // user filter options
                 $users = UserBranchSchedule::select('user_id')->distinct()
                 ->get('user_id');
@@ -60,7 +60,7 @@ class ScheduleCalendar extends Component
         $reschedule_color = '#f37206';
 
         $schedule_data = [];
-        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
 
             // check filter
             if(!empty($user_id) || !empty($branch_id)) {

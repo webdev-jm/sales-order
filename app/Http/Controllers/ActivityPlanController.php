@@ -46,7 +46,7 @@ class ActivityPlanController extends Controller
 
         $settings = $this->getSettings();
 
-        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
             $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
         } else { // restricted to self and supervisors
             // get user subordinates
