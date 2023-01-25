@@ -24,6 +24,7 @@ use App\Http\Traits\GlobalTrait;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\WeeklyActivityReportSubmitted;
 use App\Notifications\WeeklyActivityReportApproved;
+use App\Notifications\WeeklyActivityReportRejected;
 
 class WeeklyActivityReportController extends Controller
 {
@@ -382,7 +383,7 @@ class WeeklyActivityReportController extends Controller
             Notification::send($user, new WeeklyActivityReportApproved($war));
         } else {
             $user = $war->user;
-            Notification::send($user, new WeeklyActiityReportRejected($war));
+            Notification::send($user, new WeeklyActivityReportRejected($war));
         }
 
         return back()->with([
