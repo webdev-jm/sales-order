@@ -68,7 +68,7 @@
                     </td>
                     <td>{{$weekly_activity_report->created_at->diffForHumans()}}</td>
                     <td class="text-right">
-                        @if(auth()->user()->can('war edit') && $weekly_activity_report->status == 'draft')
+                        @if(auth()->user()->can('war edit') && ($weekly_activity_report->status == 'draft' || $weekly_activity_report->status == 'rejected'))
                             <a href="{{route('war.edit', $weekly_activity_report->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endif
                         <a href="{{route('war.show', $weekly_activity_report->id)}}" title="view details"><i class="fa fa-eye text-primary"></i></a>

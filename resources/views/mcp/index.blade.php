@@ -73,7 +73,7 @@
                     <td>{{$activity_plan->created_at->diffForHumans()}}</td>
                     <td class="text-right">
                         <a href="{{route('mcp.show', $activity_plan->id)}}"  title="view"><i class="fas fa-eye text-primary mx-1"></i></a>
-                        @if(auth()->user()->can('mcp edit') && $activity_plan->status == 'draft')
+                        @if(auth()->user()->can('mcp edit') && ($activity_plan->status == 'draft' || $activity_plan->status == 'rejected'))
                             <a href="{{route('mcp.edit', $activity_plan->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endif
                         @can('mcp delete')
