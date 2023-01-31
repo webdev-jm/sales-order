@@ -59,7 +59,12 @@
             Activity Plan for the Month of: 
             <span class="font-weight-bold text-uppercase">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</span>
         </h3>
-        @if(auth()->user()->can('mcp approval') && $activity_plan->status == 'submitted' && (in_array($activity_plan->user_id, $subordinate_ids) || auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')))
+        @if($activity_plan->status == 'submitted' && (
+            in_array($activity_plan->user_id, $subordinate_ids) ||
+            auth()->user()->hasRole('superadmin') ||
+            auth()->user()->hasRole('admin') || 
+            auth()->user()->can('mcp approval')
+        ))
             <div class="card-tools">
                 <button class="btn btn-danger" id="btn-reject">Reject</button>
                 <button class="btn btn-success" id="btn-approve">Approve</button>
