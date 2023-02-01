@@ -19,7 +19,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($lines as $date => $line)
+                    
+                    @foreach($lines[$month] as $date => $line)
                         <tr class="text-center {{$line['class']}}">
                             <td class="align-middle text-uppercase font-weight-bold" rowspan="{{count($line['lines']) + 1}}">
                                 {{$line['day']}}
@@ -32,7 +33,7 @@
                         <tr class=" {{$line['class']}}">
                             {{-- location --}}
                             <td class="p-0 align-middle">
-                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.location"></textarea>
+                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.location"></textarea>
                             </td>
                             {{-- branches --}}
                             <td class="p-0">
@@ -73,11 +74,11 @@
                             </td>
                             {{-- purpose/activity --}}
                             <td class="p-0 align-middle">
-                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.purpose"></textarea>
+                                <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
                             {{-- work with --}}
                             <td class="p-0">
-                                <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$date}}.lines.{{$key}}.user_id">
+                                <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.user_id">
                                     <option value=""></option>
                                     @foreach($users as $user)
                                     <option value="{{$user->id}}">{{$user->fullName()}}</option>

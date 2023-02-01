@@ -94,42 +94,39 @@ class ActivityPlanController extends Controller
 
         if(!empty($activity_plan_data)) {
             
-            foreach($activity_plan_data as $year => $months) {
-                foreach($months as $month => $data) {
+            foreach($activity_plan_data as $year => $data) {
 
-                    // check objectives
-                    if(!empty($data['objectives'])) {
+                // check objectives
+                if(!empty($data['objectives'])) {
 
-                        $activity_plan = new ActivityPlan([
-                            'user_id' => auth()->user()->id,
-                            'month' => $data['month'],
-                            'year' => $data['year'],
-                            'objectives' => $data['objectives'],
-                            'status' => $request->status
-                        ]);
-                        $activity_plan->save();
-    
-                        // details
-                        foreach($data['details'] as $date => $details) {
-                            // dates
-                            foreach($details['lines'] as $val) {
-                                $activity_plan_detail = new ActivityPlanDetail([
-                                    'activity_plan_id' => $activity_plan->id,
-                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                    'day' => $details['day'],
-                                    'date' => $date,
-                                    'exact_location' => $val['location'],
-                                    'activity' => $val['purpose']
-                                ]);
-                                $activity_plan_detail->save();
-                            }
+                    $activity_plan = new ActivityPlan([
+                        'user_id' => auth()->user()->id,
+                        'month' => $data['month'],
+                        'year' => $data['year'],
+                        'objectives' => $data['objectives'],
+                        'status' => $request->status
+                    ]);
+                    $activity_plan->save();
+
+                    // details
+                    foreach($data['details'][$data['month']] as $date => $details) {
+                        // dates
+                        foreach($details['lines'] as $val) {
+                            $activity_plan_detail = new ActivityPlanDetail([
+                                'activity_plan_id' => $activity_plan->id,
+                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                'day' => $details['day'],
+                                'date' => $date,
+                                'exact_location' => $val['location'],
+                                'activity' => $val['purpose']
+                            ]);
+                            $activity_plan_detail->save();
                         }
-
-                    } else {
-                        throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                     }
 
+                } else {
+                    throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
             }
 
@@ -236,7 +233,7 @@ class ActivityPlanController extends Controller
         $activity_plan = ActivityPlan::findOrFail($id);
 
         // header
-        $activity_plan_data[$activity_plan->year][$activity_plan->month] = [
+        $activity_plan_data[$activity_plan->year] = [
             'year' => $activity_plan->year,
             'month' => $activity_plan->month,
             'objectives' => $activity_plan->objectives,
@@ -265,7 +262,7 @@ class ActivityPlanController extends Controller
             ];
         }
 
-        $activity_plan_data[$activity_plan->year][$activity_plan->month]['details'] = $details;
+        $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
 
         Session::put('activity_plan_data', $activity_plan_data);
 
@@ -297,34 +294,44 @@ class ActivityPlanController extends Controller
         $activity_plan = ActivityPlan::findOrFail($id);
 
         if(!empty($activity_plan_data)) {
+            foreach($activity_plan_data as $year => $data) {
+                
+                if(!empty($data['objectives'])) {
+                    $activity_plan->update([
+                        'year' => $data['year'],
+                        'month' => $data['month'],
+                        'objectives' => $data['objectives'],
+                        'status' => $request->status
+                    ]);
 
-            $data = $activity_plan_data[$activity_plan->year][$activity_plan->month];
-
-            if(!empty($data['objectives'])) {
-            
-                $activity_plan->update([
-                    'year' => $data['year'],
-                    'month' => $data['month'],
-                    'objectives' => $data['objectives'],
-                    'status' => $request->status
-                ]);
-
-                // details
-                foreach($data['details'] as $date => $detail) {
-                    foreach($detail['lines'] as $val) {
-                        // check if already exist
-                        if(isset($val['id'])) { // update
-                            $activity_plan_detail = ActivityPlanDetail::find($val['id']);
-                            if(!empty($activity_plan_detail)) {
-                                $activity_plan_detail->update([
-                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                    'day' => $detail['day'],
-                                    'date' => $date,
-                                    'exact_location' => $val['location'],
-                                    'activity' => $val['purpose']
-                                ]);
-                            } else {
+                    // details
+                    foreach($data['details'][$data['month']] as $date => $detail) {
+                        foreach($detail['lines'] as $val) {
+                            // check if already exist
+                            if(isset($val['id'])) { // update
+                                $activity_plan_detail = ActivityPlanDetail::find($val['id']);
+                                if(!empty($activity_plan_detail)) {
+                                    $activity_plan_detail->update([
+                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                        'day' => $detail['day'],
+                                        'date' => $date,
+                                        'exact_location' => $val['location'],
+                                        'activity' => $val['purpose']
+                                    ]);
+                                } else {
+                                    $activity_plan_detail = new ActivityPlanDetail([
+                                        'activity_plan_id' => $activity_plan->id,
+                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                        'day' => $detail['day'],
+                                        'date' => $date,
+                                        'exact_location' => $val['location'],
+                                        'activity' => $val['purpose']
+                                    ]);
+                                    $activity_plan_detail->save();
+                                }
+                            } else { // insert
                                 $activity_plan_detail = new ActivityPlanDetail([
                                     'activity_plan_id' => $activity_plan->id,
                                     'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
@@ -336,23 +343,12 @@ class ActivityPlanController extends Controller
                                 ]);
                                 $activity_plan_detail->save();
                             }
-                        } else { // insert
-                            $activity_plan_detail = new ActivityPlanDetail([
-                                'activity_plan_id' => $activity_plan->id,
-                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                'day' => $detail['day'],
-                                'date' => $date,
-                                'exact_location' => $val['location'],
-                                'activity' => $val['purpose']
-                            ]);
-                            $activity_plan_detail->save();
                         }
                     }
-                }
 
-            } else {
-                throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
+                } else {
+                    throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
+                }
             }
 
             if($request->status == 'draft') {

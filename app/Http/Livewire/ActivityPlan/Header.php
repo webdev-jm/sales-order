@@ -17,23 +17,45 @@ class Header extends Component
 
     public function updatedObjectives() {
         $activity_plan_data = Session::get('activity_plan_data');
-        if(empty($activity_plan_data[$this->year][$this->month])) {
+        if(empty($activity_plan_data[$this->year])) {
             // initialize
-            $data[$this->year][$this->month] = [
+            $data[$this->year] = [
                 'year' => $this->year,
                 'month' => $this->month,
                 'objectives' => $this->objectives,
-                'details' => []
+                'details' => [
+                    $this->month => []
+                ]
             ];
             Session::put('activity_plan_data', $data);
         } else {
             // update
-            $activity_plan_data[$this->year][$this->month]['objectives'] = $this->objectives;
+            $activity_plan_data[$this->year]['objectives'] = $this->objectives;
             Session::put('activity_plan_data', $activity_plan_data);
         }
     }
 
     public function change_date() {
+        $activity_plan_data = Session::get('activity_plan_data');
+        if(empty($activity_plan_data[$this->year])) {
+            // initialize
+            $data[$this->year] = [
+                'year' => $this->year,
+                'month' => $this->month,
+                'objectives' => $this->objectives,
+                'details' => [
+                    $this->month => []
+                ]
+            ];
+            Session::put('activity_plan_data', $data);
+        } else {
+            // update
+            $activity_plan_data[$this->year]['objectives'] = $this->objectives;
+            $activity_plan_data[$this->year]['year'] = $this->year;
+            $activity_plan_data[$this->year]['month'] = $this->month;
+            Session::put('activity_plan_data', $activity_plan_data);
+        }
+
         $this->emit('setDate', $this->year, $this->month);
 
         // get deadline from settings
@@ -57,11 +79,9 @@ class Header extends Component
     public function mount() {
         $activity_plan_data = Session::get('activity_plan_data');
         if(!empty($activity_plan_data)) {
-            foreach($activity_plan_data as $year => $months) {
+            foreach($activity_plan_data as $year => $data) {
                 $this->year = $year;
-                foreach($months as $month => $data) {
-                    $this->month = $month < 10 ? '0'.(int)$month : $month;
-                }
+                $this->month = $data['month'] < 10 ? '0'.(int)$data['month'] : $data['month'];
             }
 
         } else {
@@ -82,8 +102,8 @@ class Header extends Component
             }
         }
 
-        if(!empty($activity_plan_data[$this->year][$this->month])) {
-            $this->objectives = $activity_plan_data[$this->year][$this->month]['objectives'] ?? '';
+        if(!empty($activity_plan_data[$this->year])) {
+            $this->objectives = $activity_plan_data[$this->year]['objectives'] ?? '';
         }
     }
 

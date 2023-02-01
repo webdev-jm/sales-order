@@ -21,8 +21,8 @@ class Detail extends Component
     ];
 
     public function clearBranch($date, $key) {
-        $this->lines[$date]['lines'][$key]['branch_id'] = '';
-        $this->lines[$date]['lines'][$key]['branch_name'] = '';
+        $this->lines[$this->month][$date]['lines'][$key]['branch_id'] = '';
+        $this->lines[$this->month][$date]['lines'][$key]['branch_name'] = '';
 
         $this->setSession();
     }
@@ -32,8 +32,8 @@ class Detail extends Component
     }
 
     public function selectBranch($date, $key, $branch_id, $branch_name) {
-        $this->lines[$date]['lines'][$key]['branch_id'] = $branch_id;
-        $this->lines[$date]['lines'][$key]['branch_name'] = $branch_name;
+        $this->lines[$this->month][$date]['lines'][$key]['branch_id'] = $branch_id;
+        $this->lines[$this->month][$date]['lines'][$key]['branch_name'] = $branch_name;
 
         // get previous record of location
         $detail = ActivityPlanDetail::orderBy('id', 'DESC')
@@ -42,7 +42,7 @@ class Detail extends Component
         ->first();
 
         if(!empty($detail)) {
-            $this->lines[$date]['lines'][$key]['location'] = $detail->exact_location;
+            $this->lines[$this->month][$date]['lines'][$key]['location'] = $detail->exact_location;
         }
 
         $this->resetQuery();
@@ -67,7 +67,7 @@ class Detail extends Component
     }
 
     public function addLine($date) {
-        $this->lines[$date]['lines'][] = [
+        $this->lines[$this->month][$date]['lines'][] = [
             'location' => '',
             'branch_id' => '',
             'branch_name' => '',
@@ -102,8 +102,8 @@ class Detail extends Component
                 $class = 'bg-secondary';
             }
 
-            if(isset($activity_plan_data[$this->year][$this->month]['details'][$date]['lines']) && !empty($activity_plan_data[$this->year][$this->month]['details'][$date]['lines'])) {
-                $data = $activity_plan_data[$this->year][$this->month]['details'][$date]['lines'];
+            if(isset($activity_plan_data[$this->year]['details'][$this->month][$date]['lines']) && !empty($activity_plan_data[$this->year]['details'][$this->month][$date]['lines'])) {
+                $data = $activity_plan_data[$this->year]['details'][$this->month][$date]['lines'];
             } else {
                 $data = [
                     [
@@ -124,13 +124,13 @@ class Detail extends Component
             ];
         }
 
-        $this->lines = $lines;
+        $this->lines[$this->month] = $lines;
     }
 
     public function setSession() {
         $activity_plan_data = Session::get('activity_plan_data');
         if(empty($activity_plan_data)) { // no session
-            $plan_data[$this->year][$this->month] = [
+            $plan_data[$this->year] = [
                 'year' => $this->year,
                 'month' => $this->month,
                 'objectives' => '',
@@ -139,7 +139,7 @@ class Detail extends Component
             // initialize data
             Session::put('activity_plan_data', $plan_data);
         } else { // with session
-            $activity_plan_data[$this->year][$this->month]['details'] = $this->lines;
+            $activity_plan_data[$this->year]['details'] = $this->lines;
             // replace details
             Session::put('activity_plan_data', $activity_plan_data);
         }
@@ -148,11 +148,9 @@ class Detail extends Component
     public function mount() {
         $activity_plan_data = Session::get('activity_plan_data');
         if(!empty($activity_plan_data)) {
-            foreach($activity_plan_data as $year => $months) {
+            foreach($activity_plan_data as $year => $data) {
                 $this->year = $year;
-                foreach($months as $month => $data) {
-                    $this->month = $month < 10 ? '0'.(int)$month : $month;
-                }
+                $this->month = $data['month'] < 10 ? '0'.(int)$data['month'] : $data['month'];
             }
 
         } else {
