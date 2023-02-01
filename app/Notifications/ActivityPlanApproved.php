@@ -11,17 +11,18 @@ class ActivityPlanApproved extends Notification
 {
     use Queueable;
 
-    public $activity_plan;
+    public $activity_plan, $approval;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($activity_plan)
+    public function __construct($activity_plan, $approval)
     {
         $this->afterCommit();
         $this->activity_plan = $activity_plan;
+        $this->approval = $approval;
     }
 
     /**
@@ -32,7 +33,7 @@ class ActivityPlanApproved extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -47,7 +48,7 @@ class ActivityPlanApproved extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Activity Plan has been approved')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line('Activity Plan for the month of '.date('F Y', strtotime($this->activity_plan->year.'-'.$this->activity_plan->month.'-01')).' by '.$this->activity_plan->user->fullName().' has been approved.')
+            ->line('Activity Plan of '.$this->activity_plan->user->fullName().' for the month of '.date('F Y', strtotime($this->activity_plan->year.'-'.$this->activity_plan->month.'-01')).' has been approved by '.$this->approval->user->fullName())
             ->action('View Details', url('/mcp/'.$this->activity_plan->id))
             ->line('Thank you for using our application!');
     }

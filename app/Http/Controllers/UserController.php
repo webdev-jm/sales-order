@@ -72,6 +72,7 @@ class UserController extends Controller
             'middlename' => $request->middlename,
             'lastname' => $request->lastname,
             'email' => $request->email,
+            'notify_email' => $request->notify_email,
             'password' => Hash::make($password),
             'group_code' => $request->group_code
         ]);
@@ -135,6 +136,7 @@ class UserController extends Controller
             'middlename' => $request->middlename,
             'lastname' => $request->lastname,
             'email' => $request->email,
+            'notify_email' => $request->notify_email,
             'group_code' => $request->group_code
         ]);
 

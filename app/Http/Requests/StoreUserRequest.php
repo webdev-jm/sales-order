@@ -38,6 +38,9 @@ class StoreUserRequest extends FormRequest
             'email' => [
                 'required', Rule::unique((new User)->getTable())
             ],
+            'notify_email' => [
+                'required'
+            ],
             'group_code' => [
                 'required'
             ],

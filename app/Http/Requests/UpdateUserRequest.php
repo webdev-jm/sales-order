@@ -38,6 +38,9 @@ class UpdateUserRequest extends FormRequest
             'email' => [
                 'required', Rule::unique((new User)->getTable())->ignore($this->id)
             ],
+            'notify_email' => [
+                'required'
+            ],
             'group_code' => [
                 'required'
             ],

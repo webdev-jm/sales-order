@@ -48,11 +48,11 @@ class Approval extends Component
         $user = $this->activity_plan->user;
         if($status == 'rejected') {
             if(!empty($user)) {
-                Notification::send($user, new ActivityPlanRejected($this->activity_plan));
+                Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
             }
         } else if($status == 'approved') { // approved
             if(!empty($user)) {
-                Notification::send($user, new ActivityPlanApproved($this->activity_plan));
+                Notification::send($user, new ActivityPlanApproved($this->activity_plan, $approval));
             }
 
             // convert to schedule

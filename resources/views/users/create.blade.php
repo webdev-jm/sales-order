@@ -66,6 +66,17 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    {!! Form::label('notify_email', 'Notification Email') !!}
+                    {!! Form::email('notify_email', '', ['class' => 'form-control'.($errors->has('notify_email') ? ' is-invalid' : ''), 'form' => 'add_user']) !!}
+                    <p class="text-danger mt-1">{{$errors->first('notify_email')}}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="form-group">
                     <label>Group Code</label>
                     <div class="custom-control custom-radio">
                         {!! Form::radio('group_code', 'NKA', true, ['class' => 'custom-control-input', 'id' => 'nka_check', 'form' => 'add_user']) !!}
@@ -81,9 +92,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="row">
 
             <div class="col-md-6 text-align-middle">
                 <label>User Roles{!!$errors->has('roles') ? '<span class="ml-2 badge badge-danger">Required</span>' : ''!!}</label>
