@@ -29,6 +29,7 @@ use App\Http\Controllers\OrganizationStructureController;
 use App\Http\Controllers\ActivityPlanController;
 use App\Http\Controllers\WeeklyActivityReportController;
 use App\Http\Controllers\SalesOrderCutOffController;
+use App\Http\Controllers\CostCenterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -320,6 +321,20 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('operation-process/{id}/edit', [OperationProcessController::class, 'edit'])->name('operation-process.edit')->middleware('permission:operation process edit');
         Route::post('operation-process/{id}', [OperationProcessController::class, 'update'])->name('operation-process.update')->middleware('permission:operation process edit');
+    });
+
+    // COST CENTER
+    Route::group(['middleware' => 'permission:cost center access'], function() {
+        Route::get('cost-center', [CostCenterController::class, 'index'])->name('cost-center.index');
+        Route::get('cost-center/create', [CostCenterController::class, 'create'])->name('cost-center.create')->middleware('permission:cost center create');
+        Route::post('cost-center', [CostCenterController::class, 'store'])->name('cost-center.store')->middleware('permission:cost center create');
+
+        Route::post('cost-center/upload', [CostCenterController::class, 'importCostCenter'])->name('cost-center.upload')->middleware('permission:cost center create');
+
+        Route::get('cost-center/{id}', [CostCenterController::class, 'show'])->name('cost-center.show');
+        
+        Route::get('cost-center/{id}/edit', [CostCenterController::class, 'edit'])->name('cost-center.edit')->middleware('permission:cost center edit');
+        Route::post('cost-center/{id}', [CostCenterController::class, 'update'])->name('cost-center.update')->middleware('permission:cost center edit');
     });
 
     // ACCOUNT LOGINS

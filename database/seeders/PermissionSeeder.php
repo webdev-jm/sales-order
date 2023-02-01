@@ -126,6 +126,11 @@ class PermissionSeeder extends Seeder
             'operation process create',
             'operation process edit',
             'operation process delete',
+            // cost center
+            'cost center access',
+            'cost center create',
+            'cost center edit',
+            'cost center delete',
             // account logins
             'account login access',
             'account login export',
