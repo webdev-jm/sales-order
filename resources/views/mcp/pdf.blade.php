@@ -136,7 +136,7 @@
                         {{$line['branch_name']}}
                         <br>
                         @if(!empty($line['account_name']))
-                            <span class="text-muted">[{{$line['account_name']}}]</span>
+                            <span class="">[{{$line['account_name']}}]</span>
                         @endif
                     </td>
                     <td class="text-left">{{$line['purpose']}}</td>

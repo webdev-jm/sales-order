@@ -53,8 +53,8 @@
             <tbody>
                 @foreach($account_product_references as $account_reference)
                 <tr>
-                    <td>[{{$account_reference->account->account_code}}] {{$account_reference->account->account_name}}</td>
-                    <td>[{{$account_reference->product->stock_code}}] {{$account_reference->product->description}} {{$account_reference->product->size}}</td>
+                    <td>[{{$account_reference->account->account_code ?? ''}}] {{$account_reference->account->account_name ?? ''}}</td>
+                    <td>[{{$account_reference->product->stock_code ?? ''}}] {{$account_reference->product->description ?? ''}} {{$account_reference->product->size ?? ''}}</td>
                     <td>{{$account_reference->account_reference}}</td>
                     <td>{{$account_reference->description}}</td>
                     <td class="text-right">
