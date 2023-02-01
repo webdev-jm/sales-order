@@ -29,6 +29,7 @@ class User extends Authenticatable
         'middlename',
         'lastname',
         'email',
+        'notify_email',
         'password',
         'group_code',
         'last_activity',
