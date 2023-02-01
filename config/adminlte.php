@@ -481,6 +481,13 @@ return [
             'active'    => ['operation-process*']
         ],
         [
+            'text'      => 'Cost Centers',
+            'url'       => '/cost-center',
+            'icon'      => 'fas fa-fw fa-user-cog',
+            'can'       => 'cost center access',
+            'active'    => ['cost-center*']
+        ],
+        [
             'header'    => 'system_menu',
             'can'       => [
                 'user access',

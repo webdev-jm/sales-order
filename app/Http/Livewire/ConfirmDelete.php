@@ -20,6 +20,7 @@ use App\Models\OperationProcess;
 use App\Models\Region;
 use App\Models\Area;
 use App\Models\AccountProductReference;
+use App\Models\CostCenter;
 
 class ConfirmDelete extends Component
 {
@@ -135,6 +136,11 @@ class ConfirmDelete extends Component
                 $this->model = AccountProductReference::findOrFail($model_id);
                 $this->name = $this->model->account_reference;
                 $this->route = '/reference-account';
+                break;
+            case 'CostCenter':
+                $this->model = CostCenter::findOrFail($model_id);
+                $this->name = $this->model->cost_center;
+                $this->route = '/cost-center';
                 break;
         }
     }

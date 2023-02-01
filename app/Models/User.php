@@ -123,6 +123,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\OrganizationStructure');
     }
 
+    public function cost_centers() {
+        return $this->hasMany('App\Models\CostCenter');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')

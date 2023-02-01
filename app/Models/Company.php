@@ -20,6 +20,10 @@ class Company extends Model
         return $this->hasMany('App\Models\PriceCode');
     }
 
+    public function cost_centers() {
+        return $this->hasMany('App\Models\CostCenter');
+    }
+
     public function scopeCompanySearch($query, $search, $limit) {
         if($search != '') {
             $companies = $query->orderBy('id', 'DESC')
