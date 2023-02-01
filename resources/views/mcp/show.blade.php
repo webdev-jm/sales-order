@@ -59,17 +59,18 @@
             Activity Plan for the Month of: 
             <span class="font-weight-bold text-uppercase">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</span>
         </h3>
-        @if($activity_plan->status == 'submitted' && (
-            in_array($activity_plan->user_id, $subordinate_ids) ||
-            auth()->user()->hasRole('superadmin') ||
-            auth()->user()->hasRole('admin') || 
-            auth()->user()->can('mcp approval')
-        ))
-            <div class="card-tools">
+        <div class="card-tools">
+            @if($activity_plan->status == 'submitted' && (
+                in_array($activity_plan->user_id, $subordinate_ids) ||
+                auth()->user()->hasRole('superadmin') ||
+                auth()->user()->hasRole('admin') || 
+                auth()->user()->can('mcp approval')
+            ))
                 <button class="btn btn-danger" id="btn-reject">Reject</button>
                 <button class="btn btn-success" id="btn-approve">Approve</button>
-            </div>
-        @endif
+            @endif
+            <button class="btn btn-primary" id="btn-approval-history">Approval History</button>
+        </div>
     </div>
     <div class="card-body">
         <p>
@@ -109,6 +110,12 @@
         <livewire:activity-plan.approval/>
     </div>
 </div>
+
+<div class="modal fade" id="modal-history">
+    <div class="modal-dialog">
+        <livewire:activity-plan.approval-history :activity_plan_id="$activity_plan->id"/>
+    </div>
+</div>
 @endsection
 
 @section('plugins.Fullcalendar', true);
@@ -129,6 +136,12 @@ $(function() {
         e.preventDefault();
         Livewire.emit('setApproval', 'approve', {{$activity_plan->id}});
         $('#modal-approval').modal('show');
+    });
+
+    // approval history
+    $('#btn-approval-history').on('click', function(e) {
+        e.preventDefault();
+        $('#modal-history').modal('show');
     });
     
     // calendar
