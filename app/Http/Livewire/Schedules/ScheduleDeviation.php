@@ -174,6 +174,11 @@ class ScheduleDeviation extends Component
             $this->user = auth()->user();
         }
 
+        $cost_center = $this->user->cost_centers()->first();
+        if(!empty($cost_center)) {
+            $this->cost_center = $cost_center->cost_center;
+        }
+
         $this->new_schedules[] = [
             'date' => $this->date,
             'branch_id' => '',
