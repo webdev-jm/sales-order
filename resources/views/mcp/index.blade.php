@@ -18,6 +18,18 @@
 
 @section('content_header')
 <div class="row">
+
+    <div class="col-12">
+        <div class="card card-warning">
+            <div class="card-header">
+                <h3 class="card-title"><b>DEADLINE OF SUBMISSION:</b> {{date('F j, Y', strtotime($deadline))}} for the month of {{date('F, Y', strtotime($year.'-'.$next_month.'-01'))}}</h3>
+                <div class="card-tools">
+                    <span class="font-weight-bold">DAYS LEFT: <h5 class="d-inline">{{$days_left}}</h5></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-lg-6">
         <h1>Activity Plans</h1>
     </div>
