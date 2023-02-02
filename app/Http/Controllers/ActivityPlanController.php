@@ -130,8 +130,10 @@ class ActivityPlanController extends Controller
                 }
             }
 
-            // notifications
+            
             if($request->status == 'submitted') {
+
+                // notifications
                 $users = [];
                 $organizations = $activity_plan->user->organizations;
                 if(!empty($organizations)) {
@@ -157,6 +159,16 @@ class ActivityPlanController extends Controller
                         Notification::send($user, new ActivityPlanSubmitted($activity_plan));
                     }
                 }
+
+                // approvals
+                $approval = new ActivityPlanApproval([
+                    'user_id' => auth()->user()->id,
+                    'activity_plan_id' => $activity_plan->id,
+                    'status' => 'submitted',
+                    'remarks' => null
+                ]);
+                $approval->save();
+
             }
             
             return redirect()->route('mcp.index')->with([
@@ -377,6 +389,15 @@ class ActivityPlanController extends Controller
                             Notification::send($user, new ActivityPlanSubmitted($activity_plan));
                         }
                     }
+
+                    // approvals
+                    $approval = new ActivityPlanApproval([
+                        'user_id' => auth()->user()->id,
+                        'activity_plan_id' => $activity_plan->id,
+                        'status' => 'submitted',
+                        'remarks' => null
+                    ]);
+                    $approval->save();
                 }
 
                 return redirect()->route('mcp.index')->with([
