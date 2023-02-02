@@ -9,6 +9,8 @@ use App\Http\Requests\UpdateSettingRequest;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PurchaseOrderNumberImport;
 
+use App\Http\Traits\MonthDeadline;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -16,6 +18,8 @@ ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class SettingController extends Controller
 {
+    use MonthDeadline;
+    
     /**
      * Display a listing of the resource.
      *
@@ -24,6 +28,9 @@ class SettingController extends Controller
     public function index()
     {
         $setting = Setting::find(1);
+
+        $date = $this->getDeadlineCount('2023-02-24');
+        
         return view('settings')->with([
             'setting' => $setting
         ]);

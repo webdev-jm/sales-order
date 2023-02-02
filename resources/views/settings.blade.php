@@ -40,7 +40,7 @@
 
             <div class="col-lg-2">
                 <div class="form-group">
-                    {!! Form::label('sales_order_limit', 'Sales Order Limit') !!}
+                    {!! Form::label('sales_order_limit', 'Sales Order Limit (default)') !!}
                     {!! Form::number('sales_order_limit', $setting->sales_order_limit, ['class' => 'form-control'.($errors->has('sales_order_limit') ? ' is-invalid' : ''), 'form' => 'update_settings']) !!}
                     <p class="text-danger">{{$errors->first('sales_order_limit')}}</p>
                 </div>
@@ -48,7 +48,7 @@
 
             <div class="col-lg-3">
                 <div class="form-group">
-                    {!! Form::label('mcp_deadline', 'Activity Plan Deadline (monthly)') !!}
+                    {!! Form::label('mcp_deadline', 'Activity Plan Deadline (days prior next month)') !!}
                     {!! Form::number('mcp_deadline', $setting->mcp_deadline, ['class' => 'form-control'.($errors->has('mcp_deadline') ? ' is-invalid' : ''), 'form' => 'update_settings', 'max' => 31, 'min' => 1]) !!}
                     <p class="text-danger">{{$errors->first('mcp_deadline')}}</p>
                 </div>

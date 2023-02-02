@@ -11,6 +11,7 @@ class Setting extends Model
 
     protected $fillable = [
         'data_per_page',
-        'sales_order_limit'
+        'sales_order_limit',
+        'mcp_deadline'
     ];
 }

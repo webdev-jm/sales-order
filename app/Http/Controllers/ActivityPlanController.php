@@ -18,12 +18,14 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityPlanSubmitted;
 
 use App\Http\Traits\GlobalTrait;
+use App\Http\Traits\MonthDeadline;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ActivityPlanController extends Controller
 {
     use GlobalTrait;
+    use MonthDeadline;
 
     public $status_arr = [
         'draft' => 'secondary',
@@ -55,10 +57,29 @@ class ActivityPlanController extends Controller
             $activity_plans = ActivityPlan::ActivityPlanSearchRestricted($search, $settings->data_per_page, $subordinate_ids);
         }
 
+        // deadline countdown
+        $year = date('Y');
+        $month = date('m');
+        $deadline = $this->getMonthDeadline($year, $month);
+        $days_left = $this->getDeadlineCount($deadline);
+        
+        // set next month data
+        $next_month = $month;
+        if($month == 12) {
+            $next_month = 1;
+            $year = $year + 1;
+        } else {
+            $next_month = $month + 1;
+        }
+
         return view('mcp.index')->with([
             'search' => $search,
             'activity_plans' => $activity_plans,
-            'status_arr' => $this->status_arr
+            'status_arr' => $this->status_arr,
+            'days_left' => $days_left,
+            'deadline' => $deadline,
+            'year' => $year,
+            'next_month' => $next_month
         ]);
     }
 
