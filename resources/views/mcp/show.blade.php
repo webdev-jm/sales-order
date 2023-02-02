@@ -69,7 +69,7 @@
                 <button class="btn btn-danger" id="btn-reject">Reject</button>
                 <button class="btn btn-success" id="btn-approve">Approve</button>
             @endif
-            <button class="btn btn-primary" id="btn-approval-history">Approval History</button>
+            <button class="btn btn-warning" id="btn-approval-history"><i class="fa fa-clock mr-1"></i>Approval History</button>
         </div>
     </div>
     <div class="card-body">
@@ -112,7 +112,7 @@
 </div>
 
 <div class="modal fade" id="modal-history">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <livewire:activity-plan.approval-history :activity_plan_id="$activity_plan->id"/>
     </div>
 </div>

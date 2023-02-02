@@ -22,8 +22,8 @@ class Months extends Component
         $this->total_days = date('t', strtotime($year.'-'.$month.'-01'));
 
         $this->setPagination();
-        $this->emit('setBoxDate', $year, $month, $this->days);
-        $this->emit('setOrderList', $year, $month, $this->days);
+        $this->emit('setBoxDate', $this->year, $this->month, $this->days);
+        $this->emit('setOrderList', $this->year, $this->month, $this->days);
     }
 
     public function selectDay($day) {
