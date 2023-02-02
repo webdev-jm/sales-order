@@ -30,6 +30,7 @@ use App\Http\Controllers\ActivityPlanController;
 use App\Http\Controllers\WeeklyActivityReportController;
 use App\Http\Controllers\SalesOrderCutOffController;
 use App\Http\Controllers\CostCenterController;
+use App\Http\Controllers\HolidayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -335,6 +336,11 @@ Route::group(['middleware' => 'auth'], function () {
         
         Route::get('cost-center/{id}/edit', [CostCenterController::class, 'edit'])->name('cost-center.edit')->middleware('permission:cost center edit');
         Route::post('cost-center/{id}', [CostCenterController::class, 'update'])->name('cost-center.update')->middleware('permission:cost center edit');
+    });
+
+    // HOLIDAYS
+    Route::group(['middleware' => 'permission:holiday access'], function() {
+        Route::get('holiday', [HolidayController::class, 'index'])->name('holiday.index');
     });
 
     // ACCOUNT LOGINS
