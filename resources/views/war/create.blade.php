@@ -116,68 +116,6 @@
             $('input[name="week"]').val(week);
         });
 
-        // add line
-        $('body').on('click', '.btn-add-line', function(e) {
-            e.preventDefault();
-            var line = $(this).closest('tr').nextAll('.line-row:first');
-            var row = line.clone(true);
-            row.find('input').val('');
-            row.find('input[type="date"]').val('{{date("Y-m-d")}}');
-            line.after(row);
-        });
-
-        // remove line
-        $('body').on('click', '.btn-remove-row', function(e) {
-            e.preventDefault();
-            var row = $(this).closest('tr');
-            var classes = row.prop('class');
-            var classes_arr = classes.split(' ');
-            var part = classes_arr.pop();
-            if(($('.'+part).length) > 1) {
-                row.remove();
-            }
-        });
-
-        // compute activity total
-        $('body').on('keyup', '.days-weekly, .days-mtd, .days-ytd', function() {
-            computeTotal();
-        });
-
-        function computeTotal() {
-            // weekly
-            var total_weekly = 0;
-            $('.days-weekly').each(function() {
-                var weekly = $(this).val();
-                total_weekly += weekly * 1;
-            });
-            $('#total-weekly').text(total_weekly);
-
-            // mtd
-            var total_mtd = 0;
-            $('.days-mtd').each(function() {
-                var mtd = $(this).val();
-                total_mtd += mtd * 1;
-            });
-            $('#total-mtd').text(total_mtd);
-
-            // ytd
-            var total_ytd = 0;
-            $('.days-ytd').each(function() {
-                var ytd = $(this).val();
-                total_ytd += ytd * 1;
-            });
-            $('#total-ytd').text(total_ytd);
-
-            // compute percentage
-            $('.days-percent').each(function() {
-                var ytd = $(this).closest('tr').find('.days-ytd').val();
-                if(ytd != '') {
-                    var percent = (ytd / total_ytd) * 100;
-                    $(this).val(percent.toFixed(2)+'%');
-                }
-            });
-        }
-
         let days_arr = [];
         days_arr[0] = 'Sunday';
         days_arr[1] = 'Monday';

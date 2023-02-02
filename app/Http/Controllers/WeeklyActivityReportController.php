@@ -130,45 +130,6 @@ class WeeklyActivityReportController extends Controller
             $area->save();
         }
 
-        // collections
-        $collection = new WeeklyActivityReportCollection([
-            'weekly_activity_report_id' => $war->id,
-            'beginning_ar' => $request->beginning_ar,
-            'due_for_collection' => $request->due_for_collection,
-            'beginning_hanging_balance' => $request->beginning_hanging_balance,
-            'target_reconciliations' => $request->target_reconciliations,
-            'week_to_date' => $request->week_to_date,
-            'month_to_date' => $request->month_to_date,
-            'month_target' => $request->month_target,
-            'balance_to_sell' => $request->balance_to_sell,
-        ]);
-        $collection->save();
-
-        // action plans
-        foreach($request->action_plan as $key => $plan) {
-            $action_plan = new WeeklyActivityReportActionPlan([
-                'weekly_activity_report_id' => $war->id,
-                'action_plan' => $plan,
-                'time_table' => $request->time_table[$key],
-                'person_responsible' => $request->person_responsible[$key],
-            ]);
-            $action_plan->save();
-        }
-
-        // ativities
-        foreach($request->activity as $key => $activity) {
-            $war_activity = new WeeklyActivityReportActivity([
-                'weekly_activity_report_id' => $war->id,
-                'activity' => $activity,
-                'no_of_days_weekly' => $request->no_of_days_weekly[$key],
-                'no_of_days_mtd' => $request->no_of_days_mtd[$key],
-                'no_of_days_ytd' => $request->no_of_days_ytd[$key],
-                'remarks' => $request->activity_remarks[$key],
-                'percent_to_total_working_days' => $request->total_working_days[$key]
-            ]);
-            $war_activity->save();
-        }
-
         if($request->status == 'submitted') {
             // notifications
             $users = $war->user->getSupervisorIds();
@@ -280,49 +241,16 @@ class WeeklyActivityReportController extends Controller
             $area->save();
         }
 
-        // collections
-        $collection = $weekly_activity_report->collection;
-        $collection->update([
-            'beginning_ar' => $request->beginning_ar,
-            'due_for_collection' => $request->due_for_collection,
-            'beginning_hanging_balance' => $request->beginning_hanging_balance,
-            'target_reconciliations' => $request->target_reconciliations,
-            'week_to_date' => $request->week_to_date,
-            'month_to_date' => $request->month_to_date,
-            'month_target' => $request->month_target,
-            'balance_to_sell' => $request->balance_to_sell,
-        ]);
-
-        // action plans
-        $weekly_activity_report->action_plans()->delete();
-        foreach($request->action_plan as $key => $plan) {
-            $action_plan = new WeeklyActivityReportActionPlan([
-                'weekly_activity_report_id' => $weekly_activity_report->id,
-                'action_plan' => $plan,
-                'time_table' => $request->time_table[$key],
-                'person_responsible' => $request->person_responsible[$key],
-            ]);
-            $action_plan->save();
-        }
-
-        // activities
-        $weekly_activity_report->activities()->delete();
-        foreach($request->activity as $key => $activity) {
-            $war_activity = new WeeklyActivityReportActivity([
-                'weekly_activity_report_id' => $weekly_activity_report->id,
-                'activity' => $activity,
-                'no_of_days_weekly' => $request->no_of_days_weekly[$key],
-                'no_of_days_mtd' => $request->no_of_days_mtd[$key],
-                'no_of_days_ytd' => $request->no_of_days_ytd[$key],
-                'remarks' => $request->activity_remarks[$key],
-                'percent_to_total_working_days' => $request->total_working_days[$key]
-            ]);
-            $war_activity->save();
-        }
-
         if($request->status == 'submitted') {
 
             // notifications
+            $users = $weekly_activity_report->user->getSupervisorIds();
+            foreach($users as $user_id) {
+                $user = User::find($user_id);
+                if(!empty($user)) {
+                    Notification::send($user, new WeeklyActivityReportSubmitted($war));
+                }
+            }
 
             return redirect()->route('war.index')->with([
                 'message_success' => 'Weekly activity report has been updated.'

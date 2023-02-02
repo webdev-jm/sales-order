@@ -157,15 +157,6 @@
                             Week {{$weekly_activity_report->week_number}}
                         </td>
                     </tr>
-                    <tr>
-                        <th class="war-label">AREA VISITED:</th>
-                        <td colspan="6" class="px-3">
-                            [{{$weekly_activity_report->area->area_code}}] {{$weekly_activity_report->area->area_name}}
-                        </td>
-    
-                        {{-- space --}}
-                        <td class="border-0" colspan="7"></td>
-                    </tr>
                 {{-- spacing --}}
                     <tr>
                         <th class="border-0" colspan="14"></th>
@@ -211,6 +202,7 @@
                             </td>
                             <td colspan="4">
                                 {{$area->remarks}}
+                                <a href="" class="mx-1 btn-area-modal float-right" data-date="{{$area->date}}"><i class="fa fa-info-circle text-info"></i></a>
                             </td>
                         </tr>
                         @endforeach
@@ -230,188 +222,14 @@
                             </p>
                         </td>
                     </tr>
-                {{-- collections --}}
-                    <tr class="text-center section-header">
-                        <th colspan="3">BEGINNING AR</th>
-                        <th colspan="4">DUE FOR COLLECTION</th>
-                        <th colspan="4">BEGINNING HANGING BALANCE</th>
-                        <th colspan="3">TARGET RECONCILIATIONS</th>
-                    </tr>
-                    <tr class="text-center">
-                        <td colspan="3" class="px-3 align-middle">
-                            {{$weekly_activity_report->collection->beginning_ar}}
-                        </td>
-                        <td colspan="4" class="px-3">
-                            {{$weekly_activity_report->collection->due_for_collection}}
-                        </td>
-                        <td colspan="4" class="px-3">
-                            {{$weekly_activity_report->collection->beginning_hanging_balance}}
-                        </td>
-                        <td colspan="3" class="px-3">
-                            {{$weekly_activity_report->collection->target_reconciliations}}
-                        </td>
-                    </tr>
-                    <tr class="text-center section-header">
-                        <th colspan="3">WEEK TO DATE</th>
-                        <th colspan="4">MONTH TO DATE</th>
-                        <th colspan="4">MONTH TARGET</th>
-                        <th colspan="3">BALANCE TO SELL</th>
-                    </tr>
-                    <tr class="text-center">
-                        <td colspan="3" class="px-3">
-                            {{$weekly_activity_report->collection->week_to_date}}
-                        </td>
-                        <td colspan="4" class="px-3">
-                            {{$weekly_activity_report->collection->month_to_date}}
-                        </td>
-                        <td colspan="4" class="px-3">
-                            {{$weekly_activity_report->collection->month_target}}
-                        </td>
-                        <td colspan="3" class="px-3">
-                            {{$weekly_activity_report->collection->balance_to_sell}}
-                        </td>
-                    </tr>
-                {{-- action plans --}}
-                    <tr>
-                        <th class="align-middle war-label pr-1" colspan="14">
-                            IV. SALES ACTION PLAN (to achieve sales/collection targets/to accomplish a project):
-                        </th>
-                    </tr>
-                    <tr class="text-center section-header">
-                        <th colspan="6">ACTION PLAN/S</th>
-                        <th colspan="2">TIMETABLE</th>
-                        <th colspan="6">PERSON/S RESPONSIBLE</th>
-                    </tr>
-                    @if(!empty($weekly_activity_report->action_plans))
-                        @foreach($weekly_activity_report->action_plans as $action_plan)
-                        <tr class="line-row action-plans">
-                            <td colspan="6" class="px-3">
-                                {{$action_plan->action_plan}}
-                            </td>
-                            <td colspan="2" class="px-3 text-center">
-                                {{$action_plan->time_table}}
-                            </td>
-                            <td colspan="6" class="px-3 text-center">
-                                {{$action_plan->person_responsible}}
-                            </td>
-                        </tr>
-                        @endforeach
-                    @else
-                    <tr class="line-row action-plans">
-                        <td colspan="6" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('action_plan[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="2" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::date('time_table[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="6" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('person_responsible[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
-                                <span class="input-group-prepend align-middle">
-                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                    @endif
-                {{-- activities --}}
-                    <tr>
-                        <th class="align-middle war-label pr-1" colspan="14">
-                            V. ACTIVITIES
-                        </th>
-                    </tr>
-                    <tr class="text-center section-header">
-                        <th colspan="4">ACTIVITY</th>
-                        <th>NO. OF DAYS (Weekly)</th>
-                        <th>NO. OF DAYS (MTD)</th>
-                        <th colspan="5">AREA/REMARKS</th>
-                        <th>NO. OF DAYS (YTD)</th>
-                        <th colspan="3">% to TOTAL WORKING DAYS</th>
-                    </tr>
-                    @php
-                        $total_weekly = 0;
-                        $total_mtd = 0;
-                        $total_ytd = 0;
-                    @endphp
-                    @if(!empty($weekly_activity_report->activities))
-                        @foreach($weekly_activity_report->activities as $activity)
-                            @php
-                                $total_weekly += $activity->no_of_days_weekly;
-                                $total_mtd += $activity->no_of_days_mtd;
-                                $total_ytd += $activity->no_of_days_ytd;
-                            @endphp
-                            <tr class="line-row activities">
-                                <td colspan="4" class="px-3">
-                                    {{$activity->activity}}
-                                </td>
-                                <td class="px-3 text-center">
-                                    {{$activity->no_of_days_weekly}}
-                                </td>
-                                <td class="px-3 text-center">
-                                    {{$activity->no_of_days_mtd}}
-                                </td>
-                                <td colspan="5" class="px-3">
-                                    {{$activity->remarks}}
-                                </td>
-                                <td class="px-3 text-center">
-                                    {{$activity->no_of_days_ytd}}
-                                </td>
-                                <td colspan="3" class="px-3 text-center">
-                                    {{$activity->percent_to_total_working_days}}
-                                </td>
-                            </tr>
-                        @endforeach
-                    @else
-                    <tr class="line-row activities">
-                        <td colspan="4" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('activity[]', '', ['class' => 'form-control border-0', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_weekly[]', '', ['class' => 'form-control border-0 text-center days-weekly', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_mtd[]', '', ['class' => 'form-control border-0 text-center days-mtd', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="5" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('activity_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::number('no_of_days_ytd[]', '', ['class' => 'form-control border-0 text-center days-ytd', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="3" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('total_working_days[]', '', ['class' => 'form-control border-0 text-center days-percent bg-white', 'form' => 'update_war', 'readonly']) !!}
-                                <span class="input-group-prepend align-middle">
-                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                    @endif
-                    <tr class="text-center war-label">
-                        <th colspan="4" class="">TOTAL</th>
-                        <td id="total-weekly" class="px-3 align-middle font-weight-bold">{{$total_weekly}}</td>
-                        <td id="total-mtd" class="px-3 align-middle font-weight-bold">{{$total_mtd}}</td>
-                        <td colspan="5"></td>
-                        <td id="total-ytd" class="px-3 align-middle font-weight-bold">{{$total_ytd}}</td>
-                        <td colspan="3"></td>
-                    </tr>
             </tbody>
         </table>
+    </div>
+</div>
+
+<div class="modal fade" id="area-activity-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:war.war-area-detail :user_id="auth()->user()->id"/>
     </div>
 </div>
 @endsection
@@ -432,6 +250,14 @@
 
             $('#status').val(status);
             $('#'+$(this).attr('form')).submit();
+        });
+
+        // branch login details
+        $('body').on('click', '.btn-area-modal', function(e) {
+            e.preventDefault();
+            var date = $(this).data('date');
+            Livewire.emit('setDate', date);
+            $('#area-activity-modal').modal('show');
         });
     });
 </script>
