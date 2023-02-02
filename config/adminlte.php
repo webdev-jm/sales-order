@@ -488,6 +488,13 @@ return [
             'active'    => ['cost-center*']
         ],
         [
+            'text'      => 'Holidays',
+            'url'       => '/holiday',
+            'icon'      => 'fas fa-fw fa-calendar-day',
+            'can'       => 'holiday access',
+            'active'    => ['holiday*']
+        ],
+        [
             'header'    => 'system_menu',
             'can'       => [
                 'user access',

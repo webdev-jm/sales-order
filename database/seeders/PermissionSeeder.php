@@ -131,6 +131,11 @@ class PermissionSeeder extends Seeder
             'cost center create',
             'cost center edit',
             'cost center delete',
+            // holiday
+            'holiday access',
+            'holiday create',
+            'holiday edit',
+            'holiday delete',
             // account logins
             'account login access',
             'account login export',
