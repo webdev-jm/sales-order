@@ -17,7 +17,7 @@
                         <th>Account</th>
                         <th>Branch</th>
                         <th>Purpose</th>
-                        <th>Activities</th>
+                        {{-- <th>Activities</th> --}}
                         <th>Work With</th>
                     </tr>
                 </thead>
@@ -98,9 +98,9 @@
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
                             {{-- activities --}}
-                            <td class="p-0 align-middle text-center">
-                                <a class="btn btn-primary btn-sm btn-activities"><i class="fa fa-list fa-sm"></i></a>
-                            </td>
+                            {{-- <td class="p-0 align-middle text-center">
+                                <a class="btn btn-primary btn-sm btn-activities" data-year="{{$year}}" data-month="{{$month}}" data-date="{{$date}}" data-key="{{$key}}"><i class="fa fa-list fa-sm"></i> {{!empty($row['activity_ids']) ? count($row['activity_ids']) : 0}} Activities</a>
+                            </td> --}}
                             {{-- work with --}}
                             <td class="p-0">
                                 <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.user_id">

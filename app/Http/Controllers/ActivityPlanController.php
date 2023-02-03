@@ -288,6 +288,7 @@ class ActivityPlanController extends Controller
             $details[$detail->date]['lines'][] = [
                 'id' => $detail->id,
                 'location' => $detail->exact_location,
+                'account_id' => $detail->branch->account_id ?? '',
                 'branch_id' => $detail->branch_id,
                 'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
                 'purpose' => $detail->activity,
