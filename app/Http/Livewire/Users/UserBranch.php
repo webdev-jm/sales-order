@@ -16,7 +16,7 @@ class UserBranch extends Component
 
     public function updatingSearch()
     {
-        $this->resetPage();
+        $this->resetPage('account-branch-page');
     }
 
     public $user, $search;

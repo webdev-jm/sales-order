@@ -12,9 +12,12 @@
                     <tr class="text-center text-uppercase">
                         <th>Day</th>
                         <th>Date</th>
+                        <th></th>
                         <th>Exact Location</th>
+                        <th>Account</th>
                         <th>Branch</th>
-                        <th>Purpose/Activity</th>
+                        <th>Purpose</th>
+                        <th>Activities</th>
                         <th>Work With</th>
                     </tr>
                 </thead>
@@ -31,9 +34,27 @@
                         </tr>
                         @foreach($line['lines'] as $key => $row)
                         <tr class=" {{$line['class']}}">
+                            {{-- remove line --}}
+                            <td class="align-middle text-center p-0">
+                                @if($key != 0)
+                                    <a href="#" class="btn btn-danger btn-xs" wire:click.prevent="removeLine('{{$month}}', '{{$date}}', {{$key}})" wire:loading.attr="disabled"><i class="fa fa-trash-alt fa-sm"></i></a>
+                                @endif
+                            </td>
                             {{-- location --}}
                             <td class="p-0 align-middle">
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.location"></textarea>
+                            </td>
+                            {{-- account --}}
+                            <td class="p-0">
+                                <select class="form-control border-0 {{$line['class']}}" 
+                                    wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.account_id"
+                                    wire:change="setAccount('{{$date}}', '{{$key}}')"
+                                >
+                                    <option value=""></option>
+                                    @foreach($accounts as $account)
+                                    <option value="{{$account->id}}">[{{$account->account_code}}] {{$account->short_name}}</option>
+                                    @endforeach
+                                </select>
                             </td>
                             {{-- branches --}}
                             <td class="p-0">
@@ -72,9 +93,13 @@
                                 </div>
                                 @endif
                             </td>
-                            {{-- purpose/activity --}}
+                            {{-- purpose --}}
                             <td class="p-0 align-middle">
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
+                            </td>
+                            {{-- activities --}}
+                            <td class="p-0 align-middle text-center">
+                                <a class="btn btn-primary btn-sm btn-activities"><i class="fa fa-list fa-sm"></i></a>
                             </td>
                             {{-- work with --}}
                             <td class="p-0">
@@ -88,7 +113,7 @@
                         </tr>
                         @endforeach
                         <tr class="bg-light">
-                            <td class="px-2" colspan="6">
+                            <td class="px-2" colspan="9">
                                 <button class="btn btn-xs btn-info" wire:click.prevent="addLine('{{$date}}')" wire:loading.attr="disabled"><i class="fa fa-plus mr-1"></i>Add Line</button>
                             </td>
                         </tr>
