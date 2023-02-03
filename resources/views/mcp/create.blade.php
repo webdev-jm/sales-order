@@ -97,6 +97,11 @@
         // activities
         $('body').on('click', '.btn-activities', function(e) {
             e.preventDefault();
+            var year = $(this).data('year');
+            var month = $(this).data('month');
+            var date = $(this).data('date');
+            var key = $(this).data('key');
+            Livewire.emit('setActivities', year, month, date, key);
             $('#modal-activities').modal('show');
         });
 
