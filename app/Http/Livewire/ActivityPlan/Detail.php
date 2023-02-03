@@ -6,6 +6,7 @@ use Livewire\Component;
 
 use App\Models\User;
 use App\Models\Branch;
+use App\Models\Account;
 use App\Models\ActivityPlanDetail;
 
 use Illuminate\Support\Facades\Session;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Session;
 class Detail extends Component
 {
     public $year, $month, $last_day, $lines;
-
+    public $account_id;
     public $branch_query, $searchQuery;
 
     protected $listeners = [
@@ -35,6 +36,13 @@ class Detail extends Component
         $this->lines[$this->month][$date]['lines'][$key]['branch_id'] = $branch_id;
         $this->lines[$this->month][$date]['lines'][$key]['branch_name'] = $branch_name;
 
+        // get branch account
+        if(empty($this->lines[$this->month][$date]['lines'][$key]['account_id'])) {
+            $branch = Branch::find($branch_id);
+            $account_id = $branch->account_id;
+            $this->lines[$this->month][$date]['lines'][$key]['account_id'] = $account_id;
+        }
+
         // get previous record of location
         $detail = ActivityPlanDetail::orderBy('id', 'DESC')
         ->where('branch_id', $branch_id)
@@ -46,6 +54,14 @@ class Detail extends Component
         }
 
         $this->resetQuery();
+        $this->setSession();
+    }
+
+    public function removeLine($month, $date, $key) {
+        // check if more than 1 lines
+        if(count($this->lines[$month][$date]['lines']) > 1) {
+            unset($this->lines[$month][$date]['lines'][$key]);
+        }
 
         $this->setSession();
     }
@@ -56,19 +72,27 @@ class Detail extends Component
         $this->resetQuery();
         $this->branch_query[$date][$key] = $query;
 
+        $this->account_id = $this->lines[$this->month][$date]['lines'][$key]['account_id'];
+
         $this->searchQuery = $query;
+    }
+
+    public function setAccount($date, $key) {
+        $this->account_id = $this->lines[$this->month][$date]['lines'][$key]['account_id'];
     }
 
     public function resetQuery() {
         $this->reset([
             'branch_query',
-            'searchQuery'
+            'searchQuery',
+            'account_id'
         ]);
     }
 
     public function addLine($date) {
         $this->lines[$this->month][$date]['lines'][] = [
             'location' => '',
+            'account_id' => '',
             'branch_id' => '',
             'branch_name' => '',
             'purpose' => '',
@@ -108,6 +132,7 @@ class Detail extends Component
                 $data = [
                     [
                         'location' => '',
+                        'account_id' => '',
                         'branch_id' => '',
                         'branch_name' => '',
                         'purpose' => '',
@@ -178,11 +203,15 @@ class Detail extends Component
     {
         if(!empty($this->searchQuery)) {
             $branches = Branch::orderBy('branch_name')
-            // ->whereHas('account', function($query) {
-            //     $query->whereHas('users', function($qry) {
-            //         $qry->where('id', auth()->user()->id);
-            //     });
-            // })
+            ->whereHas('account', function($query) {
+                if(!empty($this->account_id)) {
+                    $query->where('id', $this->account_id);
+                } else {
+                    $query->whereHas('users', function($qry) {
+                        $qry->where('id', auth()->user()->id);
+                    });
+                }
+            })
             ->where(function($query) {
                 $query->where('branch_code', 'like', '%'.$this->searchQuery.'%')
                 ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%')
@@ -194,19 +223,28 @@ class Detail extends Component
         } else {
             $branches = Branch::orderBy('branch_code')
             ->whereHas('account', function($query) {
-                $query->whereHas('users', function($qry) {
-                    $qry->where('id', auth()->user()->id);
-                });
+                if(!empty($this->account_id)) {
+                    $query->where('id', $this->account_id);
+                } else {
+                    $query->whereHas('users', function($qry) {
+                        $qry->where('id', auth()->user()->id);
+                    });
+                }
             })
             ->limit(10)->get();
         }
         
         $users = User::orderBy('firstname', 'ASC')
+        ->where('group_code', '<>', 'CMD')
+        ->where('group_code', '<>', NULL)
         ->get();
+
+        $accounts = auth()->user()->accounts;
 
         return view('livewire.activity-plan.detail')->with([
             'branches' => $branches,
             'users' => $users,
+            'accounts' => $accounts
         ]);
     }
 }

@@ -83,12 +83,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-activities">
+    <div class="modal-dialog modal-lg">
+        <livewire:activity-plan.activities />
+    </div>
+</div>
 
 @endsection
 
 @section('js')
 <script>
     $(function() {
+        // activities
+        $('body').on('click', '.btn-activities', function(e) {
+            e.preventDefault();
+            $('#modal-activities').modal('show');
+        });
+
         // change status base on button clicked
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
