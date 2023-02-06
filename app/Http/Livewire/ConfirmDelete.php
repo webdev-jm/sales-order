@@ -21,6 +21,7 @@ use App\Models\Region;
 use App\Models\Area;
 use App\Models\AccountProductReference;
 use App\Models\CostCenter;
+use App\Models\ActivityPlan;
 
 class ConfirmDelete extends Component
 {
@@ -141,6 +142,11 @@ class ConfirmDelete extends Component
                 $this->model = CostCenter::findOrFail($model_id);
                 $this->name = $this->model->cost_center;
                 $this->route = '/cost-center';
+                break;
+            case 'ActivityPlan':
+                $this->model = ActivityPlan::findOrFail($model_id);
+                $this->name = $this->model->year;
+                $this->route = '/mcp';
                 break;
         }
     }
