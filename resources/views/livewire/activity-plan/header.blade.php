@@ -43,7 +43,7 @@
                 
             </div>
 
-            @if(!empty($deadline_message))
+            {{-- @if(!empty($deadline_message))
             <div class="row">
                 <div class="col-12">
                     <span class="text-danger">
@@ -51,7 +51,7 @@
                     </span>
                 </div>
             </div>
-            @endif
+            @endif --}}
 
         </div>
     </div>

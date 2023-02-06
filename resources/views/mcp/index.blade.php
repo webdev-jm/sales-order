@@ -19,7 +19,7 @@
 @section('content_header')
 <div class="row">
 
-    <div class="col-12">
+    {{-- <div class="col-12">
         <div class="card card-warning">
             <div class="card-header">
                 <h3 class="card-title"><b>DEADLINE OF SUBMISSION:</b> {{date('F j, Y', strtotime($deadline))}} for the month of {{date('F, Y', strtotime($year.'-'.$next_month.'-01'))}}</h3>
@@ -28,7 +28,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-lg-6">
         <h1>Activity Plans</h1>
@@ -101,12 +101,24 @@
         {{$activity_plans->links()}}
     </div>
 </div>
+
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
 <script>
    $(function() {
-    })
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'ActivityPlan', id);
+            $('#modal-delete').modal('show');
+        });
+    });
 </script>
 @endsection
 
