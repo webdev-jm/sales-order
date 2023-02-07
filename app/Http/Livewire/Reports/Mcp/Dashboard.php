@@ -20,10 +20,10 @@ class Dashboard extends Component
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
-    public $year, $month, $months, $companies, $company, $search;
+    public $year, $month, $companies, $company, $search;
 
     public function updatedSearch() {
-        $this->resetPage('user-page');
+        $this->resetPage('mcp-user-page');
     }
 
     public function export() {
@@ -38,15 +38,18 @@ class Dashboard extends Component
             $this->month = date('m');
         }
 
-        for($i = 1; $i <= 12; $i++) {
-            $this->months[$i] = date('F', strtotime($this->year.'-'.$i.'-01'));
-        }
         // COMPANIES
         $this->companies = Company::all();
     }
 
     public function render()
     {
+        $months = [];
+        for($i = 1; $i <= 12; $i++) {
+            $i = $i < 10 ? '0'.$i : $i;
+            $months[$i] = date('F', strtotime($this->year.'-'.$i.'-01'));
+        }
+
         $users = User::orderBy('firstname', 'ASC');
         if(!empty($this->search)) {
             $users->where('firstname', 'like', '%'.$this->search.'%')
@@ -54,7 +57,7 @@ class Dashboard extends Component
             ->orWhere('group_code', 'like', '%'.$this->search.'%');
         }
 
-        $users = $users->paginate(10, ['*'], 'user-page')
+        $users = $users->paginate(10, ['*'], 'mcp-user-page')
         ->onEachSide(1);
 
         $date_string = $this->year.'-'.($this->month < 10 ? '0'.(int)$this->month : $this->month);
@@ -78,7 +81,6 @@ class Dashboard extends Component
             // VISITED
             $mcp = 0;
             $visited = 0;
-            $deviations_count = 0;
             $schedule_dates = [];
             foreach($schedules as $schedule) {
                 $mcp++;
@@ -103,43 +105,27 @@ class Dashboard extends Component
                 if($branch_logins > 0) {
                     $visited++;
                 }
-
-                // BRANCH LOGIN NOT IN SCHEDULE
-                $deviations = BranchLogin::select('branch_id')->distinct()
-                ->where('user_id', $schedule->user_id)
-                ->where('time_in', 'like', $schedule->date.'%')
-                ->where('branch_id', '<>', $schedule->branch_id);
-
-                // COMPANY FILTER
-                if(!empty($this->company)) {
-                    $deviations->whereHas('branch', function($query) {
-                        $query->whereHas('account', function($qry) {
-                            $qry->where('company_id', $this->company);
-                        });
-                    });
-                }
-
-                $deviations_count += $deviations->count('branch_id');
             }
 
             $schedule_dates = array_unique($schedule_dates);
 
-            // DEVIATIONS
-            $deviations = BranchLogin::select(DB::raw("distinct branch_id"))
-            ->whereNotIn(DB::raw('date(time_in)'), $schedule_dates)
-            ->where(DB::raw('date(time_in)'), 'like', $date_string.'%')
+            // TOTAL LOGIN
+            $total_login = BranchLogin::select(DB::raw("count(DISTINCT branch_id, date(time_in)) as total"))
+            ->where('time_in', 'like', $date_string.'%')
             ->where('user_id', $user->id);
 
             // COMPANY FILTER
             if(!empty($this->company)) {
-                $deviations->whereHas('branch', function($query) {
+                $total_login->whereHas('branch', function($query) {
                     $query->whereHas('account', function($qry) {
                         $qry->where('company_id', $this->company);
                     });
                 });
             }
 
-            $deviations_count += $deviations->count('branch_id');
+            $total_login = $total_login->get();
+
+            $deviations_count = $total_login[0]['total'] - $visited;
 
             $performance = 0;
             if($mcp > 0 && $visited > 0) {
@@ -156,7 +142,8 @@ class Dashboard extends Component
 
         return view('livewire.reports.mcp.dashboard')->with([
             'users' => $users,
-            'data' => $data
+            'data' => $data,
+            'months' => $months
         ]);
     }
 }

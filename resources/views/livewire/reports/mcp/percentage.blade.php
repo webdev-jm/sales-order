@@ -31,7 +31,7 @@
           
                         <div class="info-box-content">
                             <span class="info-box-text text-uppercase">Average # of minutes per visit</span>
-                            <span class="info-box-number">{{number_format($avg_minutes->avg, 2)}}</span>
+                            <span class="info-box-number">{{number_format($avg_minutes, 2)}}</span>
             
                             <div class="progress">
                                 <div class="progress-bar" style="width: 100%"></div>

@@ -31,7 +31,7 @@
                 <div class="inner">
                     <h3>{{$schedules_count}}</h3>
     
-                    <p>Schedules</p>
+                    <p>Total Schedules</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-alt"></i>
@@ -46,7 +46,7 @@
                 <div class="inner">
                     <h3>{{$visited_count}}</h3>
     
-                    <p>Visited</p>
+                    <p>Total Visited</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-check"></i>
@@ -61,7 +61,7 @@
                 <div class="inner">
                     <h3 class="text-white">{{$reschedule_count}}</h3>
     
-                    <p class="text-white">Reschedule Requests</p>
+                    <p class="text-white">Total Reschedule Requests</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-plus"></i>
@@ -76,7 +76,7 @@
                 <div class="inner">
                     <h3>{{$delete_count}}</h3>
     
-                    <p>Delete Requests</p>
+                    <p>Total Delete Requests</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-times"></i>
@@ -94,7 +94,7 @@
     <hr>
 
     {{-- MCP percentage --}}
-    <livewire:reports.mcp.percentage :schedules_count="$schedules_count" :visited_count="$visited_count" :unscheduled_count="$unscheduled_count"/>
+    <livewire:reports.mcp.percentage />
 
 @endsection
 
