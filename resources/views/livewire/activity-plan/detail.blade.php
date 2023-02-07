@@ -45,7 +45,7 @@
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.location"></textarea>
                             </td>
                             {{-- account --}}
-                            <td class="p-0">
+                            {{-- <td class="p-0">
                                 <select class="form-control border-0 {{$line['class']}}" 
                                     wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.account_id"
                                     wire:change="setAccount('{{$date}}', '{{$key}}')"
@@ -55,6 +55,42 @@
                                     <option value="{{$account->id}}">[{{$account->account_code}}] {{$account->short_name}}</option>
                                     @endforeach
                                 </select>
+                            </td> --}}
+                            <td class="p-0">
+                                <div class="input-group">
+                                    <input type="text" class="form-control border-0 {{$line['class']}}" 
+                                        wire:model="account_query.{{$date}}.{{$key}}" 
+                                        wire:keyup="setAccountQuery('{{$date}}', '{{$key}}')"
+                                        wire:keydown.escape="resetAccountQuery"
+                                        wire:keydown.tab.prevent="resetAccountQuery"
+                                        
+                                        @if(!empty($row['account_name']))
+                                            placeholder="{{$row['account_name']}}"
+                                        @endif
+                                    />
+                                    @if(!empty($row['account_id']))
+                                    <span class="input-group-append">
+                                        <button class="btn text-danger" wire:click.prevent="clearAccount('{{$date}}', '{{$key}}')"><i class="fa fa-times"></i></button>
+                                    </span>
+                                    @endif
+                                </div>
+                                
+                                @if(isset($account_query[$date][$key]) && !empty($account_query[$date][$key]))
+
+                                <div class="list-group position-absolute search-branch" wire:loading>
+                                    <button class="list-group-item">Searching...</button>
+                                </div>
+
+                                <div class="list-group position-absolute search-branch" wire:loading.remove>
+                                    @if($accounts->count() > 0)
+                                        @foreach($accounts as $account)
+                                            <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                        @endforeach
+                                    @else
+                                        <button class="list-group-item">No Results</button>
+                                    @endif
+                                </div>
+                                @endif
                             </td>
                             {{-- branches --}}
                             <td class="p-0">
@@ -98,9 +134,9 @@
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
                             {{-- activities --}}
-                            <td class="p-0 align-middle text-center">
+                            {{-- <td class="p-0 align-middle text-center">
                                 <a class="btn btn-primary btn-sm btn-activities" data-year="{{$year}}" data-month="{{$month}}" data-date="{{$date}}" data-key="{{$key}}"><i class="fa fa-list fa-sm"></i> {{!empty($row['activity_ids']) ? count($row['activity_ids']) : 0}} Activities</a>
-                            </td>
+                            </td> --}}
                             {{-- work with --}}
                             <td class="p-0">
                                 <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.user_id">

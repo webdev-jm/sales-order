@@ -73,6 +73,10 @@
 </div>
 @enderror
 
+@error('line_errors')
+    <p>{{$message}}</p>
+@enderror
+
 <div class="row">
     <div class="col-12">
         <livewire:activity-plan.header/>

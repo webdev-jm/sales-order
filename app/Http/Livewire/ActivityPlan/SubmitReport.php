@@ -12,7 +12,7 @@ use Livewire\WithPagination;
 
 class SubmitReport extends Component
 {
-    use WithPagination;
+    // use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
     public $year, $month, $subordinate_ids;
@@ -88,13 +88,13 @@ class SubmitReport extends Component
             '12' => 'December',
         ];
 
-        $users = User::orderBy('firstname', 'ASC')
+        $submit_users = User::orderBy('firstname', 'ASC')
         ->whereIn('id', $this->subordinate_ids)
-        ->paginate(10, ['*'], 'report-page')->onEachSide(1);
+        ->paginate(5, ['*'], 'submit-report-page');
 
         // check submission
         $submission_arr = [];
-        foreach($users as $user) {
+        foreach($submit_users as $user) {
             $check = ActivityPlan::where('year', $this->year)
             ->where('month', $this->month)
             ->where('user_id', $user->id)
@@ -113,7 +113,7 @@ class SubmitReport extends Component
 
         return view('livewire.activity-plan.submit-report')->with([
             'months' => $months_arr,
-            'users' => $users,
+            'submit_users' => $submit_users,
             'submission_arr' => $submission_arr
         ]);
     }

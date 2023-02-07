@@ -120,32 +120,69 @@ class ActivityPlanController extends Controller
                 // check objectives
                 if(!empty($data['objectives'])) {
 
-                    $activity_plan = new ActivityPlan([
-                        'user_id' => auth()->user()->id,
-                        'month' => $data['month'],
-                        'year' => $data['year'],
-                        'objectives' => $data['objectives'],
-                        'status' => $request->status
-                    ]);
-                    $activity_plan->save();
-
                     // details
-                    foreach($data['details'][$data['month']] as $date => $details) {
-                        // dates
-                        foreach($details['lines'] as $val) {
-                            $activity_plan_detail = new ActivityPlanDetail([
-                                'activity_plan_id' => $activity_plan->id,
-                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                'day' => $details['day'],
-                                'date' => $date,
-                                'exact_location' => $val['location'],
-                                'activity' => $val['purpose']
-                            ]);
-                            $activity_plan_detail->save();
-                        }
-                    }
+                    if(!empty($data['details'][$data['month']])) {
+                        // validate lines
+                        $line_error = 0;
+                        $line_empty = 1;
+                        foreach($data['details'][$data['month']] as $date => $details) {
+                            // dates
+                            foreach($details['lines'] as $val) {
+                                // check for error
+                                if(empty($val['branch_id']) 
+                                    && 
+                                    (!empty($val['user_id']) || 
+                                    !empty($val['location']) ||
+                                    !empty($val['purpose']) ||
+                                    !empty($val['account_id']))
+                                ) {
+                                    $line_error = 1;
+                                }
 
+                                // check if all lines are empty
+                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
+                                    $line_empty = 0;
+                                }
+                            }
+                        }
+
+                        if($line_error == 0 && $line_empty == 0) {
+
+                            $activity_plan = new ActivityPlan([
+                                'user_id' => auth()->user()->id,
+                                'month' => $data['month'],
+                                'year' => $data['year'],
+                                'objectives' => $data['objectives'],
+                                'status' => $request->status
+                            ]);
+                            $activity_plan->save();
+
+                            foreach($data['details'][$data['month']] as $date => $details) {
+                                foreach($details['lines'] as $val) {
+                                    $activity_plan_detail = new ActivityPlanDetail([
+                                        'activity_plan_id' => $activity_plan->id,
+                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                        'day' => $details['day'],
+                                        'date' => $date,
+                                        'exact_location' => $val['location'],
+                                        'activity' => $val['purpose']
+                                    ]);
+                                    $activity_plan_detail->save();
+                                }
+                            }
+                        } else {
+                            return back()->with([
+                                'message_error' => 'Please complete branch details.'
+                            ]);
+                        }
+
+                    } else {
+                        return back()->with([
+                            'message_error' => 'Please fill up activity plan details.'
+                        ]);
+                    }
+                    
                 } else {
                     throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
@@ -282,6 +319,12 @@ class ActivityPlanController extends Controller
                 $class = 'bg-secondary';
             }
 
+            $account = $detail->branch->account ?? '';
+            $account_name = '';
+            if(!empty($account)) {
+                $account_name = '['.$account->account_code.'], '.$account->short_name;
+            }
+
             $details[$detail->date]['day'] = $detail->day;
             $details[$detail->date]['date'] = date('M. d', strtotime($detail->date));
             $details[$detail->date]['class'] = $class;
@@ -289,6 +332,7 @@ class ActivityPlanController extends Controller
                 'id' => $detail->id,
                 'location' => $detail->exact_location,
                 'account_id' => $detail->branch->account_id ?? '',
+                'account_name' => $account_name,
                 'branch_id' => $detail->branch_id,
                 'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
                 'purpose' => $detail->activity,
@@ -298,7 +342,9 @@ class ActivityPlanController extends Controller
 
         $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
 
-        Session::put('activity_plan_data', $activity_plan_data);
+        if(empty(Session::get('activity_plan_data'))) {
+            Session::put('activity_plan_data', $activity_plan_data);
+        }
 
         $position = [];
         $organizations = $activity_plan->user->organizations;
@@ -328,58 +374,99 @@ class ActivityPlanController extends Controller
         $activity_plan = ActivityPlan::findOrFail($id);
 
         if(!empty($activity_plan_data)) {
+
             foreach($activity_plan_data as $year => $data) {
-                
+
+                // check objectives
                 if(!empty($data['objectives'])) {
-                    $activity_plan->update([
-                        'year' => $data['year'],
-                        'month' => $data['month'],
-                        'objectives' => $data['objectives'],
-                        'status' => $request->status
-                    ]);
 
                     // details
-                    foreach($data['details'][$data['month']] as $date => $detail) {
-                        foreach($detail['lines'] as $val) {
-                            // check if already exist
-                            if(isset($val['id'])) { // update
-                                $activity_plan_detail = ActivityPlanDetail::find($val['id']);
-                                if(!empty($activity_plan_detail)) {
-                                    $activity_plan_detail->update([
-                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                        'day' => $detail['day'],
-                                        'date' => $date,
-                                        'exact_location' => $val['location'],
-                                        'activity' => $val['purpose']
-                                    ]);
-                                } else {
-                                    $activity_plan_detail = new ActivityPlanDetail([
-                                        'activity_plan_id' => $activity_plan->id,
-                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                        'day' => $detail['day'],
-                                        'date' => $date,
-                                        'exact_location' => $val['location'],
-                                        'activity' => $val['purpose']
-                                    ]);
-                                    $activity_plan_detail->save();
+                    if(!empty($data['details'][$data['month']])) {
+                        // validate lines
+                        $line_error = 0;
+                        $line_empty = 1;
+                        foreach($data['details'][$data['month']] as $date => $details) {
+                            // dates
+                            foreach($details['lines'] as $val) {
+                                // check for error
+                                if(empty($val['branch_id']) 
+                                    && 
+                                    (!empty($val['user_id']) || 
+                                    !empty($val['location']) ||
+                                    !empty($val['purpose']) ||
+                                    !empty($val['account_id']))
+                                ) {
+                                    $line_error = 1;
                                 }
-                            } else { // insert
-                                $activity_plan_detail = new ActivityPlanDetail([
-                                    'activity_plan_id' => $activity_plan->id,
-                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                    'day' => $detail['day'],
-                                    'date' => $date,
-                                    'exact_location' => $val['location'],
-                                    'activity' => $val['purpose']
-                                ]);
-                                $activity_plan_detail->save();
+
+                                // check if all lines are empty
+                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
+                                    $line_empty = 0;
+                                }
                             }
                         }
-                    }
 
+                        if($line_error == 0 && $line_empty == 0) {
+                            // update
+                            $activity_plan->update([
+                                'year' => $data['year'],
+                                'month' => $data['month'],
+                                'objectives' => $data['objectives'],
+                                'status' => $request->status
+                            ]);
+
+                            foreach($data['details'][$data['month']] as $date => $details) {
+                                foreach($details['lines'] as $val) {
+                                    // check if already exist
+                                    if(isset($val['id'])) { // update
+                                        $activity_plan_detail = ActivityPlanDetail::find($val['id']);
+                                        if(!empty($activity_plan_detail)) {
+                                            $activity_plan_detail->update([
+                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                'day' => $details['day'],
+                                                'date' => $date,
+                                                'exact_location' => $val['location'],
+                                                'activity' => $val['purpose']
+                                            ]);
+                                        } else {
+                                            $activity_plan_detail = new ActivityPlanDetail([
+                                                'activity_plan_id' => $activity_plan->id,
+                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                'day' => $details['day'],
+                                                'date' => $date,
+                                                'exact_location' => $val['location'],
+                                                'activity' => $val['purpose']
+                                            ]);
+                                            $activity_plan_detail->save();
+                                        }
+                                    } else { // insert
+                                        $activity_plan_detail = new ActivityPlanDetail([
+                                            'activity_plan_id' => $activity_plan->id,
+                                            'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                            'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                            'day' => $details['day'],
+                                            'date' => $date,
+                                            'exact_location' => $val['location'],
+                                            'activity' => $val['purpose']
+                                        ]);
+                                        $activity_plan_detail->save();
+                                    }
+                                }
+                            }
+                        } else {
+                            return back()->with([
+                                'message_error' => 'Please complete branch details.'
+                            ]);
+                        }
+
+                    } else {
+                        return back()->with([
+                            'message_error' => 'Please fill up activity plan details.'
+                        ]);
+                    }
+                    
                 } else {
                     throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
