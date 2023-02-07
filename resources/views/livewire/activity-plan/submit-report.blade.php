@@ -23,7 +23,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $user)
+                    @foreach($submit_users as $user)
                     <tr>
                         <td>{{$user->fullName()}}</td>
                         <td class="{{$submission_arr[$user->id]['status'] == 'submitted' ? 'text-success' : 'text-danger'}}">{{$submission_arr[$user->id]['status']}}</td>
@@ -33,7 +33,7 @@
             </table>
         </div>
         <div class="card-footer">
-            {{$users->links()}}
+            {{$submit_users->links()}}
         </div>
     </div>
     @endif

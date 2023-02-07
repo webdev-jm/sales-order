@@ -16,6 +16,7 @@ class Detail extends Component
     public $year, $month, $last_day, $lines;
     public $account_id;
     public $branch_query, $searchQuery;
+    public $account_query, $searchAccountQuery;
 
     protected $listeners = [
         'setDate' => 'setDate'
@@ -26,6 +27,11 @@ class Detail extends Component
         $this->lines[$this->month][$date]['lines'][$key]['branch_name'] = '';
 
         $this->setSession();
+    }
+
+    public function clearAccount($date, $key) {
+        $this->lines[$this->month][$date]['lines'][$key]['account_id'] = '';
+        $this->lines[$this->month][$date]['lines'][$key]['account_name'] = '';
     }
 
     public function updatedLines() {
@@ -41,6 +47,7 @@ class Detail extends Component
             $branch = Branch::find($branch_id);
             $account_id = $branch->account_id;
             $this->lines[$this->month][$date]['lines'][$key]['account_id'] = $account_id;
+            $this->lines[$this->month][$date]['lines'][$key]['account_name'] = $branch->account->account_code.' '.$branch->account->short_name;
         }
 
         // get previous record of location
@@ -57,6 +64,21 @@ class Detail extends Component
         $this->setSession();
     }
 
+    public function selectAccount($date, $key, $account_id, $account_name) {
+        if(!empty($this->lines[$this->month][$date]['lines'][$key]['account_id']) &&
+            $this->lines[$this->month][$date]['lines'][$key]['account_id'] != $account_id
+        ) {
+            $this->lines[$this->month][$date]['lines'][$key]['branch_id'] = '';
+            $this->lines[$this->month][$date]['lines'][$key]['branch_name'] = '';
+        }
+
+        $this->lines[$this->month][$date]['lines'][$key]['account_id'] = $account_id;
+        $this->lines[$this->month][$date]['lines'][$key]['account_name'] = $account_name;
+
+        $this->resetAccountQuery();
+        $this->setSession();
+    }
+
     public function removeLine($month, $date, $key) {
         // check if more than 1 lines
         if(count($this->lines[$month][$date]['lines']) > 1) {
@@ -67,7 +89,7 @@ class Detail extends Component
     }
 
     public function setQuery($date, $key) {
-        $query = $this->branch_query[$date][$key];
+        $query = $this->branch_query[$date][$key] ?? '';
         // remove other query
         $this->resetQuery();
         $this->branch_query[$date][$key] = $query;
@@ -75,6 +97,17 @@ class Detail extends Component
         $this->account_id = $this->lines[$this->month][$date]['lines'][$key]['account_id'];
 
         $this->searchQuery = $query;
+    }
+
+    public function setAccountQuery($date, $key) {
+        $query = $this->account_query[$date][$key];
+        // remove other query
+        $this->resetAccountQuery();
+        $this->account_query[$date][$key] = $query;
+
+        $this->account_id = $this->lines[$this->month][$date]['lines'][$key]['account_id'];
+
+        $this->searchAccountQuery = $query;
     }
 
     public function setAccount($date, $key) {
@@ -89,10 +122,19 @@ class Detail extends Component
         ]);
     }
 
+    public function resetAccountQuery() {
+        $this->reset([
+            'account_query',
+            'searchAccountQuery',
+            'account_id',
+        ]);
+    }
+
     public function addLine($date) {
         $this->lines[$this->month][$date]['lines'][] = [
             'location' => '',
             'account_id' => '',
+            'account_name' => '',
             'branch_id' => '',
             'branch_name' => '',
             'purpose' => '',
@@ -133,6 +175,7 @@ class Detail extends Component
                     [
                         'location' => '',
                         'account_id' => '',
+                        'account_name' => '',
                         'branch_id' => '',
                         'branch_name' => '',
                         'purpose' => '',
@@ -239,7 +282,23 @@ class Detail extends Component
         ->where('group_code', '<>', NULL)
         ->get();
 
-        $accounts = auth()->user()->accounts;
+        if(!empty($this->searchAccountQuery)) {
+            $accounts = Account::whereHas('users', function($query) {
+                $query->where('id', auth()->user()->id);
+            })
+            ->where(function($query) {
+                $query->where('account_code', 'like', '%'.$this->searchAccountQuery.'%')
+                ->orWhere('short_name', 'like', '%'.$this->searchAccountQuery.'%');
+            })
+            ->limit(10)
+            ->get();
+        } else {
+            $accounts = Account::whereHas('users', function($query) {
+                $query->where('id', auth()->user()->id);
+            })
+            ->limit(10)
+            ->get();
+        }
 
         return view('livewire.activity-plan.detail')->with([
             'branches' => $branches,
