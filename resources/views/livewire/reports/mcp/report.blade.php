@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-lg-4">
+    <div class="col-xl-4">
         <form wire:submit.prevent="filter">
             <div class="card">
                 <div class="card-header">
@@ -63,9 +63,53 @@
             </div>  
         </div>
 
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Unscheduled Visits</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr class="text-center">
+                            <th class="align-middle p-2">Date</th>
+                            <th class="align-middle p-2">User</th>
+                            <th class="align-middle p-2">Branch</th>
+                            {{-- <th class="align-middle p-2">details</th> --}}
+                            <th class="align-middle p-2">Time In</th>
+                            <th class="align-middle p-2">Time Out</th>
+                            <th class="align-middle p-1">Visited</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($unscheduled_visits as $unscheduled_visit)
+                        <tr>
+                            <td class="p-1 align-middle">{{date('Y-m-d', strtotime($unscheduled_visit->time_in))}}</td>
+                            <td class="p-1">{{$unscheduled_visit->user->fullName()}}</td>
+                            <td class="p-1">{{$unscheduled_visit->branch->branch_code.' '.$unscheduled_visit->branch->branch_name}}</td>
+                            {{-- <td class="p-0 text-center align-middle">
+                                
+                            </td> --}}
+                            <td class="p-1 align-middle">{{date('h:i:s a', strtotime($unscheduled_visit->time_in))}}</td>
+                            <td class="p-1 align-middle">{{date('h:i:s a', strtotime($unscheduled_visit->time_out))}}</td>
+                            <td class="text-center align-middle p-0">
+                                <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$unscheduled_visit->id}})">
+                                    <i class="fa fa-info-circle text-primary ml-1"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                {{$unscheduled_visits->links()}}
+            </div>
+        </div>
+
     </div>
 
-    <div class="col-lg-8">
+    <div class="col-xl-8">
         
         <div class="card">
             <div class="card-header">
@@ -91,62 +135,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @php
-                            $prev_date = '';
-                        @endphp
                         @foreach($schedule_dates as $schedule_date)
-
-                            {{-- check deviations --}}
-                            @if(isset($deviation_logins[$schedule_date->user_id]))
-                                @foreach($deviation_logins[$schedule_date->user_id] as $date => $logins)
-                                    @if(($prev_date == '' || $prev_date < $date) && ($schedule_date->date > $date))
-                                        <tr class="bg-secondary">
-                                            <td class="font-weight-bold text-center">{{$date}}</td>
-                                            <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->fullName()}}</td>
-                                        </tr>
-                                        @foreach($logins as $branch_id => $login)
-                                            <tr>
-                                                <td class="align-middle text-center">
-                                                    {{$date}}
-                                                </td>
-                                                <td class="align-middle">
-                                                    {{$login['branch_code']}} {{$login['branch_name']}}
-                                                </td>
-                                                <td class="text-center">
-                                                    @foreach($login['data'] as $actual)
-                                                    <p class="mb-0">
-                                                        {{$actual->latitude}}, {{$actual->longitude}}
-                                                        <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
-                                                            <i class="fa fa-info-circle text-primary ml-2"></i>
-                                                        </a>
-                                                    </p>
-                                                    @endforeach
-                                                </td>
-                                                <td class="text-center">
-                                                    @foreach($login['data'] as $actual)
-                                                    <p class="mb-0">
-                                                        {{date('h:i:s a', strtotime($actual->time_in))}}
-                                                    </p>
-                                                    @endforeach
-                                                </td>
-                                                <td class="text-center">
-                                                    @foreach($login['data'] as $actual)
-                                                        @if(!empty($actual->time_out))
-                                                        <p class="mb-0">
-                                                            {{date('h:i:s a', strtotime($actual->time_out))}}
-                                                        </p>
-                                                        @endif
-                                                    @endforeach
-                                                </td>
-                                                <td class="text-center align-middle p-0">
-                                                    <i class="fa fa-plus text-warning" title="Deviation"></i>
-                                                </td>
-                                                <td></td>
-                                            </tr>
-                                        @endforeach
-                                    @endif
-                                @endforeach
-                            @endif
 
                             <tr class="bg-secondary">
                                 <td class="font-weight-bold text-center">{{$schedule_date->date}}</td>
@@ -239,10 +228,7 @@
                                 </tr>
                                 @endforeach
                             @endif
-
-                            @php
-                                $prev_date = $schedule_date->date;
-                            @endphp
+                            
                         @endforeach
                     </tbody>
                 </table>
