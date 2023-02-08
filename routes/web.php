@@ -123,6 +123,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('mcp', [ActivityPlanController::class, 'store'])->name('mcp.store')->middleware('permission:mcp create');
 
         Route::get('mcp/{id}', [ActivityPlanController::class, 'show'])->name('mcp.show');
+
+        Route::post('mcp/upload', [ActivityPlanController::class, 'upload'])->name('mcp.upload');
         
         Route::get('mcp/{id}/edit', [ActivityPlanController::class, 'edit'])->name('mcp.edit')->middleware('permission:mcp edit');
         Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');

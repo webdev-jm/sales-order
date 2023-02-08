@@ -41,18 +41,21 @@
     <div class="card-header">
         
         <div class="row">
-            <div class="col-lg-8 col-md-6">
+            <div class="col-lg-6 col-md-4">
                 <b>NAME:</b> {{auth()->user()->fullName()}}<br>
                 @if(!empty($position))
                 <b>POSITION:</b> {{implode(', ', $position)}}
                 @endif
             </div>
-            <div class="col-lg-4 col-md-6 text-right">
+            <div class="col-lg-6 col-md-8 text-right">
                 <div class="row">
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
+                        <button class="btn btn-success btn-block" id="btn-upload"><i class="fa fa-upload mr-1"></i> Upload</button>
+                    </div>
+                    <div class="col-lg-4">
                         {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-block btn-submit mb-1', 'form' => 'add_mcp']) !!}
                     </div>
-                    <div class="col-lg-6">
+                    <div class="col-lg-4">
                         {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-block btn-submit', 'form' => 'add_mcp']) !!}
                     </div>
                     {!! Form::hidden('status', 'draft', ['form' => 'add_mcp', 'id' => 'status']) !!}
@@ -93,6 +96,54 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-upload">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Activity Plan Details</h4>
+            </div>
+            <div class="modal-body">
+                {!! Form::open(['method' => 'POST', 'route' => ['mcp.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::close() !!}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="custom-file">
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form']) !!}
+                                {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
+                            </div>
+                            <p class="text-danger">{{$errors->first('upload_file')}}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                {!! Form::submit('Upload', ['class' => 'btn btn-primary', 'form' => 'upload_form']) !!}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="loadingModal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog" aria-labelledby="loadingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center" id="exampleModalLongTitle">UPLOADING......</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <i class="fa fa-spinner fa-spin fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -126,6 +177,12 @@
                 $('#'+$(this).attr('form')).submit();
             }
 
+        });
+
+        // upload details
+        $('#btn-upload').on('click', function(e) {
+            e.preventDefault();
+            $('#modal-upload').modal('show');
         });
     })
 </script>
