@@ -32,6 +32,8 @@ class Detail extends Component
     public function clearAccount($date, $key) {
         $this->lines[$this->month][$date]['lines'][$key]['account_id'] = '';
         $this->lines[$this->month][$date]['lines'][$key]['account_name'] = '';
+
+        $this->setSession();
     }
 
     public function updatedLines() {

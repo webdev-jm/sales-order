@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Account;
+use App\Models\Branch;
 use App\Models\ActivityPlan;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanApproval;
@@ -21,6 +23,9 @@ use App\Http\Traits\GlobalTrait;
 use App\Http\Traits\MonthDeadline;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ActivityPlanImport;
 
 class ActivityPlanController extends Controller
 {
@@ -633,5 +638,120 @@ class ActivityPlanController extends Controller
         ]);
 
         return $pdf->stream('weekly-activity-report-'.$activity_plan->year.'-'.$activity_plan->month.'-'.time().'.pdf');
+    }
+
+    public function upload(Request $request) {
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx'
+            ]
+        ]);
+
+        $week_days_arr = [
+            '0' => 'Sun',
+            '1' => 'Mon',
+            '2' => 'Tue',
+            '3' => 'Wed',
+            '4' => 'Thu',
+            '5' => 'Fri',
+            '6' => 'Sat'
+        ];
+
+        $year = date('Y');
+        $month = date('m');
+        $objectives = '';
+        $data = [];
+
+        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file);
+        $row_num = 0;
+        foreach($imports[0] as $row) {
+            $row_num++;
+            
+            // YEAR
+            if($row_num == 1 && $row[0] == 'YEAR') {
+                $year = $row[1];
+            }
+            // MONTH
+            if($row_num == 2 && $row[0] == 'MONTH') {
+                $month = $row[1] < 10 ? '0'.$row[1] : $row[1];
+            }
+            // OBJECTIVES
+            if($row_num == 3 && $row[0] == 'OBJECTIVES') {
+                $objectives = $row[1];
+            }
+
+            if($row_num > 4) {
+                $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
+
+                $data[$date_key][] = [
+                    'account_code' => $row[2],
+                    'branch_code' => $row[3],
+                    'location' => $row[4],
+                    'purpose' => $row[5],
+                    'work_with' => $row[6],
+                ];
+            }
+        }
+
+        // render data to session
+        $activity_plan_detail[$year] = [
+            'year' => $year,
+            'month' => $month,
+            'objectives' => $objectives,
+        ];
+        
+        $details = [];
+        foreach($data as $date => $lines) {
+            $day = $week_days_arr[date('w', strtotime($date))];
+            $date_name = date('F. d', strtotime($date));
+
+            $class = '';
+            if($day == 'Sat') {
+                $class = 'bg-secondary';
+            }
+            if($day == 'Sun') {
+                $class = 'bg-navy';
+            }
+
+            $details[$month][$date] = [
+                'day' => $day,
+                'date' => $date_name,
+                'class' => $class,
+            ];
+
+            foreach($lines as $line) {
+                // branch
+                $branch = Branch::where('branch_code', $line['branch_code'])
+                ->where('branch_code', '<>', '')
+                ->first();
+                // account
+                $account = Account::where('account_code', $line['account_code'])->first();
+                if(empty($account)) {
+                    $account = $branch->account ?? null;
+                }
+                // user
+                $user = User::where('email', $line['work_with'])->first();
+
+                $details[$month][$date]['lines'][] = [
+                    'location' => $line['location'],
+                    'account_id' => $account->id ?? '',
+                    'account_name' => $account->short_name ?? '',
+                    'branch_id' => $branch->id ?? '',
+                    'branch_name' => $branch->branch_name ?? '',
+                    'purpose' => $line['purpose'],
+                    'user_id' => $user->id ?? ''
+                ];
+            }
+
+        }
+
+        $activity_plan_detail[$year]['details'] = $details;
+
+        Session::put('activity_plan_data', $activity_plan_detail);
+
+        return back()->with([
+            'message_success' => 'Data was uploaded.'
+        ]);
+
     }
 }
