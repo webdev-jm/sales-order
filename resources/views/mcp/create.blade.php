@@ -116,6 +116,10 @@
                             <p class="text-danger">{{$errors->first('upload_file')}}</p>
                         </div>
                     </div>
+
+                    <div class="col-12">
+                        <a href="{{asset('/assets/SMS Activity Plan Upload Format.xlsx')}}" class="">Download format <i class="fa fa-file-excel text-success ml-1"></i></a>
+                    </div>
                 </div>
 
             </div>
