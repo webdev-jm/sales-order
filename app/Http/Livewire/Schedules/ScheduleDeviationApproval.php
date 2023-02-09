@@ -66,6 +66,11 @@ class ScheduleDeviationApproval extends Component
         ]);
         $approvals->save();
 
+        // logs
+        activity('approve')
+        ->performedOn($this->deviation)
+        ->log(':causer.firstname :causer.lastname has approved schedule deviation :subject.reason_for_deviation');
+
         // notifications
         $user = $this->deviation->user;
         Notification::send($user, new DeviationApproved($this->deviation));
@@ -98,6 +103,11 @@ class ScheduleDeviationApproval extends Component
             'remarks' => $this->remarks,
         ]);
         $approvals->save();
+
+        // logs
+        activity('approve')
+        ->performedOn($this->deviation)
+        ->log(':causer.firstname :causer.lastname has rejected schedule deviation :subject.reason_for_deviation');
 
         // notifications
         $user = $this->deviation->user;

@@ -9,6 +9,9 @@ use App\Models\Branch;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\ScheduleAddRequest;
+
 class ScheduleAdd extends Component
 {
     use WithPagination;
@@ -39,6 +42,7 @@ class ScheduleAdd extends Component
         ]);
         $schedule->save();
 
+        
         $approval = new UserBranchScheduleApproval([
             'user_branch_schedule_id' => $schedule->id,
             'user_id' => auth()->user()->id,
@@ -46,6 +50,20 @@ class ScheduleAdd extends Component
             'remarks' => null
         ]);
         $approval->save();
+        
+        // logs
+        activity('created')
+        ->performedOn($this->schedule)
+        ->log(':causer.firstname :causer.lastname has created schedule request :subject.date');
+
+        // notifications
+        $user_ids = auth()->user()->getSupervisorIds();
+        foreach($user_ids as $user_id) {
+            if(auth()->user()->id != $user_id) {
+                $user = User::find($user_id);
+                Notification::send($user, new ScheduleAddRequest($schedule));
+            }
+        }
 
         return redirect(request()->header('Referer'));
     }

@@ -27,9 +27,19 @@ class Approval extends Component
                 'remarks' => 'required'
             ]);
             $status = 'rejected';
+
+            // logs
+            activity('rejected')
+            ->performedOn($this->activity_plan)
+            ->log(':causer.firstname :causer.lastname has rejected activity plan of '.$this->activity_plan->user->fullName());
             
         } else {
             $status = 'approved';
+
+            // logs
+            activity('approved')
+            ->performedOn($this->activity_plan)
+            ->log(':causer.firstname :causer.lastname has approved activity plan of '.$this->activity_plan->user->fullName());
         }
         
         $this->activity_plan->update([

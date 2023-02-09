@@ -72,6 +72,11 @@ class ScheduleEvent extends Component
             $branch_login->save();
 
             Session::put('logged_branch', $branch_login);
+
+            // logs
+            activity('login')
+            ->performedOn($branch_login)
+            ->log(':causer.firstname :causer.lastname has logged in to branch '.$this->schedule_data->branch->branch_name);
             
             return redirect()->to('/home')->with([
                 'message_success' => 'You are logged in.'
@@ -148,9 +153,18 @@ class ScheduleEvent extends Component
             $approval->save();
 
             // notification
-            $users = User::permission('schedule approve delete request')->get();
-            if(!empty($users)) {
-                Notification::send($users, new ScheduleDeleteRequest($this->schedule_data));
+            // $users = User::permission('schedule approve delete request')->get();
+            // if(!empty($users)) {
+            //     Notification::send($users, new ScheduleDeleteRequest($this->schedule_data));
+            // }
+
+            // notifications
+            $user_ids = auth()->user()->getSupervisorIds();
+            foreach($user_ids as $user_id) {
+                if(auth()->user()->id != $user_id) {
+                    $user = User::find($user_id);
+                    Notification::send($user, new ScheduleDeleteRequest($this->schedule_data));
+                }
             }
 
             $changes_arr['changes'] = $this->schedule_data->getChanges();
