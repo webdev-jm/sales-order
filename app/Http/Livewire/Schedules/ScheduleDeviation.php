@@ -90,6 +90,11 @@ class ScheduleDeviation extends Component
             ]);
             $approvals->save();
 
+            // logs
+            activity('created')
+            ->performedOn($this->deviation)
+            ->log(':causer.firstname :causer.lastname has created schedule deviations :subject.reason_for_deviation');
+
             // notifications
             $user_ids = auth()->user()->getSupervisorIds();
             foreach($user_ids as $user_id) {

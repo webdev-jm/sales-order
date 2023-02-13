@@ -162,6 +162,11 @@ class ActivityPlanController extends Controller
                             ]);
                             $activity_plan->save();
 
+                            // logs
+                            activity('create')
+                            ->performedOn($activity_plan)
+                            ->log(':causer.firstname :causer.lastname has created activity plan for :subject.year :subject.month');
+
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 foreach($details['lines'] as $val) {
                                     $activity_plan_detail = new ActivityPlanDetail([
@@ -412,6 +417,8 @@ class ActivityPlanController extends Controller
                         }
 
                         if($line_error == 0 && $line_empty == 0) {
+
+                            $changes_arr['old'] = $activity_plan->getOriginal();
                             // update
                             $activity_plan->update([
                                 'year' => $data['year'],
@@ -419,6 +426,14 @@ class ActivityPlanController extends Controller
                                 'objectives' => $data['objectives'],
                                 'status' => $request->status
                             ]);
+
+                            $changes_arr['changes'] = $activity_plan->getChanges();
+
+                            // logs
+                            activity('update')
+                            ->performedOn($activity_plan)
+                            ->withProperties($changes_arr)
+                            ->log(':causer.firstname :causer.lastname has updated activity plan :subject.year :subject.month');
 
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 foreach($details['lines'] as $val) {

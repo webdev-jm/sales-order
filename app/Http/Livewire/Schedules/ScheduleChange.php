@@ -48,6 +48,11 @@ class ScheduleChange extends Component
         ]);
         $new_schedule->save();
 
+        // logs
+        activity('approved')
+        ->performedOn($new_schedule)
+        ->log(':causer.firstname :causer.lastname has approved reschedule request :subject.date');
+
         // notification
         $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
         $user = $delete_request->user;
@@ -74,6 +79,11 @@ class ScheduleChange extends Component
             'remarks' => $this->remarks
         ]);
         $approval->save();
+
+        // logs
+        activity('rejected')
+        ->performedOn($this->schedule_data)
+        ->log(':causer.firstname :causer.lastname has rejected reschedule request :subject.date');
 
         // notification
         $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();

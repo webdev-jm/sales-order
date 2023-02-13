@@ -41,8 +41,23 @@
                             <h4>Remarks</h4>
                             <p>{{$login->login_activities()->first()->remarks}}</p>
                             @endif
+
+                            @if(file_exists(public_path().'/uploads/branch-login/'.$login->user_id.'/'.$login->id))
+                            <label>Picture:</label>
+                            <div class="mb-3">
+                                <a href="{{ asset('/uploads/branch-login/'.$login->user_id.'/'.$login->id).'/large.jpg' }}" data-toggle="lightbox" data-title="Preview">
+                                    <img src="{{asset('/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/small.jpg')}}" alt="picture">
+                                </a>
+                            </div>
+                            @endif
                         </div>
                         @endforeach
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            {{$branch_logins->links()}}
+                        </div>
                     </div>
                 @else
                     <div class="list-group">

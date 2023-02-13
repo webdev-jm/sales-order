@@ -38,6 +38,11 @@ class ScheduleDelete extends Component
             'remarks' => NULL
         ]);
         $approval->save();
+        
+        // logs
+        activity('approved')
+        ->performedOn($this->schedule_data)
+        ->log(':causer.firstname :causer.lastname approved schedule delete request :subject.date');
 
         // notification
         $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();
@@ -65,6 +70,11 @@ class ScheduleDelete extends Component
             'remarks' => $this->remarks
         ]);
         $approval->save();
+
+        // logs
+        activity('rejected')
+        ->performedOn($this->schedule_data)
+        ->log(':causer.firstname :causer.lastname rejected schedule delete request :subject.date');
 
         // notification
         $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();

@@ -137,6 +137,11 @@ class AccountBranchLogin extends Component
             ]);
             $branch_login->save();
 
+            // logs
+            activity('login')
+            ->performedOn($branch_login)
+            ->log(':causer.firstname :causer.lastname has logged in to branch '.$this->branch->branch_name);
+
             Session::put('logged_branch', $branch_login);
         }
 

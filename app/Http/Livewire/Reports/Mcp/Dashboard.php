@@ -110,7 +110,7 @@ class Dashboard extends Component
             $schedule_dates = array_unique($schedule_dates);
 
             // TOTAL LOGIN
-            $total_login = BranchLogin::select(DB::raw("count(DISTINCT branch_id, date(time_in)) as total"))
+            $total_login = BranchLogin::select(DB::raw("count(DISTINCT user_id, branch_id, date(time_in)) as total"))
             ->where('time_in', 'like', $date_string.'%')
             ->where('user_id', $user->id);
 

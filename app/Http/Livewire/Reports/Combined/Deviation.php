@@ -9,6 +9,9 @@ use DeviationModel;
 
 class Deviation extends Component
 {
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
+
     public $month, $year, $user_id;
 
     protected $listeners = [

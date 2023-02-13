@@ -53,8 +53,8 @@
             <tbody>
                 @foreach($price_codes as $price_code)
                 <tr>
-                    <td>{{$price_code->company->name}}</td>
-                    <td>[{{$price_code->product->stock_code}}] {{$price_code->product->description}} <span class="text-muted">{{$price_code->product->size}}</span></td>
+                    <td>{{$price_code->company->name ?? ''}}</td>
+                    <td>[{{$price_code->product->stock_code ?? ''}}] {{$price_code->product->description ?? ''}} <span class="text-muted">{{$price_code->product->size ?? ''}}</span></td>
                     <td>{{$price_code->code}}</td>
                     <td>{{$price_code->selling_price}}</td>
                     <td class="text-right">

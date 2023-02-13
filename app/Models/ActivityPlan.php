@@ -57,7 +57,7 @@ class ActivityPlan extends Model
                 $qry->where('user_id', auth()->user()->id)
                 ->orWhereIn('user_id', $subordinate_ids);
             })
-            ->where(function($qry) {
+            ->where(function($qry) use($search) {
                 $qry->where('month', 'like', '%'.$search.'%')
                 ->orWhere('year', 'like', '%'.$search.'%')
                 ->orWhere('status', 'like', '%'.$search.'%')
