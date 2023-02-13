@@ -229,7 +229,7 @@
 
 <div class="modal fade" id="area-activity-modal">
     <div class="modal-dialog modal-lg">
-        <livewire:war.war-area-detail :user_id="auth()->user()->id"/>
+        <livewire:war.war-area-detail :user_id="$weekly_activity_report->user->id"/>
     </div>
 </div>
 @endsection
@@ -258,6 +258,15 @@
             var date = $(this).data('date');
             Livewire.emit('setDate', date);
             $('#area-activity-modal').modal('show');
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('body').on('click', '[data-toggle="lightbox"]', function(event) {
+            event.preventDefault();
+            $(this).ekkoLightbox({
+                alwaysShowClose: true
+            });
         });
     });
 </script>

@@ -3,22 +3,25 @@
 namespace App\Http\Livewire\War;
 
 use Livewire\Component;
+use Livewire\WithPagination;
 
 use App\Models\User;
 use App\Models\BranchLogin;
 
 class WarAreaDetail extends Component
 {
-    public $user, $date, $branch_logins;
+    use WithPagination;
+    protected $paginationTheme = 'bootstrap';
+
+    public $user, $date;
 
     protected $listeners = [
         'setDate' => 'getActivities'
     ];
 
     public function getActivities($date) {
-        $this->branch_logins = BranchLogin::where('user_id', $this->user->id)
-        ->where('time_in', 'like', $date.'%')
-        ->get();
+        $this->date = $date;
+        $this->resetPage('war-branch-logins');
     }
 
     public function mount($user_id) {
@@ -27,6 +30,12 @@ class WarAreaDetail extends Component
 
     public function render()
     {
-        return view('livewire.war.war-area-detail');
+        $branch_logins = BranchLogin::where('user_id', $this->user->id)
+        ->where('time_in', 'like', $this->date.'%')
+        ->paginate(1, ['*'], 'war-branch-logins');
+
+        return view('livewire.war.war-area-detail')->with([
+            'branch_logins' => $branch_logins
+        ]);
     }
 }

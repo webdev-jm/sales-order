@@ -44,11 +44,11 @@ class Percentage extends Component
         }
         // date from
         if(!empty($this->date_from)) {
-            $schedules_count->where(DB::raw('date(time_in)'), '>=', $this->date_from);
+            $schedules_count->where(DB::raw('date'), '>=', $this->date_from);
         }
         // date to
         if(!empty($this->date_to)) {
-            $schedules_count->where(DB::raw('date(time_in)'), '<=', $this->date_to);
+            $schedules_count->where(DB::raw('date'), '<=', $this->date_to);
         }
         $schedules_count = $schedules_count->count();
 
