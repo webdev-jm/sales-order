@@ -92,7 +92,7 @@ class ScheduleDeviation extends Component
 
             // logs
             activity('created')
-            ->performedOn($this->deviation)
+            ->performedOn($deviation)
             ->log(':causer.firstname :causer.lastname has created schedule deviations :subject.reason_for_deviation');
 
             // notifications

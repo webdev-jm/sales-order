@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 use App\Models\Branch;
+use App\Models\User;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 
@@ -53,7 +54,7 @@ class ScheduleAdd extends Component
         
         // logs
         activity('created')
-        ->performedOn($this->schedule)
+        ->performedOn($schedule)
         ->log(':causer.firstname :causer.lastname has created schedule request :subject.date');
 
         // notifications
