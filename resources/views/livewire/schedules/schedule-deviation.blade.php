@@ -144,7 +144,7 @@
     </div>
     <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button class="btn btn-primary" wire:click="submitForm">Submit</button>
+        <button class="btn btn-primary" wire:click="submitForm" wire:loading.attr="disabled">Submit</button>
     </div>
 
     <script>
