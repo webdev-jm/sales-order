@@ -33,6 +33,7 @@
                     $curr_date = date('Y-m-d', time());
                     $schedule = $branch->schedules()->where('user_id', auth()->user()->id)
                     ->where('date', $curr_date)
+                    ->whereNull('status')
                     ->first();
                 @endphp
                 <div class="col-lg-4 my-2">
