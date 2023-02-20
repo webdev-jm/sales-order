@@ -248,7 +248,7 @@ class WeeklyActivityReportController extends Controller
             foreach($users as $user_id) {
                 $user = User::find($user_id);
                 if(!empty($user)) {
-                    Notification::send($user, new WeeklyActivityReportSubmitted($war));
+                    Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
                 }
             }
 

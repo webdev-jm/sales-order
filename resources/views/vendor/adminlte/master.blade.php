@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="Sale Management System - System for managing sales, performance and coverage plans of sales persons.">
 
     {{-- Custom Meta Tags --}}
     @yield('meta_tags')
@@ -73,6 +74,8 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="msapplication-TileImage" content="{{ asset('favicon/ms-icon-144x144.png') }}">
     @endif
+
+    @laravelPWA
 
 </head>
 
