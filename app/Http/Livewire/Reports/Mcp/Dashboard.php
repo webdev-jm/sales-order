@@ -65,8 +65,10 @@ class Dashboard extends Component
         $data = [];
         foreach($users as $user) {
             // MCP
-            $schedules = UserBranchSchedule::where('user_id', $user->id)
+            $schedules = UserBranchSchedule::select(DB::raw("DISTINCT branch_id, date, user_id"))
+            ->where('user_id', $user->id)
             ->whereNull('status')
+            ->where('source', 'activity-plan')
             ->where('date', 'like', $date_string.'%');
             // COMPANY FILTER
             if(!empty($this->company)) {
