@@ -17,8 +17,11 @@ class Notifications extends Component
     }
 
     public function mount() {
-        $this->notifications = auth()->user()->unreadNotifications()->orderBy('created_at', 'DESC')->limit(5)->get();
-        $this->count = auth()->user()->unreadNotifications->count();
+        $user = auth()->user();
+        if(!empty($user)) {
+            $this->notifications = $user->unreadNotifications()->orderBy('created_at', 'DESC')->limit(5)->get();
+            $this->count = $user->unreadNotifications()->count();
+        }
     }
 
     public function render()

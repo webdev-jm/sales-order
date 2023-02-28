@@ -33,6 +33,10 @@ class Months extends Component
             $this->days[$this->year][(int)$this->month][] = $day;
         }
 
+        if(empty($this->days[$this->year][(int)$this->month])) {
+            $this->reset('days');
+        }
+
         $this->emit('setBoxDate', $this->year, $this->month, $this->days);
         $this->emit('setOrderList', $this->year, $this->month, $this->days);
     }
@@ -82,7 +86,7 @@ class Months extends Component
             $this->days[$this->year][(int)$this->month][] = date('d');
         }
 
-        $month = $this->month < 10 ? '0-'.$this->month : $this->month;
+        $month = $this->month < 10 ? '0'.(int)$this->month : $this->month;
         $this->total_days = date('t', strtotime($this->year.'-'.$month.'-01'));
 
         $this->setPagination();

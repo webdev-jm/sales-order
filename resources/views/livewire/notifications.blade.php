@@ -10,7 +10,7 @@
             <span class="dropdown-item dropdown-header">{{$count}} Notification{{$count > 1 ? 's' : ''}}</span>
             <div class="dropdown-divider"></div>
             @foreach($notifications as $notification)
-                <a href="" class="dropdown-item" wire:click.prevent="readNotif('{{$notification->id}}')">
+                <a href="#" class="dropdown-item" wire:click.prevent="readNotif('{{$notification->id}}')">
                     <!-- Message Start -->
                     <div class="media">
                         <div class="media-body">

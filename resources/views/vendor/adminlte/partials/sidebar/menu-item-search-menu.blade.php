@@ -1,4 +1,4 @@
-<li>
+<li role="menubar">
 
     <div class="form-inline my-2">
         <div class="input-group" data-widget="sidebar-search" data-arrow-sign="&raquo;">

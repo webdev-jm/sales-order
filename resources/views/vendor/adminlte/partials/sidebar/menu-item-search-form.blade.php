@@ -1,4 +1,4 @@
-<li>
+<li role="menubar">
 
     <form class="form-inline my-2" action="{{ $item['href'] }}" method="{{ $item['method'] }}">
         {{ csrf_field() }}
@@ -14,7 +14,7 @@
 
             {{-- Search button --}}
             <div class="input-group-append">
-                <button class="btn btn-sidebar" type="submit">
+                <button class="btn btn-sidebar" type="submit" aria-label="search button">
                     <i class="fas fa-fw fa-search"></i>
                 </button>
             </div>

@@ -15,7 +15,7 @@ var filesToCache = [
     '/vendor/overlayScrollbars/css/OverlayScrollbars.min.css',
     '/vendor/adminlte/dist/css/adminlte.min.css',
     '/vendor/fullcalendar/main.min.css',
-    '/vendor/fullcalendar/main.min.js'
+    '/vendor/fullcalendar/main.min.js',
 ];
 
 // Cache on install

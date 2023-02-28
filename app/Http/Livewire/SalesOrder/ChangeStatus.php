@@ -17,7 +17,7 @@ class ChangeStatus extends Component
             'upload_status' => null,
         ]);
 
-        return redirect()->route('sales-order.list')->with([
+        return redirect(request()->header('Referer'))->with([
             'message_success' => 'Status has been cleared.'
         ]);
     }
