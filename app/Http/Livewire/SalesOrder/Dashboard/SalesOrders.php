@@ -35,7 +35,7 @@ class SalesOrders extends Component
     public function render()
     {
         if(!empty($this->year) && !empty($this->month) && empty($this->days)) {
-            $date_string = $this->year.'-'.$this->month;
+            $date_string = $this->year.'-'.($this->month < 10 ? '0'.(int)$this->month : $this->month);
 
             if($this->search != '') {
                 $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')

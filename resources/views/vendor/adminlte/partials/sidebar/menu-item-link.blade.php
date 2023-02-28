@@ -1,8 +1,8 @@
-<li @isset($item['id']) id="{{ $item['id'] }}" @endisset class="nav-item">
+<li @isset($item['id']) id="{{ $item['id'] }}" @endisset class="nav-item" role="menubar">
 
     <a class="nav-link {{ $item['class'] }} @isset($item['shift']) {{ $item['shift'] }} @endisset"
        href="{{ $item['href'] }}" @isset($item['target']) target="{{ $item['target'] }}" @endisset
-       {!! $item['data-compiled'] ?? '' !!}>
+       {!! $item['data-compiled'] ?? '' !!}  role="menuitem">
 
         <i class="{{ $item['icon'] ?? 'far fa-fw fa-circle' }} {{
             isset($item['icon_color']) ? 'text-'.$item['icon_color'] : ''

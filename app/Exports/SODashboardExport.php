@@ -122,6 +122,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             'UOM',
             'QUANTITY',
             'TOTAL',
+            'GRAND TOTAL LESS DISCOUNT'
         ];
 
         $date = '';
@@ -130,7 +131,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
         if(!empty($this->year) && !empty($this->month) && empty($this->days)) { // no days selected
             $date_string = $this->year.'-'.$this->month;
 
-            $date = date('F Y', strtotime($date_string.'-01'));
+            $date = [date('F Y', strtotime($date_string.'-01'))];
 
             $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'%')
             ->where('status', 'finalized')
@@ -149,7 +150,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
 
             if(!empty($dates)) {
 
-                $date = implode(', ', $dates);
+                $date = $dates;
 
                 $sales_orders = SalesOrder::whereIn('order_date', $dates)
                 ->where('status', 'finalized')
@@ -162,7 +163,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                     $date_string = date('Y-m');
                 }
 
-                $date = date('F Y', strtotime($date_string.'-01'));
+                $date = [date('F Y', strtotime($date_string.'-01'))];
 
                 $sales_orders = SalesOrder::where('order_date', 'like', $date_string.'-%')
                 ->where('status', 'finalized')
@@ -173,7 +174,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
         } else { // default current date
             $date_string = date('Y-m-d');
 
-            $date = $date_string;
+            $date = [$date_string];
 
             $sales_orders = SalesOrder::where('order_date', $date_string)
             ->where('status', 'finalized')
@@ -184,6 +185,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
         $data = [];
         $total_quantity = 0;
         $total_amount = 0;
+        $total_less_discount = 0;
         foreach($sales_orders as $sales_order) {
             $account_login = $sales_order->account_login;
             $account = $account_login->account;
@@ -197,6 +199,15 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             ];
 
             $address = implode(', ', array_filter($address_arr));
+
+            $status = $sales_order->status;
+            if(isset($sales_order->upload_status)) {
+                if($sales_order->upload_status == 1) {
+                    $status = 'uploaded';
+                } else {
+                    $status = 'upload error';
+                }
+            }
 
             // products
             $order_products = $sales_order->order_products;
@@ -221,7 +232,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                         $sales_order->ship_date,
                         $sales_order->shipping_instruction,
                         $address,
-                        $sales_order->status,
+                        $status,
                         $sales_order->reference,
                         $order_product->part,
                         $product->stock_code ?? '',
@@ -229,7 +240,8 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                         $product->size ?? '',
                         $product_uom->uom,
                         $product_uom->quantity,
-                        $product_uom->uom_total
+                        $product_uom->uom_total,
+                        ''
                     ];
 
                     $total_quantity += $product_uom->quantity;
@@ -237,6 +249,33 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                 }
             }
 
+            $data[] = [
+                $account_login->user->group_code,
+                $account_login->user->email,
+                $account_login->user->fullName(),
+                $account->company->name,
+                $account->account_code,
+                $account->short_name,
+                $account->account_name,
+                $sales_order->control_number,
+                $sales_order->po_number,
+                $sales_order->order_date,
+                $sales_order->ship_date,
+                $sales_order->shipping_instruction,
+                $address,
+                $status,
+                $sales_order->reference,
+                $order_product->part,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                $sales_order->grand_total
+            ];
+
+            $total_less_discount += $sales_order->grand_total;
         }
 
         // footer
@@ -263,11 +302,12 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             'TOTAL',
             $total_quantity,
             $total_amount,
+            $total_less_discount
         ];
 
         return new Collection([
             ['SMS - SALES MANAGEMENT SYSTEM'],
-            [$date],
+            $date,
             $header,
             $data,
             $footer,
