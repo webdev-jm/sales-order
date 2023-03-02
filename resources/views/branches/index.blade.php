@@ -14,6 +14,7 @@
     </div>
     <div class="col-md-6 text-right">
         @can('branch create')
+        <a href="{{route('branch.export')}}?search={{$search}}" class="btn btn-success"><i class="fas fa-download mr-1"></i>Export</a>
         <a href="{{route('branch.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Branch</a>
         <a href="#" class="btn btn-warning" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload</a>
         @endcan
@@ -52,7 +53,7 @@
             <tbody>
                 @foreach($branches as $branch)
                 <tr>
-                    <td>{{$branch->account->account_code}} {{$branch->account->short_name}}</td>
+                    <td>{{$branch->account->account_code ?? ''}} {{$branch->account->short_name ?? ''}}</td>
                     <td>{{$branch->branch_code}}</td>
                     <td>{{$branch->branch_name}}</td>
                     <td class="text-right">
