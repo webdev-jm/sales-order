@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BranchImport;
+use App\Exports\BranchExport;
 
 use App\Http\Traits\GlobalTrait;
 
@@ -223,5 +224,11 @@ class BranchController extends Controller
         $search = $request->search;
         $response = Branch::BranchAjax($search);
         return response()->json($response);
+    }
+
+    public function export(Request $request) {
+        $search = trim($request->get('search'));
+
+        return Excel::download(new BranchExport($search), 'SMS Branch List'.time().'.xlsx');
     }
 }
