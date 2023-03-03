@@ -20,7 +20,7 @@
             </a>
         </li> --}}
 
-        @if(auth()->user()->hasRole('superadmin'))
+        @if(!empty(auth()->user()) && auth()->user()->hasRole('superadmin'))
         <li class="nav-item">
             <a href="#" class="nav-link" id="btn-online-users">
                 <i class="far fa-user"></i>

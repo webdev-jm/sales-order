@@ -59,7 +59,7 @@ class Percentage extends Component
         }
         // date from
         if(!empty($this->date_from)) {
-            $branch_logins->where(DB::raw('date(time_in)', '>=', $this->date_from));
+            $branch_logins->where(DB::raw('date(time_in)'), '>=', $this->date_from);
         }
         // date to
         if(!empty($this->date_to)) {
@@ -113,11 +113,11 @@ class Percentage extends Component
         }
         // date from
         if(!empty($this->date_from)) {
-            $avg_minutes->where(DB::raw('date(time_in)', '>=', $this->date_from));
+            $avg_minutes->where(DB::raw('date(time_in)'), '>=', $this->date_from);
         }
         // date to
         if(!empty($this->date_to)) {
-            $avg_minutes->where(DB::raw('date(time_in)', '<=', $this->date_to));
+            $avg_minutes->where(DB::raw('date(time_in)'), '<=', $this->date_to);
         }
         $avg_minutes = $avg_minutes->get();
         $this->avg_minutes = $avg_minutes[0]['avg'];
