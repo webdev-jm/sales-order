@@ -17,6 +17,11 @@ use App\Models\UserBranchSchedule;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
+ini_set('memory_limit', '-1');
+ini_set('max_execution_time', 0);
+ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
+ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
+
 class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor
 {
     public $year, $month, $company, $search;
