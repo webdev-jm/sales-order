@@ -61,6 +61,7 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
+            'pool' => 'redis',
         ],
 
         'pgsql' => [
@@ -118,6 +119,16 @@ return [
     */
 
     'redis' => [
+
+        'driver' => 'redis',
+        'connection' => 'default',
+        'pool' => [
+            'min_connections' => 1,
+            'max_connections' => 10,
+            'timeout' => 30,
+            'retry_timeout' => 2,
+            'resurrect_timeout' => 5,
+        ],
 
         'client' => env('REDIS_CLIENT', 'phpredis'),
 
