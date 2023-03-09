@@ -16,6 +16,7 @@ class SalesOrder extends Model
         'shipping_address_id',
         'control_number',
         'po_number',
+        'paf_number',
         'reference',
         'upload_status',
         'sales_order',

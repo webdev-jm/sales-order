@@ -43,6 +43,9 @@ class StoreSalesOrderRequest extends FormRequest
                 Rule::unique((new SalesOrder)->getTable()),
                 Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id)
             ],
+            'paf_number' => [
+                'max:11'
+            ],
             'order_date' => [
                 'required'
             ],

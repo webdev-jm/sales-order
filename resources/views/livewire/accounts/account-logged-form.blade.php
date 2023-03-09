@@ -77,6 +77,7 @@
 
         </div>
         <div class="modal-footer text-right">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-danger" wire:loading.attr="disabled">Sign Out</button>
         </div>
     </form>
