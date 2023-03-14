@@ -372,6 +372,7 @@ class SalesOrderController extends Controller
                 'message_error' => 'Please add items first.',
                 'shipping_address_id' => $request->shipping_address_id,
                 'po_number' => $request->po_number,
+                'paf_number' => $request->paf_number,
                 'ship_date' => $request->ship_date,
                 'shipping_instruction' => $request->shipping_instruction,
                 'ship_to_name' => $request->ship_to_name,
@@ -387,6 +388,7 @@ class SalesOrderController extends Controller
                 'message_error' => 'PO value is required.',
                 'shipping_address_id' => $request->shipping_address_id,
                 'po_number' => $request->po_number,
+                'paf_number' => $request->paf_number,
                 'ship_date' => $request->ship_date,
                 'shipping_instruction' => $request->shipping_instruction,
                 'ship_to_name' => $request->ship_to_name,
@@ -406,6 +408,7 @@ class SalesOrderController extends Controller
         $sales_order->update([
             'shipping_address_id' => $shipping_address_id,
             'po_number' => $request->po_number,
+            'paf_number' => $request->paf_number,
             'ship_date' => $request->ship_date,
             'shipping_instruction' => $request->shipping_instruction,
             'ship_to_name' => $request->ship_to_name,

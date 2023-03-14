@@ -90,6 +90,14 @@
 
                     <div class="col-lg-3">
                         <div class="form-group">
+                            {!! Form::label('paf_number', 'PAF Number (YYYY-A-#####)') !!}
+                            {!! Form::text('paf_number', session('paf_number') ?? $sales_order->paf_number, ['class' => 'form-control form-control-sm text-uppercase'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'update_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('paf_number')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="form-group">
                             {!! Form::label('order_date', 'Order Date') !!}
                             {!! Form::date('order_date', $sales_order->order_date, ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'update_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('order_date')}}</p>

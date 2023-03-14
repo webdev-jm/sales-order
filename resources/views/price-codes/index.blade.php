@@ -29,7 +29,10 @@
     <div class="card-header">
         <h3 class="card-title">List of Price Codes</h3>
         <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
+            <div class="input-group input-group-sm">
+
+                {!! Form::select('code', $codes, $code, ['class' => 'form-control', 'form' => 'search_form']) !!}
+
                 {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-default" form="search_form">

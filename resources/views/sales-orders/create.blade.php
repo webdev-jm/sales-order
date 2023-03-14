@@ -88,8 +88,8 @@
 
                     <div class="col-lg-3">
                         <div class="form-group">
-                            {!! Form::label('paf_number', 'PAF Number') !!}
-                            {!! Form::text('paf_number', '', ['class' => 'form-control form-control-sm'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::label('paf_number', 'PAF Number (YYYY-A-#####)') !!}
+                            {!! Form::text('paf_number', '', ['class' => 'form-control form-control-sm text-uppercase'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('paf_number')}}</p>
                         </div>
                     </div>
