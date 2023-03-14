@@ -19,6 +19,7 @@ class CreateSalesOrdersTable extends Migration
             $table->unsignedBigInteger('shipping_address_id')->nullable();
             $table->string('control_number');
             $table->string('po_number');
+            $table->string('paf_number');
             $table->string('reference')->nullable()->comment('sys pro sales reference numbers');
             $table->integer('upload_status')->nullable();
             $table->date('order_date');

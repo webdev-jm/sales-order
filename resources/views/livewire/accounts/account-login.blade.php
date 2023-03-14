@@ -37,7 +37,7 @@
                 </div>
             @endforeach
             </div>
-
+            
         </div>
         <div class="card-footer">
             {{$accounts->links()}}

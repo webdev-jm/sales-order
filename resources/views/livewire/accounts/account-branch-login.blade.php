@@ -41,10 +41,14 @@
                 </div>
                 @endforeach
             </div>
+            
+            <hr>
+
+            {{$branches->links()}}
 
         </div>
         <div class="modal-footer">
-            {{$branches->links()}}
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
     @elseif($branch_form)
     <form wire:submit.prevent="submitAddBranch">

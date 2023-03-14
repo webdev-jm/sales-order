@@ -88,6 +88,14 @@
 
                     <div class="col-lg-3">
                         <div class="form-group">
+                            {!! Form::label('paf_number', 'PAF Number (YYYY-A-#####)') !!}
+                            {!! Form::text('paf_number', '', ['class' => 'form-control form-control-sm text-uppercase'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            <p class="text-danger">{{$errors->first('paf_number')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="form-group">
                             {!! Form::label('order_date', 'Order Date') !!}
                             {!! Form::date('order_date', session('order_date') ?? now(), ['class' => 'form-control form-control-sm bg-white'.($errors->has('order_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order', 'readonly']) !!}
                             <p class="text-danger">{{$errors->first('order_date')}}</p>
@@ -181,6 +189,7 @@
 @endsection
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script>
     $(function() {
 
@@ -204,6 +213,11 @@
                 $('#status').val(status_val);
                 $('#'+$(this).attr('form')).submit();
             }
+        });
+
+        // format PRF Number
+        $('#paf_number').mask('9999-A-00000', {
+            autoUpperCase: true
         });
     });
 </script>

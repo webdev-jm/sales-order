@@ -37,10 +37,21 @@ class PriceCodeController extends Controller
     public function index(Request $request)
     {
         $search = trim($request->get('search'));
-        $price_codes = PriceCode::PriceCodeSearch($search, $this->setting->data_per_page);
+
+        $code = trim($request->get('code'));
+        
+        $codes = PriceCode::select('code')->distinct()->get('code');
+        $code_arr[''] = 'ALL';
+        foreach($codes as $data) {
+            $code_arr[$data->code] = $data->code;
+        }
+
+        $price_codes = PriceCode::PriceCodeSearch($search, $code, $this->setting->data_per_page);
         return view('price-codes.index')->with([
             'price_codes' => $price_codes,
-            'search' => $search
+            'search' => $search,
+            'codes' => $code_arr,
+            'code' => $code
         ]);
     }
 

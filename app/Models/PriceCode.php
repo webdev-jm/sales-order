@@ -27,18 +27,27 @@ class PriceCode extends Model
         return $this->belongsTo('App\Models\Product');
     }
 
-    public function scopePriceCodeSearch($query, $search, $limit) {
-        if($search != '') {
-            $price_codes = $query->orderBy('id', 'DESC')
-            ->whereHas('company', function($qry) use ($search) {
-                $qry->where('name', 'like', '%'.$search.'%');
-            })
-            ->orWhereHas('product', function($qry) use ($search) {
-                $qry->where('stock_code', 'like', '%'.$search.'%');
-            })
-            ->orWhere('code', 'like', '%'.$search.'%')
-            ->orWhere('selling_price', 'like', '%'.$search.'%')
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+    public function scopePriceCodeSearch($query, $search, $code, $limit) {
+        if($search != '' || $code != '') {
+            $price_codes = $query->orderBy('id', 'DESC');
+
+            if($search != '') {
+                $price_codes->where(function($qry) use($search) {
+                    $qry->whereHas('company', function($qry1) use ($search) {
+                        $qry1->where('name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('product', function($qry1) use ($search) {
+                        $qry1->where('stock_code', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('selling_price', 'like', '%'.$search.'%');
+                });
+            }
+
+            if($code != '') {
+                $price_codes->where('code', $code);
+            }
+
+            $price_codes = $price_codes->paginate($limit)->onEachSide(1)->appends(request()->query());
         } else {
             $price_codes = $query->orderBy('id', 'DESC')
             ->paginate($limit)->onEachSide(1)->appends(request()->query());

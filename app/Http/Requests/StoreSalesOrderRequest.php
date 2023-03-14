@@ -43,6 +43,12 @@ class StoreSalesOrderRequest extends FormRequest
                 Rule::unique((new SalesOrder)->getTable()),
                 Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id)
             ],
+            'paf_number' => [
+                'nullable',
+                'max:12',
+                'min:12',
+                'yyyy_a_number'
+            ],
             'order_date' => [
                 'required'
             ],
@@ -67,6 +73,12 @@ class StoreSalesOrderRequest extends FormRequest
             'postal_code' => [
                 'max:255'
             ],
+        ];
+    }
+
+    public function messages() {
+        return [
+            'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".'
         ];
     }
 }
