@@ -131,6 +131,18 @@ class PermissionSeeder extends Seeder
             'cost center create',
             'cost center edit',
             'cost center delete',
+            // district
+            'district access',
+            'district create',
+            'district edit',
+            'district delete',
+            'district assign',
+            // territory
+            'territory access',
+            'territory create',
+            'territory edit',
+            'territory delete',
+            'territory assign',
             // holiday
             'holiday access',
             'holiday create',

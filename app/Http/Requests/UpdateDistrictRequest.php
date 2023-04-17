@@ -4,9 +4,9 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Company;
+use App\Models\District;
 
-class UpdateCompanyRequest extends FormRequest
+class UpdateDistrictRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +15,7 @@ class UpdateCompanyRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('company edit');
+        return auth()->user()->can('district edit');
     }
 
     /**
@@ -26,11 +26,15 @@ class UpdateCompanyRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
-                'required', Rule::unique((new Company)->getTable())->ignore(decrypt($this->id))
+            'district_code' => [
+                'required', 
+                'max:255', 
+                'min:2',
+                Rule::unique((new District)->getTable())->ignore($this->id)
             ],
-            'order_limit' => [
-                'required'
+            'district_name' => [
+                'required', 
+                'max:255',
             ]
         ];
     }

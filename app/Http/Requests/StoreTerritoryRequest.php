@@ -3,10 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use App\Models\Company;
 
-class UpdateCompanyRequest extends FormRequest
+class StoreTerritoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +13,7 @@ class UpdateCompanyRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('company edit');
+        return false;
     }
 
     /**
@@ -26,12 +24,7 @@ class UpdateCompanyRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => [
-                'required', Rule::unique((new Company)->getTable())->ignore(decrypt($this->id))
-            ],
-            'order_limit' => [
-                'required'
-            ]
+            //
         ];
     }
 }

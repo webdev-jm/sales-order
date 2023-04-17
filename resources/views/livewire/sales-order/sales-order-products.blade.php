@@ -91,8 +91,11 @@
                         </td>
                         <td class="p-0 align-middle">
                             <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">
+                                @php
+                                    $product_uom = $product->uom;
+                                @endphp
                                 @foreach($uom_arr as $key => $val)
-                                    <option value="{{$val}}" {{$val == $product->order_uom ? 'selected' : ''}}>{{$val}}</option>
+                                    <option value="{{$val}}" {{$val == $product_uom ? 'selected' : ''}}>{{$val}}</option>
                                 @endforeach
                             </select>
                         </td>

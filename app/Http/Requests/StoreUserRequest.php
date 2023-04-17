@@ -27,13 +27,13 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'firstname' => [
-                'required'
+                'required', 'max:255'
             ],
             'middlename' => [
                 'max:255'
             ],
             'lastname' => [
-                'max:255'
+                'required', 'max:255'
             ],
             'email' => [
                 'required', Rule::unique((new User)->getTable())

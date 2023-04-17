@@ -21,7 +21,7 @@ class LogsChanges extends Component
         $details = [];
         foreach($changes as $key => $update) {
             $details[$key]['old'] = $old[$key];
-            $details[$key]['update'] = $update; 
+            $details[$key]['update'] = $update;
         }
 
         $this->activity = $activity;

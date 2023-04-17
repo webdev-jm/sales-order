@@ -24,7 +24,7 @@
         <h3 class="card-title">Edit Company</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['method' => 'POST', 'route' => ['company.update', $company->id], 'id' => 'update_company']) !!}
+        {!! Form::open(['method' => 'POST', 'route' => ['company.update', encrypt($company->id)], 'id' => 'update_company']) !!}
         {!! Form::close() !!}
 
         <div class="row">

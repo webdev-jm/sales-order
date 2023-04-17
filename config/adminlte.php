@@ -367,6 +367,29 @@ return [
             'can'       => 'report access',
             'active'    => ['combined*']
         ],
+        // DMS
+        [
+            'header'    => 'DMS',
+            'can'       => [
+                'district access',
+                'territory access',
+            ],
+        ],
+        [
+            'text'      => 'Districts',
+            'url'       => '/district',
+            'icon'      => 'fas fa-fw fa-network-wired',
+            'can'       => 'district access',
+            'active'    => ['district*']
+        ],
+        [
+            'text'      => 'Territories',
+            'url'       => '/territory',
+            'icon'      => 'fas fa-fw fa-map-pin',
+            'can'       => 'territory access',
+            'active'    => ['territory*']
+        ],
+        // MAINTENANCE
         [
             'header'    => 'maintenance',
             'can'       => [
