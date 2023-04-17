@@ -42,8 +42,11 @@
 @endsection
 
 @section('content')
+
+@if($sales_order->status == 'draft')
 {!! Form::open(['method' => 'POST', 'route' => ['sales-order.update', $sales_order->id], 'id' => 'update_sales_order']) !!}
 {!! Form::close() !!}
+@endif
 
 <div class="row">
     <div class="col-lg-6">
@@ -53,21 +56,25 @@
                     CONTROL NO: {{$sales_order->control_number}}
                     {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
                     <span class="badge float-right {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                    @if($sales_order->status == 'draft')
                     <livewire:sales-order.autosave :sales_order_id="$sales_order->id"/>
+                    @endif
                 </h3>
             </div>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <div class="card-tools">
-                    {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_sales_order']) !!}
-                    {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_sales_order']) !!}
-                    {!! Form::hidden('status', 'draft', ['form' => 'update_sales_order', 'id' => 'status']) !!}
+        @if($sales_order->status == 'draft')
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-tools">
+                        {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_sales_order']) !!}
+                        {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_sales_order']) !!}
+                        {!! Form::hidden('status', 'draft', ['form' => 'update_sales_order', 'id' => 'status']) !!}
+                    </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 
     <div class="col-lg-7">
@@ -190,6 +197,7 @@
 @endsection
 
 @section('js')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script>
     $(function() {
         $('#btn-address-modal').on('click', function(e) {
@@ -213,6 +221,11 @@
 
         $('body').on('change', '[form="update_sales_order"]', function(e) {
             Livewire.emit('saveData');
+        });
+
+        // format PRF Number
+        $('#paf_number').mask('9999-A-00000', {
+            autoUpperCase: true
         });
     });
 </script>

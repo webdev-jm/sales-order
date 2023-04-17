@@ -24,3 +24,4 @@ class OrganizationStructure extends Model
         return $this->belongsTo('App\Models\JobTitle');
     }
 }
+// k0J13oS4n?!

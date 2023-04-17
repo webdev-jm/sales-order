@@ -58,10 +58,15 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => 'InnoDB',
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-            'pool' => 'redis',
+            'options' => [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_TIMEOUT => 5,
+            ],
+            'pool' => [
+                'min_connections' => 1,
+                'max_connections' => 10,
+                'max_idle_time' => 30,
+            ],
         ],
 
         'pgsql' => [

@@ -31,6 +31,8 @@ use App\Http\Controllers\WeeklyActivityReportController;
 use App\Http\Controllers\SalesOrderCutOffController;
 use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\TerritoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -341,6 +343,30 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('cost-center/{id}', [CostCenterController::class, 'update'])->name('cost-center.update')->middleware('permission:cost center edit');
     });
 
+    // DISTRICT
+    Route::group(['middleware' => 'permission:district access'], function() {
+        Route::get('district', [DistrictController::class, 'index'])->name('district.index');
+
+        Route::get('district/create', [DistrictController::class, 'create'])->name('district.create')
+        ->middleware('permission:district create');
+        Route::post('district', [DistrictController::class, 'store'])->name('district.store')->middleware('permission:district create');
+
+        Route::get('district/{id}/edit', [DistrictController::class, 'edit'])->name('district.edit')->middleware('permission:district edit');
+        Route::post('district/{id}', [DistrictController::class, 'update'])->name('district.update')->middleware('permission:district edit');
+
+    });
+
+    // TERRITORIES
+    Route::group(['middleware' => 'permission:territory access'], function() {
+        Route::get('territory', [TerritoryController::class, 'index'])->name('territory.index');
+
+        Route::get('territory/create', [TerritoryController::class, 'create'])->name('territory.create')->middleware('permission:territory create');
+        Route::post('territory', [TerritoryController::class, 'store'])->name('territory.store')->middleware('permission:territory create');
+
+        Route::get('territory/{id}/edit', [TerritoryController::class, 'edit'])->name('territory.edit')->middleware('permission:territory edit');
+        Route::post('territory/{id}', [TerritoryController::class, 'update'])->name('territory.update')->middleware('permission:territory edit');
+    });
+
     // HOLIDAYS
     Route::group(['middleware' => 'permission:holiday access'], function() {
         Route::get('holiday', [HolidayController::class, 'index'])->name('holiday.index');
@@ -385,4 +411,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('setting/{id}', [SettingController::class, 'update'])->name('setting.update');
         Route::post('po-number/upload', [SettingController::class, 'upload'])->name('po-number.upload');
     });
+
 });
+
+// SITE CLEAR
+Route::get('/site-clear', function() {
+    Artisan::call('cache:clear');
+    Artisan::call('config:cache');
+    Artisan::call('view:clear');
+    return "Cleared!";
+})->middleware('auth');

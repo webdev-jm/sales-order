@@ -320,6 +320,14 @@ class SalesOrderController extends Controller
         }
 
         $sales_order = SalesOrder::findOrFail($id);
+
+        // check if already finalized
+        if($sales_order->status == 'finalized') {
+            return redirect()->route('sales-order.show', $sales_order->id)->with([
+                'message_error' => 'SO cannot be edited once status has been finalized.'
+            ]);
+        }
+
         $order_data = [];
         $order_products = $sales_order->order_products;
         foreach($order_products as $order_product) {

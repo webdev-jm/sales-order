@@ -88,6 +88,7 @@ class CompanyController extends Controller
      */
     public function edit($id)
     {
+        $id = decrypt($id);
         $company = Company::findOrFail($id);
         return view('companies.edit')->with([
             'company' => $company
@@ -103,6 +104,7 @@ class CompanyController extends Controller
      */
     public function update(UpdateCompanyRequest $request, $id)
     {
+        $id = decrypt($id);
         $company = Company::findOrFail($id);
         $company_name = $company->name;
 

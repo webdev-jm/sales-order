@@ -128,6 +128,14 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\CostCenter');
     }
 
+    public function districts() {
+        return $this->belongsToMany('App\Models\District');
+    }
+
+    public function territories() {
+        return $this->hasMany('App\Models\Territory');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')
@@ -263,4 +271,39 @@ class User extends Authenticatable
         // return and remove duplicates
         return array_unique(array_filter($supervisor_ids));
     }
+
+    public function getSupervisorIds1() {
+        $organizations = $this->organizations;
+        $supervisor_ids = [];
+    
+        // define the supervisor levels we want to fetch
+        $supervisor_levels = ['first', 'second', 'third', 'fourth', 'fifth'];
+    
+        foreach($organizations as $organization) {
+            if(!empty($organization->reports_to_id)) {
+                // fetch the supervisor data with eager loading
+                $supervisor = OrganizationStructure::with('supervisor')
+                    ->where('id', $organization->reports_to_id)
+                    ->first();
+    
+                // loop over the supervisor levels and fetch the supervisor data for each level
+                foreach($supervisor_levels as $level => $level_name) {
+                    if(!empty($supervisor->supervisor)) {
+                        // store the supervisor id for the current level
+                        $supervisor_ids[$level_name] = $supervisor->supervisor->user_id;
+    
+                        // move to the next level of supervisor
+                        $supervisor = $supervisor->supervisor;
+                    } else {
+                        // break the loop if there are no more supervisors at this level
+                        break;
+                    }
+                }
+            }
+        }
+    
+        // remove duplicates and empty values and return the result
+        return array_values(array_unique(array_filter($supervisor_ids)));
+    }
+    
 }

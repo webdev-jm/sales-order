@@ -19,6 +19,10 @@ class Branch extends Model
         'area_id',
         'branch_code',
         'branch_name',
+        'province',
+        'city',
+        'barangay',
+        'address'
     ];
 
     public function account() {
@@ -43,6 +47,10 @@ class Branch extends Model
 
     public function schedules() {
         return $this->hasMany('App\Models\UserBranchSchedule');
+    }
+
+    public function territories() {
+        return $this->belongsToMany('App\Models\Territory');
     }
 
     public function scopeBranchAjax($query, $search) {

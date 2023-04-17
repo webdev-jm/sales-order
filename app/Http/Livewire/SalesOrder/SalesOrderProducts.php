@@ -40,6 +40,7 @@ class SalesOrderProducts extends Component
                 foreach($order_data['items'] as $product_id => $item) {
                     foreach($item['data'] as $uom => $data) {
                         $this->quantity[$product_id][$uom] = $data['quantity'];
+                        $this->uom[$product_id] = $uom;
                     }
                 }
             }

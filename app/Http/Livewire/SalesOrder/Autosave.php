@@ -93,9 +93,9 @@ class Autosave extends Component
         $this->dispatchBrowserEvent('getData');
     }
     
-    public function mount() {
+    public function mount($sales_order_id) {
         $this->logged_account = Session::get('logged_account');
-        $this->sales_order = SalesOrder::findOrFail($this->sales_order_id);
+        $this->sales_order = SalesOrder::findOrFail($sales_order_id);
         $this->dispatchBrowserEvent('getData');
         $this->settings = $this->getSettings();
     }

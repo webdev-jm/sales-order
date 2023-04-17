@@ -100,9 +100,9 @@
                         <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
                             <i class="fa fa-eye text-primary mx-1"></i>
                         </a>
-                        @can('sales order delete')
+                        @if(auth()->user()->can('sales order delete') || $sales_order->status == 'draft')
                             <a href="#" title="delete" class="btn-delete" data-id="{{$sales_order->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
-                        @endcan
+                        @endif
                     </td>
                 </tr>
                 @endforeach

@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Companies
+    Districts
 @endsection
 
 @section('css')
@@ -10,23 +10,23 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Companies</h1>
+        <h1>Districts</h1>
     </div>
     <div class="col-md-6 text-right">
-        @can('company create')
-        <a href="{{route('company.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Company</a>
+        @can('district create')
+        <a href="{{route('district.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add District</a>
         @endcan
     </div>
 </div>
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['company.index'], 'id' => 'search_form']) !!}
+{!! Form::open(['method' => 'GET', 'route' => ['district.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">List of Companies</h3>
+        <h3 class="card-title">List of Districts</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
                 {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
@@ -42,20 +42,22 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Company Name</th>
+                    <th>District Code</th>
+                    <th>District Name</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($companies as $company)
+                @foreach($districts as $district)
                 <tr>
-                    <td>{{$company->name}}</td>
+                    <td>{{$district->district_code}}</td>
+                    <td>{{$district->district_name}}</td>
                     <td class="text-right">
-                        @can('company edit')
-                            <a href="{{route('company.edit', encrypt($company->id))}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                        @can('district edit')
+                            <a href="{{route('district.edit', $district->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
-                        @can('company delete')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$company->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                        @can('district delete')
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$district->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>
                 </tr>
@@ -64,7 +66,7 @@
         </table>
     </div>
     <div class="card-footer">
-        {{$companies->links()}}
+        {{$districts->links()}}
     </div>
 </div>
 
@@ -82,7 +84,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Company', id);
+            Livewire.emit('setDeleteModel', 'District', id);
             $('#modal-delete').modal('show');
         });
     });
