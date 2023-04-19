@@ -34,6 +34,10 @@ class Percentage extends Component
         return number_format($percent, 2);
     }
 
+    public function mount() {
+        $this->date_from = date('Y-m').'-01';
+    }
+
     public function render()
     {
         // schedules count

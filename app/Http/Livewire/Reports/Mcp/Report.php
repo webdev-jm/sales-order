@@ -37,6 +37,10 @@ class Report extends Component
         $this->dispatchBrowserEvent('showDetail');
     }
 
+    public function mount() {
+        $this->date_from = date('Y-m').'-01';
+    }
+
     public function render()
     {
 
