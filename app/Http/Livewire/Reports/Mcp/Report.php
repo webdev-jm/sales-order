@@ -114,7 +114,7 @@ class Report extends Component
                     'latitude' => $deviation->latitude,
                     'longitude' => $deviation->longitude,
                     'time_in' => $deviation->time_in,
-                    'time_out' => $deviation->time_out
+                    'time_out' => $deviation->time_out,
                 ];
 
             }
