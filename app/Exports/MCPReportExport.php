@@ -198,17 +198,21 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             $schedules = UserBranchSchedule::where('user_id', $schedule_date->user_id)
             ->where('date', $schedule_date->date)
             ->whereNull('status')
+            ->where('source', 'activity-plan')
             ->get();
 
+            $schedule_count = 0;
+            $visited_count = 0;
             foreach($schedules as $schedule) {
+                $schedule_count++;
                 // get actual branch sign-in
                 $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
                 ->where('branch_id', $schedule->branch_id)
                 ->where('time_in', 'like', $schedule->date.'%')
                 ->get();
 
-                
                 if(!empty($branch_logins->count())) {
+                    $visited_count++;
                     foreach($branch_logins as $branch_login) {
                         $data[] = [
                             $schedule_date->user->email,
@@ -251,6 +255,11 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
 
             foreach($deviations_data as $key => $deviation) {
 
+                $status = 'deviated';
+                if($schedule_count == $visited_count && $schedule_count > 0) {
+                    $status = 'visited';
+                }
+
                 $data[] = [
                     $schedule_date->user->email,
                     $schedule_date->user->fullName(),
@@ -262,7 +271,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                     \App\Helpers\AppHelper::instance()->getAddress($deviation->latitude, $deviation->longitude),
                     $deviation->time_in,
                     $deviation->time_out,
-                    'diavated'
+                    $status,
                 ];
 
             }

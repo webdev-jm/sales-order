@@ -47,10 +47,26 @@ class BranchImport implements ToModel, WithStartRow, WithBatchInserts, WithChunk
         }
 
         $classification = Classification::where('classification_name', $row[2])
-        ->orWhere('classification_code', $row[9])
-        ->first();
+            ->orWhere('classification_code', $row[10])
+            ->first();
+        if(empty($classification)) {
+            $classification = new Classification([
+                'classification_name' => $row[2],
+                'classification_code' => $row[10],
+            ]);
+            $classification->save();
+        }
 
-        $area = Area::where('area_code', $row[8])->first();
+        $area = Area::where('area_code', $row[8])
+            ->orWhere('area_name', $row[9])
+            ->first();
+        if(empty($area)) {
+            $area = new Area([
+                'area_code' => $row[8],
+                'area_name' => $row[9]
+            ]);
+            $area->save();
+        }
 
         // check
         $check = Branch::where('branch_code', $row[4])

@@ -142,7 +142,14 @@
                                 <td colspan="6" class="font-weight-bold text-uppercase">{{$schedule_date->user->fullName()}}</td>
                             </tr>
                             {{-- Scheduled --}}
+                            @php
+                                $schedule_count = 0;
+                                $visited_count = 0;
+                            @endphp
                             @foreach($schedules[$schedule_date->user_id][$schedule_date->date] as $schedule)
+                                @php
+                                    $schedule_count++;
+                                @endphp
                             <tr>
                                 <td class="align-middle text-center">{{$schedule->date}}</td>
                                 <td class="align-middle">{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
@@ -175,6 +182,9 @@
                                     </td>
                                     <td class="text-center align-middle p-0">
                                         @if(!empty($actuals[$schedule->id]->count()))
+                                            @php
+                                                $visited_count++;
+                                            @endphp
                                             <i class="fa fa-check text-success" title="Visited"></i>
                                         @else
                                             <i class="fa fa-times text-danger" title="Not Visited"></i>
@@ -222,7 +232,11 @@
                                         @endforeach
                                     </td>
                                     <td class="text-center align-middle p-0">
-                                        <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                        @if($schedule_count == $visited_count && $schedule_count > 0)
+                                            <i class="fa fa-check text-primary" title="Visited"></i>
+                                        @else
+                                            <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                        @endif
                                     </td>
                                     <td></td>
                                 </tr>
