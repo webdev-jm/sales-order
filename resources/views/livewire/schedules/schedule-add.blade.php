@@ -54,7 +54,7 @@
         </div>
         <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary" wire:click.prevent="submitRequest" wire:loading.attr="disabled">Request</button>
+            <button class="btn btn-primary" wire:click.prevent="submitRequest" wire:loading.attr="disabled">Add Schedule</button>
         </div>
     
         <script>

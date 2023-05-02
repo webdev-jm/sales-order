@@ -103,23 +103,23 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square schedule"></i>
+                        <i class="fa fa-square schedule mr-1"></i>
                         <span>Schedules</span>
                     </div>
-                    <div class="col-lg-2 col-md-3">
+                    {{-- <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square reschedule"></i>
                         <span>Reschedule Request</span>
                     </div>
                     <div class="col-lg-2 col-md-3">
                         <i class="fa fa-square delete-request"></i>
                         <span>Delete Request</span>
-                    </div>
+                    </div> --}}
                     <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square schedule-request"></i>
+                        <i class="fa fa-square schedule-request mr-1"></i>
                         <span>Schedule Request</span>
                     </div>
                     <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square deviation-request"></i>
+                        <i class="fa fa-square deviation-request mr-1"></i>
                         <span>Deviation Request</span>
                     </div>
                 </div>

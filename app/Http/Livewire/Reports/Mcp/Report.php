@@ -78,7 +78,10 @@ class Report extends Component
             $schedules = UserBranchSchedule::where('user_id', $schedule_date->user_id)
             ->where('date', $schedule_date->date)
             ->whereNull('status')
-            ->where('source', 'activity-plan')
+            ->where(function($query) {
+                $query->where('source', 'activity-plan')
+                    ->orWhere('source', 'request');
+            })
             ->get();
 
             $this->schedules[$schedule_date->user_id][$schedule_date->date] = $schedules;

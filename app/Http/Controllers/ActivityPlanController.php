@@ -696,15 +696,17 @@ class ActivityPlanController extends Controller
             }
 
             if($row_num > 4) {
-                $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
-
-                $data[$date_key][] = [
-                    'account_code' => $row[2],
-                    'branch_code' => $row[3],
-                    'location' => $row[4],
-                    'purpose' => $row[5],
-                    'work_with' => $row[6],
-                ];
+                if(!empty($row[0])) {
+                    $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
+    
+                    $data[$date_key][] = [
+                        'account_code' => $row[2] ?? '',
+                        'branch_code' => $row[3],
+                        'location' => $row[4] ?? '',
+                        'purpose' => $row[5] ?? '',
+                        'work_with' => $row[6] ?? '',
+                    ];
+                }
             }
         }
 

@@ -48,7 +48,7 @@ class ScheduleAddRequest extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Schedule Request')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line($this->schedule->user->fullName().' has created a schedule request on '.$this->schedule->date.' to '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' for your approval')
+            ->line($this->schedule->user->fullName().' has created a schedule request on '.$this->schedule->date.' to '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' ')
             ->action('View Details', url('/schedule?user_id='.$this->schedule->user_id))
             ->line('Thank you for using our application!');
     }
@@ -67,7 +67,7 @@ class ScheduleAddRequest extends Notification
             'module' => 'Schedule Request',
             'status' => $this->schedule->status,
             'status_code' => 'success',
-            'message' => $this->schedule->user->fullName().' has created a schedule request on '.$this->schedule->date.' to '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' for your approval',
+            'message' => $this->schedule->user->fullName().' has created a schedule request on '.$this->schedule->date.' to '.$this->schedule->branch->branch_code.' '.$this->schedule->branch->branch_name.' ',
             'color' => 'success',
             'url' => url('/schedule?user_id='.$this->schedule->user_id)
         ];

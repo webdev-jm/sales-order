@@ -37,25 +37,25 @@ class ScheduleAdd extends Component
             'user_id' => auth()->user()->id,
             'branch_id' => $this->branch_id,
             'date' => $this->date,
-            'status' => 'schedule request',
+            'status' => NULL,
             'objective' => $this->objective,
             'source' => 'request'
         ]);
         $schedule->save();
 
         
-        $approval = new UserBranchScheduleApproval([
-            'user_branch_schedule_id' => $schedule->id,
-            'user_id' => auth()->user()->id,
-            'status' => 'schedule request',
-            'remarks' => null
-        ]);
-        $approval->save();
+        // $approval = new UserBranchScheduleApproval([
+        //     'user_branch_schedule_id' => $schedule->id,
+        //     'user_id' => auth()->user()->id,
+        //     'status' => 'schedule request',
+        //     'remarks' => null
+        // ]);
+        // $approval->save();
         
         // logs
         activity('created')
         ->performedOn($schedule)
-        ->log(':causer.firstname :causer.lastname has created schedule request :subject.date');
+        ->log(':causer.firstname :causer.lastname added a new schedule :subject.date');
 
         // notifications
         $user_ids = auth()->user()->getSupervisorIds();
