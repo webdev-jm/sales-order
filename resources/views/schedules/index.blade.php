@@ -306,6 +306,17 @@
                 Livewire.emit('setDeviation', date);
                 $('#deviation-modal').modal('show');
             },
+            eventContent: function(arg) {
+                return {
+                    html: '<div class="fc-event-main-frame">'+
+                            '<div class="fc-event-title-container">'+
+                                '<div class="fc-event-title fc-sticky">'+
+                                    (arg.event.extendedProps.icon ? '<i class="fa ' + arg.event.extendedProps.icon + ' text-lime mx-1"></i> '+arg.event.title : arg.event.title) +
+                                '</div>'+
+                            '</div>'+
+                        '</div>' 
+                }
+            },
             themeSystem: 'bootstrap',
             events: @php echo json_encode($schedule_data); @endphp
         });
@@ -319,46 +330,7 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-
-        // $('#user_id').select2({
-        //     ajax: { 
-        //         url: '{{route("user.ajax")}}',
-        //         type: "POST",
-        //         dataType: 'json',
-        //         delay: 50,
-        //         data: function (params) {
-        //             return {
-        //                 search: params.term // search term
-        //             };
-        //         },
-        //         processResults: function (response) {
-        //             return {
-        //                 results: response
-        //             };
-        //         },
-        //         cache: true
-        //     }
-        // });
-
-        // $('.branch_id').select2({
-        //     ajax: { 
-        //         url: '{{route("branch.ajax")}}',
-        //         type: "POST",
-        //         dataType: 'json',
-        //         delay: 50,
-        //         data: function (params) {
-        //             return {
-        //                 search: params.term // search term
-        //             };
-        //         },
-        //         processResults: function (response) {
-        //             return {
-        //                 results: response
-        //             };
-        //         },
-        //         cache: true
-        //     }
-        // });
+        
     });
 </script>
 @endsection

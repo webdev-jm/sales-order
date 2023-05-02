@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\UserBranchSchedule;
 use App\Models\OrganizationStructure;
 use App\Models\Deviation;
+use App\Models\BranchLogin;
 use App\Http\Requests\StoreUserBranchScheduleRequest;
 use App\Http\Requests\UpdateUserBranchScheduleRequest;
 use Illuminate\Http\Request;
@@ -18,6 +19,8 @@ use App\Imports\ScheduleImport;
 use App\Http\Traits\GlobalTrait;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+
+use Illuminate\Support\Facades\DB;
 
 class UserBranchScheduleController extends Controller
 {
@@ -76,6 +79,17 @@ class UserBranchScheduleController extends Controller
                     $schedules = $schedules->get();
 
                     foreach($schedules as $sched) {
+                        // check login
+                        $branch_login = BranchLogin::where('user_id', $user_id)
+                            ->where('branch_id', $sched->branch_id)
+                            ->where(DB::raw('DATE(time_in)'), $schedule->date)
+                            ->first();
+                        
+                        $icon = '';
+                        if(!empty($branch_login)) {
+                            $icon = 'fa fa-check';
+                        }
+
                         $schedule_data[] = [
                             'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                             'start' => $schedule->date,
@@ -84,19 +98,9 @@ class UserBranchScheduleController extends Controller
                             'borderColor' => $schedule_color,
                             'type' => 'schedule',
                             'id' => $sched->id,
+                            'icon' => $icon,
                         ];
                     }
-
-                    // if($schedules->count() > 0) {
-                    //     $schedule_data[] = [
-                    //         'title' => $schedules->count().($schedules->count() > 1 ? ' schedules' : ' schedule'),
-                    //         'start' => $schedule->date,
-                    //         'allDay' => true,
-                    //         'backgroundColor' => $schedule_color,
-                    //         'borderColor' => $schedule_color,
-                    //         'type' => 'schedule'
-                    //     ];
-                    // }
                 }
 
                 // for reschedule
@@ -317,6 +321,13 @@ class UserBranchScheduleController extends Controller
                 $schedules = $schedules->get();
 
                 foreach($schedules as $sched) {
+
+                    // check login
+                    $branch_login = BranchLogin::where('user_id', $user_id)
+                        ->where('branch_id', $sched->branch_id)
+                        ->where(DB::raw('DATE(time_in)'), $schedule->date)
+                        ->first();
+
                     $schedule_data[] = [
                         'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                         'start' => $schedule->date,
