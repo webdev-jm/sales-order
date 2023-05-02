@@ -133,8 +133,6 @@
 
             $(this).closest('tr').find('.area-day').val(days_arr[day]);
         });
-
-        // 2022-11-25 14:17:12 // KS09945
         
         $('body').on('change', '.area-date', function() {
             var date = $(this).val();
@@ -150,6 +148,15 @@
             var date = $(this).data('date');
             Livewire.emit('setDate', date);
             $('#area-activity-modal').modal('show');
+        });
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+        $('body').on('click', '[data-toggle="lightbox"]', function(event) {
+            event.preventDefault();
+            $(this).ekkoLightbox({
+                alwaysShowClose: true
+            });
         });
     });
 </script>

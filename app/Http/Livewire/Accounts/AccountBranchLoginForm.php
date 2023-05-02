@@ -24,7 +24,9 @@ class AccountBranchLoginForm extends Component
 
     public function logout() {
         if($this->picture_file) {
-            $this->save_image($this->picture_file, $this->logged_branch->id);
+            foreach($this->picture_file as $key => $file) {
+                $this->save_image($file, $this->logged_branch->id, $key);
+            }
         }
 
         $this->logged_branch->update([
@@ -41,9 +43,9 @@ class AccountBranchLoginForm extends Component
         return redirect()->to('/home');
     }
 
-    public function save_image($image_input, $id) {
+    public function save_image($image_input, $id, $key) {
         // make directory if do not exist
-        $dir = public_path().'/uploads/branch-login/'.$this->logged_branch->user_id.'/'.$id;
+        $dir = public_path().'/uploads/branch-login/'.$this->logged_branch->user_id.'/'.$id.'/'.$key;
         if(!is_dir($dir)) {
             mkdir($dir, 755, true);
         }

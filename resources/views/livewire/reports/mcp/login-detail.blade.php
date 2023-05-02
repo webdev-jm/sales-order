@@ -34,12 +34,17 @@
                 @endif
 
                 @if(file_exists(public_path().'/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id))
-                <label>Picture:</label>
-                <div class="mb-3">
-                    <a href="{{ asset('/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id).'/large.jpg' }}" data-toggle="lightbox" data-title="Preview">
-                        <img src="{{asset('/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id.'/small.jpg')}}" alt="picture">
-                    </a>
-                </div>
+                    <label>Picture:</label>
+                    @php
+                        $dirs = glob(public_path().'/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id.'/*', GLOB_ONLYDIR);
+                    @endphp
+                    <div class="mb-3">
+                        @for($i = 0; $i < count($dirs); $i++)
+                            <a href="{{ asset('/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id).'/'.$i.'/large.jpg' }}" data-toggle="lightbox" data-title="Preview">
+                                <img src="{{asset('/uploads/branch-login/'.$branch_login->user_id.'/'.$branch_login->id.'/'.$i.'/small.jpg')}}" alt="picture" class="mx-1">
+                            </a>
+                        @endfor
+                    </div>
                 @endif
             @endif
         </div>
