@@ -29,8 +29,9 @@
     </div>
 
     <div class="col-md-6">
-        <a href="{{route('organization-structure.index', ['type' => 'NKAG'])}}" class="btn {{$type == 'NKAG' ? 'btn-primary' : 'btn-default'}}">NKAG</a>
-        <a href="{{route('organization-structure.index', ['type' => 'RDG'])}}" class="btn {{$type == 'RDG' ? 'btn-primary' : 'btn-default'}}">RDG</a>
+        @foreach($org_types_arr as $org_type)
+            <a href="{{route('organization-structure.index', ['type' => $org_type])}}" class="btn {{$type == $org_type ? 'btn-primary' : 'btn-default'}}">{{$org_type}}</a>
+        @endforeach
     </div>
 </div>
 @endsection

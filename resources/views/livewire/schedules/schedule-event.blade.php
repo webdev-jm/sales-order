@@ -17,7 +17,7 @@
 
                 @if(!empty($action))
                     <div class="col-12">
-                        @if($action == 'reschedule-request')
+                        @if($action == 'reschedule-request' && 1==0) {{-- temporary disable --}}
                             {{-- Reschedule --}}
                             <form wire:submit.prevent="submit">
                                 <div class="row">
@@ -50,7 +50,7 @@
                                     </div>
                                 </div>
                             </form>
-                        @elseif($action == 'delete-request')
+                        @elseif($action == 'delete-request' && 1==0) {{-- temporary disable --}}
                             {{-- Delete Request --}}
                             <form wire:submit.prevent="submit">
                                 <div class="row">
@@ -130,10 +130,10 @@
                 @else
                     <div class="col-12">
                         @can('schedule reschedule')
-                            <button class="btn btn-warning my-1" wire:click.prevent="setAction('reschedule-request')"><i class="fa fa-clock mr-2"></i>Reschedule Request</button>
+                            {{-- <button class="btn btn-warning my-1" wire:click.prevent="setAction('reschedule-request')"><i class="fa fa-clock mr-2"></i>Reschedule Request</button> --}}
                         @endcan
                         @can('schedule delete request')
-                            <button class="btn btn-danger my-1" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button>
+                            {{-- <button class="btn btn-danger my-1" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button> --}}
                         @endcan
                         @if($schedule_data->user_id == auth()->user()->id)
                         <button class="btn btn-info my-1" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>

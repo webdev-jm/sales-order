@@ -18,6 +18,12 @@ class OrganizationStructureController extends Controller
 
     public function index(Request $request)
     {
+        $org_types_arr = [
+            'NKAG',
+            'RDG',
+            'NEW',
+        ];
+
         $type = trim($request->get('type')) ?: 'NKAG';
 
         $structures = OrganizationStructure::orderBy('reports_to_id', 'DESC')->where('type', $type)->get();
@@ -36,7 +42,8 @@ class OrganizationStructureController extends Controller
 
         return view('organization-structures.index')->with([
             'type' => $type,
-            'chart_data' => $chart_data[0]
+            'chart_data' => $chart_data[0] ?? [],
+            'org_types_arr' => $org_types_arr
         ]);
     }
 
