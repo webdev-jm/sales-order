@@ -57,7 +57,13 @@ class ActivityPlanController extends Controller
             $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
         } else { // restricted to self and supervisors
             // get user subordinates
-            $subordinate_ids = $this->getSubordinates(auth()->user()->id);
+            $subordinate_ids = [];
+            $ids = auth()->user()->getSubordinateIds();
+            foreach($ids as $level => $id_arr) {
+                foreach($id_arr as $id) {
+                    $subordinate_ids[] = $id;
+                }
+            }
 
             $activity_plans = ActivityPlan::ActivityPlanSearchRestricted($search, $settings->data_per_page, $subordinate_ids);
         }
@@ -291,7 +297,13 @@ class ActivityPlanController extends Controller
         }
 
         // get user subordinates
-        $subordinate_ids = $this->getSubordinates(auth()->user()->id);
+        $subordinate_ids = [];
+        $ids = auth()->user()->getSubordinateIds();
+        foreach($ids as $level => $id_arr) {
+            foreach($id_arr as $id) {
+                $subordinate_ids[] = $id;
+            }
+        }
 
         return view('mcp.show')->with([
             'position' => $position,
@@ -550,39 +562,6 @@ class ActivityPlanController extends Controller
     public function destroy(ActivityPlan $activityPlan)
     {
         //
-    }
-
-    public function getSubordinates($user_id) {
-        $user = User::findOrFail($user_id);
-        $organizations = $user->organizations;
-        $subordinate_ids = [];
-        foreach($organizations as $organization) {
-            $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
-            ->get();
-            foreach($subordinates as $subordinate) {
-                if(!empty($subordinate->user_id)) {
-                    $subordinate_ids[] = $subordinate->user_id;
-                }
-                // get second level subordinates
-                $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
-                ->get();
-                foreach($subordinates2 as $subordinate2) {
-                    if(!empty($subordinate2->user_id)) {
-                        $subordinate_ids[] = $subordinate2->user_id;
-                    }
-                    // get third level subordinates
-                    $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
-                    ->get();
-                    foreach($subordinates3 as $subordinate3) {
-                        if(!empty($subordinate3->user_id)) {
-                            $subordinate_ids[] = $subordinate3->user_id;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $subordinate_ids;
     }
 
     public function printPDF($id) {

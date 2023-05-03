@@ -17,6 +17,7 @@
         <a href="{{route('branch.export')}}?search={{$search}}" class="btn btn-success"><i class="fas fa-download mr-1"></i>Export</a>
         <a href="{{route('branch.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Branch</a>
         <a href="#" class="btn btn-warning" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload</a>
+        <a href="{{route('branch.merge')}}" class="btn btn-info">Merge Upload</a>
         @endcan
     </div>
 </div>

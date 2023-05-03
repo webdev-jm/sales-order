@@ -7,6 +7,7 @@ use App\Models\Account;
 use App\Models\Region;
 use App\Models\Classification;
 use App\Models\Area;
+use App\Models\BranchUpload;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BranchImport;
 use App\Exports\BranchExport;
+use App\Imports\BranchUploadImport;
 
 use App\Http\Traits\GlobalTrait;
 
@@ -209,7 +211,7 @@ class BranchController extends Controller
             ]
         ]);
 
-        Excel::import(new BranchImport, $request->upload_file);
+        Excel::import(new BranchUploadImport, $request->upload_file);
 
         // logs
         activity('upload')
@@ -217,6 +219,94 @@ class BranchController extends Controller
 
         return back()->with([
             'message_success' => 'Branches has been uploaded.'
+        ]);
+    }
+
+    public function mergeUploads() {
+        BranchUpload::whereNull('status')->chunk(500, function($data) {
+            foreach($data as $row) {
+                $account = Account::where('account_code', $row['account_code'])->first();
+
+                $region = Region::where('region_name', $row['region'])->first();
+                if(empty($region)) {
+                    $region = new Region([
+                        'region_name' => $row['region']
+                    ]);
+                    $region->save();
+                }
+
+                $classification = Classification::where('classification_name', $row['classification'])
+                    ->orWhere('classification_code', $row['classification_code'])
+                    ->first();
+                if(empty($classification)) {
+                    $classification = new Classification([
+                        'classification_name' => $row['classification'],
+                        'classification_code' => $row['classification_code'],
+                    ]);
+                    $classification->save();
+                }
+
+                $area = Area::where('area_code', $row['area_code'])
+                    ->orWhere('area_name', $row['area_name'])
+                    ->first();
+                if(empty($area)) {
+                    $area = new Area([
+                        'area_code' => $row['area_code'],
+                        'area_name' => $row['area_name']
+                    ]);
+                    $area->save();
+                }
+
+                // check
+                $check = Branch::where('branch_code', $row['branch_code'])
+                ->where('account_id', $account->id)->first();
+
+                if(empty($check)) {
+                    if(!empty($account) && !empty($region) && !empty($classification) && !empty($area)) {
+                        $branch = new Branch([
+                            'account_id' => $account->id,
+                            'region_id' => $region->id,
+                            'classification_id' => $classification->id,
+                            'area_id' => $area->id,
+                            'branch_code' => $row['branch_code'],
+                            'branch_name' => $row['branch_name'],
+                        ]);
+                        $branch->save();
+
+                        $row->update([
+                            'status' => 'uploaded'
+                        ]);
+                    } else {
+                        $undefined_arr = [];
+                        if(empty($account)) {
+                            $undefined_arr[] = 'account';
+                        }
+                        if(empty($region)) {
+                            $undefined_arr[] = 'region';
+                        }
+                        if(empty($classification)) {
+                            $undefined_arr[] = 'classification';
+                        }
+                        if(empty($area)) {
+                            $undefined_arr[] = 'area';
+                        }
+
+                        $undefined_column = implode(',', $undefined_arr);
+                        
+                        $row->update([
+                            'status' => $undefined_column
+                        ]);
+                    }
+                } else {
+                    $row->update([
+                        'status' => 'exist'
+                    ]);
+                }
+            }
+        });
+
+        return back()->with([
+            'message_success' => 'branch has been merged'
         ]);
     }
 

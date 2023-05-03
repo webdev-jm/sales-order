@@ -100,11 +100,12 @@ class BranchExport implements FromCollection, ShouldAutoSize, WithStyles, WithPr
         $data = [];
 
         if(!empty($this->search)) {
-            $branches = Branch::orderBy('account_id', 'ASC')
+            $branches = Branch::with('account')
+            ->orderBy('account_id', 'ASC')
             ->where(function($query) {
                 $query->whereHas('account', function($qry) {
                     $qry->where('account_code', 'like', '%'.$this->search.'%')
-                    ->orWHere('short_name', 'like', '%'.$this->search.'%')
+                    ->orWhere('short_name', 'like', '%'.$this->search.'%')
                     ->orWhere('account_name', 'like', '%'.$this->search.'%');
                 })
                 ->orWhere('branch_code', 'like', '%'.$this->search.'%')
@@ -112,7 +113,8 @@ class BranchExport implements FromCollection, ShouldAutoSize, WithStyles, WithPr
             })
             ->get();
         } else {
-            $branches = Branch::orderBy('account_id', 'ASC')
+            $branches = Branch::with('account')
+            ->orderBy('account_id', 'ASC')
             ->get();
         }
 
