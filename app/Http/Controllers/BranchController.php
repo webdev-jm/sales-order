@@ -273,9 +273,7 @@ class BranchController extends Controller
                         ]);
                         $branch->save();
 
-                        $row->update([
-                            'status' => 'uploaded'
-                        ]);
+                        $row->delete();
                     } else {
                         $undefined_arr = [];
                         if(empty($account)) {

@@ -69,6 +69,12 @@
         <livewire:organizational-structure.structure-form :type="$type"/>
     </div>
 </div>
+
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
@@ -92,6 +98,13 @@
             var id = $(this).data('id');
             Livewire.emit('setStructureForm', id);
             $('#structure-modal').modal('show');
+        });
+
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'OrganizationStructure', id);
+            $('#modal-delete').modal('show');
         });
     })
 
