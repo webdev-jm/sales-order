@@ -229,6 +229,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('branch/upload', [BranchController::class, 'upload'])->name('branch.upload')->middleware('permission:branch create');
         Route::get('branch/export', [BranchController::class, 'export'])->name('branch.export')->middleware('permission:branch create');
 
+        Route::get('branch/merge', [BranchController::class, 'mergeUploads'])->name('branch.merge')->middleware('permission:branch create');
+
         Route::get('branch/{id}/edit', [BranchController::class, 'edit'])->name('branch.edit')->middleware('permission:branch edit');
         Route::post('branch/{id}', [BranchController::class, 'update'])->name('branch.update')->middleware('permission:branch edit');
     });
