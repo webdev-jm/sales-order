@@ -656,7 +656,7 @@ class ActivityPlanController extends Controller
         $objectives = '';
         $data = [];
 
-        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file);
+        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file, 'Sheet1');
         $row_num = 0;
         foreach($imports[0] as $row) {
             $row_num++;

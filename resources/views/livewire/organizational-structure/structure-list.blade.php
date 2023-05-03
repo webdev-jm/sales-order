@@ -30,6 +30,7 @@
                         <td>{{$reports_to_arr[$structure->id]}}</td>
                         <td class="p-0 text-center align-middle">
                             <a href="" class="btn-structure-edit" data-id="{{$structure->id}}"><i class="fa fa-edit text-success"></i></a>
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$structure->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         </td>
                     </tr>
                     @endforeach
