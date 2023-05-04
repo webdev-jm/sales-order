@@ -22,9 +22,9 @@
                         <b>ACTIVITY/PURPOSE: </b>{{$detail->activity}}
                     </li>
                     @endif
-                    @if(isset($detail->user))
+                    @if(isset($detail->user) || isset($detail->work_with))
                     <li class="list-group-item">
-                        <b>WORK WITH: </b>{{$detail->user->fullName()}}
+                        <b>WORK WITH: </b>{{$detail->user ? $detail->user->fullName() : $detail->work_with}}
                     </li>
                     @endif
                 </ul>

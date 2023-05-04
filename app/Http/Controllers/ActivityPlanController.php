@@ -144,14 +144,14 @@ class ActivityPlanController extends Controller
                                     && 
                                     (!empty($val['user_id']) || 
                                     !empty($val['location']) ||
-                                    !empty($val['purpose']) ||
+                                    !empty(trim($val['purpose'])) ||
                                     !empty($val['account_id']))
                                 ) {
                                     $line_error = 1;
                                 }
 
                                 // check if all lines are empty
-                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
+                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty(trim($val['purpose'])) || !empty($val['account_id'])) {
                                     $line_empty = 0;
                                 }
                             }
@@ -182,7 +182,8 @@ class ActivityPlanController extends Controller
                                         'day' => $details['day'],
                                         'date' => $date,
                                         'exact_location' => $val['location'],
-                                        'activity' => $val['purpose']
+                                        'activity' => $val['purpose'],
+                                        'work_with' => $val['work_with'] ?? NULL,
                                     ]);
                                     $activity_plan_detail->save();
                                 }
@@ -358,7 +359,8 @@ class ActivityPlanController extends Controller
                 'branch_id' => $detail->branch_id,
                 'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
                 'purpose' => $detail->activity,
-                'user_id' => $detail->user_id
+                'user_id' => $detail->user_id,
+                'work_with' => $detail->work_with,
             ];
         }
 
@@ -459,7 +461,8 @@ class ActivityPlanController extends Controller
                                                 'day' => $details['day'],
                                                 'date' => $date,
                                                 'exact_location' => $val['location'],
-                                                'activity' => $val['purpose']
+                                                'activity' => $val['purpose'],
+                                                'work_with' => $val['work_with'] ?? NULL,
                                             ]);
                                         } else {
                                             $activity_plan_detail = new ActivityPlanDetail([
@@ -469,7 +472,8 @@ class ActivityPlanController extends Controller
                                                 'day' => $details['day'],
                                                 'date' => $date,
                                                 'exact_location' => $val['location'],
-                                                'activity' => $val['purpose']
+                                                'activity' => $val['purpose'],
+                                                'work_with' => $val['work_with'] ?? NULL,
                                             ]);
                                             $activity_plan_detail->save();
                                         }
@@ -481,7 +485,8 @@ class ActivityPlanController extends Controller
                                             'day' => $details['day'],
                                             'date' => $date,
                                             'exact_location' => $val['location'],
-                                            'activity' => $val['purpose']
+                                            'activity' => $val['purpose'],
+                                            'work_with' => $val['work_with'] ?? NULL,
                                         ]);
                                         $activity_plan_detail->save();
                                     }
@@ -605,7 +610,7 @@ class ActivityPlanController extends Controller
                         'account_name' => $account_name,
                         'branch_name' => $branch_name,
                         'purpose' => $detail->activity,
-                        'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : ''
+                        'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : $detail->work_with,
                     ];
                 }
             } else {
@@ -656,7 +661,7 @@ class ActivityPlanController extends Controller
         $objectives = '';
         $data = [];
 
-        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file, 'Sheet1');
+        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file);
         $row_num = 0;
         foreach($imports[0] as $row) {
             $row_num++;
@@ -679,11 +684,11 @@ class ActivityPlanController extends Controller
                     $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
     
                     $data[$date_key][] = [
-                        'account_code' => $row[2] ?? '',
-                        'branch_code' => $row[3],
-                        'location' => $row[4] ?? '',
-                        'purpose' => $row[5] ?? '',
-                        'work_with' => $row[6] ?? '',
+                        'account_code' => trim($row[2]) ?? '',
+                        'branch_code' => trim($row[3]),
+                        'location' => trim($row[4]) ?? '',
+                        'purpose' => trim($row[5]) ?? '',
+                        'work_with' => trim($row[6]) ?? '',
                     ];
                 }
             }
@@ -729,13 +734,14 @@ class ActivityPlanController extends Controller
                 $user = User::where('email', $line['work_with'])->first();
 
                 $details[$month][$date]['lines'][] = [
-                    'location' => $line['location'],
+                    'location' => $line['location'] ?? '',
                     'account_id' => $account->id ?? '',
                     'account_name' => $account->short_name ?? '',
                     'branch_id' => $branch->id ?? '',
                     'branch_name' => $branch->branch_name ?? '',
                     'purpose' => $line['purpose'],
-                    'user_id' => $user->id ?? ''
+                    'user_id' => $user->id ?? '',
+                    'work_with' => $line['work_with'],
                 ];
             }
 

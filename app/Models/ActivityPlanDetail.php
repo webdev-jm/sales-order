@@ -18,7 +18,8 @@ class ActivityPlanDetail extends Model
         'day',
         'date',
         'exact_location',
-        'activity'
+        'activity',
+        'work_with',
     ];
 
     public function activity_plan() {

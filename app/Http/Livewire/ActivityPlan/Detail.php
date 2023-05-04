@@ -140,7 +140,8 @@ class Detail extends Component
             'branch_id' => '',
             'branch_name' => '',
             'purpose' => '',
-            'user_id' => ''
+            'user_id' => '',
+            'work_with' => '',
         ];
 
         $this->setSession();
@@ -181,7 +182,8 @@ class Detail extends Component
                         'branch_id' => '',
                         'branch_name' => '',
                         'purpose' => '',
-                        'user_id' => ''
+                        'user_id' => '',
+                        'work_with' => '',
                     ]
                 ];
             }

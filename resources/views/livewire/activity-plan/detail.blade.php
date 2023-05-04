@@ -17,7 +17,7 @@
                         <th>Account</th>
                         <th>Branch</th>
                         <th>Purpose</th>
-                        {{-- <th>Activities</th> --}}
+                        {{-- <th>Work With</th> --}}
                         <th>Work With</th>
                     </tr>
                 </thead>
@@ -45,17 +45,6 @@
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.location"></textarea>
                             </td>
                             {{-- account --}}
-                            {{-- <td class="p-0">
-                                <select class="form-control border-0 {{$line['class']}}" 
-                                    wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.account_id"
-                                    wire:change="setAccount('{{$date}}', '{{$key}}')"
-                                >
-                                    <option value=""></option>
-                                    @foreach($accounts as $account)
-                                    <option value="{{$account->id}}">[{{$account->account_code}}] {{$account->short_name}}</option>
-                                    @endforeach
-                                </select>
-                            </td> --}}
                             <td class="p-0">
                                 <div class="input-group">
                                     <input type="text" class="form-control border-0 {{$line['class']}}" 
@@ -133,18 +122,18 @@
                             <td class="p-0 align-middle">
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
-                            {{-- activities --}}
-                            {{-- <td class="p-0 align-middle text-center">
-                                <a class="btn btn-primary btn-sm btn-activities" data-year="{{$year}}" data-month="{{$month}}" data-date="{{$date}}" data-key="{{$key}}"><i class="fa fa-list fa-sm"></i> {{!empty($row['activity_ids']) ? count($row['activity_ids']) : 0}} Activities</a>
-                            </td> --}}
                             {{-- work with --}}
-                            <td class="p-0">
+                            {{-- <td class="p-0">
                                 <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.user_id">
                                     <option value=""></option>
                                     @foreach($users as $user)
                                     <option value="{{$user->id}}">{{$user->fullName()}}</option>
                                     @endforeach
                                 </select>
+                            </td> --}}
+                            {{-- work with --}}
+                            <td class="p-0">
+                                <input type="text" class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.work_with">
                             </td>
                         </tr>
                         @endforeach
