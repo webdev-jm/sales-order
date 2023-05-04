@@ -22,6 +22,7 @@ class CreateActivityPlanDetailsTable extends Migration
             $table->date('date');
             $table->text('exact_location')->nullable();
             $table->text('activity')->nullable();
+            $table->text('work_with')->nullable();
             $table->timestamps();
 
             $table->foreign('activity_plan_id')
