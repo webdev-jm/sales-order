@@ -42,8 +42,8 @@
                             <p>{{$login->login_activities()->first()->remarks}}</p>
                             @endif
 
-                            @if(file_exists(public_path().'/uploads/branch-login/'.$login->user_id.'/'.$login->id))
-                                <label>Picture:</label>
+                            @if(is_dir(public_path().'/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/0'))
+                                <label>Picture/s:</label>
                                 @php
                                     $dirs = glob(public_path().'/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/*', GLOB_ONLYDIR);
                                 @endphp
@@ -53,6 +53,13 @@
                                             <img src="{{asset('/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/'.$i.'/small.jpg')}}" alt="picture" class="mx-1">
                                         </a>
                                     @endfor
+                                </div>
+                            @elseif(file_exists(public_path().'/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/small.jpg'))
+                                <label>Picture/s:</label>
+                                <div class="mb-3">
+                                    <a href="{{ asset('/uploads/branch-login/'.$login->user_id.'/'.$login->id).'/large.jpg' }}" data-toggle="lightbox" data-title="Preview">
+                                        <img src="{{asset('/uploads/branch-login/'.$login->user_id.'/'.$login->id.'/small.jpg')}}" alt="picture" class="mx-1">
+                                    </a>
                                 </div>
                             @endif
                         </div>
