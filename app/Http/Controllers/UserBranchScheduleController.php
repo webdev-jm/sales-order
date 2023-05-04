@@ -327,6 +327,11 @@ class UserBranchScheduleController extends Controller
                         ->where('branch_id', $sched->branch_id)
                         ->where(DB::raw('DATE(time_in)'), $schedule->date)
                         ->first();
+                        
+                    $icon = '';
+                    if(!empty($branch_login)) {
+                        $icon = 'fa fa-check';
+                    }
 
                     $schedule_data[] = [
                         'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
@@ -336,6 +341,7 @@ class UserBranchScheduleController extends Controller
                         'borderColor' => $schedule_color,
                         'type' => 'schedule',
                         'id' => $sched->id,
+                        'icon' => $icon,
                     ];
                 }
 

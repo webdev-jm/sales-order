@@ -42,7 +42,7 @@
 
             <div class="row">
 
-                    @if($picture_file)
+                @if($picture_file)
                     <label>Preview</label>
                     <div class="col-12 py-2">
                         @foreach($picture_file as $file)
