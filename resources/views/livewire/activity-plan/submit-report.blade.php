@@ -33,7 +33,7 @@
             </table>
         </div>
         <div class="card-footer">
-            {{$submit_users->links()}}
+            {{-- {{$submit_users->links()}} --}}
         </div>
     </div>
     @endif

@@ -13,7 +13,7 @@ use Livewire\WithPagination;
 class SubmitReport extends Component
 {
     // use WithPagination;
-    protected $paginationTheme = 'bootstrap';
+    // protected $paginationTheme = 'bootstrap';
 
     public $year, $month, $subordinate_ids;
 
@@ -26,51 +26,17 @@ class SubmitReport extends Component
             $this->month = date('m');
         }
 
-        $this->subordinate_ids = $this->getSubordinates(auth()->user()->id);
-    }
-
-    public function getSubordinates($user_id) {
-        $user = User::findOrFail($user_id);
-        $organizations = $user->organizations;
-        $subordinate_ids = [];
-        foreach($organizations as $organization) {
-            $subordinates = OrganizationStructure::where('reports_to_id', $organization->id)
-            ->get();
-            foreach($subordinates as $subordinate) {
-                if(!empty($subordinate->user_id)) {
-                    $subordinate_ids[] = $subordinate->user_id;
-                }
-                // get second level subordinates
-                $subordinates2 = OrganizationStructure::where('reports_to_id', $subordinate->id)
-                ->get();
-                foreach($subordinates2 as $subordinate2) {
-                    if(!empty($subordinate2->user_id)) {
-                        $subordinate_ids[] = $subordinate2->user_id;
-                    }
-                    // get third level subordinates
-                    $subordinates3 = OrganizationStructure::where('reports_to_id', $subordinate2->id)
-                    ->get();
-                    foreach($subordinates3 as $subordinate3) {
-                        if(!empty($subordinate3->user_id)) {
-                            $subordinate_ids[] = $subordinate3->user_id;
-                        }
-                        // get fourth level subordinates
-                        $subordinates4 = OrganizationStructure::where('reports_to_id', $subordinate3->id)
-                        ->get();
-                        foreach($subordinates4 as $subordinate4) {
-                            if(!empty($subordinate4->user_id)) {
-                                $subordinate_ids[] = $subordinate4->user_id;
-                            }
-                        }
-                    }
-                }
+        $this->subordinate_ids = [];
+        $subordinate_ids = auth()->user()->getSubordinateIds();
+        foreach($subordinate_ids as $level => $ids) {
+            foreach($ids as $id) {
+                $this->subordinate_ids[] = $id;
             }
         }
 
-        // return and remove duplicates
-        return array_unique($subordinate_ids);
+        $this->subordinate_ids = array_unique($this->subordinate_ids);
     }
-    
+
     public function render()
     {
         $months_arr = [
@@ -89,8 +55,7 @@ class SubmitReport extends Component
         ];
 
         $submit_users = User::orderBy('firstname', 'ASC')
-        ->whereIn('id', $this->subordinate_ids)
-        ->paginate(5, ['*'], 'submit-report-page');
+            ->whereIn('id', $this->subordinate_ids)->get();
 
         // check submission
         $submission_arr = [];

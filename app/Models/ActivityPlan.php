@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+
 class ActivityPlan extends Model
 {
     use HasFactory;
@@ -18,6 +20,10 @@ class ActivityPlan extends Model
         'objectives',
         'status'
     ];
+
+    public function model() {
+        return $this->morphMany(\App\Models\Reminder::class, 'model');
+    }
 
     public function user() {
         return $this->belongsTo('App\Models\User');
@@ -41,10 +47,10 @@ class ActivityPlan extends Model
                 $qry->where('firstname', 'like', '%'.$search.'%')
                 ->orWhere('lastname', 'like', '%'.$search.'%');
             })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit, ['*'], 'activity-plan-page')->onEachSide(1)->appends(request()->query());
         } else {
             $activity_plans = $query->orderBy('id', 'DESC')
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit, ['*'], 'activity-plan-page')->onEachSide(1)->appends(request()->query());
         }
 
         return $activity_plans;
@@ -66,14 +72,14 @@ class ActivityPlan extends Model
                     ->orWhere('lastname', 'like', '%'.$search.'%');
                 });
             })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit, ['*'], 'activity-plan-page')->onEachSide(1)->appends(request()->query());
         } else {
             $activity_plans = $query->orderBy('id')
             ->where(function($qry)  use($subordinate_ids) {
                 $qry->where('user_id', auth()->user()->id)
                 ->orWhereIn('user_id', $subordinate_ids);
             })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
+            ->paginate($limit, ['*'], 'activity-plan-page')->onEachSide(1)->appends(request()->query());
         }
 
         return $activity_plans;
