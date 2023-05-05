@@ -3,33 +3,51 @@
         <div class="modal-header">
             <h4 class="modal-title">Approval History</h4>
         </div>
-        <div class="modal-body table-responsive p-1">
-            
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Status</th>
-                        <th>Remarks</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($approvals as $approval)
-                    <tr>
-                        <td>{{$approval->user->fullName()}}</td>
-                        <td>
-                            <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
-                        </td>
-                        <td>{{$approval->remarks}}</td>
-                        <td>{{$approval->created_at->diffForHumans()}}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="modal-body">
 
-            <div class="mt-2">
-                {{$approvals->links()}}
+            <div class="timeline timeline-inverse">
+
+                @foreach($approvals as $date => $data)
+                    {{-- DATE LABEL --}}
+                    <div class="time-label">
+                        <span class="bg-primary text-uppercase">
+                            {{date('M j Y', strtotime($date))}}
+                        </span>
+                    </div>
+
+                    @foreach($data as $approval)
+                        <!-- timeline item -->
+                        <div>
+                            <i class="fas fa-user bg-{{$status_arr[$approval->status]}}"></i>
+
+                            <div class="timeline-item">
+                                <span class="time"><i class="far fa-clock"></i> {{$approval->created_at->diffForHumans()}}</span>
+
+                                <h3 class="timeline-header {{!empty($approval->remarks) ? '' : 'border-0'}}">
+                                    <a href="#">{{$approval->user->fullName()}}</a> <span class="mx-2 badge bg-{{$status_arr[$approval->status]}}">{{$approval->status}}</span> the activity plan
+                                </h3>
+
+                                @if(!empty($approval->remarks))
+                                    <div class="timeline-body">
+                                        <label class="mb-0">REMARKS:</label>
+                                        <p class="mb-0 ml-2">{{$approval->remarks}}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+
+                @endforeach
+
+                <div>
+                    <i class="far fa-clock bg-gray"></i>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-12">
+                    {{$approval_dates->links()}}
+                </div>
             </div>
 
         </div>
