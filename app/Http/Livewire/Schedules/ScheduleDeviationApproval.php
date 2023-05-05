@@ -88,6 +88,11 @@ class ScheduleDeviationApproval extends Component
         $user = $this->deviation->user;
         Notification::send($user, new DeviationApproved($this->deviation));
 
+        // update reminders
+        $this->deviation->reminders()->whereNull('status')->update([
+            'status' => 'done'
+        ]);
+
         return redirect(request()->header('Referer'));
     }
 
@@ -125,6 +130,11 @@ class ScheduleDeviationApproval extends Component
         // notifications
         $user = $this->deviation->user;
         Notification::send($user, new DeviationRejected($this->deviation));
+
+        // update reminders
+        $this->deviation->reminders()->whereNull('status')->update([
+            'status' => 'done'
+        ]);
 
         return redirect(request()->header('Referer'));
     }

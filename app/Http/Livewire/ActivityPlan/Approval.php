@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityPlanRejected;
 use App\Notifications\ActivityPlanApproved;
 
+use App\Models\Reminders;
 
 class Approval extends Component
 {
@@ -91,6 +92,11 @@ class Approval extends Component
                 }
             }
         }
+
+        // update remider
+        $this->activity_plan->reminders()->whereNull('status')->update([
+            'status' => 'done'
+        ]);
 
         return redirect(request()->header('Referer'))->with([
             'message_success' => 'Activity Plan has been updated.'

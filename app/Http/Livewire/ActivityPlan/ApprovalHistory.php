@@ -45,7 +45,6 @@ class ApprovalHistory extends Component
             $approval_data[$data->date] = $approvals;
         }
 
-
         return view('livewire.activity-plan.approval-history')->with([
             'approvals' => $approval_data,
             'approval_dates' => $approval_dates

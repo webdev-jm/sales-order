@@ -15,6 +15,7 @@ class ReminderList extends Component
     public function render()
     {
         $reminders = Reminders::orderByDesc('date')
+            ->whereNull('status')
             ->where('user_ids', 'like', ','.auth()->user()->id.',')
             ->paginate(10, ['*'], 'reminder-page')->onEachSide(1);
 

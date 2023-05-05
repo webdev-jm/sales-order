@@ -16,8 +16,12 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\DeviationSubmitted;
 
+use App\Http\Traits\ReminderTrait;
+
 class ScheduleDeviation extends Component
 {
+    use ReminderTrait;
+
     public $date, $original_schedules, $user, $reason_for_deviation, $cost_center;
     public $new_schedules;
 
@@ -103,6 +107,9 @@ class ScheduleDeviation extends Component
                     Notification::send($user, new DeviationSubmitted($deviation));
                 }
             }
+
+            // create reminder
+            $this->setReminder('Deviation', $deviation->id, 'deviation form has been submitted for your approval', $user_ids, '/schedule/deviations');
 
             // reload page
             return redirect(request()->header('Referer'));
