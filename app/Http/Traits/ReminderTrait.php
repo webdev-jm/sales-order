@@ -11,7 +11,7 @@ Trait ReminderTrait
         $current_date = date('Y-m-d H:i:s');
         $user_id = auth()->user()->id;
 
-        $model = "\App\Models\\".$model;
+        $model = "App\Models\\".$model;
         
         // calculate due date
         if(empty($due_date)) {

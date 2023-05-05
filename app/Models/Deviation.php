@@ -17,6 +17,10 @@ class Deviation extends Model
         'status',
     ];
 
+    public function reminders() {
+        return $this->morphMany('App\Models\Reminders', 'model');
+    }
+
     public function user() {
         return $this->belongsTo('App\Models\User');
     }

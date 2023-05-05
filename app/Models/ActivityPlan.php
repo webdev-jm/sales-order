@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-
 class ActivityPlan extends Model
 {
     use HasFactory;
@@ -21,8 +19,8 @@ class ActivityPlan extends Model
         'status'
     ];
 
-    public function model() {
-        return $this->morphMany(\App\Models\Reminder::class, 'model');
+    public function reminders() {
+        return $this->morphMany('\App\Models\Reminders', 'model');
     }
 
     public function user() {
