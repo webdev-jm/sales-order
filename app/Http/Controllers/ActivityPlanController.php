@@ -21,6 +21,7 @@ use App\Notifications\ActivityPlanSubmitted;
 
 use App\Http\Traits\GlobalTrait;
 use App\Http\Traits\MonthDeadline;
+use App\Http\Traits\ReminderTrait;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -31,6 +32,7 @@ class ActivityPlanController extends Controller
 {
     use GlobalTrait;
     use MonthDeadline;
+    use ReminderTrait;
 
     public $status_arr = [
         'draft' => 'secondary',
@@ -210,22 +212,11 @@ class ActivityPlanController extends Controller
 
                 // notifications
                 $users = [];
-                $organizations = $activity_plan->user->organizations;
-                if(!empty($organizations)) {
-                    foreach($organizations as $organization) {
-                        if(!empty($organization->reports_to_id)) {
-                            $reports_to = OrganizationStructure::find($organization->reports_to_id);
-                            if(isset($reports_to->user)) {
-                                $users[] = $reports_to->user;
-                            } else { // check upper level suppervisor
-                                if(!empty($reports_to->reports_to_id)) {
-                                    $reports_to2 = OrganizationStructure::find($reports_to->reports_to_id);
-                                    if(isset($reports_to2->user)) {
-                                        $users[] = $reports_to2->user;
-                                    }
-                                }
-                            }
-                        }
+                $supervisor_ids = $activity_plan->user->getSupervisorIds();
+                foreach($supervisor_ids as $id) {
+                    $user = User::find($id);
+                    if(!empty($user)) {
+                        $users[] = $user;
                     }
                 }
 
@@ -243,6 +234,9 @@ class ActivityPlanController extends Controller
                     'remarks' => null
                 ]);
                 $approval->save();
+
+                // create reminder
+                $this->setReminder('ActivityPlan', $activity_plan->id, 'The activity plan was submitted for your approval', $supervisor_ids, 'mcp/'.$activity_plan->id);
 
             }
             
@@ -517,19 +511,16 @@ class ActivityPlanController extends Controller
 
                 // notifications
                 if($request->status == 'submitted') {
+                    // notifications
                     $users = [];
-                    $organizations = $activity_plan->user->organizations;
-                    if(!empty($organizations)) {
-                        foreach($organizations as $organization) {
-                            if(!empty($organization->reports_to_id)) {
-                                $reports_to = OrganizationStructure::find($organization->reports_to_id);
-                                if(isset($reports_to->user)) {
-                                    $users[] = $reports_to->user;
-                                }
-                            }
+                    $supervisor_ids = $activity_plan->user->getSupervisorIds();
+                    foreach($supervisor_ids as $id) {
+                        $user = User::find($id);
+                        if(!empty($user)) {
+                            $users[] = $user;
                         }
                     }
-
+                    
                     if(!empty($users)) {
                         foreach($users as $user) {
                             Notification::send($user, new ActivityPlanSubmitted($activity_plan));
