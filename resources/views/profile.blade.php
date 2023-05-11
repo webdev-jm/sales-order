@@ -59,6 +59,7 @@
                     </div>
                     
                     <div class="tab-pane" id="activity">
+                        <livewire:profile.activity-logs/>
                     </div>
                     
                 </div>

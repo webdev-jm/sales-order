@@ -21,7 +21,7 @@ class OrganizationStructureController extends Controller
         $org_types_arr = [
             'NKAG',
             'RDG',
-            'NEW',
+            'TMG',
         ];
 
         $type = trim($request->get('type')) ?: 'NKAG';

@@ -47,8 +47,9 @@ class AccountBranchLoginForm extends Component
         // make directory if do not exist
         $dir = public_path().'/uploads/branch-login/'.$this->logged_branch->user_id.'/'.$id.'/'.$key;
         if(!is_dir($dir)) {
-            mkdir($dir, 755, true);
+            mkdir($dir, 0755, true);
         }
+        chmod($dir, 0755);
 
         $image = Image::make($image_input);
         if($image->width() > $image->height()) { // landscape

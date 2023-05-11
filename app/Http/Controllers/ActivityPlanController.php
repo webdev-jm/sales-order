@@ -211,10 +211,19 @@ class ActivityPlanController extends Controller
             if($request->status == 'submitted') {
 
                 // notifications
+                // $users = [];
+                // $supervisor_ids = $activity_plan->user->getSupervisorIds();
+                // foreach($supervisor_ids as $id) {
+                //     $user = User::find($id);
+                //     if(!empty($user)) {
+                //         $users[] = $user;
+                //     }
+                // }
+
                 $users = [];
-                $supervisor_ids = $activity_plan->user->getSupervisorIds();
-                foreach($supervisor_ids as $id) {
-                    $user = User::find($id);
+                $supervisor_id = $activity_plan->user->getImmediateSuperiorId();
+                if(!empty($supervisor_id)) {
+                    $user = User::find($supervisor_id);
                     if(!empty($user)) {
                         $users[] = $user;
                     }
@@ -512,10 +521,19 @@ class ActivityPlanController extends Controller
                 // notifications
                 if($request->status == 'submitted') {
                     // notifications
+                    // $users = [];
+                    // $supervisor_ids = $activity_plan->user->getSupervisorIds();
+                    // foreach($supervisor_ids as $id) {
+                    //     $user = User::find($id);
+                    //     if(!empty($user)) {
+                    //         $users[] = $user;
+                    //     }
+                    // }
+
                     $users = [];
-                    $supervisor_ids = $activity_plan->user->getSupervisorIds();
-                    foreach($supervisor_ids as $id) {
-                        $user = User::find($id);
+                    $supervisor_id = $activity_plan->user->getImmediateSuperiorId();
+                    if(!empty($supervisor_id)) {
+                        $user = User::find($supervisor_id);
                         if(!empty($user)) {
                             $users[] = $user;
                         }

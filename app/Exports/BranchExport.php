@@ -8,9 +8,15 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 use Illuminate\Support\Collection;
+
+use Illuminate\Support\Facades\Cache;
+use Carbon\Carbon;
 
 use App\Models\Branch;
 
@@ -19,12 +25,22 @@ ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
 ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
-class BranchExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor
+class BranchExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor, WithStrictNullComparison, WithChunkReading
 {
     public $search;
 
     public function __construct($search) {
         $this->search = $search;
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000; // Number of rows per chunk
+    }
+
+    public function batchSize(): int
+    {
+        return 1000; // Number of rows per batch
     }
 
     public function backgroundColor()
@@ -100,22 +116,27 @@ class BranchExport implements FromCollection, ShouldAutoSize, WithStyles, WithPr
         $data = [];
 
         if(!empty($this->search)) {
-            $branches = Branch::with('account')
-            ->orderBy('account_id', 'ASC')
-            ->where(function($query) {
-                $query->whereHas('account', function($qry) {
-                    $qry->where('account_code', 'like', '%'.$this->search.'%')
-                    ->orWhere('short_name', 'like', '%'.$this->search.'%')
-                    ->orWhere('account_name', 'like', '%'.$this->search.'%');
-                })
-                ->orWhere('branch_code', 'like', '%'.$this->search.'%')
-                ->orWhere('branch_name', 'like ', '%'.$this->search.'%');
-            })
-            ->get();
+
+            $branches = Cache::remember('branch-export-'.$this->search, Carbon::now()->addDays(15), function () {
+                return Branch::with('account')
+                    ->orderBy('account_id', 'ASC')
+                    ->where(function($query) {
+                        $query->whereHas('account', function($qry) {
+                            $qry->where('account_code', 'like', '%'.$this->search.'%')
+                            ->orWhere('short_name', 'like', '%'.$this->search.'%')
+                            ->orWhere('account_name', 'like', '%'.$this->search.'%');
+                        })
+                        ->orWhere('branch_code', 'like', '%'.$this->search.'%')
+                        ->orWhere('branch_name', 'like ', '%'.$this->search.'%');
+                    })
+                    ->get();
+            });
         } else {
-            $branches = Branch::with('account')
-            ->orderBy('account_id', 'ASC')
-            ->get();
+            $branches = Cache::remember('branch-export', Carbon::now()->addDays(15), function () {
+                return Branch::with('account')
+                    ->orderBy('account_id', 'ASC')
+                    ->get();
+            });
         }
 
         foreach($branches as $branch) {

@@ -6,6 +6,11 @@
         <div class="modal-body">
             @if(!empty($branch_login))
                 <p class="text-uppercase">
+                    <b>BRANCH:</b>
+                    {{$branch_login->branch->account->short_name.' - ['.$branch_login->branch->branch_code.'] '.$branch_login->branch->name}}
+                </p>
+
+                <p class="text-uppercase">
                     <b>Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude) }}
                 </p>
 
