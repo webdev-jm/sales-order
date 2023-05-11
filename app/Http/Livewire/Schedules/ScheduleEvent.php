@@ -117,12 +117,18 @@ class ScheduleEvent extends Component
             $approval->save();
 
             // notifications
-            $user_ids = auth()->user()->getSupervisorIds();
-            foreach($user_ids as $user_id) {
-                if(auth()->user()->id != $user_id) {
-                    $user = User::find($user_id);
-                    Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
-                }
+            // $user_ids = auth()->user()->getSupervisorIds();
+            // foreach($user_ids as $user_id) {
+            //     if(auth()->user()->id != $user_id) {
+            //         $user = User::find($user_id);
+            //         Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
+            //     }
+            // }
+
+            $supervisor_id = auth()->user()->getImmediateSuperiorId();
+            if(auth()->user()->id != $supervisor_id) {
+                $user = User::find($supervisor_id);
+                Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
             }
 
             $changes_arr['changes'] = $this->schedule_data->getChanges();
@@ -156,12 +162,18 @@ class ScheduleEvent extends Component
             $approval->save();
 
             // notifications
-            $user_ids = auth()->user()->getSupervisorIds();
-            foreach($user_ids as $user_id) {
-                if(auth()->user()->id != $user_id) {
-                    $user = User::find($user_id);
-                    Notification::send($user, new ScheduleDeleteRequest($this->schedule_data));
-                }
+            // $user_ids = auth()->user()->getSupervisorIds();
+            // foreach($user_ids as $user_id) {
+            //     if(auth()->user()->id != $user_id) {
+            //         $user = User::find($user_id);
+            //         Notification::send($user, new ScheduleDeleteRequest($this->schedule_data));
+            //     }
+            // }
+
+            $supervisor_id = auth()->user()->getImmediateSuperiorId();
+            if(auth()->user()->id != $supervisor_id) {
+                $user = User::find($supervisor_id);
+                Notification::send($user, new ScheduleDeleteRequest($this->schedule_data));
             }
 
             $changes_arr['changes'] = $this->schedule_data->getChanges();

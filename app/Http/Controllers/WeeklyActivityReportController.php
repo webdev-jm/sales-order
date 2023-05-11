@@ -132,9 +132,17 @@ class WeeklyActivityReportController extends Controller
 
         if($request->status == 'submitted') {
             // notifications
-            $users = $war->user->getSupervisorIds();
-            foreach($users as $user_id) {
-                $user = User::find($user_id);
+            // $users = $war->user->getSupervisorIds();
+            // foreach($users as $user_id) {
+            //     $user = User::find($user_id);
+            //     if(!empty($user)) {
+            //         Notification::send($user, new WeeklyActivityReportSubmitted($war));
+            //     }
+            // }
+
+            $supervisor_id = $war->user->getImmediateSuperiorId();
+            if(!empty($supervisor_id)) {
+                $user = User::find($supervisor_id);
                 if(!empty($user)) {
                     Notification::send($user, new WeeklyActivityReportSubmitted($war));
                 }
@@ -244,9 +252,17 @@ class WeeklyActivityReportController extends Controller
         if($request->status == 'submitted') {
 
             // notifications
-            $users = $weekly_activity_report->user->getSupervisorIds();
-            foreach($users as $user_id) {
-                $user = User::find($user_id);
+            // $users = $weekly_activity_report->user->getSupervisorIds();
+            // foreach($users as $user_id) {
+            //     $user = User::find($user_id);
+            //     if(!empty($user)) {
+            //         Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
+            //     }
+            // }
+
+            $supervisor_id = $weekly_activity_report->user->getImmediateSuperiorId();
+            if(!empty($supervisor_id)) {
+                $user = User::find($supervisor_id);
                 if(!empty($user)) {
                     Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
                 }

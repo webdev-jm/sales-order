@@ -236,7 +236,14 @@ class User extends Authenticatable
             return !is_null($value);
         });
 
-        return $supervisor_ids;
+        // remove duplicate id
+        return array_unique($supervisor_ids);
+    }
+
+    public function getImmediateSuperiorId() {
+        $supervisor_ids = $this->getSupervisorIds();
+        // get first value
+        return reset($supervisor_ids);
     }
     
 }

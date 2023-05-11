@@ -91,7 +91,7 @@ class UserBranchScheduleController extends Controller
                         }
 
                         $schedule_data[] = [
-                            'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                            'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $schedule_color,
@@ -125,7 +125,7 @@ class UserBranchScheduleController extends Controller
 
                     foreach($schedules as $sched) {
                         $schedule_data[] = [
-                            'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                            'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $reschedule_color,
@@ -169,7 +169,7 @@ class UserBranchScheduleController extends Controller
 
                     foreach($schedules as $sched) {
                         $schedule_data[] = [
-                            'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                            'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $delete_color,
@@ -213,7 +213,7 @@ class UserBranchScheduleController extends Controller
 
                     foreach($schedules as $sched) {
                         $schedule_data[] = [
-                            'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                            'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                             'start' => $schedule->date,
                             'allDay' => true,
                             'backgroundColor' => $request_color,
@@ -253,7 +253,7 @@ class UserBranchScheduleController extends Controller
 
                     foreach($deviations as $data) {
                         $schedule_data[] = [
-                            'title' => '['.$data->user->fullName().'] - '.$data->reason_for_deviation,
+                            'title' => '['.$sched->branch->account->short_name.' - '.$data->user->fullName().'] - '.$data->reason_for_deviation,
                             'start' => $data->date,
                             'allDay' => true,
                             'backgroundColor' => $deviation_color,
@@ -334,7 +334,7 @@ class UserBranchScheduleController extends Controller
                     }
 
                     $schedule_data[] = [
-                        'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                        'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                         'start' => $schedule->date,
                         'allDay' => true,
                         'backgroundColor' => $schedule_color,
@@ -390,7 +390,7 @@ class UserBranchScheduleController extends Controller
 
                 foreach($schedules as $sched) {
                     $schedule_data[] = [
-                        'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                        'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                         'start' => $schedule->date,
                         'allDay' => true,
                         'backgroundColor' => $reschedule_color,
@@ -446,7 +446,7 @@ class UserBranchScheduleController extends Controller
 
                 foreach($schedules as $sched) {
                     $schedule_data[] = [
-                        'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                        'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                         'start' => $schedule->date,
                         'allDay' => true,
                         'backgroundColor' => $delete_color,
@@ -501,7 +501,7 @@ class UserBranchScheduleController extends Controller
 
                 foreach($schedules as $sched) {
                     $schedule_data[] = [
-                        'title' => '['.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
+                        'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
                         'start' => $schedule->date,
                         'allDay' => true,
                         'backgroundColor' => $request_color,

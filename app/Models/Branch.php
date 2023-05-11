@@ -102,4 +102,36 @@ class Branch extends Model
 
         return $branches;
     }
+
+    public function scopeRestrictedBranchSearch($query, $search, $limit) {
+        if($search != '') {
+            $branches = $query->orderBy('id', 'DESC')
+                ->where(function($qry) use ($search) {
+                    $qry->where('branch_code', 'like', '%'.$search.'%')
+                        ->orWhere('branch_name', 'like', '%'.$search.'%');
+
+                    $qry->orWhereHas('account', function($qry1) use($search) {
+                        $qry1->where('account_code', 'like', '%'.$search.'%')
+                            ->orWhere('account_name', 'like', '%'.$search.'%')
+                            ->orWhere('short_name', 'like', '%'.$search.'%');
+                    });
+                })
+                ->whereHas('account', function($qry) use($search) {
+                    $qry->whereHas('users', function($qry1) {
+                        $qry1->where('id', auth()->user()->id);
+                    });
+                })
+                ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        } else {
+            $branches = $query->orderBy('id', 'DESC')
+                ->whereHas('account', function($qry) {
+                    $qry->whereHas('users', function($qry1) {
+                        $qry1->where('id', auth()->user()->id);
+                    });
+                })
+                ->paginate($limit)->onEachSide(1)->appends(request()->query());
+        }
+
+        return $branches;
+    }
 }

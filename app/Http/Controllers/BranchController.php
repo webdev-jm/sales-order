@@ -43,7 +43,11 @@ class BranchController extends Controller
 
         $search = trim($request->get('search'));
 
-        $branches = Branch::BranchSearch($search, $this->settings->data_per_page);
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
+            $branches = Branch::BranchSearch($search, $this->settings->data_per_page);
+        } else {
+            $branches = Branch::RestrictedBranchSearch($search, $this->settings->data_per_page);
+        }
         return view('branches.index')->with([
             'search' => $search,
             'branches' => $branches

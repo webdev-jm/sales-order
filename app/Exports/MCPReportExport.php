@@ -92,6 +92,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             'USERNAME',
             'USER',
             'DATE',
+            'ACCOUNT',
             'BRANCH CODE',
             'BRANCH NAME',
             'LATITUDE',
@@ -161,6 +162,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                 $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['data'][] = $login;
                 $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_code'] = $login->branch->branch_code;
                 $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['branch_name'] = $login->branch->branch_name;
+                $deviation_logins[$deviation_login->user_id][$deviation_login->date][$login->branch_id]['account'] = $login->branch->account->short_name;
             }
         }
 
@@ -172,10 +174,12 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                     if(($prev_date == '' || $prev_date < $date) && $schedule_date->date > $date) {
                         foreach($logins as $branch_id => $login) {
                             foreach($login['data'] as $actual) {
+
                                 $data[] = [
                                     $schedule_date->user->email,
                                     $schedule_date->user->fullName(),
                                     $date,
+                                    $login['account'],
                                     $login['branch_code'],
                                     $login['branch_name'],
                                     $actual->latitude,
@@ -218,6 +222,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                             $schedule_date->user->email,
                             $schedule_date->user->fullName(),
                             $schedule_date->date,
+                            $schedule->branch->account->short_name,
                             $schedule->branch->branch_code,
                             $schedule->branch->branch_name,
                             $branch_login->latitude,
@@ -233,6 +238,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                         $schedule_date->user->email,
                         $schedule_date->user->fullName(),
                         $schedule_date->date,
+                        $schedule->branch->account->short_name,
                         $schedule->branch->branch_code,
                         $schedule->branch->branch_name,
                         '',
@@ -264,6 +270,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                     $schedule_date->user->email,
                     $schedule_date->user->fullName(),
                     date('Y-m-d', strtotime($deviation->time_in)),
+                    $deviation->branch->account->short_name,
                     $deviation->branch->branch_code,
                     $deviation->branch->branch_name,
                     $deviation->latitude,

@@ -100,12 +100,18 @@ class ScheduleDeviation extends Component
             ->log(':causer.firstname :causer.lastname has created schedule deviations :subject.reason_for_deviation');
 
             // notifications
-            $user_ids = auth()->user()->getSupervisorIds();
-            foreach($user_ids as $user_id) {
-                if(auth()->user()->id != $user_id) {
-                    $user = User::find($user_id);
-                    Notification::send($user, new DeviationSubmitted($deviation));
-                }
+            // $user_ids = auth()->user()->getSupervisorIds();
+            // foreach($user_ids as $user_id) {
+            //     if(auth()->user()->id != $user_id) {
+            //         $user = User::find($user_id);
+            //         Notification::send($user, new DeviationSubmitted($deviation));
+            //     }
+            // }
+
+            $supervisor_id = auth()->user()->getImmediateSuperiorId();
+            if(auth()->user()->id != $supervisor_id) {
+                $user = User::find($supervisor_id);
+                Notification::send($user, new DeviationSubmitted($deviation));
             }
 
             // create reminder
