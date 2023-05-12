@@ -221,6 +221,7 @@ class ActivityPlanController extends Controller
                 // }
 
                 $users = [];
+                $supervisor_ids = [];
                 $supervisor_id = $activity_plan->user->getImmediateSuperiorId();
                 if(!empty($supervisor_id)) {
                     $user = User::find($supervisor_id);
@@ -228,6 +229,8 @@ class ActivityPlanController extends Controller
                         $users[] = $user;
                     }
                 }
+
+                $supervisor_ids[] = $supervisor_ids;
 
                 if(!empty($users)) {
                     foreach($users as $user) {
@@ -531,6 +534,7 @@ class ActivityPlanController extends Controller
                     // }
 
                     $users = [];
+                    $supervisor_ids = [];
                     $supervisor_id = $activity_plan->user->getImmediateSuperiorId();
                     if(!empty($supervisor_id)) {
                         $user = User::find($supervisor_id);
@@ -538,12 +542,17 @@ class ActivityPlanController extends Controller
                             $users[] = $user;
                         }
                     }
+
+                    $supervisor_ids[] = $supervisor_id;
                     
                     if(!empty($users)) {
                         foreach($users as $user) {
                             Notification::send($user, new ActivityPlanSubmitted($activity_plan));
                         }
                     }
+
+                    // create reminder
+                    $this->setReminder('ActivityPlan', $activity_plan->id, 'The activity plan was submitted for your approval', $supervisor_ids, 'mcp/'.$activity_plan->id);
 
                     // approvals
                     $approval = new ActivityPlanApproval([

@@ -144,7 +144,10 @@
     </div>
     <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button class="btn btn-primary" wire:click="submitForm" wire:loading.attr="disabled">Submit</button>
+        <div wire:loading.remove>
+            <button class="btn btn-primary" wire:click="submitForm" wire:loading.attr="disabled">Submit</button>
+        </div>
+        <button class="btn btn-primary" wire:loading><i class="fa fa-spinner fa-spin mr-1"></i>Loading</button>
     </div>
 
     <script>

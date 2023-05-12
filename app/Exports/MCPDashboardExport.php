@@ -113,8 +113,10 @@ class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, 
         $data = [];
         foreach($users as $user) {
             // MCP
-            $schedules = UserBranchSchedule::where('user_id', $user->id)
+            $schedules = UserBranchSchedule::select(DB::raw("DISTINCT branch_id, date, user_id"))
+            ->where('user_id', $user->id)
             ->whereNull('status')
+            ->where('source', 'activity-plan')
             ->where('date', 'like', $date_string.'%');
             // COMPANY FILTER
             if(!empty($this->company)) {
@@ -129,7 +131,6 @@ class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, 
             // VISITED
             $mcp = 0;
             $visited = 0;
-            $deviations_count = 0;
             $schedule_dates = [];
             foreach($schedules as $schedule) {
                 $mcp++;
@@ -154,40 +155,27 @@ class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, 
                 if($branch_logins > 0) {
                     $visited++;
                 }
-
-                // BRANCH LOGIN NOT IN SCHEDULE
-                $deviations = BranchLogin::select('branch_id')->distinct()
-                ->where('user_id', $schedule->user_id)
-                ->where('time_in', 'like', $schedule->date.'%')
-                ->where('branch_id', '<>', $schedule->branch_id);
-
-                // COMPANY FILTER
-                if(!empty($this->company)) {
-                    $deviations->whereHas('branch', function($query) {
-                        $query->whereHas('account', function($qry) {
-                            $qry->where('company_id', $this->company);
-                        });
-                    });
-                }
-
-                $deviations_count += $deviations->count('branch_id');
             }
 
-            // DEVIATIONS
-            $deviations = BranchLogin::whereNotIn(DB::raw('date(time_in)'), $schedule_dates)
-            ->where(DB::raw('date(time_in)'), 'like', $date_string.'%')
+            $schedule_dates = array_unique($schedule_dates);
+
+            // TOTAL LOGIN
+            $total_login = BranchLogin::select(DB::raw("count(DISTINCT user_id, branch_id, date(time_in)) as total"))
+            ->where('time_in', 'like', $date_string.'%')
             ->where('user_id', $user->id);
 
             // COMPANY FILTER
             if(!empty($this->company)) {
-                $deviations->whereHas('branch', function($query) {
+                $total_login->whereHas('branch', function($query) {
                     $query->whereHas('account', function($qry) {
                         $qry->where('company_id', $this->company);
                     });
                 });
             }
 
-            $deviations_count += $deviations->count();
+            $total_login = $total_login->get();
+
+            $deviations_count = $total_login[0]['total'] - $visited;
 
             $performance = 0;
             if($mcp > 0 && $visited > 0) {

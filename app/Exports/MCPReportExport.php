@@ -14,6 +14,9 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithProperties;
 use Maatwebsite\Excel\Concerns\WithBackgroundColor;
 
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
+
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 ini_set('memory_limit', '-1');
@@ -21,7 +24,7 @@ ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
 ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
-class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor
+class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor, WithStrictNullComparison, WithChunkReading
 {
 
     protected $user_id, $date_from, $date_to;
@@ -30,6 +33,16 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
         $this->user_id = $user_id;
         $this->date_from = $date_from;
         $this->date_to = $date_to;
+    }
+
+    public function chunkSize(): int
+    {
+        return 1000; // Number of rows per chunk
+    }
+
+    public function batchSize(): int
+    {
+        return 1000; // Number of rows per batch
     }
 
     public function backgroundColor()

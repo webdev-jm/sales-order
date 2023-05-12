@@ -116,7 +116,10 @@
                 <h3 class="card-title">MCP Reports</h3>
                 <div class="card-tools">
                     @can('report export')
-                        <a href="" class="btn btn-success btn-sm" wire:click.prevent="export" wire:loading.attr="disabled"><i class="fa fa-file-export mr-2"></i>Export</a>
+                        <div wire:loading.remove>
+                            <a href="" class="btn btn-success btn-sm" wire:click.prevent="export"><i class="fa fa-file-export mr-2"></i>Export</a>
+                        </div>
+                        <span wire:loading><i class="fa fa-spinner fa-spin"></i> Loading</span>
                     @endcan
                 </div>
             </div>

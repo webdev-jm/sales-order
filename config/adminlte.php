@@ -64,7 +64,7 @@ return [
     */
 
     'logo' => 'SMS',
-    'logo_img' => '/assets/images/bevi-logo.png',
+    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -86,7 +86,7 @@ return [
     'auth_logo' => [
         'enabled' => false,
         'img' => [
-            'path' => '/assets/images/bevi-logo.png',
+            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
             'alt' => 'Sales Management System',
             'class' => '',
             'width' => 50,
@@ -109,7 +109,7 @@ return [
     'preloader' => [
         'enabled' => true,
         'img' => [
-            'path' => '/assets/images/bevi-logo.png',
+            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
             'alt' => 'SMS',
             'effect' => 'animation__shake',
             'width' => 60,

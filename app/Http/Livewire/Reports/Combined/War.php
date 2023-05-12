@@ -37,17 +37,18 @@ class War extends Component
     public function render()
     {
         $weekly_activity_reports = WeeklyActivityReport::orderBy('id', 'DESC')
-        ->where('status', '<>', 'draft');
-        if(!empty($this->month) && !empty($this->year)) {
-            $date_string = $this->year.'-'.$this->month.'-';
-            $weekly_activity_reports->where('date_from', 'like', '%'.$date_string.'%')
-            ->orWhere('date_to', 'like', '%'.$date_string.'%');
-        }
-        if(!empty($this->user_id)) {
-            $weekly_activity_reports->where('user_id', $this->user_id);
-        }
-        $weekly_activity_reports = $weekly_activity_reports->paginate(5, ['*'], 'war-page')
-        ->onEachSide(1);
+            ->where('status', '<>', 'draft')
+            ->when(!empty($this->month) && !empty($this->year), function($query) {
+                $query->where(function($qry) {
+                    $date_string = $this->year.'-'.$this->month.'-';
+                    $qry->where('date_from', 'like', '%'.$date_string.'%')
+                        ->orWhere('date_to', 'like', '%'.$date_string.'%');
+                });
+            })
+            ->when(!empty($this->user_id), function($query) {
+                $query->where('user_id', $this->user_id);
+            })
+            ->paginate(5, ['*'], 'war-page')->onEachSide(1);
 
         $status_arr = [
             'draft' => 'secondary',
