@@ -69,7 +69,9 @@ class ScheduleAdd extends Component
         $supervisor_id = auth()->user()->getImmediateSuperiorId();
         if(auth()->user()->id != $supervisor_id) {
             $user = User::find($supervisor_id);
-            Notification::send($user, new ScheduleAddRequest($schedule));
+            if(!empty($user)) {
+                Notification::send($user, new ScheduleAddRequest($schedule));
+            }
         }
 
         return redirect(request()->header('Referer'));

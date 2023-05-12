@@ -112,10 +112,14 @@ class ScheduleDeviation extends Component
             $supervisor_id = auth()->user()->getImmediateSuperiorId();
             if(auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
-                Notification::send($user, new DeviationSubmitted($deviation));
+                if(!empty($user)) {
+                    Notification::send($user, new DeviationSubmitted($deviation));
+                }
             }
 
-            $user_ids[] = $supervisor_id;
+            if(!empty($supervisor_id)) {
+                $user_ids[] = $supervisor_id;
+            }
 
             // create reminder
             $this->setReminder('Deviation', $deviation->id, 'deviation form has been submitted for your approval', $user_ids, '/schedule/deviations');
