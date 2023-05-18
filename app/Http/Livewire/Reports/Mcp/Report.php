@@ -85,7 +85,8 @@ class Report extends Component
             ->whereNull('status')
             ->where(function($query) {
                 $query->where('source', 'activity-plan')
-                    ->orWhere('source', 'request');
+                    ->orWhere('source', 'request')
+                    ->orWhere('source', 'deviation');
             })
             ->get();
 

@@ -230,7 +230,7 @@ class ActivityPlanController extends Controller
                     }
                 }
 
-                $supervisor_ids[] = $supervisor_ids;
+                $supervisor_ids[] = $supervisor_id;
 
                 if(!empty($users)) {
                     foreach($users as $user) {

@@ -59,7 +59,7 @@ class ScheduleDeviation extends Component
                 $deviation_schedule = new DeviationSchedule([
                     'deviation_id' => $deviation->id,
                     'user_branch_schedule_id' => $schedule->id,
-                    'branch_id' => $schedule->branch_id,
+                    'branch_id' => $schedule->branch_id ?? NULL,
                     'date' => $schedule->date,
                     'activity' => $schedule->objective,
                     'type' => 'original'
@@ -74,15 +74,17 @@ class ScheduleDeviation extends Component
 
             // new schedules
             foreach($this->new_schedules as $schedule) {
-                $deviation_schedule = new DeviationSchedule([
-                    'deviation_id' => $deviation->id,
-                    'user_branch_schedule_id' => NULL,
-                    'branch_id' => $schedule['branch_id'] ?? NULL,
-                    'date' => $schedule['date'],
-                    'activity' => $schedule['activity'],
-                    'type' => 'new'
-                ]);
-                $deviation_schedule->save();
+                if(!empty($schedule['branch_id'])) {
+                    $deviation_schedule = new DeviationSchedule([
+                        'deviation_id' => $deviation->id,
+                        'user_branch_schedule_id' => NULL,
+                        'branch_id' => $schedule['branch_id'] ?? NULL,
+                        'date' => $schedule['date'],
+                        'activity' => $schedule['activity'],
+                        'type' => 'new'
+                    ]);
+                    $deviation_schedule->save();
+                }
             }
 
             // approvals
@@ -134,7 +136,7 @@ class ScheduleDeviation extends Component
 
     // branch search
     public function setQuery($key) {
-        $query = $this->branchQuery[$key];
+        $query = $this->branchQuery[$key] ?? '';
         $this->resetQuery();
         $this->branchQuery[$key] = $query;
         $this->searchQuery = $query;
