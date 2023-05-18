@@ -44,11 +44,26 @@ class DeviationRejected extends Notification
      */
     public function toMail($notifiable)
     {
+
+        // $tableData = [
+        //     'columns' => [
+        //         'column1',
+        //         'column2'
+        //     ],
+        //     'data' => [
+        //         ['Column 1', 'Column 2'],
+        //         ['Data1', 'Data2'],
+        //         ['Data3', 'Data4'],
+        //     ]
+        // ];
+
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
-            ->subject('Deviation Request Approved')
+            ->subject('Deviation Request Rejected')
             ->greeting('Hello! '.$notifiable->fullName())
             ->line('Deviation request has been rejected')
+            ->line('Here is table data:')
+            // ->with(['tableData' => $tableData])
             ->action('View Details', url('/schedule/deviations'))
             ->line('Thank you for using our application!');
     }
@@ -58,7 +73,7 @@ class DeviationRejected extends Notification
      *
      * @param  mixed  $notifiable
      * @return array
-     */
+    */
     public function toArray($notifiable)
     {
         return [

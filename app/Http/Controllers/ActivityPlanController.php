@@ -230,7 +230,7 @@ class ActivityPlanController extends Controller
                     }
                 }
 
-                $supervisor_ids[] = $supervisor_ids;
+                $supervisor_ids[] = $supervisor_id;
 
                 if(!empty($users)) {
                     foreach($users as $user) {
@@ -541,9 +541,10 @@ class ActivityPlanController extends Controller
                         if(!empty($user)) {
                             $users[] = $user;
                         }
+                        
+                        $supervisor_ids[] = $supervisor_id;
                     }
 
-                    $supervisor_ids[] = $supervisor_id;
                     
                     if(!empty($users)) {
                         foreach($users as $user) {

@@ -59,7 +59,7 @@ class ScheduleDeviation extends Component
                 $deviation_schedule = new DeviationSchedule([
                     'deviation_id' => $deviation->id,
                     'user_branch_schedule_id' => $schedule->id,
-                    'branch_id' => $schedule->branch_id,
+                    'branch_id' => $schedule->branch_id ?? NULL,
                     'date' => $schedule->date,
                     'activity' => $schedule->objective,
                     'type' => 'original'
@@ -74,15 +74,17 @@ class ScheduleDeviation extends Component
 
             // new schedules
             foreach($this->new_schedules as $schedule) {
-                $deviation_schedule = new DeviationSchedule([
-                    'deviation_id' => $deviation->id,
-                    'user_branch_schedule_id' => NULL,
-                    'branch_id' => $schedule['branch_id'] ?? NULL,
-                    'date' => $schedule['date'],
-                    'activity' => $schedule['activity'],
-                    'type' => 'new'
-                ]);
-                $deviation_schedule->save();
+                if(!empty($schedule['branch_id'])) {
+                    $deviation_schedule = new DeviationSchedule([
+                        'deviation_id' => $deviation->id,
+                        'user_branch_schedule_id' => NULL,
+                        'branch_id' => $schedule['branch_id'] ?? NULL,
+                        'date' => $schedule['date'],
+                        'activity' => $schedule['activity'],
+                        'type' => 'new'
+                    ]);
+                    $deviation_schedule->save();
+                }
             }
 
             // approvals
@@ -112,10 +114,14 @@ class ScheduleDeviation extends Component
             $supervisor_id = auth()->user()->getImmediateSuperiorId();
             if(auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
-                Notification::send($user, new DeviationSubmitted($deviation));
+                if(!empty($user)) {
+                    Notification::send($user, new DeviationSubmitted($deviation));
+                }
             }
 
-            $user_ids[] = $supervisor_id;
+            if(!empty($supervisor_id)) {
+                $user_ids[] = $supervisor_id;
+            }
 
             // create reminder
             $this->setReminder('Deviation', $deviation->id, 'deviation form has been submitted for your approval', $user_ids, '/schedule/deviations');
@@ -130,7 +136,7 @@ class ScheduleDeviation extends Component
 
     // branch search
     public function setQuery($key) {
-        $query = $this->branchQuery[$key];
+        $query = $this->branchQuery[$key] ?? '';
         $this->resetQuery();
         $this->branchQuery[$key] = $query;
         $this->searchQuery = $query;

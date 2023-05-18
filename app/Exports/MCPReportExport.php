@@ -215,7 +215,11 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             $schedules = UserBranchSchedule::where('user_id', $schedule_date->user_id)
             ->where('date', $schedule_date->date)
             ->whereNull('status')
-            ->where('source', 'activity-plan')
+            ->where(function($query) {
+                $query->where('source', 'activity-plan')
+                    ->orWhere('source', 'request')
+                    ->orWhere('source', 'deviation');
+            })
             ->get();
 
             $schedule_count = 0;
@@ -227,7 +231,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                 ->where('branch_id', $schedule->branch_id)
                 ->where('time_in', 'like', $schedule->date.'%')
                 ->get();
-
+                
                 if(!empty($branch_logins->count())) {
                     $visited_count++;
                     foreach($branch_logins as $branch_login) {
