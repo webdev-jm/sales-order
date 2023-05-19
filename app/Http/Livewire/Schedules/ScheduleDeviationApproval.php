@@ -47,11 +47,11 @@ class ScheduleDeviationApproval extends Component
         foreach($this->new_schedules as $new) {
             // check if existed
             $branch_schedule = UserBranchSchedule::where('user_id', $this->deviation->user_id)
-            ->where('branch_id', $new->branch_id)
-            ->where('date', $new->date)
-            ->whereNull('status')
-            ->where('source', 'deviation')
-            ->first();
+                ->where('branch_id', $new->branch_id)
+                ->where('date', $new->date)
+                ->whereNull('status')
+                ->where('source', 'deviation')
+                ->first();
             if(empty($branch_schedule)) {
                 // create request if approved
                 $branch_schedule = new UserBranchSchedule([

@@ -48,7 +48,7 @@ class ScheduleDeviation extends Component
             $deviation = new Deviation([
                 'user_id' => $this->user->id,
                 'cost_center' => $this->cost_center,
-                'date' => $this->date,
+                'date' => date('y-m-d', strtotime($this->date)),
                 'reason_for_deviation' => $this->reason_for_deviation,
                 'status' => 'submitted'
             ]);
@@ -60,7 +60,7 @@ class ScheduleDeviation extends Component
                     'deviation_id' => $deviation->id,
                     'user_branch_schedule_id' => $schedule->id,
                     'branch_id' => $schedule->branch_id ?? NULL,
-                    'date' => $schedule->date,
+                    'date' => date('y-m-d', strtotime($schedule->date)),
                     'activity' => $schedule->objective,
                     'type' => 'original'
                 ]);
@@ -79,7 +79,7 @@ class ScheduleDeviation extends Component
                         'deviation_id' => $deviation->id,
                         'user_branch_schedule_id' => NULL,
                         'branch_id' => $schedule['branch_id'] ?? NULL,
-                        'date' => $schedule['date'],
+                        'date' => date('y-m-d', strtotime($schedule['date'])),
                         'activity' => $schedule['activity'],
                         'type' => 'new'
                     ]);
