@@ -36,7 +36,7 @@ class AccountBranchLoginForm extends Component
         // logs
         activity('logout')
         ->performedOn($this->logged_branch)
-        ->log(':causer.firstname :causer.lastname has logged out from branch '.$this->logged_branch->branch->branch_name);
+        ->log(':causer.firstname :causer.lastname has logged out from branch '.($this->logged_branch->branch->account->short_name ?? '').' - '.$this->logged_branch->branch->branch_name);
 
         Session::forget('logged_branch');
 

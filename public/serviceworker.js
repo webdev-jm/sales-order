@@ -1,4 +1,4 @@
-var staticCacheName = "pwa-v" + new Date().getTime();
+var staticCacheName = "sms-pwa-v" + new Date().getTime();
 var filesToCache = [
     '/offline',
     '/css/app.css',
@@ -13,9 +13,19 @@ var filesToCache = [
     '/images/icons/icon-512x512.png',
     '/vendor/fontawesome-free/css/all.min.css',
     '/vendor/overlayScrollbars/css/OverlayScrollbars.min.css',
+    '/vendor/overlayScrollbars/js/OverlayScrollbars.min.js',
     '/vendor/adminlte/dist/css/adminlte.min.css',
     '/vendor/fullcalendar/main.min.css',
     '/vendor/fullcalendar/main.min.js',
+    '/vendor/select2/css/select2.min.css',
+    '/vendor/ekko-lightbox/ekko-lightbox.css',
+    '/vendor/jquery/jquery.min.js',
+    '/vendor/bootstrap/js/bootstrap.bundle.min.js',
+    '/vendor/select2/js/select2.min.js',
+    '/vendor/ekko-lightbox/ekko-lightbox.min.js',
+    '/vendor/adminlte/dist/js/adminlte.min.js',
+    '/vendor/adminlte/dist/img/AdminLTELogo.png',
+    '/vendor/livewire/livewire.js',
 ];
 
 // Cache on install
