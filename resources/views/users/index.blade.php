@@ -56,7 +56,11 @@
             <tbody>
                 @foreach($users as $user)
                 <tr>
-                    <td>{{ucwords(strtolower($user->firstname))}}</td>
+                    <td>
+                        <a href="{{route('user.show', $user->id)}}">
+                            {{ucwords(strtolower($user->firstname))}}
+                        </a>
+                    </td>
                     <td>{{ucwords(strtolower($user->lastname))}}</td>
                     <td>{{$user->email}}</td>
                     <td>{{$user->group_code}}</td>
@@ -65,7 +69,7 @@
                         @can('user change password')
                         <a href="" title="change password" class="btn-change-pass" data-id="{{$user->id}}"><i class="fas fa-lock text-warning mx-1"></i></a>
                         @endcan
-                        <a href="" title="branches" class="btn-branch-assign" data-id="{{$user->id}}"><i class="fas fa-code-branch text-primary mx-1"></i></a>
+                        {{-- <a href="" title="branches" class="btn-branch-assign" data-id="{{$user->id}}"><i class="fas fa-code-branch text-primary mx-1"></i></a> --}}
                         <a href="#" class="btn-assign-account" data-id="{{$user->id}}" title="user accounts"><i class="fas fa-wrench text-secondary mx-1"></i></a>
                         @can('user edit')
                             <a href="{{route('user.edit', $user->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>

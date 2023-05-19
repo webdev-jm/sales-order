@@ -388,6 +388,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::post('user/upload', [UserController::class, 'upload'])->name('user.upload')->middleware('permission:user upload');
 
+        Route::get('user/{id}', [UserController::class, 'show'])->name('user.show');
+
         Route::get('user/{id}/edit', [UserController::class, 'edit'])->name('user.edit')->middleware('permission:user edit');
         Route::post('user/{id}', [UserController::class, 'update'])->name('user.update')->middleware('permission:user edit');
     });
