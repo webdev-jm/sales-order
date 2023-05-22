@@ -33,44 +33,52 @@ class ScheduleAdd extends Component
             'branch_id' => 'required'
         ]);
 
-        $schedule = new UserBranchSchedule([
-            'user_id' => auth()->user()->id,
-            'branch_id' => $this->branch_id,
-            'date' => $this->date,
-            'status' => NULL,
-            'objective' => $this->objective,
-            'source' => 'request'
-        ]);
-        $schedule->save();
-
+        // check if already exists
+        $exist = UserBranchSchedule::where('user_id', auth()->user()->id)
+            ->where('branch_id', $this->branch_id)
+            ->where('date', $this->date)
+            ->whereNull('status')
+            ->first();
         
-        // $approval = new UserBranchScheduleApproval([
-        //     'user_branch_schedule_id' => $schedule->id,
-        //     'user_id' => auth()->user()->id,
-        //     'status' => 'schedule request',
-        //     'remarks' => null
-        // ]);
-        // $approval->save();
-        
-        // logs
-        activity('created')
-        ->performedOn($schedule)
-        ->log(':causer.firstname :causer.lastname added a new schedule :subject.date');
+        if(empty($exist)) {
+            $schedule = new UserBranchSchedule([
+                'user_id' => auth()->user()->id,
+                'branch_id' => $this->branch_id,
+                'date' => $this->date,
+                'status' => NULL,
+                'objective' => $this->objective,
+                'source' => 'request'
+            ]);
+            $schedule->save();
 
-        // notifications
-        // $user_ids = auth()->user()->getSupervisorIds();
-        // foreach($user_ids as $user_id) {
-        //     if(auth()->user()->id != $user_id) {
-        //         $user = User::find($user_id);
-        //         Notification::send($user, new ScheduleAddRequest($schedule));
-        //     }
-        // }
-
-        $supervisor_id = auth()->user()->getImmediateSuperiorId();
-        if(auth()->user()->id != $supervisor_id) {
-            $user = User::find($supervisor_id);
-            if(!empty($user)) {
-                Notification::send($user, new ScheduleAddRequest($schedule));
+            // $approval = new UserBranchScheduleApproval([
+            //     'user_branch_schedule_id' => $schedule->id,
+            //     'user_id' => auth()->user()->id,
+            //     'status' => 'schedule request',
+            //     'remarks' => null
+            // ]);
+            // $approval->save();
+            
+            // logs
+            activity('created')
+            ->performedOn($schedule)
+            ->log(':causer.firstname :causer.lastname added a new schedule :subject.date');
+    
+            // notifications
+            // $user_ids = auth()->user()->getSupervisorIds();
+            // foreach($user_ids as $user_id) {
+            //     if(auth()->user()->id != $user_id) {
+            //         $user = User::find($user_id);
+            //         Notification::send($user, new ScheduleAddRequest($schedule));
+            //     }
+            // }
+    
+            $supervisor_id = auth()->user()->getImmediateSuperiorId();
+            if(auth()->user()->id != $supervisor_id) {
+                $user = User::find($supervisor_id);
+                if(!empty($user)) {
+                    Notification::send($user, new ScheduleAddRequest($schedule));
+                }
             }
         }
 
