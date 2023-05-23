@@ -35,7 +35,7 @@ class Header extends Component
 
     public function mount() {
         $user_options = [];
-        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin')) {
+        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('finance')) {
             $users = User::orderBy('firstname', 'ASC')->get();
             foreach($users as $user) {
                 $user_options[$user->id] = $user->fullName();

@@ -13,6 +13,6 @@ class DiscountSeeder extends Seeder
      */
     public function run()
     {
-        //
+        
     }
 }

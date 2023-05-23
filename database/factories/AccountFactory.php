@@ -14,7 +14,9 @@ class AccountFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'account_code' => $this->faker->unique()->randomNumber(7),
+            'account_name' => $this->faker->sentence(3),
+            'short_name' => $this->faker->text(10)
         ];
     }
 }

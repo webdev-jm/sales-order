@@ -4,6 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Company;
+use App\Models\Discount;
+use App\Models\InvoiceTerm;
+use App\Models\Account;
 
 class CompanySeeder extends Seeder
 {
@@ -14,23 +17,10 @@ class CompanySeeder extends Seeder
      */
     public function run()
     {
-        $companies_arr = [
-            [
-                'BEVI',
-                20
-            ],
-            [
-                'BEVA',
-                17,
-            ]
-        ];
-
-        foreach($companies_arr as $company) {
-            $company = new Company([
-                'name' => $company[0],
-                'order_limit' => $company[1]
+        Company::factory()->count(5)->create()->each(function($company) {
+            Discount::factory()->count(5)->create([
+                'company_id' => $company->id
             ]);
-            $company->save();
-        }
+        });
     }
 }

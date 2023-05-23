@@ -14,7 +14,11 @@ class InvoiceTermFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'term_code' => $this->faker->unique()->randomNumber(3),
+            'description' => $this->faker->sentence(3),
+            'discount' => rand(5, 50),
+            'discount_days' => rand(7, 30),
+            'due_days' => rand(10, 30)
         ];
     }
 }
