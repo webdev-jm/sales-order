@@ -167,6 +167,78 @@ class SalesOrderController extends Controller
         ]);
     }
 
+    // resubmit sales order
+    public function resubmit($id) {
+        $date_code = date('Ymd', time());
+        $control_number = 'SO-'.$date_code.'-001';
+        $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
+        if(!empty($sales_order)) {
+            // increment control number
+            $control_number_arr = explode('-', $sales_order->control_number);
+            $last = end($control_number_arr);
+            array_pop($control_number_arr);
+            $prev_date = end($control_number_arr);
+            array_pop($control_number_arr);
+            if($date_code == $prev_date) { // same day increment number
+                $number = (int)$last + 1;
+            } else { // reset on different day
+                $number = 1;
+            }
+            for($i = strlen($number);$i <= 2; $i++) {
+                $number = '0'.$number;
+            }
+            array_push($control_number_arr, $date_code);
+            array_push($control_number_arr, $number);
+            $control_number = implode('-', $control_number_arr);
+        }
+
+        $sales_order = SalesOrder::findOrFail($id);
+
+        $logged_account = Session::get('logged_account');
+        if(empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order'
+            ]);
+        }
+
+        Session::forget('order_data');
+
+        $order_data = [];
+        $order_products = $sales_order->order_products;
+        foreach($order_products as $order_product) {
+            $product = $order_product->product;
+            $order_data['items'][$order_product->product_id] = [
+                'stock_code' => $product->stock_code,
+                'description' => $product->description,
+                'size' => $product->size
+            ];
+
+            $product_uoms = $order_product->product_uoms;
+            foreach($product_uoms as $uom) {
+                $order_data['items'][$order_product->product_id]['data'][$uom->uom] = [
+                    'quantity' => $uom->quantity,
+                    'total' => $uom->uom_total,
+                    'discount' => 0,
+                    'discounted' => $uom->uom_total_less_disc
+                ];
+            }
+            $order_data['items'][$order_product->product_id]['product_total'] = $order_product->total_sales;
+            $order_data['items'][$order_product->product_id]['product_quantity'] = $order_product->total_quantity;
+        }
+
+        $order_data['total_quantity'] = $sales_order->total_quantity;
+        $order_data['total'] = $sales_order->total_sales;
+        $order_data['grand_total'] = $sales_order->grand_total;
+        $order_data['po_value'] = '';
+
+        Session::put('order_data', $order_data);
+
+        return view('sales-orders.create')->with([
+            'control_number' => $control_number,
+            'logged_account' => $logged_account
+        ]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *

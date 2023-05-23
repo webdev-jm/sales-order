@@ -12,6 +12,11 @@ class Branch extends Model
     use HasFactory;
     use SoftDeletes;
 
+    public function getConnectionName()
+    {
+        return 'mysql';
+    }
+
     protected $fillable = [
         'account_id',
         'region_id',
