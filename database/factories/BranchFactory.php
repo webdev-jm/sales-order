@@ -14,7 +14,16 @@ class BranchFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'account_id',
+            'region_id',
+            'classification_id',
+            'area_id',
+            'branch_code',
+            'branch_name',
+            'province',
+            'city',
+            'barangay',
+            'address'
         ];
     }
 }

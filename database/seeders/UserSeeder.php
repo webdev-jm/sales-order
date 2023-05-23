@@ -21,6 +21,7 @@ class UserSeeder extends Seeder
             'middlename' => '',
             'lastname' => 'Admin',
             'email' => 'admin@admin',
+            'notify_email' => 'michael.renon@kojiesan.com',
             'email_verified_at' => now(),
             'password' => Hash::make('p4ssw0rd'), // password
             'remember_token' => Str::random(10),

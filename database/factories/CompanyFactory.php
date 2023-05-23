@@ -14,7 +14,8 @@ class CompanyFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => $this->faker->text(5),
+            'order_limit' => rand(17, 20)
         ];
     }
 }
