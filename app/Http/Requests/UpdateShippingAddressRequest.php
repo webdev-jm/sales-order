@@ -32,7 +32,7 @@ class UpdateShippingAddressRequest extends FormRequest
             'address_code' => [
                 'required', Rule::unique((new ShippingAddress)->getTable())->where(function($query) {
                     $query->where('account_id', $this->account_id);
-                })->ignore($this->id)
+                })->ignore(decrypt($this->id))
             ],
             'ship_to_name' => [
                 'required'

@@ -116,6 +116,7 @@ class Report extends Component
                 $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['date'] = date('Y-m-d', strtotime($deviation->time_in));
                 $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['branch_code'] = $deviation->branch->branch_code;
                 $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['branch_name'] = $deviation->branch->branch_name;
+                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['account_name'] = $deviation->branch->account->short_name;
 
                 // actuals
                 $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['actuals'][$deviation->id] = [

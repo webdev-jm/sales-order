@@ -24,7 +24,7 @@
       <h3 class="card-title">Edit Account</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['method' => 'post', 'route' => ['account.update', $account->id], 'id' => 'update_account']) !!}
+        {!! Form::open(['method' => 'post', 'route' => ['account.update', encrypt($account->id)], 'id' => 'update_account']) !!}
         {!! Form::close() !!}
 
         <div class="row">

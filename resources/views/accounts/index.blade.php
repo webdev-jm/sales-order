@@ -58,15 +58,15 @@
                     <td>{{$account->account_name}}</td>
                     <td>{{$account->short_name}}</td>
                     <td class="text-right">
-                        <a href="#" class="btn-product-modal" data-id="{{$account->id}}"><i class="fas fa-box text-primary"></i></a>
+                        <a href="#" class="btn-product-modal" data-id="{{encrypt($account->id)}}"><i class="fas fa-box text-primary"></i></a>
                         @can('shipping address access')
-                            <a href="{{route('shipping-address.index', $account->id)}}" title="shipping addresses"><i class="fas fa-map-marked-alt text-info mx-1"></i></a>
+                            <a href="{{route('shipping-address.index', encrypt($account->id))}}" title="shipping addresses"><i class="fas fa-map-marked-alt text-info mx-1"></i></a>
                         @endcan
                         @can('account edit')
-                            <a href="{{route('account.edit', $account->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                            <a href="{{route('account.edit', encrypt($account->id))}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
                         @can('account delete')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$account->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                            <a href="#" title="delete" class="btn-delete" data-id="{{encrypt($account->id)}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>
                 </tr>

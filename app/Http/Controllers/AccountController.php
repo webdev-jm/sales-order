@@ -133,7 +133,7 @@ class AccountController extends Controller
      */
     public function edit($id)
     {
-        $account = Account::findOrFail($id);
+        $account = Account::findOrFail(decrypt($id));
         $discounts = Discount::orderBy('company_id', 'ASC')->get();
         $discount_arr = [];
         foreach($discounts as $discount) {
@@ -176,7 +176,7 @@ class AccountController extends Controller
      */
     public function update(UpdateAccountRequest $request, $id)
     {
-        $account = Account::findOrFail($id);
+        $account = Account::findOrFail(decrypt($id));
         $account_name = '['.$account->account_code.'] '.$account->account_name;
 
         $changes_arr['old'] = $account->getOriginal();
