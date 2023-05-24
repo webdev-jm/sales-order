@@ -14,7 +14,11 @@ class PriceCodeFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'company_id',
+            'product_id',
+            'code',
+            'selling_price',
+            'price_basis',
         ];
     }
 }
