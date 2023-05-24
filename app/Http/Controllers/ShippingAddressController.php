@@ -30,7 +30,7 @@ class ShippingAddressController extends Controller
     public function index(Request $request, $id)
     {
         $search = trim($request->get('search'));
-        $account = Account::findOrFail($id);
+        $account = Account::findOrFail(decrypt($id));
 
         $shipping_addresses = ShippingAddress::ShippingAddressSearch($search, $account->id, $this->settings->data_per_page);
 
@@ -48,7 +48,7 @@ class ShippingAddressController extends Controller
      */
     public function create($id)
     {
-        $account = Account::findOrFail($id);
+        $account = Account::findOrFail(decrypt($id));
         
         return view('shipping-addresses.create')->with([
             'account' => $account
@@ -104,7 +104,7 @@ class ShippingAddressController extends Controller
      */
     public function edit($id)
     {
-        $shipping_address = ShippingAddress::findOrFail($id);
+        $shipping_address = ShippingAddress::findOrFail(decrypt($id));
 
         return view('shipping-addresses.edit')->with([
             'shipping_address' => $shipping_address
@@ -120,7 +120,7 @@ class ShippingAddressController extends Controller
      */
     public function update(UpdateShippingAddressRequest $request, $id)
     {
-        $shipping_address = ShippingAddress::findOrFail($id);
+        $shipping_address = ShippingAddress::findOrFail(decrypt($id));
 
         $changes_arr['old'] = $shipping_address->getOriginal();
 

@@ -48,7 +48,7 @@ class ProductAssign extends Component
     }
 
     public function setAccount($account_id) {
-        $this->account = Account::findOrFail($account_id);
+        $this->account = Account::findOrFail(decrypt($account_id));
         $this->reset('special_products');
 
         foreach($this->account->products as $product) {

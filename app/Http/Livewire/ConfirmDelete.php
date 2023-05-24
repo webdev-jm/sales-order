@@ -91,7 +91,7 @@ class ConfirmDelete extends Component
                 $this->route = '/price-code';
                 break;
             case 'Account':
-                $this->model = Account::findOrFail($model_id);
+                $this->model = Account::findOrFail(decrypt($model_id));
                 $this->name = 'account ['.$this->model->account_code.'] '.$this->model->account_name;
                 $this->route = '/account';
                 break;

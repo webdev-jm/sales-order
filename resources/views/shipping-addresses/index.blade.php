@@ -14,7 +14,7 @@
     </div>
     <div class="col-md-6 text-right">
         @can('account create')
-        <a href="{{route('shipping-address.create', $account->id)}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Shipping Address</a>
+        <a href="{{route('shipping-address.create', encrypt($account->id))}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Shipping Address</a>
         <a href="#" class="btn btn-warning" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload</a>
         @endcan
     </div>
@@ -22,7 +22,7 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['shipping-address.index', $account->id], 'id' => 'search_form']) !!}
+{!! Form::open(['method' => 'GET', 'route' => ['shipping-address.index', encrypt($account->id)], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
 <div class="card">
@@ -65,7 +65,7 @@
                     <td>{{$shipping_address->tin}}</td>
                     <td class="text-right">
                         @can('shipping address edit')
-                            <a href="{{route('shipping-address.edit', $shipping_address->id)}}" title="edit">
+                            <a href="{{route('shipping-address.edit', encrypt($shipping_address->id))}}" title="edit">
                                 <i class="fas fa-edit text-success mx-1"></i>
                             </a>
                         @endcan

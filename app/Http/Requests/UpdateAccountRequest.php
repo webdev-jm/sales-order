@@ -33,7 +33,7 @@ class UpdateAccountRequest extends FormRequest
                 'required'
             ],
             'account_code' => [
-                'required', Rule::unique((new Account)->getTable())->ignore($this->id)
+                'required', Rule::unique((new Account)->getTable())->ignore(decrypt($this->id))
             ],
             'account_name' => [
                 'required'

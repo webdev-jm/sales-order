@@ -85,7 +85,7 @@
                         <tr>
                             <td class="p-1 align-middle">{{date('Y-m-d', strtotime($unscheduled_visit->time_in))}}</td>
                             <td class="p-1">{{$unscheduled_visit->user->fullName()}}</td>
-                            <td class="p-1">{{$unscheduled_visit->branch->branch_code.' '.$unscheduled_visit->branch->branch_name}}</td>
+                            <td class="p-1">[{{$unscheduled_visit->branch->account->short_name ?? ''}}] {{$unscheduled_visit->branch->branch_code.' '.$unscheduled_visit->branch->branch_name}}</td>
                             {{-- <td class="p-0 text-center align-middle">
                                 
                             </td> --}}
@@ -155,7 +155,7 @@
                                 @endphp
                             <tr>
                                 <td class="align-middle text-center">{{$schedule->date}}</td>
-                                <td class="align-middle">{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
+                                <td class="align-middle">[{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
                                 @if(isset($actuals[$schedule->id]))
                                     <td class="text-center">
                                         @foreach($actuals[$schedule->id] as $actual)
@@ -206,7 +206,7 @@
                                         {{$deviation['date']}}
                                     </td>
                                     <td class="align-middle">
-                                        {{$deviation['branch_code']}} {{$deviation['branch_name']}}
+                                        [{{$deviation['account_name']}}] {{$deviation['branch_code']}} {{$deviation['branch_name']}}
                                     </td>
                                     <td class="text-center">
                                         @foreach($deviation['actuals'] as $actual)

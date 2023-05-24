@@ -13,7 +13,7 @@
         <h1>Shipping Address / Edit</h1>
     </div>
     <div class="col-md-6 text-right">
-        <a href="{{route('shipping-address.index', $shipping_address->account_id)}}" class="btn btn-default"><i class="fa fa-arrow-left mr-2"></i>{{__('Back')}}</a>
+        <a href="{{route('shipping-address.index', encrypt($shipping_address->account_id))}}" class="btn btn-default"><i class="fa fa-arrow-left mr-2"></i>{{__('Back')}}</a>
     </div>
 </div>
 @endsection
@@ -25,7 +25,7 @@
         <h3 class="card-title">Edit Shipping Address</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['method' => 'POST', 'route' => ['shipping-address.update', $shipping_address->id], 'id' => 'update_shipping_address']) !!}
+        {!! Form::open(['method' => 'POST', 'route' => ['shipping-address.update', encrypt($shipping_address->id)], 'id' => 'update_shipping_address']) !!}
         {!! Form::close() !!}
 
         <div class="row">
