@@ -367,6 +367,13 @@ return [
             'can'       => 'report access',
             'active'    => ['combined*']
         ],
+        [
+            'text'      => 'Productivity Reports',
+            'url'       => '/productivity-report',
+            'icon'      => 'fas fa-fw fa-chart-line',
+            'can'       => 'productivity report access',
+            'active'    => ['productivity-report*']
+        ],
         // DMS
         [
             'header'    => 'DMS',
@@ -438,7 +445,7 @@ return [
             'url'       => '/product',
             'icon'      => 'fas fa-fw fa-box',
             'can'       => 'product access',
-            'active'    => ['product*']
+            'active'    => ['product', 'product/create', 'product/*']
         ],
         [
             'text'      => 'Price Codes',
@@ -749,7 +756,17 @@ return [
                     'location' => '/vendor/fullcalendar/main.min.js',
                 ]
             ]
-        ]
+        ],
+        'bsCustomFileInput' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/bs-custom-file-input/bs-custom-file-input.min.js',
+                ]
+            ]
+        ],
     ],
 
     /*
