@@ -9,6 +9,7 @@ use App\Models\Company;
 use App\Models\Discount;
 use App\Models\InvoiceTerm;
 use App\Models\Product;
+use App\Models\Classification;
 use App\Models\PriceCode;
 use App\Models\Account;
 use App\Models\Branch;
@@ -84,6 +85,11 @@ class ConfirmDelete extends Component
                 $this->model = Product::findOrFail($model_id);
                 $this->name = 'product ['.$this->model->stock_code.'] '.$this->model->description;
                 $this->route = '/product';
+                break;
+            case 'Classification':
+                $this->model = Classification::findOrFail($model_id);
+                $this->name = 'classificatoin ['.$this->model->classification_code.'] '.$this->model->classification_name;
+                $this->route = '/classification';
                 break;
             case 'PriceCode':
                 $this->model = PriceCode::findOrFail($model_id);

@@ -33,6 +33,7 @@ use App\Http\Controllers\CostCenterController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\TerritoryController;
+use App\Http\Controllers\ProductivityReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,6 +150,14 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
         Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval')->middleware('permission:war approve');
+    });
+
+    // PRODUCTIVITY REPORT
+    Route::group(['middleware' => 'permission:productivity report access'], function() {
+        Route::get('productivity-report', [ProductivityReportController::class, 'index'])->name('productivity-report.index');
+        Route::get('productivity-report/upload', [ProductivityReportController::class, 'create'])->name('productivity-report.upload')->middleware('permission:productivity report upload');
+
+        Route::post('productivity-report', [ProductivityReportController::class, 'store'])->name('productivity-report.store')->middleware('permission:productivity report upload');
     });
 
     // SO Cut-offs

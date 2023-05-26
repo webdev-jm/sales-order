@@ -51,6 +51,9 @@ class PermissionSeeder extends Seeder
             'war edit',
             'war delete',
             'war approve',
+            // productivity report
+            'productivity report access',
+            'productivity report upload',
             // sales order cut-off
             'SO cut-off access',
             'SO cut-off create',
