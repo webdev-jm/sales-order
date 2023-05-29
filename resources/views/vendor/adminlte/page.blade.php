@@ -56,7 +56,15 @@
     </div>
 @stop
 
+@section('plugins.bsCustomFileInput', true);
+
 @section('adminlte_js')
+    <script>
+        $(function() {
+            bsCustomFileInput.init();
+        });
+    </script>
+    
     @stack('js')
     @yield('js')
 @stop

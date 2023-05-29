@@ -15,6 +15,8 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 use App\Models\Branch;
 use App\Models\Classification;
+use App\Models\Salesman;
+use App\Models\SalesmenLocation;
 
 class Details extends Component
 {
@@ -39,39 +41,46 @@ class Details extends Component
                 
                 // VISITED
                 $visited = 0;
-                if(strtolower($row[4]) == 'yes' || $row[4] == 1) {
+                if(strtolower($row[5]) == 'yes' || $row[5] == 1) {
                     $visited = 1;
                 }
                 
                 // STORE / BRANCH
-                $branch = Branch::where('branch_code', $row[2])
-                    ->orWhere('branch_name', $row[2])
+                $branch = Branch::where('branch_code', $row[4])
+                    ->orWhere('branch_name', $row[4])
                     ->first();
 
-                $store = $row[2];
+                $store = $row[4];
                 if(!empty($branch)) {
                     $store = $branch->branch_code.' '.$branch->branch_name;
+                    $classification = $branch->classification;
                 }
 
                 // CLASSIFICATION
-                $classification = Classification::where('classification_code', $row[3])
-                    ->orWhere('classification_name', $row[3])
-                    ->first();
-
-                $channel = $row[3];
+                $channel = '';
                 if(!empty($classification)) {
                     $channel = $classification->classification_code.' '.$classification->classification_name;
                 }
 
+                $salesman = Salesman::where('code', $row[1])
+                    ->first();
+
+                $salesman_location = SalesmenLocation::where('salesman_id', $salesman->id)
+                    ->where('province', $row[2])
+                    ->where('city', $row[3])
+                    ->first();
+
                 $this->details[] = [
                     'date' => $row[0],
-                    'salesman' => $row[1],
+                    'salesman' => $salesman->code.' ('.$salesman->name.')',
                     'store' => $store,
                     'classification' => $channel,
                     'visited' => $visited,
-                    'sales' => $row[5],
+                    'sales' => $row[6],
                     'branch_id' => $branch->id ?? NULL,
                     'classification_id' => $classification->id ?? NULL,
+                    'salesman_id' => $salesman->id ?? NULL,
+                    'salesman_location_id' => $salesman_location->id ?? NULL
                 ];
             }
 

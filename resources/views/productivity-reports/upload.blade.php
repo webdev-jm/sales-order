@@ -64,12 +64,9 @@
 <livewire:productivity-report.details />
 @endsection
 
-@section('plugins.bsCustomFileInput', true);
-
 @section('js')
 <script>
     $(function() {
-        bsCustomFileInput.init();
     });
 </script>
 @endsection

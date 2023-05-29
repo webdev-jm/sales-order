@@ -15,8 +15,9 @@ class ProductivityReportData extends Model
         'productivity_report_id',
         'branch_id',
         'classification_id',
+        'salesman_id',
+        'salesman_location_id',
         'date',
-        'salesman',
         'visited',
         'sales',
     ];
@@ -31,5 +32,13 @@ class ProductivityReportData extends Model
 
     public function classification() {
         return $this->belongsTo('App\Models\Classification');
+    }
+
+    public function salesman() {
+        return $this->belongsTo('App\Models\Salesman');
+    }
+
+    public function salesman_location() {
+        return $this->belongsTo('App\Models\SalesmenLocation');
     }
 }
