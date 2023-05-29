@@ -5,7 +5,7 @@
             <div class="card-tools">
                 <div class="input-group">
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="file-upload" wire:model="upload_file" wire:loading.attr="readonly">
+                        <input type="file" class="custom-file-input" id="file-upload" wire:model="upload_file" wire:loading.attr="readonly" accept=".xlsx, .xls, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
                         <label for="file-upload" class="custom-file-label">Choose file</label>
                     </div>
                     <div class="input-group-append">
