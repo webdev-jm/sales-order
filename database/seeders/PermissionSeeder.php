@@ -54,6 +54,16 @@ class PermissionSeeder extends Seeder
             // productivity report
             'productivity report access',
             'productivity report upload',
+            // salesmen
+            'salesman access',
+            'salesman create',
+            'salesman edit',
+            'salesman delete',
+            // salesmen code
+            'salesmen location access',
+            'salesmen location create',
+            'salesmen location edit',
+            'salesmen location delete',
             // sales order cut-off
             'SO cut-off access',
             'SO cut-off create',

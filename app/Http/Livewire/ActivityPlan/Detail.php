@@ -102,7 +102,7 @@ class Detail extends Component
     }
 
     public function setAccountQuery($date, $key) {
-        $query = $this->account_query[$date][$key];
+        $query = $this->account_query[$date][$key] ?? '';
         // remove other query
         $this->resetAccountQuery();
         $this->account_query[$date][$key] = $query;

@@ -374,6 +374,20 @@ return [
             'can'       => 'productivity report access',
             'active'    => ['productivity-report*']
         ],
+        [
+            'text'      => 'Salesmen',
+            'url'       => '/salesman',
+            'icon'      => 'fas fa-fw fa-users',
+            'can'       => 'salesman access',
+            'active'    => ['salesman', 'salesman/*']
+        ],
+        [
+            'text'      => 'Salesman Locations',
+            'url'       => '/salesman-location',
+            'icon'      => 'fas fa-fw fa-map',
+            'can'       => 'salesman location access',
+            'active'    => ['salesman-location', 'salesman-location/*']
+        ],
         // DMS
         [
             'header'    => 'DMS',

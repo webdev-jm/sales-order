@@ -8,6 +8,9 @@ use App\Http\Requests\StoreProductivityReportRequest;
 use App\Http\Requests\UpdateProductivityReportRequest;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+
+use Carbon\Carbon;
 
 class ProductivityReportController extends Controller
 {
@@ -53,13 +56,14 @@ class ProductivityReportController extends Controller
 
             // Data
             foreach($data as $val) {
-                if(!empty($val['branch_id']) && !empty($val['classification_id'])) {
+                if(!empty($val['branch_id']) && !empty($val['classification_id']) && !empty($val['salesman_id'])) {
                     $productivity_report_data = new ProductivityReportData([
                         'productivity_report_id' => $productivity_report->id,
                         'branch_id' => $val['branch_id'],
                         'classification_id' => $val['classification_id'],
+                        'salesman_id' => $val['salesman_id'],
+                        'salesman_location_id' => $val['salesman_location_id'],
                         'date' => $val['date'],
-                        'salesman' => $val['salesman'],
                         'visited' => $val['visited'],
                         'sales' => $val['sales']
                     ]);

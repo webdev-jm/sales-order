@@ -18,8 +18,9 @@ class CreateProductivityReportDataTable extends Migration
             $table->unsignedBigInteger('productivity_report_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->unsignedBigInteger('classification_id')->nullable();
+            $table->unsignedBigInteger('salesman_id')->nullable();
+            $table->unsignedBigInteger('salesman_location_id')->nullable();
             $table->date('date');
-            $table->string('salesman')->nullable();
             $table->integer('visited')->default(0);
             $table->decimal('sales', 10, 2)->default(0);
             $table->timestamps();
@@ -35,6 +36,15 @@ class CreateProductivityReportDataTable extends Migration
             $table->foreign('classification_id')
                 ->references('id')->on('classifications')
                 ->onDelete('cascade');
+
+            $table->foreign('salesman_id')
+                ->references('id')->on('salesmen')
+                ->onDelete('cascade');
+
+            $table->foreign('salesman_location_id')
+                ->references('id')->on('salesmen_locations')
+                ->onDelete('cascade');
+
 
             $table->softDeletes();
         });

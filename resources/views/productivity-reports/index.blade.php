@@ -5,6 +5,16 @@
 @endsection
 
 @section('css')
+<style>
+    .table-sm td {
+        padding: 1px !important;
+        vertical-align: middle !important;
+    }
+    .table-sm th {
+        padding: 3px !important;
+        vertical-align: middle !important;
+    }
+</style>
 @endsection
 
 @section('content_header')
@@ -21,7 +31,7 @@
 @endsection
 
 @section('content')
-
+<livewire:productivity-report.report />
 @endsection
 
 @section('js')

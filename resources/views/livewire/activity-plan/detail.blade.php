@@ -49,7 +49,7 @@
                                 <div class="input-group">
                                     <input type="text" class="form-control border-0 {{$line['class']}}" 
                                         wire:model="account_query.{{$date}}.{{$key}}" 
-                                        wire:keyup="setAccountQuery('{{$date}}', '{{$key}}')"
+                                        wire:keyup="setAccountQuery('{{$date}}', {{$key}})"
                                         wire:keydown.escape="resetAccountQuery"
                                         wire:keydown.tab.prevent="resetAccountQuery"
                                         

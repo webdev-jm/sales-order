@@ -34,6 +34,8 @@ use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\TerritoryController;
 use App\Http\Controllers\ProductivityReportController;
+use App\Http\Controllers\SalesmanController;
+use App\Http\Controllers\SalesmenLocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +76,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
     Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');
     Route::get('product/get-ajax/{id}', [ProductController::class, 'getAjax'])->name('product.getAjax');
+
+    Route::post('salesman/ajax', [SalesmanController::class, 'ajax'])->name('salesman.ajax');
 
     // DASHBOARD
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -158,6 +162,28 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('productivity-report/upload', [ProductivityReportController::class, 'create'])->name('productivity-report.upload')->middleware('permission:productivity report upload');
 
         Route::post('productivity-report', [ProductivityReportController::class, 'store'])->name('productivity-report.store')->middleware('permission:productivity report upload');
+    });
+
+    // SALESMEN
+    Route::group(['middleware' => 'permission:salesman access'], function() {
+        Route::get('salesman', [SalesmanController::class, 'index'])->name('salesman.index');
+        Route::get('salesman/create', [SalesmanController::class, 'create'])->name('salesman.create')->middleware('permission:salesman create');
+        Route::post('salesman', [SalesmanController::class, 'store'])->name('salesman.store')->middleware('permission:salesman create');
+
+        Route::post('salesman/upload', [SalesmanController::class, 'upload'])->name('salesman.upload')->middleware('permission:salesman create');
+
+        Route::get('salesman/{id}/edit', [SalesmanController::class, 'edit'])->name('salesman.edit')->middleware('permission:salesman edit');
+        Route::post('salesman/{id}', [SalesmanController::class, 'update'])->name('salesman.update')->middleware('permission:salesman edit');
+    });
+
+    // SALESMEN LOCATIONS
+    Route::group(['middleware' => 'permission:salesman location access'], function() {
+        Route::get('salesman-location', [SalesmenLocationController::class, 'index'])->name('salesman-location.index');
+        Route::get('salesman-location/create', [SalesmenLocationController::class, 'create'])->name('salesman-location.create')->middleware('permission:salesman location create');
+        Route::post('salesman-location', [SalesmenLocationController::class, 'store'])->name('salesman-location.store')->middleware('permission:salesman location create');
+
+        Route::get('salesman-location/{id}/edit', [SalesmenLocationController::class, 'edit'])->name('salesman-location.edit')->middleware('permission:salesman location edit');
+        Route::post('salesman-location/{id}', [SalesmenLocationController::class, 'update'])->name('salesman-location.update')->middleware('permission:salesman location edit');
     });
 
     // SO Cut-offs
