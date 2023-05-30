@@ -68,21 +68,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($users as $user)
-                    <tr>
-                        <td>{{$user->fullName()}}</td>
-                        <td>{{$user->group_code}}</td>
-                        <td>{{$data[$user->id]['MCP']}}</td>
-                        <td>{{$data[$user->id]['VISITED']}}</td>
-                        <td>{{$data[$user->id]['DEVIATION']}}</td>
-                        <td>{{number_format($data[$user->id]['PERFORMANCE'], 2)}} %</td>
-                    </tr>
+                    @foreach($mcp_results as $result)
+                        @php
+                            $visited = $result->total_visit - $result->deviation;
+                        @endphp
+                        <tr>
+                            <td>{{$result->name}}</td>
+                            <td>{{$result->group_code}}</td>
+                            <td>{{$result->mcp}}</td>
+                            <td>{{$visited}}</td>
+                            <td>{{$result->deviation}}</td>
+                            <td>{{number_format(($visited / $result->mcp) * 100, 2)}} %</td>
+                        </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         <div class="card-footer">
-            {{$users->links()}}
+            {{$mcp_results->links()}}
         </div>
     </div>
 </div>
