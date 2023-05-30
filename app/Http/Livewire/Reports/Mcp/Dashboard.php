@@ -50,102 +50,54 @@ class Dashboard extends Component
             $months[$i] = date('F', strtotime($this->year.'-'.$i.'-01'));
         }
 
-        $users = User::orderBy('firstname', 'ASC');
-        if(!empty($this->search)) {
-            $users->where('firstname', 'like', '%'.$this->search.'%')
-            ->orWhere('lastname', 'like', '%'.$this->search.'%')
-            ->orWhere('group_code', 'like', '%'.$this->search.'%');
-        }
+        DB::statement('SET sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""));');
 
-        $users = $users->paginate(10, ['*'], 'mcp-user-page')
-        ->onEachSide(1);
+        $mcp_results = DB::table('users as u')
+            ->select(
+                DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
+                'u.group_code',
+                DB::raw('COUNT(DISTINCT ubs.branch_id, ubs.date) as mcp'),
+                DB::raw('COUNT(DISTINCT bl.branch_id, DATE(bl.time_in)) as total_visit'),
+                DB::raw('COUNT(DISTINCT
+                    CASE WHEN
+                        NOT EXISTS(SELECT * FROM user_branch_schedules ubs WHERE ubs.branch_id = bl.branch_id AND ubs.user_id = bl.user_id AND (source = "activity-plan" OR source = "request"))
+                    THEN 
+                        bl.branch_id
+                    END,
+                    CASE WHEN 
+                        NOT EXISTS(SELECT * FROM user_branch_schedules ubs WHERE ubs.branch_id = bl.branch_id AND ubs.user_id = bl.user_id AND (source = "activity-plan" OR source = "request"))
+                    THEN 
+                        DATE(bl.time_in)
+                    END
 
-        $date_string = $this->year.'-'.($this->month < 10 ? '0'.(int)$this->month : $this->month);
-
-        $data = [];
-        foreach($users as $user) {
-            // MCP
-            $schedules = UserBranchSchedule::select(DB::raw("DISTINCT branch_id, date, user_id"))
-            ->where('user_id', $user->id)
-            ->whereNull('status')
-            ->where('source', 'activity-plan')
-            ->where('date', 'like', $date_string.'%');
-            // COMPANY FILTER
-            if(!empty($this->company)) {
-                $schedules->whereHas('branch', function($query) {
-                    $query->whereHas('account', function($qry) {
-                        $qry->where('company_id', $this->company);
+                ) as deviation')
+            )
+            ->leftJoin('user_branch_schedules as ubs', 'ubs.user_id', '=', 'u.id')
+            ->leftJoin('branch_logins as bl', 'bl.user_id', '=', 'u.id')
+            ->leftJoin('branches as b', function($join) {
+                $join->on('b.id', '=', 'ubs.branch_id')
+                    ->whereRaw('b.id = bl.branch_id');
+            })
+            ->leftJoin('accounts as a', 'a.id', '=', 'b.account_id')
+            ->where(function($query) {
+                $query->where(DB::raw('YEAR(ubs.date)'), $this->year)
+                    ->where(DB::raw('MONTH(ubs.date)'), $this->month)
+                    ->where('ubs.source', 'activity-plan')
+                    ->orWhere(function($query) {
+                        $query->where(DB::raw('YEAR(bl.time_in)'), $this->year)
+                            ->where(DB::raw('MONTH(bl.time_in)'), $this->month);
                     });
-                });
-            }
-
-            $schedules = $schedules->get();
-            // VISITED
-            $mcp = 0;
-            $visited = 0;
-            $schedule_dates = [];
-            foreach($schedules as $schedule) {
-                $mcp++;
-                $schedule_dates[] = $schedule->date;
-
-                // VISITED
-                $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
-                ->where('branch_id', $schedule->branch_id)
-                ->where('time_in', 'like', $schedule->date.'%');
-
-                // COMPANY FILTER
-                if(!empty($this->company)) {
-                    $branch_logins->whereHas('branch', function($query) {
-                        $query->whereHas('account', function($qry) {
-                            $qry->where('company_id', $this->company);
-                        });
-                    });
-                }
-
-                $branch_logins = $branch_logins->count();
-
-                if($branch_logins > 0) {
-                    $visited++;
-                }
-            }
-
-            $schedule_dates = array_unique($schedule_dates);
-
-            // TOTAL LOGIN
-            $total_login = BranchLogin::select(DB::raw("count(DISTINCT user_id, branch_id, date(time_in)) as total"))
-            ->where('time_in', 'like', $date_string.'%')
-            ->where('user_id', $user->id);
-
-            // COMPANY FILTER
-            if(!empty($this->company)) {
-                $total_login->whereHas('branch', function($query) {
-                    $query->whereHas('account', function($qry) {
-                        $qry->where('company_id', $this->company);
-                    });
-                });
-            }
-
-            $total_login = $total_login->get();
-
-            $deviations_count = $total_login[0]['total'] - $visited;
-
-            $performance = 0;
-            if($mcp > 0 && $visited > 0) {
-                $performance = ($visited / $mcp) * 100;
-            }
-
-            $data[$user->id] = [
-                'MCP' => $mcp,
-                'VISITED' => $visited,
-                'DEVIATION' => $deviations_count,
-                'PERFORMANCE' => $performance
-            ];
-        }
+            })
+            ->when(!empty($this->company), function($query) {
+                $query->where('a.company_id', $this->company);
+            })
+            ->groupBy('name')
+            ->paginate(10, ['*'], 'mcp-user-page')
+            ->onEachSide(1);
 
         return view('livewire.reports.mcp.dashboard')->with([
-            'users' => $users,
-            'data' => $data,
-            'months' => $months
+            'months' => $months,
+            'mcp_results' => $mcp_results
         ]);
     }
 }
