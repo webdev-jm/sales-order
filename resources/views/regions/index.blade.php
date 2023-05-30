@@ -83,7 +83,7 @@
                     <div class="col-12">
                         <div class="form-group">
                             <div class="custom-file">
-                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form']) !!}
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form', 'accept' => '.xlsx, .xls, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']) !!}
                                 {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
                             </div>
                             <p class="text-danger">{{$errors->first('upload_file')}}</p>

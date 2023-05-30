@@ -66,7 +66,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <div class="custom-file">
-                            <input type="file" wire:model="picture_file" id="picture" class="custom-file-input {{$errors->has('picture_file') ? 'is-invalid' : ''}}">
+                            <input type="file" wire:model="picture_file" id="picture" class="custom-file-input {{$errors->has('picture_file') ? 'is-invalid' : ''}}" accept="image/png, image/gif, image/jpeg">
                             <label for="picture" class="custom-file-label">Upload Picture</label>
                             <p class="text-danger">{{$errors->first('picture_file')}}</p>
                         </div>
