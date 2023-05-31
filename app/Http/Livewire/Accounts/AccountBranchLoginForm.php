@@ -39,6 +39,7 @@ class AccountBranchLoginForm extends Component
         ->log(':causer.firstname :causer.lastname has logged out from branch '.($this->logged_branch->branch->account->short_name ?? '').' - '.$this->logged_branch->branch->branch_name);
 
         Session::forget('logged_branch');
+        Session::forget('coe_form_data');
 
         return redirect()->to('/home');
     }

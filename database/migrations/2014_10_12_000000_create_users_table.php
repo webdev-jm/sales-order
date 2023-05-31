@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->string('group_code')->nullable();
             $table->string('status')->default('active')->nullable();
+            $table->boolean('coe')->default(false);
             $table->rememberToken();
             $table->timestamp('last_activity')->nullable();
             $table->timestamps();

@@ -26,9 +26,19 @@
                     </div>
                 </div>
 
+                {{-- ACCOUNT FILTER --}}
+                <div class="col-12 mb-1">
+                    <hr class="mb-1">
+                    <select class="form-control" wire:model="account_id">
+                        <option value="">- Account Filter -</option>
+                        @foreach(auth()->user()->accounts as $account)
+                        <option value="{{$account->id}}">[{{$account->account_code}}] {{$account->short_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 {{-- search --}}
                 <div class="col-12">
-                    <hr class="mb-1">
                     <input type="text" class="form-control @error('branch_id') is-invalid @enderror" placeholder="Search" wire:model="search">
                     @error('branch_id')
                     <p class="text-danger">{{$message}}</p>
