@@ -56,7 +56,7 @@
     </div>
 @stop
 
-@section('plugins.bsCustomFileInput', true);
+@section('plugins.bsCustomFileInput', true)
 
 @section('adminlte_js')
     <script>

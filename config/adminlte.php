@@ -315,7 +315,6 @@ return [
             'text'      => 'Dashboard',
             'url'       => 'dashboard',
             'icon'      => 'fas fa-fw fa-chart-pie',
-            'can'       => 'system logs',
             'active'    => ['dashboard*']
         ],
         [
@@ -781,6 +780,21 @@ return [
                 ]
             ]
         ],
+        'bsStepper' => [
+            'active' => true,
+            'files' => [
+                [
+                    'type' => 'css',
+                    'asset' => true,
+                    'location' => '/vendor/bs-stepper/css/bs-stepper.min.css',
+                ],
+                [
+                    'type' => 'js',
+                    'asset' => true,
+                    'location' => '/vendor/bs-stepper/js/bs-stepper.min.js',
+                ]
+            ]
+        ]
     ],
 
     /*

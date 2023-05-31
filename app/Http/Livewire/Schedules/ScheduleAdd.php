@@ -20,7 +20,7 @@ class ScheduleAdd extends Component
 
     public $search;
 
-    public $date, $objective, $branch_id;
+    public $date, $objective, $branch_id, $account_id;
 
     public function updatingSearch() {
         $this->resetPage('branch-page');
@@ -93,6 +93,10 @@ class ScheduleAdd extends Component
         }
     }
 
+    public function updatedAccountId() {
+        $this->resetPage('branch-page');
+    }
+
     public function render()
     {
         if($this->search != '') {
@@ -105,6 +109,9 @@ class ScheduleAdd extends Component
                 $query->where('branch_code', 'like', '%'.$this->search.'%')
                 ->orWhere('branch_name', 'like', '%'.$this->search.'%');
             })
+            ->when(!empty($this->account_id), function($query) {
+                $query->where('account_id', $this->account_id);
+            })
             ->paginate(10, ['*'], 'branch-page')->onEachSide(1);
 
         } else {
@@ -113,6 +120,9 @@ class ScheduleAdd extends Component
                 $query->whereHas('users', function($qry) {
                     $qry->where('id', auth()->user()->id);
                 });
+            })
+            ->when(!empty($this->account_id), function($query) {
+                $query->where('account_id', $this->account_id);
             })
             ->paginate(10, ['*'], 'branch-page')->onEachSide(1);
         }
