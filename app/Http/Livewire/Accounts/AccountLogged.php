@@ -7,10 +7,25 @@ use Illuminate\Support\Facades\Session;
 use AccountLoginModel;
 use App\Models\Account;
 use App\Models\BranchLogin;
+use App\Models\ChannelOperation;
 
 class AccountLogged extends Component
 {
     public $logged, $logged_branch;
+    public $sign_out_enabled;
+
+    protected $listeners = [
+        'setSignout' => 'setSignout',
+    ];
+
+    public function setSignout() {
+        $this->sign_out_enabled = 0;
+        $check = ChannelOperation::where('branch_login_id', $this->logged_branch->id)
+            ->first();
+        if(!empty($check) && $check->status == 'finalized') {
+            $this->sign_out_enabled = 1;
+        }
+    }
 
     public function loggedForm() {
         $this->dispatchBrowserEvent('openLoggedModal'.$this->logged->id);
@@ -63,6 +78,12 @@ class AccountLogged extends Component
         }
 
         $this->logged_branch = Session::get('logged_branch');
+        
+        if(!empty($this->logged_branch) && $this->logged_branch->user->coe) {
+            $this->setSignout();
+        } else {
+            $this->sign_out_enabled = 1;
+        }
     }
 
     public function render()
