@@ -36,9 +36,11 @@
                     <div class="col-lg-8 col-xl-10">
                         <h3 class="mb-0">[{{$logged_branch->branch->branch_code}}] <span>{{$logged_branch->branch->branch_name}}</span></h3>
                     </div>
+                    @if($sign_out_enabled)
                     <div class="col-lg-4 col-xl-2 text-right">
                         <button class="btn btn-danger" wire:click.prevent="loggedBranchForm">Sign Out</button>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
