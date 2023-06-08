@@ -46,7 +46,10 @@ class UpdateUserRequest extends FormRequest
             ],
             'roles' => [
                 'required'
-            ]
+            ],
+            'coe' => [
+                'required'
+            ],
         ];
     }
 }

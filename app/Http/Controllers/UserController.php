@@ -74,7 +74,8 @@ class UserController extends Controller
             'email' => $request->email,
             'notify_email' => $request->notify_email,
             'password' => Hash::make($password),
-            'group_code' => $request->group_code
+            'group_code' => $request->group_code,
+            'coe' => $request->coe,
         ]);
         $user->save();
 
@@ -141,7 +142,8 @@ class UserController extends Controller
             'lastname' => $request->lastname,
             'email' => $request->email,
             'notify_email' => $request->notify_email,
-            'group_code' => $request->group_code
+            'group_code' => $request->group_code,
+            'coe' => $request->coe,
         ]);
 
         $user->syncRoles($request->roles);

@@ -71,13 +71,29 @@
                     <p class="text-danger mt-1">{{$errors->first('notify_email')}}</p>
                 </div>
             </div>
+            
         </div>
 
         <div class="row">
 
             <div class="col-md-3">
                 <div class="form-group">
-                    <label>Group Code</label>
+                    <label>Channel Operation Executive{!!$errors->has('coe') ? '<span class="ml-2 badge badge-danger">Required</span>' : ''!!}</label></label>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('coe', 1, false, ['class' => 'custom-control-input', 'id' => 'coe_yes', 'form' => 'add_user']) !!}
+                        {!! Form::label('coe_yes', 'YES', ['class' => 'custom-control-label']) !!}
+                    </div>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('coe', 0, true, ['class' => 'custom-control-input', 'id' => 'coe_no', 'form' => 'add_user']) !!}
+                        {!! Form::label('coe_no', 'NO', ['class' => 'custom-control-label']) !!}
+                    </div>
+                    <p class="text-danger mt-1">{{$errors->first('coe')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Group Code{!!$errors->has('group_code') ? '<span class="ml-2 badge badge-danger">Required</span>' : ''!!}</label>
                     <div class="custom-control custom-radio">
                         {!! Form::radio('group_code', 'NKA', true, ['class' => 'custom-control-input', 'id' => 'nka_check', 'form' => 'add_user']) !!}
                         {!! Form::label('nka_check', 'NKA', ['class' => 'custom-control-label']) !!}

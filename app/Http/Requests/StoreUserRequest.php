@@ -47,6 +47,9 @@ class StoreUserRequest extends FormRequest
             'roles' => [
                 'required'
             ],
+            'coe' => [
+                'required'
+            ],
         ];
     }
 }
