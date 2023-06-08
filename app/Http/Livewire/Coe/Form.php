@@ -386,6 +386,8 @@ class Form extends Component
                 'paf_skus',
             ]);
 
+            unset($this->trade_marketing_activities['skus']);
+
             $this->paf = Paf::where('PAFNo', $this->paf_number)->first();
             if(!empty($this->paf)) {
                 $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo)->get();
@@ -514,7 +516,7 @@ class Form extends Component
 
                 // TRADE MARKETING ACTIVITIES
                 $trade_marketing_activity = $channel_operation->trade_marketing_activities()->first();
-                if(!empty($trade_marketing_activity)) {
+                if(!empty($trade_marketing_activity) && $trade_marketing_activity->paf_number != 'NONE') {
 
                     $this->paf = Paf::where('PAFNo', $trade_marketing_activity->paf_number)
                         ->first();

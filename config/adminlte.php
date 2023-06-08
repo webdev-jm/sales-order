@@ -387,6 +387,13 @@ return [
             'can'       => 'salesman location access',
             'active'    => ['salesman-location', 'salesman-location/*']
         ],
+        [
+            'text'      => 'COE Reports',
+            'url'       => '/channel-operation',
+            'icon'      => 'fas fa-fw fa-window-restore',
+            'can'       => 'channel operation report',
+            'active'    => ['channel-operation*']
+        ],
         // DMS
         [
             'header'    => 'DMS',
