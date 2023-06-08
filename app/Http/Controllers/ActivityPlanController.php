@@ -703,11 +703,11 @@ class ActivityPlanController extends Controller
                     $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
     
                     $data[$date_key][] = [
-                        'account_code' => trim($row[2]) ?? '',
+                        'account_code' => trim($row[2] ?? ''),
                         'branch_code' => trim($row[3]),
-                        'location' => trim($row[4]) ?? '',
-                        'purpose' => trim($row[5]) ?? '',
-                        'work_with' => trim($row[6]) ?? '',
+                        'location' => trim($row[4] ?? ''),
+                        'purpose' => trim($row[5] ?? ''),
+                        'work_with' => trim($row[6] ?? ''),
                     ];
                 }
             }

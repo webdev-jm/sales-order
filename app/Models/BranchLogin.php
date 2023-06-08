@@ -35,4 +35,8 @@ class BranchLogin extends Model
     public function login_activities() {
         return $this->hasMany('App\Models\BranchLoginActivity');
     }
+
+    public function channel_operations() {
+        return $this->hasMany('App\Models\ChannelOperation');
+    }
 }
