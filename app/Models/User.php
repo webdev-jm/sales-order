@@ -34,6 +34,7 @@ class User extends Authenticatable
         'group_code',
         'last_activity',
         'status',
+        'coe',
     ];
 
     /**

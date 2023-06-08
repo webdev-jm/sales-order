@@ -78,6 +78,21 @@
 
             <div class="col-md-3">
                 <div class="form-group">
+                    <label>Channel Operation Executive</label>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('coe', 1, $user->coe == 1, ['class' => 'custom-control-input', 'id' => 'coe_yes', 'form' => 'update_user']) !!}
+                        {!! Form::label('coe_yes', 'YES', ['class' => 'custom-control-label']) !!}
+                    </div>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('coe', 0, $user->coe == 0, ['class' => 'custom-control-input', 'id' => 'coe_no', 'form' => 'update_user']) !!}
+                        {!! Form::label('coe_no', 'NO', ['class' => 'custom-control-label']) !!}
+                    </div>
+                    <p class="text-danger mt-1">{{$errors->first('coe')}}</p>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
                     <label>Group Code</label>
                     <div class="custom-control custom-radio">
                         {!! Form::radio('group_code', 'NKA', $user->group_code == 'NKA', ['class' => 'custom-control-input', 'id' => 'nka_check', 'form' => 'update_user']) !!}
