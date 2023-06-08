@@ -46,9 +46,6 @@
     <div class="card-body">
         <figure class="highcharts-figure">
             <div id="container"></div>
-            <div class="highcharts-description">
-                This demo uses a <code>mappoint</code> series with mapmarker symbols.
-            </div>
         </figure>
     </div>
 </div>
@@ -77,7 +74,7 @@
                 },
 
                 title: {
-                    text: 'Categories of European capitals',
+                    text: 'Branch Visits',
                     floating: true,
                     style: {
                         textOutline: '5px contrast'
@@ -85,7 +82,7 @@
                 },
 
                 subtitle: {
-                    text: 'Map markers in Highcharts',
+                    text: 'branch visits per salesman',
                     floating: true,
                     y: 36,
                     style: {
