@@ -126,22 +126,24 @@ class Form extends Component
                 break;
 
             case 4: // TRADE MARKETING ACTIVITIES
-                if((!empty($this->paf_number) && $this->paf_number == 'NONE') || (!empty($this->trade_marketing_activities['paf_number']) && $this->trade_marketing_activities['paf_number'] == 'NONE')) {
-                    $this->validate([
-                        'trade_marketing_activities.remarks' => 'required',
-                    ]);
-
-                    $this->paf_number = 'NONE';
-                    $this->trade_marketing_activities['paf_number'] = 'NONE';
-                } else {
-                    $this->validate([
-                        'trade_marketing_activities.paf_number' => 'required',
-                        'trade_marketing_activities.remarks' => 'required',
-                        'trade_marketing_activities.skus.*.actual' => 'required',
-                        'trade_marketing_activities.skus.*.target_maxcap' => 'required',
-                    ]);
+                if(!empty($pafs_data)) {
+                    if((!empty($this->paf_number) && $this->paf_number == 'NONE') || (!empty($this->trade_marketing_activities['paf_number']) && $this->trade_marketing_activities['paf_number'] == 'NONE')) {
+                        $this->validate([
+                            'trade_marketing_activities.remarks' => 'required',
+                        ]);
+    
+                        $this->paf_number = 'NONE';
+                        $this->trade_marketing_activities['paf_number'] = 'NONE';
+                    } else {
+                        $this->validate([
+                            'trade_marketing_activities.paf_number' => 'required',
+                            'trade_marketing_activities.remarks' => 'required',
+                            'trade_marketing_activities.skus.*.actual' => 'required',
+                            'trade_marketing_activities.skus.*.target_maxcap' => 'required',
+                        ]);
+                    }
                 }
-
+                
                 $this->stage++;
                 break;
 
@@ -285,38 +287,40 @@ class Form extends Component
         //
 
         // TRADE MARKETING ACTIVITIES
-            $trade_marketing_activity = ChannelOperationTradeMarketingActivity::where('channel_operation_id', $channel_operation->id)
-                ->first();
-            if(empty($trade_marketing_activity)) {
-                $trade_marketing_activity = new ChannelOperationTradeMarketingActivity([
-                    'channel_operation_id' => $channel_operation->id,
-                    'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                    'remarks' => $this->trade_marketing_activities['remarks'],
-                ]);
-                $trade_marketing_activity->save();
-            } else { // update
-                $trade_marketing_activity->update([
-                    'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                    'remarks' => $this->trade_marketing_activities['remarks'],
-                ]);
-            }
-
-            // SKUs
-            $trade_marketing_activity->skus()->forceDelete();
-            if(!empty($this->trade_marketing_activities['skus']) && $this->trade_marketing_activities['paf_number'] != 'NONE') {
-                foreach($this->trade_marketing_activities['skus'] as $sku => $sku_data) {
-                    $sku = PafDetail::find($sku);
-
-                    $trade_marketing_activity_sku = new ChannelOperationTradeMarketingActivitySku([
-                        'channel_operation_trade_marketing_activity_id' => $trade_marketing_activity->id,
-                        'paf_detail_id' => $sku->id,
-                        'sku_code' => $sku->sku_code,
-                        'sku_description' => $sku->sku_description,
-                        'brand' => $sku->brand,
-                        'actual' => $sku_data['actual'],
-                        'target_maxcap' => $sku_data['target_maxcap'],
+            if(!empty($this->pafs_data->count())) {
+                $trade_marketing_activity = ChannelOperationTradeMarketingActivity::where('channel_operation_id', $channel_operation->id)
+                    ->first();
+                if(empty($trade_marketing_activity)) {
+                    $trade_marketing_activity = new ChannelOperationTradeMarketingActivity([
+                        'channel_operation_id' => $channel_operation->id,
+                        'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
+                        'remarks' => $this->trade_marketing_activities['remarks'],
                     ]);
-                    $trade_marketing_activity_sku->save();
+                    $trade_marketing_activity->save();
+                } else { // update
+                    $trade_marketing_activity->update([
+                        'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
+                        'remarks' => $this->trade_marketing_activities['remarks'],
+                    ]);
+                }
+    
+                // SKUs
+                $trade_marketing_activity->skus()->forceDelete();
+                if(!empty($this->trade_marketing_activities['skus']) && $this->trade_marketing_activities['paf_number'] != 'NONE') {
+                    foreach($this->trade_marketing_activities['skus'] as $sku => $sku_data) {
+                        $sku = PafDetail::find($sku);
+    
+                        $trade_marketing_activity_sku = new ChannelOperationTradeMarketingActivitySku([
+                            'channel_operation_trade_marketing_activity_id' => $trade_marketing_activity->id,
+                            'paf_detail_id' => $sku->id,
+                            'sku_code' => $sku->sku_code,
+                            'sku_description' => $sku->sku_description,
+                            'brand' => $sku->brand,
+                            'actual' => $sku_data['actual'],
+                            'target_maxcap' => $sku_data['target_maxcap'],
+                        ]);
+                        $trade_marketing_activity_sku->save();
+                    }
                 }
             }
         // 

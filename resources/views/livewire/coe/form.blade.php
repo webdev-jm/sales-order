@@ -235,34 +235,36 @@
                                     </div>
                                 </div>
                             </div>
-                            {{-- DAYS OF GAPS --}}
-                            <div class="col-lg-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">DAYS OF GAPS</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('merch_updates.days_of_gaps') ? ' is-invalid' : ''}}" placeholder="DAYS OF GAPS" wire:model="merch_updates.days_of_gaps" wire:change="computeSales">
-                                        @if($errors->has('merch_updates.days_of_gaps'))
-                                            <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            {{-- SALES OPPORTUNITIES --}}
-                            <div class="col-lg-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">SALES OPPORTUNITIES</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <input type="text" class="form-control form-underline readonly{{$errors->has('merch_updates.sales_opportunities') ? ' is-invalid' : ''}}" placeholder="SALES OPPORTUNITIES" wire:model="merch_updates.sales_opportunities" readonly>
-                                        @if($errors->has('merch_updates.sales_opportunities'))
-                                            <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
-                                        @endif
+                            @if(!empty($merch_updates['status']) && $merch_updates['status'] == 'VACANT')
+                                {{-- DAYS OF GAPS --}}
+                                <div class="col-lg-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">DAYS OF GAPS</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <input type="number" class="form-control form-underline{{$errors->has('merch_updates.days_of_gaps') ? ' is-invalid' : ''}}" placeholder="DAYS OF GAPS" wire:model="merch_updates.days_of_gaps" wire:change="computeSales">
+                                            @if($errors->has('merch_updates.days_of_gaps'))
+                                                <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                                {{-- SALES OPPORTUNITIES --}}
+                                <div class="col-lg-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">SALES OPPORTUNITIES</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <input type="text" class="form-control form-underline readonly{{$errors->has('merch_updates.sales_opportunities') ? ' is-invalid' : ''}}" placeholder="SALES OPPORTUNITIES" wire:model="merch_updates.sales_opportunities" readonly>
+                                            @if($errors->has('merch_updates.sales_opportunities'))
+                                                <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                             {{-- REMARKS --}}
                             <div class="col-lg-4">
                                 <div class="card">
@@ -501,6 +503,7 @@
                     </div>
                     <div class="card-body">
 
+                        @if(!empty($pafs_data->count()))
                         <div class="row">
                             {{-- PAF --}}
                             <div class="col-lg-4">
@@ -622,6 +625,13 @@
                                 </div>
                             </div>
                         </div>
+                        @else
+                        <ul class="list-group">
+                            <li class="list-group-item text-center">
+                                No available data
+                            </li>
+                        </ul>
+                        @endif
 
                     </div>
                     <div class="card-footer">
@@ -904,7 +914,7 @@
                                 ACCOUNT
                             </strong>
                             <p class="text-muted">
-                                {{$coe_reports['account_name']}}
+                                {{$coe_reports['account_name'] ?? '-'}}
                             </p>
                             {{-- NAME --}}
                             <hr>
@@ -913,7 +923,7 @@
                                 NAME
                             </strong>
                             <p class="text-muted">
-                                {{$coe_reports['name']}}
+                                {{$coe_reports['name'] ?? '-'}}
                             </p>
                             {{-- BRANCH --}}
                             <hr>
@@ -922,7 +932,7 @@
                                 BRANCH
                             </strong>
                             <p class="text-muted">
-                                [{{$coe_reports['branch_code']}}] {{$coe_reports['branch_name']}}
+                                [{{$coe_reports['branch_code'] ?? '-'}}] {{$coe_reports['branch_name'] ?? '-'}}
                             </p>
                             {{-- DATE --}}
                             <hr>
@@ -931,7 +941,7 @@
                                 DATE
                             </strong>
                             <p class="text-muted">
-                                {{$coe_reports['date']}}
+                                {{$coe_reports['date'] ?? '-'}}
                             </p>
                             {{-- STORE IN CHARGE --}}
                             <hr>
@@ -940,7 +950,7 @@
                                 STORE IN CHARGE
                             </strong>
                             <p class="text-muted">
-                                {{$coe_reports['store_in_charge']}}
+                                {{$coe_reports['store_in_charge'] ?? '-'}}
                             </p>
                             {{-- POSITION --}}
                             <hr>
@@ -949,7 +959,7 @@
                                 POSITION
                             </strong>
                             <p class="text-muted">
-                                {{$coe_reports['position']}}
+                                {{$coe_reports['position'] ?? '-'}}
                             </p>
                         </div>
                     </div>
@@ -972,7 +982,7 @@
                                 MERCH STATUS
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['status']}}
+                                {{$merch_updates['status'] ?? '-'}}
                             </p>
                             {{-- ACTUAL --}}
                             <hr>
@@ -981,7 +991,7 @@
                                 ACTUAL
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['actual']}}
+                                {{$merch_updates['actual'] ?? '-'}}
                             </p>
                             {{-- TARGET --}}
                             <hr>
@@ -990,7 +1000,7 @@
                                 TARGET
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['target']}}
+                                {{$merch_updates['target'] ?? '-'}}
                             </p>
                             {{-- DAYS OF GAPS --}}
                             <hr>
@@ -999,7 +1009,7 @@
                                 DAYS OF GAPS
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['days_of_gaps']}}
+                                {{$merch_updates['days_of_gaps'] ?? '-'}}
                             </p>
                             {{-- SALES OPPORTUNITIES --}}
                             <hr>
@@ -1008,7 +1018,7 @@
                                 SALES OPPORTUNITIES
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['sales_opportunities']}}
+                                {{$merch_updates['sales_opportunities'] ?? '-'}}
                             </p>
                             {{-- REMARKS --}}
                             <hr>
@@ -1017,7 +1027,7 @@
                                 REMARKS
                             </strong>
                             <p class="text-muted">
-                                {{$merch_updates['remarks']}}
+                                {{$merch_updates['remarks'] ?? '-'}}
                             </p>
                         </div>
                     </div>
@@ -1040,7 +1050,7 @@
                                 PLANOGRAM
                             </strong>
                             <p class="text-muted">
-                                {{$trade_displays['planogram']}}
+                                {{$trade_displays['planogram'] ?? '-'}}
                             </p>
                             {{-- BEVI PRICING --}}
                             <hr>
@@ -1049,7 +1059,7 @@
                                 BEVI PRICING
                             </strong>
                             <p class="text-muted">
-                                {{$trade_displays['bevi_pricing']}}
+                                {{$trade_displays['bevi_pricing'] ?? '-'}}
                             </p>
                             {{-- ON SHELVES AVAILABILITY - BATH --}}
                             <hr>
@@ -1058,9 +1068,9 @@
                                 ON SHELVES AVAILABILITY - BATH
                             </strong>
                             <p class="text-muted">
-                                <b class="">ACTUAL: </b> {{$trade_displays['osa_bath_actual']}}
+                                <b class="">ACTUAL: </b> {{$trade_displays['osa_bath_actual'] ?? '-'}}
                                 <br>
-                                <b class="">TARGET: </b> {{$trade_displays['osa_bath_target']}}
+                                <b class="">TARGET: </b> {{$trade_displays['osa_bath_target'] ?? '-'}}
                                 <br>
                                 @php
                                     $percent = 0;
@@ -1077,9 +1087,9 @@
                                 ON SHELVES AVAILABILITY - FACE
                             </strong>
                             <p class="text-muted">
-                                <b class="">ACTUAL: </b> {{$trade_displays['osa_face_actual']}}
+                                <b class="">ACTUAL: </b> {{$trade_displays['osa_face_actual'] ?? '-'}}
                                 <br>
-                                <b class="">TARGET: </b> {{$trade_displays['osa_face_target']}}
+                                <b class="">TARGET: </b> {{$trade_displays['osa_face_target'] ?? '-'}}
                                 <br>
                                 @php
                                     $percent = 0;
@@ -1096,9 +1106,9 @@
                                 ON SHELVES AVAILABILITY - BODY
                             </strong>
                             <p class="text-muted">
-                                <b class="">ACTUAL: </b> {{$trade_displays['osa_body_actual']}}
+                                <b class="">ACTUAL: </b> {{$trade_displays['osa_body_actual'] ?? '-'}}
                                 <br>
-                                <b class="">TARGET: </b> {{$trade_displays['osa_body_target']}}
+                                <b class="">TARGET: </b> {{$trade_displays['osa_body_target'] ?? '-'}}
                                 <br>
                                 @php
                                     $percent = 0;
@@ -1115,103 +1125,105 @@
             </div>
 
             {{-- TRADE MARKETING ACTIVITIES--}}
-            <div class="row">
-                <div class="col-lg-3"></div>
-                <div class="col-lg-6">
-                    <div class="card card-outline card-primary">
-                        <div class="card-header">
-                            <h3 class="card-title">TRADE MARKETING ACTIVITIES</h3>
-                        </div>
-                        <div class="card-body">
-                            {{-- PAF NUMBER --}}
-                            <strong>
-                                <i class="fas fa-code"></i>
-                                PAF NUMBER
-                            </strong>
-                            <p class="text-muted">
-                                {{$trade_marketing_activities['paf_number'] ?? 'NONE'}}
-                            </p>
-                            {{-- PROGRAM TITLE --}}
-                            <hr>
-                            <strong>
-                                <i class="fas fa-tasks"></i>
-                                PROGRAM TITLE
-                            </strong>
-                            <p class="text-muted">
-                                {{$trade_marketing_activities['title'] ?? ' - '}}
-                            </p>
-                            {{-- DURATION --}}
-                            <hr>
-                            <strong>
-                                <i class="fas fa-history"></i>
-                                DURATION
-                            </strong>
-                            <p class="text-muted">
-                                {{$trade_marketing_activities['start_date'] ?? ' - '}} to {{$trade_marketing_activities['end_date'] ?? ' - '}}
-                            </p>
-                            {{-- TYPE OF ACTIVITY --}}
-                            <hr>
-                            <strong>
-                                <i class="fas fa-atom"></i>
-                                TYPE OF ACTIVITY
-                            </strong>
-                            <p class="text-muted">
-                                {{$trade_marketing_activities['type'] ?? ' - '}}
-                            </p>
-
-                            {{-- SKUs --}}
-                            <hr>
-                            <strong>
-                                <i class="fas fa-box-open"></i>
-                                PARTICIPATING SKUS
-                            </strong>
-                            <div class="row">
-                                <div class="col-12 table-responsive">
-                                    <table class="table table-striped table-sm">
-                                        <thead>
-                                            <tr class="text-center">
-                                                <th class="align-middle">SKU CODE</th>
-                                                <th class="align-middle">SKU DESCRIPTION</th>
-                                                <th class="align-middle">BRAND</th>
-                                                <th class="align-middle">ACTUAL</th>
-                                                <th class="align-middle">TARGET MAXCAP</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if(!empty($trade_marketing_activities['skus']))
-                                                @foreach($trade_marketing_activities['skus'] as $sku)
-                                                <tr class="text-center">
-                                                    <td>{{$sku['sku_code'] ?? ' - '}}</td>
-                                                    <td>{{$sku['sku_description'] ?? ' - '}}</td>
-                                                    <td>{{$sku['brand'] ?? ' - '}}</td>
-                                                    <td>{{$sku['actual'] ?? ' - '}}</td>
-                                                    <td>{{$sku['target_maxcap'] ?? ' - '}}</td>
-                                                </tr>
-                                                @endforeach
-                                            @else
-                                                <tr>
-                                                    <td class="text-center" colspan="5">No available data.</td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                </div>
+            @if(!empty($pafs_data->count()))
+                <div class="row">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-6">
+                        <div class="card card-outline card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">TRADE MARKETING ACTIVITIES</h3>
                             </div>
-                            {{-- REMARKS --}}
-                            <hr>
-                            <strong>
-                                <i class="fas fa-comment-dots"></i>
-                                REMARKS
-                            </strong>
-                            <p class="text-muted">
-                                {{$trade_marketing_activities['remarks'] ?? ' - '}}
-                            </p>
+                            <div class="card-body">
+                                {{-- PAF NUMBER --}}
+                                <strong>
+                                    <i class="fas fa-code"></i>
+                                    PAF NUMBER
+                                </strong>
+                                <p class="text-muted">
+                                    {{$trade_marketing_activities['paf_number'] ?? 'NONE'}}
+                                </p>
+                                {{-- PROGRAM TITLE --}}
+                                <hr>
+                                <strong>
+                                    <i class="fas fa-tasks"></i>
+                                    PROGRAM TITLE
+                                </strong>
+                                <p class="text-muted">
+                                    {{$trade_marketing_activities['title'] ?? ' - '}}
+                                </p>
+                                {{-- DURATION --}}
+                                <hr>
+                                <strong>
+                                    <i class="fas fa-history"></i>
+                                    DURATION
+                                </strong>
+                                <p class="text-muted">
+                                    {{$trade_marketing_activities['start_date'] ?? ' - '}} to {{$trade_marketing_activities['end_date'] ?? ' - '}}
+                                </p>
+                                {{-- TYPE OF ACTIVITY --}}
+                                <hr>
+                                <strong>
+                                    <i class="fas fa-atom"></i>
+                                    TYPE OF ACTIVITY
+                                </strong>
+                                <p class="text-muted">
+                                    {{$trade_marketing_activities['type'] ?? ' - '}}
+                                </p>
 
+                                {{-- SKUs --}}
+                                <hr>
+                                <strong>
+                                    <i class="fas fa-box-open"></i>
+                                    PARTICIPATING SKUS
+                                </strong>
+                                <div class="row">
+                                    <div class="col-12 table-responsive">
+                                        <table class="table table-striped table-sm">
+                                            <thead>
+                                                <tr class="text-center">
+                                                    <th class="align-middle">SKU CODE</th>
+                                                    <th class="align-middle">SKU DESCRIPTION</th>
+                                                    <th class="align-middle">BRAND</th>
+                                                    <th class="align-middle">ACTUAL</th>
+                                                    <th class="align-middle">TARGET MAXCAP</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if(!empty($trade_marketing_activities['skus']))
+                                                    @foreach($trade_marketing_activities['skus'] as $sku)
+                                                    <tr class="text-center">
+                                                        <td>{{$sku['sku_code'] ?? ' - '}}</td>
+                                                        <td>{{$sku['sku_description'] ?? ' - '}}</td>
+                                                        <td>{{$sku['brand'] ?? ' - '}}</td>
+                                                        <td>{{$sku['actual'] ?? ' - '}}</td>
+                                                        <td>{{$sku['target_maxcap'] ?? ' - '}}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                @else
+                                                    <tr>
+                                                        <td class="text-center" colspan="5">No available data.</td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                {{-- REMARKS --}}
+                                <hr>
+                                <strong>
+                                    <i class="fas fa-comment-dots"></i>
+                                    REMARKS
+                                </strong>
+                                <p class="text-muted">
+                                    {{$trade_marketing_activities['remarks'] ?? ' - '}}
+                                </p>
+
+                            </div>
                         </div>
                     </div>
+                    <div class="col-lg-3"></div>
                 </div>
-                <div class="col-lg-3"></div>
-            </div>
+            @endif
 
             {{-- DISPLAY RENTALS--}}
             <div class="row">
@@ -1228,7 +1240,7 @@
                                 DRA STATUS
                             </strong>
                             <p class="text-muted">
-                                {{$display_rentals['status']}}
+                                {{$display_rentals['status'] ?? '-'}}
                             </p>
                             {{-- DRA LOCATION --}}
                             <hr>
@@ -1237,7 +1249,7 @@
                                 DRA LOCATION
                             </strong>
                             <p class="text-muted">
-                                {{$display_rentals['location']}}
+                                {{$display_rentals['location'] ?? '-'}}
                             </p>
                             {{-- STOCKS DISPLAYED --}}
                             <hr>
@@ -1246,7 +1258,7 @@
                                 % STOCKS DISPLAYED
                             </strong>
                             <p class="text-muted">
-                                {{$display_rentals['stocks_displayed']}}
+                                {{$display_rentals['stocks_displayed'] ?? '-'}}
                             </p>
                             {{-- REMARKS --}}
                             <hr>
@@ -1255,7 +1267,7 @@
                                 REMARKS
                             </strong>
                             <p class="text-muted">
-                                {{$display_rentals['remarks']}}
+                                {{$display_rentals['remarks'] ?? '-'}}
                             </p>
 
                         </div>
@@ -1279,7 +1291,7 @@
                                 DISPLAY LOCATION
                             </strong>
                             <p class="text-muted">
-                                {{$extra_displays['location']}}
+                                {{$extra_displays['location'] ?? '-'}}
                             </p>
                             {{-- RATE PER MONTH --}}
                             <hr>
@@ -1288,7 +1300,7 @@
                                 RATE PER MONTH IF RENTED
                             </strong>
                             <p class="text-muted">
-                                {{$extra_displays['rate_per_month']}}
+                                {{$extra_displays['rate_per_month'] ?? '-'}}
                             </p>
                             {{-- AMOUNT --}}
                             <hr>
@@ -1297,7 +1309,7 @@
                                 AMOUNT OF BEVI PRODUCTS DISPLAYED
                             </strong>
                             <p class="text-muted">
-                                {{$extra_displays['amount']}}
+                                {{$extra_displays['amount'] ?? '-'}}
                             </p>
                             
                         </div>
@@ -1335,11 +1347,11 @@
                                         <tbody>
                                             @foreach($competetive_reports as $report)
                                             <tr class="text-center">
-                                                <td>{{$report['company_name']}}</td>
-                                                <td>{{$report['product_description']}}</td>
-                                                <td>{{$report['srp']}}</td>
-                                                <td>{{$report['type_of_promotion']}}</td>
-                                                <td>{{$report['impact_to_our_product']}}</td>
+                                                <td>{{$report['company_name'] ?? '-'}}</td>
+                                                <td>{{$report['product_description'] ?? '-'}}</td>
+                                                <td>{{$report['srp'] ?? '-'}}</td>
+                                                <td>{{$report['type_of_promotion'] ?? '-'}}</td>
+                                                <td>{{$report['impact_to_our_product'] ?? '-'}}</td>
                                             </tr>
                                             @endforeach
                                         </tbody>
@@ -1354,7 +1366,7 @@
                                 TOTAL FINDINGS
                             </strong>
                             <p class="text-muted">
-                                {{$total_findings}}
+                                {{$total_findings ?? '-'}}
                             </p>
                             
                         </div>
