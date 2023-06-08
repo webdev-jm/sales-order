@@ -64,6 +64,8 @@ class PermissionSeeder extends Seeder
             'salesmen location create',
             'salesmen location edit',
             'salesmen location delete',
+            // Channel Operation
+            'channel operation report',
             // sales order cut-off
             'SO cut-off access',
             'SO cut-off create',

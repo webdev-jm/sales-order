@@ -36,6 +36,7 @@ use App\Http\Controllers\TerritoryController;
 use App\Http\Controllers\ProductivityReportController;
 use App\Http\Controllers\SalesmanController;
 use App\Http\Controllers\SalesmenLocationController;
+use App\Http\Controllers\ChannelOperationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -184,6 +185,11 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('salesman-location/{id}/edit', [SalesmenLocationController::class, 'edit'])->name('salesman-location.edit')->middleware('permission:salesman location edit');
         Route::post('salesman-location/{id}', [SalesmenLocationController::class, 'update'])->name('salesman-location.update')->middleware('permission:salesman location edit');
+    });
+
+    // CHANNEL OPERATIONS
+    Route::group(['middleware' => 'permission:channel operation report'], function() {
+        Route::get('channel-operation', [ChannelOperationController::class, 'index'])->name('channel-operation.report');
     });
 
     // SO Cut-offs
