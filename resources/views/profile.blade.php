@@ -24,12 +24,18 @@
                 </div> --}}
 
                 <h3 class="profile-username text-center">{{$user->fullName()}}</h3>
-                <p class="text-muted text-center">{{$user->email}}</p>
+                <p class="text-muted text-center mb-1">{{$user->email}}</p>
                 <p class="text-muted text-center">{{implode(', ', $user->getRoleNames()->toArray())}}</p>
 
                 <ul class="list-group list-group-unbordered mb-3">
                     <li class="list-group-item">
                         <b>Accounts</b> <a class="float-right">{{$user->accounts()->count()}}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Group Code</b> <a class="float-right">{{$user->group_code ?? '-'}}</a>
+                    </li>
+                    <li class="list-group-item">
+                        <b>Channel Operation Executive</b> <a class="float-right">{{$user->coe ? 'YES' : 'NO'}}</a>
                     </li>
                 </ul>
             </div>
@@ -44,7 +50,6 @@
                 <ul class="nav nav-pills">
                     <li class="nav-item"><a class="nav-link active" href="#settings" data-toggle="tab">Settings</a></li>
                     <li class="nav-item"><a class="nav-link" href="#change-password" data-toggle="tab">Change Password</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#activity" data-toggle="tab">Activity</a></li>
                 </ul>
             </div>
             <div class="card-body">
@@ -58,8 +63,33 @@
                         <livewire:profile.change-password/>
                     </div>
                     
-                    <div class="tab-pane" id="activity">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header p-2">
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a class="nav-link active" href="#activity" data-toggle="tab">Activity Logs</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#activity-plan" data-toggle="tab">Activity Plans</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#branch-visits" data-toggle="tab">Branch Visits</a></li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+
+                    <div class="active tab-pane" id="activity">
                         <livewire:profile.activity-logs/>
+                    </div>
+
+                    <div class="tab-pane" id="activity-plan">
+                        <livewire:profile.activity-plans/>
+                    </div>
+
+                    <div class="tab-pane" id="branch-visits">
+                        
                     </div>
                     
                 </div>
