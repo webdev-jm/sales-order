@@ -60,7 +60,7 @@
                     }
                 },
                 title: {
-                    text: 'TRADE DISPLAY TARGET VS ACTUAL'
+                    text: 'TRADE DISPLAY ACTUAL VS TARGET'
                 },
                 colors: [
                     '#080808', '#DE142A'
@@ -97,7 +97,7 @@
                         }
                     },
                     title: {
-                        text: 'TRADE DISPLAY TARGET VS ACTUAL'
+                        text: 'TRADE DISPLAY ACTUAL VS TARGET'
                     },
                     colors: [
                         '#080808', '#DE142A'
