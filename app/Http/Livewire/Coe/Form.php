@@ -85,26 +85,43 @@ class Form extends Component
                 break;
 
             case 2: // MERCH UPDATE
-                $this->validate([
-                    'merch_updates.status' => [
-                        'required'
-                    ],
-                    'merch_updates.actual' => [
-                        'required'
-                    ],
-                    'merch_updates.target' => [
-                        'required'
-                    ],
-                    'merch_updates.days_of_gaps' => [
-                        'required'
-                    ],
-                    'merch_updates.sales_opportunities' => [
-                        'required'
-                    ],
-                    'merch_updates.remarks' => [
-                        'required'
-                    ],
-                ]);
+                if($this->merch_updates['status'] == 'ON BOARD') {
+                    $this->validate([
+                        'merch_updates.status' => [
+                            'required'
+                        ],
+                        'merch_updates.actual' => [
+                            'required'
+                        ],
+                        'merch_updates.target' => [
+                            'required'
+                        ],
+                        'merch_updates.remarks' => [
+                            'required'
+                        ],
+                    ]);
+                } else if($this->merch_updates['status'] == 'VACANT') {
+                    $this->validate([
+                        'merch_updates.status' => [
+                            'required'
+                        ],
+                        'merch_updates.actual' => [
+                            'required'
+                        ],
+                        'merch_updates.target' => [
+                            'required'
+                        ],
+                        'merch_updates.days_of_gaps' => [
+                            'required'
+                        ],
+                        'merch_updates.sales_opportunities' => [
+                            'required'
+                        ],
+                        'merch_updates.remarks' => [
+                            'required'
+                        ],
+                    ]);
+                }
 
                 $this->stage++;
                 break;
@@ -237,8 +254,8 @@ class Form extends Component
                     'status' => $this->merch_updates['status'],
                     'actual' => $this->merch_updates['actual'],
                     'target' => $this->merch_updates['target'],
-                    'days_of_gaps' => $this->merch_updates['days_of_gaps'],
-                    'sales_opportunities' => str_replace(',', '', $this->merch_updates['sales_opportunities']),
+                    'days_of_gaps' => $this->merch_updates['days_of_gaps'] ?? 0,
+                    'sales_opportunities' => str_replace(',', '', $this->merch_updates['sales_opportunities'] ?? 0),
                     'remarks' => $this->merch_updates['remarks'],
                 ]);
                 $merch_updates->save();
@@ -247,8 +264,8 @@ class Form extends Component
                     'status' => $this->merch_updates['status'],
                     'actual' => $this->merch_updates['actual'],
                     'target' => $this->merch_updates['target'],
-                    'days_of_gaps' => $this->merch_updates['days_of_gaps'],
-                    'sales_opportunities' => str_replace(',', '', $this->merch_updates['sales_opportunities']),
+                    'days_of_gaps' => $this->merch_updates['days_of_gaps'] ?? 0,
+                    'sales_opportunities' => str_replace(',', '', $this->merch_updates['sales_opportunities'] ?? 0),
                     'remarks' => $this->merch_updates['remarks'],
                 ]);
             }

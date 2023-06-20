@@ -35,6 +35,9 @@ class TradeMarketingActivities extends Component
     
     public function render()
     {
+
+        DB::statement('SET sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""));');
+
         $results = DB::table('channel_operation_trade_marketing_activities as cotma')
             ->select(
                 'pafs.PAFNo',

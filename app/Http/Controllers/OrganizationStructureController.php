@@ -63,7 +63,7 @@ class OrganizationStructureController extends Controller
                 'id' => $data->id, // Set the ID of the node
                 'collapsed' => false,
                 'verticalLevel' => $level, // Set the vertical level of the node
-                'name' => empty($data->user_id) ? 'Vacant' : $data->user->fullName(), // If the node has no user, label it as "Vacant"
+                'name' => empty($data->user_id) ? 'Vacant' : $data->user->fullName() ?? '', // If the node has no user, label it as "Vacant"
                 'title' => $data->job_title->job_title, // Retrieve the job title for the node
                 'relationship' => $relationship, // Set the relationship between the node and its parent
                 'children' => $child_arr, // Set the chart data for the node's children
