@@ -66,10 +66,10 @@ class ScheduleDeviation extends Component
                 ]);
                 $deviation_schedule->save();
 
-                // change status
-                $schedule->update([
-                    'status' => 'for deviation'
-                ]);
+                // // change status
+                // $schedule->update([
+                //     'status' => 'for deviation'
+                // ]);
             }
 
             // new schedules

@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdate extends Component
 {
-    public $firstname, $lastname, $email;
+    public $firstname, $lastname, $email, $notify_email;
 
     public function submitForm() {
         $this->validate([
@@ -19,13 +19,17 @@ class ProfileUpdate extends Component
             ],
             'email' => [
                 'required', Rule::unique('users')->ignore(auth()->user()->id)
+            ],
+            'notify_email' => [
+                'email'
             ]
         ]);
 
         auth()->user()->update([
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
-            'email' => $this->email
+            'email' => $this->email,
+            'notify_email' => $this->notify_email,
         ]);
 
         session()->flash('message', 'User details has been updated.');
@@ -35,6 +39,7 @@ class ProfileUpdate extends Component
         $this->firstname = auth()->user()->firstname;
         $this->lastname = auth()->user()->lastname;
         $this->email = auth()->user()->email;
+        $this->notify_email = auth()->user()->notify_email;
     }
 
     public function render()

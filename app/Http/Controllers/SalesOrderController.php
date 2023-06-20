@@ -247,6 +247,33 @@ class SalesOrderController extends Controller
      */
     public function store(StoreSalesOrderRequest $request)
     {
+        // check
+        $check = SalesOrder::where('control_number', $request->control_number)->first();
+        if(!empty($check)) {
+            $date_code = date('Ymd', time());
+            $control_number = $request->control_number;
+            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
+            if(!empty($sales_order)) {
+                // increment control number
+                $control_number_arr = explode('-', $sales_order->control_number);
+                $last = end($control_number_arr);
+                array_pop($control_number_arr);
+                $prev_date = end($control_number_arr);
+                array_pop($control_number_arr);
+                if($date_code == $prev_date) { // same day increment number
+                    $number = (int)$last + 1;
+                } else { // reset on different day
+                    $number = 1;
+                }
+                for($i = strlen($number);$i <= 2; $i++) {
+                    $number = '0'.$number;
+                }
+                array_push($control_number_arr, $date_code);
+                array_push($control_number_arr, $number);
+                $request->control_number = implode('-', $control_number_arr);
+            }
+        }
+
         $logged_account = Session::get('logged_account');
         $account = $logged_account->account;
 

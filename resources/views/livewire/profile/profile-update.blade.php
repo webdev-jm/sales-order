@@ -34,6 +34,15 @@
             </div>
         </div>
         <div class="form-group row">
+            <label for="notify_email" class="col-sm-2 col-form-label">Email Notification</label>
+            <div class="col-sm-10">
+                <input type="email" class="form-control @error('notify_email') is-invalid @enderror" id="notify_email" placeholder="Email" wire:model.defer="notify_email">
+                @error('notify_email')
+                <p class="text-danger">{{$message}}</p>
+                @enderror
+            </div>
+        </div>
+        <div class="form-group row">
             <div class="offset-sm-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Submit</button>
             </div>

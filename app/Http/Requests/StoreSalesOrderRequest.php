@@ -31,7 +31,7 @@ class StoreSalesOrderRequest extends FormRequest
 
         return [
             'control_number' => [
-                'required', Rule::unique((new SalesOrder)->getTable())
+                'required', //Rule::unique((new SalesOrder)->getTable())
             ],
             'status' => [
                 'required'

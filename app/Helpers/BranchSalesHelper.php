@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 class BranchSalesHelper
 {
-    public function getAverageSales($branch_code, $year) {
+    public static function getAverageSales($branch_code, $year) {
         $result = DB::connection('stt_db')
             ->table('branch_sales as bs')
             ->select(
