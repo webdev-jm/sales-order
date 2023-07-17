@@ -92,7 +92,7 @@
                                 <input type="date" class="form-control border-0 text-center" wire:model.lazy="new_schedules.{{$key}}.date">
                             </td>
                             <td class="align-middle">
-                                <textarea class="form-control border-0 textarea" 
+                                <textarea class="form-control border-0 textarea{{$errors->has('new_schedules.'.$key.'.branch_id') ? ' is-invalid' : ''}}" 
                                 wire:model="branchQuery.{{$key}}"
                                 wire:keyup="setQuery('{{$key}}')"
                                 wire:keydown.escape="resetQuery"

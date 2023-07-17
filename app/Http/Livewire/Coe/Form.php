@@ -333,14 +333,14 @@ class Form extends Component
                             'sku_code' => $sku->sku_code,
                             'sku_description' => $sku->sku_description,
                             'brand' => $sku->brand,
-                            'actual' => $sku_data['actual'],
-                            'target_maxcap' => $sku_data['target_maxcap'],
+                            'actual' => $sku_data['actual'] ?: 0,
+                            'target_maxcap' => $sku_data['target_maxcap'] ?: 0,
                         ]);
                         $trade_marketing_activity_sku->save();
                     }
                 }
             }
-        // 
+        //
 
         // DISPLAY RENTALS
             $display_rental = ChannelOperationDisplayRental::where('channel_operation_id', $channel_operation->id)

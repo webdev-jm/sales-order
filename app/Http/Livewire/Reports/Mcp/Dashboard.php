@@ -72,20 +72,24 @@ class Dashboard extends Component
 
                 ) as deviation')
             )
-            ->leftJoin('user_branch_schedules as ubs', 'ubs.user_id', '=', 'u.id')
-            ->leftJoin('branch_logins as bl', 'bl.user_id', '=', 'u.id')
-            ->leftJoin('branches as b', function($join) {
+            ->join('user_branch_schedules as ubs', 'ubs.user_id', '=', 'u.id')
+            ->join('branch_logins as bl', 'bl.user_id', '=', 'u.id')
+            ->join('branches as b', function($join) {
                 $join->on('b.id', '=', 'ubs.branch_id')
                     ->whereRaw('b.id = bl.branch_id');
             })
-            ->leftJoin('accounts as a', 'a.id', '=', 'b.account_id')
+            ->join('accounts as a', 'a.id', '=', 'b.account_id')
             ->where(function($query) {
-                $query->where(DB::raw('YEAR(ubs.date)'), $this->year)
-                    ->where(DB::raw('MONTH(ubs.date)'), $this->month)
-                    ->where('ubs.source', 'activity-plan')
-                    ->orWhere(function($query) {
-                        $query->where(DB::raw('YEAR(bl.time_in)'), $this->year)
-                            ->where(DB::raw('MONTH(bl.time_in)'), $this->month);
+                $query->where('ubs.source', 'activity-plan')
+                    ->where(function($qry) {
+                        $qry->where(function($qry1) {
+                                $qry1->where(DB::raw('YEAR(ubs.date)'), $this->year)
+                                ->where(DB::raw('MONTH(ubs.date)'), $this->month);
+                            })
+                            ->orWhere(function($qry1) {
+                                $qry1->where(DB::raw('YEAR(bl.time_in)'), $this->year)
+                                ->where(DB::raw('MONTH(bl.time_in)'), $this->month);
+                            });
                     });
             })
             ->when(!empty($this->company), function($query) {
