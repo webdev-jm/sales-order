@@ -6,10 +6,18 @@
 
 @section('css')
 <style>
+    /* @media (min-width: 768px) {
+        .fc-event-time, .fc-event-title {
+            padding: 0 1px;
+            white-space: normal;
+        }
+    } */
+
     .fc-event-time, .fc-event-title {
         padding: 0 1px;
         white-space: normal;
     }
+
     .fc-daygrid-event {
         cursor: pointer;
     }

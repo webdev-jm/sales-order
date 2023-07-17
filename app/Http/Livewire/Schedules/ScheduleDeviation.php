@@ -41,6 +41,8 @@ class ScheduleDeviation extends Component
         $this->validate([
             'reason_for_deviation' => 'required',
             'cost_center' => 'max:255',
+            'new_schedules.*.branch_id' => 'required',
+            'new_schedules.*.date' => 'required'
         ]);
         
         if(!empty($this->new_schedules)) {

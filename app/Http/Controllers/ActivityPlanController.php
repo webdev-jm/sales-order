@@ -661,7 +661,8 @@ class ActivityPlanController extends Controller
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [
-                'mimes:xlsx'
+                'mimes:xlsx,xls',
+                'required'
             ]
         ]);
 
@@ -680,7 +681,9 @@ class ActivityPlanController extends Controller
         $objectives = '';
         $data = [];
 
-        $imports = Excel::toArray(new ActivityPlanImport, $request->upload_file);
+        $path1 = $request->file('upload_file')->store('temp');
+        $path = storage_path('app').'/'.$path1;
+        $imports = Excel::toArray(new ActivityPlanImport, $path);
         $row_num = 0;
         foreach($imports[0] as $row) {
             $row_num++;
