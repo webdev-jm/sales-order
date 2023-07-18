@@ -8,7 +8,6 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\User;
-use App\Models\Company;
 use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
 
@@ -20,14 +19,14 @@ class Dashboard extends Component
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
-    public $year, $month, $companies, $company, $search;
+    public $year, $month, $search;
 
     public function updatedSearch() {
         $this->resetPage('mcp-user-page');
     }
 
     public function export() {
-        return Excel::download(new MCPDashboardExport($this->year, $this->month, $this->company, $this->search), 'MCP Dashboard'.time().'.xlsx');
+        return Excel::download(new MCPDashboardExport($this->year, $this->month, $this->search), 'MCP Dashboard'.time().'.xlsx');
     }
 
     public function mount() {
@@ -37,9 +36,6 @@ class Dashboard extends Component
         if(empty($this->month)) {
             $this->month = date('m');
         }
-
-        // COMPANIES
-        $this->companies = Company::all();
     }
 
     public function render()
@@ -50,58 +46,48 @@ class Dashboard extends Component
             $months[$i] = date('F', strtotime($this->year.'-'.$i.'-01'));
         }
 
-        DB::statement('SET sql_mode=(SELECT REPLACE(@@sql_mode,"ONLY_FULL_GROUP_BY",""));');
+        $query = UserBranchSchedule::query()
+                ->selectRaw('u.id as uid')
+                ->selectRaw('CONCAT(u.firstname, " ", u.lastname) as name')
+                ->selectRaw('COUNT(IF(status IS NULL, user_branch_schedules.id, NULL)) as schedule_count')
+                ->selectRaw('COUNT(IF(status IS NULL AND source = "deviation", user_branch_schedules.id, NULL)) as deviation_count')
+                ->selectRaw('COUNT(IF(status IS NULL AND source = "request", user_branch_schedules.id, NULL)) as request_count')
+            ->join('users as u', 'u.id', '=', 'user_branch_schedules.user_id')
+            ->where(DB::raw('MONTH(date)'), $this->month)
+            ->where(DB::raw('YEAR(date)'), $this->year)
+            ->orderBy('name')
+            ->groupBy(['uid', 'name']);
 
-        $mcp_results = DB::table('users as u')
-            ->select(
-                DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
-                'u.group_code',
-                DB::raw('COUNT(DISTINCT ubs.branch_id, ubs.date) as mcp'),
-                DB::raw('COUNT(DISTINCT bl.branch_id, DATE(bl.time_in)) as total_visit'),
-                DB::raw('COUNT(DISTINCT
-                    CASE WHEN
-                        NOT EXISTS(SELECT * FROM user_branch_schedules ubs WHERE ubs.branch_id = bl.branch_id AND ubs.user_id = bl.user_id AND (source = "activity-plan" OR source = "request"))
-                    THEN 
-                        bl.branch_id
-                    END,
-                    CASE WHEN 
-                        NOT EXISTS(SELECT * FROM user_branch_schedules ubs WHERE ubs.branch_id = bl.branch_id AND ubs.user_id = bl.user_id AND (source = "activity-plan" OR source = "request"))
-                    THEN 
-                        DATE(bl.time_in)
-                    END
+        $schedule_results = $query->paginate(10, ['*'], 'mcp-user-page');
 
-                ) as deviation')
-            )
-            ->join('user_branch_schedules as ubs', 'ubs.user_id', '=', 'u.id')
-            ->join('branch_logins as bl', 'bl.user_id', '=', 'u.id')
-            ->join('branches as b', function($join) {
-                $join->on('b.id', '=', 'ubs.branch_id')
-                    ->whereRaw('b.id = bl.branch_id');
-            })
-            ->join('accounts as a', 'a.id', '=', 'b.account_id')
-            ->where(function($query) {
-                $query->where('ubs.source', 'activity-plan')
-                    ->where(function($qry) {
-                        $qry->where(function($qry1) {
-                                $qry1->where(DB::raw('YEAR(ubs.date)'), $this->year)
-                                ->where(DB::raw('MONTH(ubs.date)'), $this->month);
-                            })
-                            ->orWhere(function($qry1) {
-                                $qry1->where(DB::raw('YEAR(bl.time_in)'), $this->year)
-                                ->where(DB::raw('MONTH(bl.time_in)'), $this->month);
-                            });
-                    });
-            })
-            ->when(!empty($this->company), function($query) {
-                $query->where('a.company_id', $this->company);
-            })
-            ->groupBy('name')
-            ->paginate(10, ['*'], 'mcp-user-page')
-            ->onEachSide(1);
+        $user_data = array();
+        foreach($schedule_results as $result) {
+            $branch_logins = BranchLogin::query()
+                ->selectRaw('DISTINCT branch_id, DATE(time_in) as date')
+                ->where('user_id', $result->uid)
+                ->where(DB::raw('MONTH(time_in)'), $this->month)
+                ->where(DB::raw('YEAR(time_in)'), $this->year)
+                ->get();
+    
+            $visited_count = $branch_logins->filter(function ($branch_login) use($result) {
+                return UserBranchSchedule::where('user_id', $result->uid)
+                    ->where('branch_id', $branch_login->branch_id)
+                    ->where('date', $branch_login->date)
+                    ->whereNull('status')
+                    ->exists();
+            })->count();
+
+            $user_data[$result->uid]['visited'] = $visited_count;
+            $unscheduled_count = $branch_logins->count() - $visited_count;
+
+            $deviation = $result->deviation_count + $unscheduled_count;
+            $user_data[$result->uid]['deviation'] = $deviation;
+        }
 
         return view('livewire.reports.mcp.dashboard')->with([
             'months' => $months,
-            'mcp_results' => $mcp_results
+            'schedule_results' => $schedule_results,
+            'user_data' => $user_data
         ]);
     }
 }

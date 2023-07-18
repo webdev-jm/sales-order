@@ -34,9 +34,9 @@
             
             <div class="small-box bg-warning">
                 <div class="inner">
-                    <h3 class="text-white"><i class="fa fa-spinner fa-spin" wire:loading></i><span wire:loading.remove>{{$reschedule_count}}</span></h3>
+                    <h3 class="text-white"><i class="fa fa-spinner fa-spin" wire:loading></i><span wire:loading.remove>{{$deviation_count}}</span></h3>
     
-                    <p class="text-white">Total Reschedule Requests</p>
+                    <p class="text-white">Total Deviation</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-plus"></i>
@@ -47,11 +47,11 @@
 
         <div class="col-lg-3">
             
-            <div class="small-box bg-danger">
+            <div class="small-box bg-primary">
                 <div class="inner">
-                    <h3><i class="fa fa-spinner fa-spin" wire:loading></i><span wire:loading.remove>{{$delete_count}}</span></h3>
+                    <h3><i class="fa fa-spinner fa-spin" wire:loading></i><span wire:loading.remove>{{$request_count}}</span></h3>
     
-                    <p>Total Delete Requests</p>
+                    <p>Total Schedule Requests</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-calendar-times"></i>

@@ -29,52 +29,56 @@ class Header extends Component
 
     public function render()
     {
-
-        $schedules_query = UserBranchSchedule::when(!empty($this->user_id), function($query) {
+        $query = UserBranchSchedule::query()
+            ->selectRaw('COUNT(IF(status IS NULL, id, NULL)) as schedule_count')
+            ->selectRaw('COUNT(IF(status IS NULL AND source = "deviation", id, NULL)) as deviation_count')
+            ->selectRaw('COUNT(IF(status IS NULL AND source = "request", id, NULL)) as request_count')
+            ->when(!empty($this->user_id), function ($query) {
                 $query->where('user_id', $this->user_id);
             })
-            ->when(!empty($this->date_from), function($query) {
+            ->when(!empty($this->date_from), function ($query) {
                 $query->where('date', '>=', $this->date_from);
             })
-            ->when(!empty($this->date_to), function($query) {
+            ->when(!empty($this->date_to), function ($query) {
                 $query->where('date', '<=', $this->date_to);
             });
-        
-        $schedules_count = $schedules_query->whereNull('status')->count();
-        $reschedule_count = $schedules_query->where('status', 'for reschedule')->count();
-        $delete_count = $schedules_query->where('status', 'for deletion')->count();
 
-        $visited_count = 0;
-        $unscheduled_count = 0;
-        $branch_logins = BranchLogin::select(DB::raw("distinct user_id, branch_id, date(time_in) as date"))
-            ->when(!empty($this->user_id), function($query) {
+        $schedule_results = $query->first();
+
+        $schedules_count = $schedule_results->schedule_count;
+        $deviation_count = $schedule_results->deviation_count;
+        $request_count = $schedule_results->request_count;
+
+        $branch_logins = BranchLogin::query()
+            ->selectRaw('DISTINCT user_id, branch_id, DATE(time_in) as date')
+            ->when(!empty($this->user_id), function ($query) {
                 $query->where('user_id', $this->user_id);
             })
-            ->when(!empty($this->date_from), function($query) {
-                $query->where(DB::raw('DATE(time_in)'), '>=', $this->date_from);
+            ->when(!empty($this->date_from), function ($query) {
+                $query->whereDate('time_in', '>=', $this->date_from);
             })
-            ->when(!empty($this->date_to), function($query) {
-                $query->where(DB::raw('DATE(time_in)'), '<=', $this->date_to);
+            ->when(!empty($this->date_to), function ($query) {
+                $query->whereDate('time_in', '<=', $this->date_to);
             })
             ->get();
-        foreach($branch_logins as $branch_login) {
-            $check = UserBranchSchedule::where('user_id', $branch_login->user_id)
-            ->where('branch_id', $branch_login->branch_id)
-            ->where('date', $branch_login->date)->first();
 
-            if(!empty($check)) {
-                $visited_count++;
-            } else {
-                $unscheduled_count++;
-            }
-        }
+        $visited_count = $branch_logins->filter(function ($branch_login) {
+            return UserBranchSchedule::where('user_id', $branch_login->user_id)
+                ->where('branch_id', $branch_login->branch_id)
+                ->where('date', $branch_login->date)
+                ->whereNull('status')
+                ->exists();
+        })->count();
+
+        $unscheduled_count = $branch_logins->count() - $visited_count;
+        $deviation_count += $unscheduled_count;
 
         return view('livewire.reports.mcp.header')->with([
             'schedules_count' => $schedules_count,
             'visited_count' => $visited_count,
-            'reschedule_count' => $reschedule_count,
-            'delete_count' => $delete_count,
-            'unscheduled_count' => $unscheduled_count
+            'deviation_count' => $deviation_count,
+            'request_count' => $request_count
         ]);
     }
+
 }

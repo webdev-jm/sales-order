@@ -2,8 +2,11 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">FILTER</h3>
-            <div class="card-tools">
+            <div class="card-tools" wire:loading.remove>
                 <button class="btn btn-success btn-sm" wire:click.prevent="export"><i class="fa fa-file-excel mr-1"></i>Export</button>
+            </div>
+            <div class="card-tools" wire:loading>
+                <button class="btn btn-success btn-sm"><i class="fa fa-spinner fa-spin mr-1"></i>Loading</button>
             </div>
         </div>
         <div class="card-body">
@@ -23,18 +26,6 @@
                         <select class="form-control" wire:model="month">
                             @foreach($months as $key => $mon)
                             <option value="{{$key}}">{{$mon}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                {{-- COMPANY --}}
-                <div class="col-lg-2">
-                    <div class="form-group">
-                        <label>COMPANY</label>
-                        <select class="form-control" wire:model="company">
-                            <option value="">ALL</option>
-                            @foreach($companies as $company)
-                                <option value="{{$company->id}}">{{$company->name}}</option>
                             @endforeach
                         </select>
                     </div>
@@ -60,32 +51,29 @@
                 <thead>
                     <tr class="text-center">
                         <th>USER</th>
-                        <th>GROUP CODE</th>
                         <th>MCP</th>
                         <th>VISITED</th>
                         <th>DEVIATION</th>
+                        <th>SCHEDULE REQUEST</th>
                         <th>PERFORMANCE</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($mcp_results as $result)
-                        @php
-                            $visited = $result->total_visit - $result->deviation;
-                        @endphp
+                    @foreach($schedule_results as $result)
                         <tr>
                             <td>{{$result->name}}</td>
-                            <td>{{$result->group_code}}</td>
-                            <td>{{$result->mcp}}</td>
-                            <td>{{$visited}}</td>
-                            <td>{{$result->deviation}}</td>
-                            <td>{{number_format(($visited / $result->mcp) * 100, 2)}} %</td>
+                            <td>{{$result->schedule_count}}</td>
+                            <td>{{$user_data[$result->uid]['visited'] ?? 0}}</td>
+                            <td>{{$user_data[$result->uid]['deviation'] ?? 0}}</td>
+                            <td>{{$result->request_count ?? 0}}</td>
+                            <td>{{number_format(($user_data[$result->uid]['visited'] / $result->schedule_count) * 100, 2)}}%</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
         <div class="card-footer">
-            {{$mcp_results->links()}}
+            {{$schedule_results->links()}}
         </div>
     </div>
 </div>

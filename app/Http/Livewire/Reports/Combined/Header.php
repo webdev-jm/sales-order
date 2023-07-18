@@ -6,6 +6,8 @@ use Livewire\Component;
 
 use App\Models\User;
 
+use Illuminate\Support\Facades\DB;
+
 class Header extends Component
 {
     public $user_options, $user_id, $year, $month, $selected_year;
@@ -34,9 +36,33 @@ class Header extends Component
     }
 
     public function mount() {
+        // set default date
+        if(empty($this->year)) {
+            $this->year = date('Y');
+            $this->selected_year = $this->year;
+        }
+        if(empty($this->month)) {
+            $this->month = date('m');
+        }
+
+        $this->prev_year = $this->year - 1;
+        $this->next_year = $this->year + 1;
+
         $user_options = [];
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('finance')) {
-            $users = User::orderBy('firstname', 'ASC')->get();
+            $users = User::whereHas('activity_plans', function($query) {
+                    $query->where('year', $this->year)
+                        ->where('month', $this->month);
+                })
+                ->orWhereHas('deviations', function($query) {
+                    $query->where(DB::raw('YEAR(date)'), $this->year)
+                        ->where(DB::raw('MONTH(date)'), $this->month);
+                })
+                ->orWhereHas('weekly_activity_reports', function($query) {
+                    $query->where(DB::raw('YEAR(date_submitted)'), $this->year)
+                        ->where(DB::raw('MONTH(date_submitted)'), $this->month);
+                })
+                ->orderBy('firstname', 'ASC')->get();
             foreach($users as $user) {
                 $user_options[$user->id] = $user->fullName();
             }
@@ -54,18 +80,6 @@ class Header extends Component
         }
 
         $this->user_options = $user_options;
-
-        // set default date
-        if(empty($this->year)) {
-            $this->year = date('Y');
-            $this->selected_year = $this->year;
-        }
-        if(empty($this->month)) {
-            $this->month = date('m');
-        }
-
-        $this->prev_year = $this->year - 1;
-        $this->next_year = $this->year + 1;
     }
 
     public function render()
