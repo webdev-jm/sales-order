@@ -138,6 +138,18 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\Territory');
     }
 
+    public function activity_plans() {
+        return $this->hasMany('App\Models\ActivityPlan');
+    }
+
+    public function deviations() {
+        return $this->hasMany('App\Models\Deviation');
+    }
+
+    public function weekly_activity_reports() {
+        return $this->hasMany('App\Models\WeeklyActivityReport');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')

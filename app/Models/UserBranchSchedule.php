@@ -30,4 +30,10 @@ class UserBranchSchedule extends Model
     public function approvals() {
         return $this->hasMany('App\Models\UserBranchScheduleApproval');
     }
+
+    public function BranchLogin() {
+        return $this->hasMany('App\Models\BranchLogin', 'user_id', 'user_id')
+            ->whereColumn('branch_logins.branch_id', 'user_branch_schedules.branch_id')
+            ->whereColumn(DB::raw('DATE(branch_logins.time_in)'), 'user_branch_schedules.date');
+    }
 }

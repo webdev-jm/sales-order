@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class BranchLogin extends Model
 {
@@ -38,5 +39,9 @@ class BranchLogin extends Model
 
     public function channel_operations() {
         return $this->hasMany('App\Models\ChannelOperation');
+    }
+
+    public function userBranchSchedules() {
+        return $this->hasMany('App\Models\UserBranchSchedule', 'user_id', 'user_id');
     }
 }

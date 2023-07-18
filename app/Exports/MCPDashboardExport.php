@@ -24,12 +24,11 @@ ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor
 {
-    public $year, $month, $company, $search;
+    public $year, $month, $search;
 
-    public function __construct($year, $month, $company, $search) {
+    public function __construct($year, $month, $search) {
         $this->year = $year;
         $this->month = $month;
-        $this->company = $company;
         $this->search = $search;
     }
 
@@ -91,110 +90,71 @@ class MCPDashboardExport implements FromCollection, ShouldAutoSize, WithStyles, 
     {
         $header = [
             'USER',
-            'GROUP CODE',
             'MCP',
             'VISITED',
             'DEVIATION',
+            'SCHEDULE REQUEST',
             'PERFORMANCE',
         ];
 
-        $data = [];
-        // USERS
-        $users = User::orderBy('firstname', 'ASC');
-        if(!empty($this->search)) {
-            $users->where('firstname', 'like', '%'.$this->search.'%')
-            ->orWhere('lastname', 'like', '%'.$this->search.'%')
-            ->orWhere('group_code', 'like', '%'.$this->search.'%');
-        }
-        $users = $users->get();
-
         $date_string = $this->year.'-'.($this->month < 10 ? '0'.(int)$this->month : $this->month);
 
-        $data = [];
-        foreach($users as $user) {
-            // MCP
-            $schedules = UserBranchSchedule::select(DB::raw("DISTINCT branch_id, date, user_id"))
-            ->where('user_id', $user->id)
-            ->whereNull('status')
-            ->where('source', 'activity-plan')
-            ->where('date', 'like', $date_string.'%');
-            // COMPANY FILTER
-            if(!empty($this->company)) {
-                $schedules->whereHas('branch', function($query) {
-                    $query->whereHas('account', function($qry) {
-                        $qry->where('company_id', $this->company);
-                    });
-                });
-            }
+        $query = UserBranchSchedule::query()
+                ->selectRaw('u.id as uid')
+                ->selectRaw('CONCAT(u.firstname, " ", u.lastname) as name')
+                ->selectRaw('COUNT(IF(status IS NULL, user_branch_schedules.id, NULL)) as schedule_count')
+                ->selectRaw('COUNT(IF(status IS NULL AND source = "deviation", user_branch_schedules.id, NULL)) as deviation_count')
+                ->selectRaw('COUNT(IF(status IS NULL AND source = "request", user_branch_schedules.id, NULL)) as request_count')
+            ->join('users as u', 'u.id', '=', 'user_branch_schedules.user_id')
+            ->where(DB::raw('MONTH(date)'), $this->month)
+            ->where(DB::raw('YEAR(date)'), $this->year)
+            ->orderBy('name')
+            ->groupBy(['uid', 'name']);
 
-            $schedules = $schedules->get();
-            // VISITED
-            $mcp = 0;
-            $visited = 0;
-            $schedule_dates = [];
-            foreach($schedules as $schedule) {
-                $mcp++;
-                $schedule_dates[] = $schedule->date;
+        $schedule_results = $query->get();
 
-                // VISITED
-                $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
-                ->where('branch_id', $schedule->branch_id)
-                ->where('time_in', 'like', $schedule->date.'%');
+        $data = array();
+        foreach($schedule_results as $result) {
+            $branch_logins = BranchLogin::query()
+                ->selectRaw('DISTINCT branch_id, DATE(time_in) as date')
+                ->where('user_id', $result->uid)
+                ->where(DB::raw('MONTH(time_in)'), $this->month)
+                ->where(DB::raw('YEAR(time_in)'), $this->year)
+                ->get();
+    
+            $visited_count = $branch_logins->filter(function ($branch_login) use($result) {
+                return UserBranchSchedule::where('user_id', $result->uid)
+                    ->where('branch_id', $branch_login->branch_id)
+                    ->where('date', $branch_login->date)
+                    ->whereNull('status')
+                    ->exists();
+            })->count();
 
-                // COMPANY FILTER
-                if(!empty($this->company)) {
-                    $branch_logins->whereHas('branch', function($query) {
-                        $query->whereHas('account', function($qry) {
-                            $qry->where('company_id', $this->company);
-                        });
-                    });
-                }
+            $user_data[$result->uid]['visited'] = $visited_count;
+            $unscheduled_count = $branch_logins->count() - $visited_count;
 
-                $branch_logins = $branch_logins->count();
+            $deviation = $result->deviation_count + $unscheduled_count;
+            $user_data[$result->uid]['deviation'] = $deviation;
 
-                if($branch_logins > 0) {
-                    $visited++;
-                }
-            }
-
-            $schedule_dates = array_unique($schedule_dates);
-
-            // TOTAL LOGIN
-            $total_login = BranchLogin::select(DB::raw("count(DISTINCT user_id, branch_id, date(time_in)) as total"))
-            ->where('time_in', 'like', $date_string.'%')
-            ->where('user_id', $user->id);
-
-            // COMPANY FILTER
-            if(!empty($this->company)) {
-                $total_login->whereHas('branch', function($query) {
-                    $query->whereHas('account', function($qry) {
-                        $qry->where('company_id', $this->company);
-                    });
-                });
-            }
-
-            $total_login = $total_login->get();
-
-            $deviations_count = $total_login[0]['total'] - $visited;
-
+            
             $performance = 0;
-            if($mcp > 0 && $visited > 0) {
-                $performance = ($visited / $mcp) * 100;
+            if(!empty($result->schedule_count) && !empty($visited_count)) {
+                $performance = ($visited_count / $result->schedule_count) * 100;
             }
 
             $data[] = [
-                $user->fullName(),
-                $user->group_code,
-                (string)$mcp,
-                (string)$visited,
-                (string)$deviations_count,
+                $result->name,
+                (string)$result->schedule_count,
+                (string)$visited_count,
+                (string)$deviation,
+                (string)$result->request_count,
                 number_format($performance, 1).'%'
             ];
         }
 
         return new Collection([
             ['SMS - SALES MANAGEMENT SYSTEM'],
-            [strtoupper(date('F Y', strtotime($date_string.'-01')))],
+            ['MCP PERFORMANCE FOR '.strtoupper(date('F Y', strtotime($date_string.'-01')))],
             $header,
             $data
         ]);
