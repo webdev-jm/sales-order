@@ -292,12 +292,12 @@ class UserBranchScheduleController extends Controller
             // Schedules
             $schedules_date = UserBranchSchedule::select('date')->distinct()
             ->whereNull('status');
-            
-            if(!empty($user_id)) {
-                $schedules_date->where('user_id', $user_id);
-            } else {
-                $schedules_date->where('user_id', auth()->user()->id);
+
+            if(empty($user_id)) {
+                $user_id = auth()->user()->id;
             }
+            
+            $schedules_date->where('user_id', $user_id);
             $schedules_date = $schedules_date->get();
 
             foreach($schedules_date as $schedule) {

@@ -87,7 +87,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:sales order access'], function() {
         Route::get('sales-order', [SalesOrderController::class, 'index'])->name('sales-order.index');
         Route::get('sales-order/create', [SalesOrderController::class, 'create'])->name('sales-order.create')->middleware('permission:sales order create');
-        Route::post('sales-order', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
+        Route::post('sales-order-store', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
         
         Route::get('sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales-order.show');
 

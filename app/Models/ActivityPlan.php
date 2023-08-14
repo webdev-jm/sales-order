@@ -56,7 +56,7 @@ class ActivityPlan extends Model
 
     public function scopeActivityPlanSearchRestricted($query, $search, $limit, $subordinate_ids) {
         if($search != '') {
-            $activity_plans = $query->orderBy('id')
+            $activity_plans = $query->orderBy('id', 'DESC')
             ->where(function($qry) use($subordinate_ids) {
                 $qry->where('user_id', auth()->user()->id)
                 ->orWhereIn('user_id', $subordinate_ids);
@@ -72,7 +72,7 @@ class ActivityPlan extends Model
             })
             ->paginate($limit, ['*'], 'activity-plan-page')->onEachSide(1)->appends(request()->query());
         } else {
-            $activity_plans = $query->orderBy('id')
+            $activity_plans = $query->orderBy('id', 'DESC')
             ->where(function($qry)  use($subordinate_ids) {
                 $qry->where('user_id', auth()->user()->id)
                 ->orWhereIn('user_id', $subordinate_ids);
