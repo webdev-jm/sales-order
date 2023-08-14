@@ -15,6 +15,8 @@ use App\Http\Traits\GlobalTrait;
 
 use Illuminate\Support\Facades\Session;
 
+use Illuminate\Support\Facades\Storage;
+
 class SalesOrderController extends Controller
 {
     use GlobalTrait;
@@ -373,6 +375,10 @@ class SalesOrderController extends Controller
             }
         }
 
+        if($sales_order->status == 'finalized') {
+            $this->generateXml($sales_order);
+        }
+
         // logs
         activity('create')
         ->performedOn($sales_order)
@@ -579,6 +585,8 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         } else {
+            $this->generateXml($sales_order);
+
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
@@ -595,5 +603,89 @@ class SalesOrderController extends Controller
     public function destroy(SalesOrder $salesOrder)
     {
         //
+    }
+
+    public function generateXml($sales_order) {
+        $details = $sales_order->order_products;
+
+        $parts = array_unique($details->pluck('part')->toArray());
+
+        foreach($parts as $part) {
+
+            $data = [
+                'Orders' => [
+                    'OrderHeader' => [
+                        'CustomerPoNumber' => $sales_order->po_number.'-'.$part,
+                        'Customer' => $sales_order->account_login->account->account_code,
+                        'OrderDate' => $sales_order->order_date,
+                        'ShippingInstrs' => $sales_order->shipping_instruction,
+                        'RequestedShipDate' => $sales_order->ship_date,
+                        'OrderComments' => $sales_order->control_number,
+                        'AddrCode' => $sales_order->shipping_address,
+                        'Warehouse' => '',
+                    ],
+                ]
+            ];
+
+            $num = 0;
+            foreach($details->where('part', $part) as $detail) {
+                foreach($detail->product_uoms as $uom) {
+                    $num++;
+                    $data['Orders']['OrderDetails']['StockLine'][] = [
+                        'CustomerPoLine' => $num,
+                        'StockCode' => $detail->product->stock_code,
+                        'OrderQty' => $uom->quantity,
+                        'OrderUom' => $uom->uom,
+                        'PriceUom' => $uom->uom,
+                    ];
+                }
+            }
+    
+            $xml = $this->arrayToXml($data);
+    
+            // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
+            Storage::disk('public')->put('sales-orders/'.$sales_order->po_number.'-'.$part.'.xml', $xml);
+        }
+
+        return $sales_order->po_number.'.xml file created successfully.';
+    }
+    
+
+    private function arrayToXml($data)
+    {
+        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom->formatOutput = true;  // Enable formatting and indentation
+
+        $salesOrders = $dom->createElement('SalesOrders');
+        $salesOrders->setAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema-instance');
+        $salesOrders->setAttribute('xsd:noNamespaceSchemaLocation', 'SORTOIDOC.XSD');
+        $dom->appendChild($salesOrders);
+
+        $this->arrayToXmlHelper($data, $dom, $salesOrders);
+
+        return $dom->saveXML();
+    }
+
+    private function arrayToXmlHelper($data, $dom, &$parent)
+    {
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                if ($key === 'StockLine') {
+                    // Special handling for repeated 'StockLine' key within 'OrderDetails'
+                    foreach ($value as $item) {
+                        $subNode = $dom->createElement($key);
+                        $parent->appendChild($subNode);
+                        $this->arrayToXmlHelper($item, $dom, $subNode);
+                    }
+                } else {
+                    $subNode = $dom->createElement($key);
+                    $parent->appendChild($subNode);
+                    $this->arrayToXmlHelper($value, $dom, $subNode);
+                }
+            } else {
+                $child = $dom->createElement("$key", htmlspecialchars("$value"));
+                $parent->appendChild($child);
+            }
+        }
     }
 }

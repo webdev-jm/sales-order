@@ -19,55 +19,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-
-        // Your XML generation logic here
-        // $data = [
-        //     'Orders' => [
-        //         'OrderHeader' => [
-        //             'CustomerPoNumber' => '0050787318-00-2',
-        //             'Customer' => '1200081',
-        //             'OrderDate' => '07/24/2023',
-        //             'ShippingInstrs' => '',
-        //             'RequestedShipDate' => '07/28/2023',
-        //             'OrderComments' => 'SO-20230724-036',
-        //             'AddrCode' => '1028',
-        //             'Warehouse' => '',
-        //         ],
-        //         'OrderDetails' => [
-        //             'StockLine' => [
-        //                 [
-        //                     'CustomerPoLine' => 1,
-        //                     'StockCode' => 'KS02008',
-        //                     'OrderQty' => 2,
-        //                     'OrderUom' => 'CS',
-        //                     'PriceUom' => 'CS',
-        //                 ],
-        //                 [
-        //                     'CustomerPoLine' => 2,
-        //                     'StockCode' => 'KS03004',
-        //                     'OrderQty' => 3,
-        //                     'OrderUom' => 'CS',
-        //                     'PriceUom' => 'CS',
-        //                 ],
-        //                 [
-        //                     'CustomerPoLine' => 3,
-        //                     'StockCode' => 'KS03005',
-        //                     'OrderQty' => 2,
-        //                     'OrderUom' => 'CS',
-        //                     'PriceUom' => 'CS',
-        //                 ],
-        //             ],
-        //         ],
-        //     ],
-        // ];
-
-        // $xml = $this->arrayToXml($data);
-
-        // // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
-        // Storage::disk('public')->put('example'.time().'.xml', $xml);
-
-        // return 'example.xml file created successfully.';
-
         if(auth()->user()->can('system logs')) {
             
             $results = DB::table('branch_logins as bl')
@@ -82,7 +33,7 @@ class DashboardController extends Controller
                 ->join('branches as b', 'b.id', '=', 'bl.branch_id')
                 ->join('accounts as a', 'a.id', '=', 'b.account_id')
                 ->where(DB::raw('YEAR(time_in)'), 2023)
-                ->where(DB::raw('MONTH(time_in)'), 5)
+                ->where(DB::raw('MONTH(time_in)'), 8)
                 ->get();
 
             $data = [];
@@ -144,33 +95,6 @@ class DashboardController extends Controller
             ]);
         } else {
             return view('dashboard');
-        }
-    }
-
-    private function arrayToXml($data)
-    {
-        $xml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><SalesOrders xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="SORTOIDOC.XSD"></SalesOrders>');
-        $this->arrayToXmlHelper($data, $xml);
-        return $xml->asXML();
-    }
-
-    private function arrayToXmlHelper($data, &$xml)
-    {
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                if ($key === 'StockLine') {
-                    // Special handling for repeated 'StockLine' key within 'OrderDetails'
-                    foreach ($value as $item) {
-                        $subNode = $xml->addChild($key);
-                        $this->arrayToXmlHelper($item, $subNode);
-                    }
-                } else {
-                    $subNode = $xml->addChild($key);
-                    $this->arrayToXmlHelper($value, $subNode);
-                }
-            } else {
-                $xml->addChild("$key", htmlspecialchars("$value"));
-            }
         }
     }
 
