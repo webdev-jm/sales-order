@@ -80,7 +80,7 @@ class ShippingAddressController extends Controller
         ->performedOn($shipping_address)
         ->log(':causer.firstname :causer.lastname has created shipping address :subject.address_code');
 
-        return redirect()->route('shipping-address.index', $shipping_address->account_id)->with([
+        return redirect()->route('shipping-address.index', encrypt($shipping_address->account_id))->with([
             'message_success' => 'Shipping address '.$shipping_address->address_code.' was created.'
         ]);
     }

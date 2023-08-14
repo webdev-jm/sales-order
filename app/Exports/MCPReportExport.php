@@ -113,7 +113,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             'ADDRESS',
             'TIME IN',
             'TIME OUT',
-            'STATUS'
+            'STATUS',
+            'SOURCE',
         ];
 
         $data = [];
@@ -122,7 +123,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
         if(!empty($this->user_id) || !empty($this->date_from) || !empty($this->date_to)) {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
             ->orderBy('date', 'ASC')
-            ->select('date', 'user_id')->distinct()
+            ->select('date', 'user_id', 'source')->distinct()
             ->whereNull('status');
 
             // get branch login not in schedule
@@ -153,7 +154,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
         } else {
             $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
             ->orderBy('date', 'ASC')
-            ->select('date', 'user_id')->distinct()
+            ->select('date', 'user_id', 'source')->distinct()
             ->whereNull('status')
             ->get();
 
@@ -200,7 +201,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                     \App\Helpers\AppHelper::instance()->getAddress($actual->latitude, $actual->longitude),
                                     $actual->time_in,
                                     $actual->time_out,
-                                    'deviated'
+                                    'deviated',
+                                    $schedule_date->source
                                 ];
                             }
                         }
@@ -247,7 +249,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                             \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude),
                             $branch_login->time_in,
                             $branch_login->time_out,
-                            'visited'
+                            'visited',
+                            $schedule_date->source,
                         ];
                     }
                 } else {
@@ -263,7 +266,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                         '',
                         '',
                         '',
-                        'not visited'
+                        'not visited',
+                        $schedule_date->source
                     ];
                 }
                 
@@ -296,6 +300,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                     $deviation->time_in,
                     $deviation->time_out,
                     $status,
+                    $schedule->source,
                 ];
 
             }
