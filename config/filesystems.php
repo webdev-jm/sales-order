@@ -53,25 +53,43 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
         ],
 
-        'ftp' => [
+        'ftp_beva' => [
             'driver'   => 'ftp',
-            'host'     => 'ftp.example.com',
-            'username' => 'your-username',
-            'password' => 'your-password',
+            'host'     => 'ftp.bevi.com.ph',
+            'username' => 'SMS_BEVA',
+            'password' => 'sms1234',
+            'port' => 1015,
          
             // Optional FTP Settings...
             // 'port'     => 21,
             // 'root'     => '',
             // 'passive'  => true,
-            // 'ssl'      => true,
+            // 'ssl'      => false,
+            // 'timeout'  => 30,
+        ],
+
+        'ftp_bevi' => [
+            'driver'   => 'ftp',
+            'host'     => 'ftp.bevi.com.ph',
+            'username' => 'SMS_BEVI',
+            'password' => 'sms1234',
+            'port' => 1015,
+         
+            // Optional FTP Settings...
+            // 'port'     => 21,
+            // 'root'     => '',
+            // 'passive'  => true,
+            // 'ssl'      => false,
             // 'timeout'  => 30,
         ],
 
         'sftp' => [
-            'driver' => 'sftp',
-            'host' => 'example.com',
-            'username' => 'your-username',
-            'password' => 'your-password',
+            'driver'   => 'sftp',
+            'host'     => 'ftp.bevi.com.ph',
+            'username' => 'SMS_SO',
+            'password' => 'sms1234',
+            'port' => 1015,
+            'transferMode' => 2,
          
             // Settings for SSH key based authentication...
             // 'privateKey' => '/path/to/privateKey',
