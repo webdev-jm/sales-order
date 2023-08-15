@@ -45,7 +45,7 @@ class Deviation extends Component
             $deviations->where('user_id', $this->user_id);
         }
         $deviations = $deviations->paginate(5, ['*'], 'deviation-page')
-        ->onEachSide(1); 
+        ->onEachSide(1);
         
         $status_arr = [
             'submitted' => 'warning',
