@@ -95,6 +95,34 @@ return [
             ],
         ],
 
+        'bevi_db' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DB_HOST_BEVI', 'localhost'),
+            'port' => env('DB_PORT_BEVI', '1433'),
+            'database' => env('DB_DATABASE_BEVI', 'forge'),
+            'username' => env('DB_USERNAME_BEVI', 'forge'),
+            'password' => env('DB_PASSWORD_BEVI', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            // 'encrypt' => env('DB_ENCRYPT', 'yes'),
+            // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
+        ],
+
+        'beva_db' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DB_HOST_BEVA', 'localhost'),
+            'port' => env('DB_PORT_BEVA', '1433'),
+            'database' => env('DB_DATABASE_BEVA', 'forge'),
+            'username' => env('DB_USERNAME_BEVA', 'forge'),
+            'password' => env('DB_PASSWORD_BEVA', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            // 'encrypt' => env('DB_ENCRYPT', 'yes'),
+            // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

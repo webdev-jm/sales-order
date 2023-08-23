@@ -14,8 +14,8 @@ use Illuminate\Http\Request;
 use App\Http\Traits\GlobalTrait;
 
 use Illuminate\Support\Facades\Session;
-
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class SalesOrderController extends Controller
 {
@@ -606,41 +606,9 @@ class SalesOrderController extends Controller
     }
 
     public function generateXml($sales_order) {
-        $details = $sales_order->order_products;
-        
-        $parts = array_unique($details->pluck('part')->toArray());
-
-        foreach($parts as $part) {
-
-            $data = [
-                'Orders' => [
-                    'OrderHeader' => [
-                        'CustomerPoNumber' => $sales_order->po_number.'-'.$part,
-                        'Customer' => $sales_order->account_login->account->account_code,
-                        'OrderDate' => $sales_order->order_date,
-                        'ShippingInstrs' => $sales_order->shipping_instruction,
-                        'RequestedShipDate' => $sales_order->ship_date,
-                        'OrderComments' => $sales_order->control_number,
-                        'AddrCode' => $sales_order->shipping_address,
-                        'Warehouse' => '',
-                    ],
-                ]
-            ];
-
-            $num = 0;
-            foreach($details->where('part', $part) as $detail) {
-                foreach($detail->product_uoms as $uom) {
-                    $num++;
-                    $data['Orders']['OrderDetails']['StockLine'][] = [
-                        'CustomerPoLine' => $num,
-                        'StockCode' => $detail->product->stock_code,
-                        'OrderQty' => $uom->quantity,
-                        'OrderUom' => $uom->uom,
-                        'PriceUom' => $uom->uom,
-                    ];
-                }
-            }
-    
+        $parts = $this->convertData($sales_order);
+        foreach($parts as $key => $data) {
+            $part = $key + 1;
             $xml = $this->arrayToXml($data);
             
             // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
@@ -696,5 +664,144 @@ class SalesOrderController extends Controller
                 $parent->appendChild($child);
             }
         }
+    }
+
+    public function convertData($sales_order) {
+
+        $company = '';
+        // CHECK CUSTOMER
+        $customer = DB::connection('beva_db')
+            ->table('ArCustomer')
+            ->where('Customer', $sales_order->account_login->account->account_code)
+            ->first();
+        if(empty($customer)) {
+            $customer = DB::connection('bevi_db')
+                ->table('ArCustomer')
+                ->where('Customer', $sales_order->account_login->account->account_code)
+                ->first();
+
+            $company = 'BEVI';
+        } else {
+            $company = 'BEVA';
+        }
+
+        $details = $sales_order->order_products;
+        $parts = array_unique($details->pluck('part')->toArray());
+
+        $so_parts = array();
+        foreach($parts as $part) {
+
+            $details = $details->where('part', $part);
+
+            $trade_disc1 = '';
+            $trade_disc2 = '';
+            $trade_disc3 = '';
+            if($company == 'BEVA') {
+                $check = Product::where('product_class', 'CRS')
+                    ->whereIn('id', $details->pluck('product_id')->toArray())
+                    ->first();
+                // get trade discount
+                if($check) {
+                    $trade_disc1 = 30;
+                    $trade_disc2 = 0;
+                    $trade_disc3 = 0;
+                } else {
+                    $check2 = Product::whereIn('stock_code', ['KS01046', 'KS01047'])
+                        ->whereIn('id', $details->pluck('product_id')->toArray())
+                        ->first();
+                    if($check2) {
+                        $trade_disc1 = 12;
+                        $trade_disc2 = 0;
+                        $trade_disc3 = 0;
+                    }
+                }
+            } else {
+                // get trade discount
+                if($customer->Customer == '1200008') {
+                    $check = Product::where('product_class', 'DEF')
+                        ->where('category', 'ALCOHOL')
+                        ->whereIn('id', $details->pluck('product_id')->toArray())
+                        ->first();
+
+                    if($check) {
+                        $trade_disc1 = 15;
+                    }
+                }
+            }
+
+            $data = [
+                'Orders' => [
+                    'OrderHeader' => [
+                        'CustomerPoNumber'              => $sales_order->po_number.'-'.$part,
+                        'Customer'                      => $sales_order->account_login->account->account_code,
+                        'OrderDate'                     => $sales_order->order_date,
+                        'ShippingInstrs'                => $sales_order->shipping_instruction ?? '',
+                        'RequestedShipDate'             => $sales_order->ship_date ?? '',
+                        'OrderComments'                 => $sales_order->control_number,
+                        'OrderDiscPercent1'             => $trade_disc1,
+                        'OrderDiscPercent2'             => $trade_disc2,
+                        'OrderDiscPercent3'             => $trade_disc3,
+                        'SalesOrderPromoQualityAction'  => 'W',
+                        'SalesOrderPromoSelectAction'   => 'A',
+                        'MultiShipCode'                 => $sales_order->shipping_address ?? '',
+                    ],
+                ]
+            ];
+
+            $num = 0;
+            foreach($details as $detail) {
+                foreach($detail->product_uoms as $uom) {
+                    $num++;
+
+                    $price_code = '';
+                    if($company == 'BEVA') {
+                        $product = DB::connection('beva_db')
+                            ->table('InvMaster')
+                            ->where('StockCode', $detail->product->stock_code)
+                            ->first();
+
+                        // get price code
+                        if(!empty($product)) {
+                            switch($product->ProductClass) {
+                                case 'BHW':
+                                    $price_code = 'A';
+                                    break;
+                                case 'CRS':
+                                    $price_code = 'X';
+                                    break;
+                            }
+                        }
+                    } else { // BEVI
+                        $product = DB::connection('bevi_db')
+                            ->table('InvMaster')
+                            ->where('StockCode', $detail->product->stock_code)
+                            ->first();
+                        // get price code
+                        if(!empty($product)) {
+                            switch($product->AlternateKey1) {
+                                case 'PURIFIED WATER':
+                                    $price_code = 'A';
+                                    break;
+                            }
+                        }
+                        
+                    }
+
+                    $data['Orders']['OrderDetails']['StockLine'][] = [
+                        'CustomerPoLine'    => $num,
+                        'Warehouse'         => $customer->SalesWarehouse,
+                        'StockCode'         => $detail->product->stock_code,
+                        'OrderQty'          => $uom->quantity,
+                        'OrderUom'          => $uom->uom,
+                        'PriceUom'          => $uom->uom,
+                        'PriceCode'         => $price_code,
+                    ];
+                }
+            }
+
+            $so_parts[] = $data;
+        }
+
+        return $so_parts;
     }
 }

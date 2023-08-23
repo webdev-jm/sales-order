@@ -27,13 +27,15 @@ class DashboardController extends Controller
                     'bl.id',
                     'bl.latitude',
                     'bl.longitude',
+                    'bl.time_in',
+                    'bl.accuracy',
                     DB::raw('CONCAT(a.short_name, " ", b.branch_code, " ", b.branch_name) as branch')
                 )
                 ->join('users as u', 'u.id', '=', 'bl.user_id')
                 ->join('branches as b', 'b.id', '=', 'bl.branch_id')
                 ->join('accounts as a', 'a.id', '=', 'b.account_id')
                 ->where(DB::raw('YEAR(time_in)'), 2023)
-                ->where(DB::raw('MONTH(time_in)'), 8)
+                ->where(DB::raw('MONTH(time_in)'), 6)
                 ->get();
 
             $data = [];
@@ -42,7 +44,7 @@ class DashboardController extends Controller
                     $result->id,
                     (float)$result->latitude,
                     (float)$result->longitude,
-                    $result->branch,
+                    $result->branch.' ['.$result->time_in.'] - '.$result->accuracy,
                     -6
                 ];
             }
