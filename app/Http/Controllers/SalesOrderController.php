@@ -624,12 +624,10 @@ class SalesOrderController extends Controller
             }
         }
 
-        return $sales_order->po_number.'.xml file created successfully.';
+        return $sales_order->po_number.'-'.$part.'.xml file created successfully.';
     }
-    
 
-    private function arrayToXml($data)
-    {
+    private function arrayToXml($data) {
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;  // Enable formatting and indentation
 
@@ -643,8 +641,7 @@ class SalesOrderController extends Controller
         return $dom->saveXML();
     }
 
-    private function arrayToXmlHelper($data, $dom, &$parent)
-    {
+    private function arrayToXmlHelper($data, $dom, &$parent) {
         foreach ($data as $key => $value) {
             if (is_array($value)) {
                 if ($key === 'StockLine') {
@@ -666,7 +663,7 @@ class SalesOrderController extends Controller
         }
     }
 
-    public function convertData($sales_order) {
+    private function convertData($sales_order) {
 
         $company = '';
         // CHECK CUSTOMER
@@ -690,44 +687,9 @@ class SalesOrderController extends Controller
 
         $so_parts = array();
         foreach($parts as $part) {
-
             $details = $details->where('part', $part);
 
-            $trade_disc1 = '';
-            $trade_disc2 = '';
-            $trade_disc3 = '';
-            if($company == 'BEVA') {
-                $check = Product::where('product_class', 'CRS')
-                    ->whereIn('id', $details->pluck('product_id')->toArray())
-                    ->first();
-                // get trade discount
-                if($check) {
-                    $trade_disc1 = 30;
-                    $trade_disc2 = 0;
-                    $trade_disc3 = 0;
-                } else {
-                    $check2 = Product::whereIn('stock_code', ['KS01046', 'KS01047'])
-                        ->whereIn('id', $details->pluck('product_id')->toArray())
-                        ->first();
-                    if($check2) {
-                        $trade_disc1 = 12;
-                        $trade_disc2 = 0;
-                        $trade_disc3 = 0;
-                    }
-                }
-            } else {
-                // get trade discount
-                if($customer->Customer == '1200008') {
-                    $check = Product::where('product_class', 'DEF')
-                        ->where('category', 'ALCOHOL')
-                        ->whereIn('id', $details->pluck('product_id')->toArray())
-                        ->first();
-
-                    if($check) {
-                        $trade_disc1 = 15;
-                    }
-                }
-            }
+            $trade_discounts = $this->getTradeDiscounts($company, $details, $customer);
 
             $data = [
                 'Orders' => [
@@ -738,9 +700,9 @@ class SalesOrderController extends Controller
                         'ShippingInstrs'                => $sales_order->shipping_instruction ?? '',
                         'RequestedShipDate'             => $sales_order->ship_date ?? '',
                         'OrderComments'                 => $sales_order->control_number,
-                        'OrderDiscPercent1'             => $trade_disc1,
-                        'OrderDiscPercent2'             => $trade_disc2,
-                        'OrderDiscPercent3'             => $trade_disc3,
+                        'OrderDiscPercent1'             => $trade_discounts[0],
+                        'OrderDiscPercent2'             => $trade_discounts[0],
+                        'OrderDiscPercent3'             => $trade_discounts[0],
                         'SalesOrderPromoQualityAction'  => 'W',
                         'SalesOrderPromoSelectAction'   => 'A',
                         'MultiShipCode'                 => $sales_order->shipping_address ?? '',
@@ -753,39 +715,7 @@ class SalesOrderController extends Controller
                 foreach($detail->product_uoms as $uom) {
                     $num++;
 
-                    $price_code = '';
-                    if($company == 'BEVA') {
-                        $product = DB::connection('beva_db')
-                            ->table('InvMaster')
-                            ->where('StockCode', $detail->product->stock_code)
-                            ->first();
-
-                        // get price code
-                        if(!empty($product)) {
-                            switch($product->ProductClass) {
-                                case 'BHW':
-                                    $price_code = 'A';
-                                    break;
-                                case 'CRS':
-                                    $price_code = 'X';
-                                    break;
-                            }
-                        }
-                    } else { // BEVI
-                        $product = DB::connection('bevi_db')
-                            ->table('InvMaster')
-                            ->where('StockCode', $detail->product->stock_code)
-                            ->first();
-                        // get price code
-                        if(!empty($product)) {
-                            switch($product->AlternateKey1) {
-                                case 'PURIFIED WATER':
-                                    $price_code = 'A';
-                                    break;
-                            }
-                        }
-                        
-                    }
+                    $price_code = $this->getPriceCode($company, $detail->product->stock_code);
 
                     $data['Orders']['OrderDetails']['StockLine'][] = [
                         'CustomerPoLine'    => $num,
@@ -803,5 +733,82 @@ class SalesOrderController extends Controller
         }
 
         return $so_parts;
+    }
+
+    private function getTradeDiscounts($company, $details, $customer) {
+        $trade_disc1 = '';
+        $trade_disc2 = '';
+        $trade_disc3 = '';
+        if($company == 'BEVA') {
+            $check = Product::where('product_class', 'CRS')
+                ->whereIn('id', $details->pluck('product_id')->toArray())
+                ->first();
+            // get trade discount
+            if($check) {
+                $trade_disc1 = 30;
+                $trade_disc2 = 0;
+                $trade_disc3 = 0;
+            } else {
+                $check2 = Product::whereIn('stock_code', ['KS01046', 'KS01047'])
+                    ->whereIn('id', $details->pluck('product_id')->toArray())
+                    ->first();
+                if($check2) {
+                    $trade_disc1 = 12;
+                    $trade_disc2 = 0;
+                    $trade_disc3 = 0;
+                }
+            }
+        } else {
+            // get trade discount
+            if($customer->Customer == '1200008') {
+                $check = Product::where('product_class', 'DEF')
+                    ->where('category', 'ALCOHOL')
+                    ->whereIn('id', $details->pluck('product_id')->toArray())
+                    ->first();
+
+                if($check) {
+                    $trade_disc1 = 15;
+                }
+            }
+        }
+
+        return [$trade_disc1, $trade_disc2, $trade_disc3];
+    }
+
+    private function getPriceCode($company, $stock_code) {
+        $price_code = '';
+        if($company == 'BEVA') {
+            $product = DB::connection('beva_db')
+                ->table('InvMaster')
+                ->where('StockCode', $stock_code)
+                ->first();
+
+            // get price code
+            if(!empty($product)) {
+                switch($product->ProductClass) {
+                    case 'BHW':
+                        $price_code = 'A';
+                        break;
+                    case 'CRS':
+                        $price_code = 'X';
+                        break;
+                }
+            }
+        } else { // BEVI
+            $product = DB::connection('bevi_db')
+                ->table('InvMaster')
+                ->where('StockCode', $stock_code)
+                ->first();
+            // get price code
+            if(!empty($product)) {
+                switch($product->AlternateKey1) {
+                    case 'PURIFIED WATER':
+                        $price_code = 'A';
+                        break;
+                }
+            }
+        }
+
+        return $price_code;
     }
 }
