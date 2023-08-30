@@ -59,6 +59,7 @@
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
+                <button class="btn btn-success" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload SO</button>
                 <div class="card-tools">
                     {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'add_sales_order']) !!}
                     {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_sales_order']) !!}
@@ -89,7 +90,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             {!! Form::label('paf_number', 'PAF Number (YYYY-A-#####)') !!}
-                            {!! Form::text('paf_number', '', ['class' => 'form-control form-control-sm text-uppercase'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::text('paf_number', session('paf_number') ?? '', ['class' => 'form-control form-control-sm text-uppercase'.($errors->has('paf_number') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('paf_number')}}</p>
                         </div>
                     </div>
@@ -186,6 +187,58 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-upload">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Upload Sales Order Details</h4>
+            </div>
+            <div class="modal-body">
+                {!! Form::open(['method' => 'POST', 'route' => ['sales-order.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
+                {!! Form::close() !!}
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="custom-file">
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form', 'accept' => '.xlsx, .xls, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']) !!}
+                                {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
+                            </div>
+                            <p class="text-danger">{{$errors->first('upload_file')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <a href="{{asset('/assets/SMS Sales Order Upload Format.xlsx')}}" class="">Download format <i class="fa fa-file-excel text-success ml-1"></i></a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer text-right">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                {!! Form::submit('Upload', ['class' => 'btn btn-primary', 'form' => 'upload_form']) !!}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="loadingModal" tabindex="-1" data-keyboard="false" data-backdrop="static" role="dialog" aria-labelledby="loadingModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-center" id="exampleModalLongTitle">UPLOADING......</h5>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <i class="fa fa-spinner fa-spin fa-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -218,6 +271,12 @@
         // format PRF Number
         $('#paf_number').mask('9999-A-00000', {
             autoUpperCase: true
+        });
+
+         // upload details
+         $('#btn-upload').on('click', function(e) {
+            e.preventDefault();
+            $('#modal-upload').modal('show');
         });
     });
 </script>

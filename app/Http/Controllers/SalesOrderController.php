@@ -7,6 +7,9 @@ use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
+use App\Models\PriceCode;
+use App\Models\Discount;
+
 use App\Http\Requests\StoreSalesOrderRequest;
 use App\Http\Requests\UpdateSalesOrderRequest;
 use Illuminate\Http\Request;
@@ -16,6 +19,11 @@ use App\Http\Traits\GlobalTrait;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ActivityPlanImport;
+
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class SalesOrderController extends Controller
 {
@@ -594,15 +602,285 @@ class SalesOrderController extends Controller
         
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\SalesOrder  $salesOrder
-     * @return \Illuminate\Http\Response
-    */
-    public function destroy(SalesOrder $salesOrder)
-    {
-        //
+    public function upload(Request $request) {
+        $logged_account = Session::get('logged_account');
+        if(empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order'
+            ]);
+        }
+
+        $request->validate([
+            'upload_file' => [
+                'mimes:xlsx,xls',
+                'required'
+            ]
+        ]);
+
+        $po_number = '';
+        $paf_number = '';
+        $ship_date = '';
+        $shipping_instruction = '';
+        $ship_to_address_id = 'default';
+        $po_value = '';
+
+        $ship_to_name = '';
+        $ship_to_address_1 = '';
+        $ship_to_address_2 = '';
+        $ship_to_address_3 = '';
+        $postal_code = '';
+
+        $path1 = $request->file('upload_file')->store('sales_order');
+        $path = storage_path('app').'/'.$path1;
+        $imports = Excel::toArray(new ActivityPlanImport, $path);
+        $data = array();
+        $row_num = 0;
+        foreach($imports[0] as $row) {
+            $row_num++;
+            
+            // PO NUMBER
+            if($row_num == 1 && $row[0] == 'PO NUMBER') {
+                $po_number = $row[1];
+            }
+            // PAF NUMBER
+            if($row_num == 2 && $row[0] == 'PAF NUMBER') {
+                $paf_number = $row[1];
+            }
+            // SHIP DATE
+            if($row_num == 3 && $row[0] == 'SHIP DATE') {
+                $ship_date = $row[1];
+                if (is_int($ship_date)) {
+                    // Convert the value to a date instance if it looks like a date.
+                    $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
+                }
+            }
+            // SHIPPING INSTRUCTIONS
+            if($row_num == 4 && $row[0] == 'SHIPPING INSTRUCTION') {
+                $shipping_instruction = $row[1];
+            }
+            // SHIP TO ADDRESS
+            if($row_num == 5 && $row[0] == 'SHIP TO ADDRESS') {
+                if(!empty($row[1])) {
+                    // check shipping address
+                    $shipping_address = $logged_account->account->shipping_addresses()->where('address_code', $row[1])->first();
+                    if(!empty($shipping_address)) {
+                        $ship_to_address_id = $shipping_address->id;
+                        $ship_to_name = $shipping_address->address_code.' - '.$shipping_address->ship_to_name;
+                        $ship_to_address_1 = $shipping_address->building;
+                        $ship_to_address_2 = $shipping_address->street;
+                        $ship_to_address_3 = $shipping_address->city;
+                        $postal_code = $shipping_address->postal;
+                    }
+                }
+            }
+            // PO VALUE
+            if($row_num == 6 && $row[0] == 'PO VALUE') {
+                $po_value = $row[1];
+            }
+
+            if($row_num > 7) {
+                if(!empty($row[0])) {
+                    $product = Product::where('stock_code', $row[0])
+                        ->first();
+
+                    $data[$product->id] = [
+                        'product' => $product,
+                        'stock_code' => $row[0],
+                        'description' => $product->description,
+                        'size' => $product->size,
+                        'data' => [
+                            $row[1] => [
+                                'quantity' => $row[2],
+                                'total' => 0,
+                                'discount' => 0,
+                                'discounted' => 0,
+                            ]
+                        ],
+                        'product_total' => 0,
+                        'product_quantity' => 0,
+                    ];
+                }
+            }
+
+        }
+
+        $order_data = $this->processData($data);
+
+        $order_data['po_value'] = $po_value;
+
+        Session::put('order_data', $order_data);
+
+        return redirect()->route('sales-order.create')->with([
+            'po_number' => $po_number,
+            'paf_number' => $paf_number,
+            'ship_date' => $ship_date,
+            'shipping_instruction' => $shipping_instruction,
+            'shipping_address_id' => $ship_to_address_id,
+            'po_value' => $po_value,
+            'ship_to_name' => $ship_to_name,
+            'ship_to_address1' => $ship_to_address_1,
+            'ship_to_address2' => $ship_to_address_2,
+            'ship_to_address3' => $ship_to_address_3,
+            'postal_code' => $postal_code,
+        ]);
+    }
+    
+    private function processData($data) {
+        $logged_account = Session::get('logged_account');
+        if(empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order'
+            ]);
+        }
+
+        $discount = $logged_account->account->discount;
+
+        // process data
+        $orders = [];
+        $total = 0;
+        $total_quantity = 0;
+        if(!empty($data)) {
+            foreach($data as $product_id => $details) {
+                $product = $details['product'];
+                $orders['items'][$product_id] = [
+                    'stock_code' => $product->stock_code,
+                    'description' => $product->description,
+                    'size' => $product->size,
+                ];
+
+                $product_total = 0;
+                $product_quantity = 0;
+                foreach($details['data'] as $uom => $val) {
+                    // check price code
+                    if($product->special_product) {
+                        $special_product = $logged_account->account->products()
+                            ->where('product_id', $product->id)
+                            ->first();
+
+                        $code = $special_product->pivot->price_code ?? $logged_account->account->price_code;
+                    } else {
+                        $code = $logged_account->account->price_code;
+                    }
+
+                    $price_code = PriceCode::where('company_id', $logged_account->account->company_id)
+                        ->where('product_id', $product->id)
+                        ->where('code', $code)
+                        ->first();
+
+                    // get price
+                    $selling_price = $price_code->selling_price;
+                    $price_basis = $price_code->price_basis;
+
+                    // convert selling price to stock uom price
+                    if($price_basis == 'A') {
+                        if($product->order_uom_operator == 'M') { // Multiply
+                            $selling_price = $selling_price / $product->order_uom_conversion;
+                        }
+                        if($product->order_uom_operator == 'D') { // Divide
+                            $selling_price = $selling_price * $product->order_uom_conversion;
+                        }
+                    } else if($price_basis == 'O') {
+                        // check operation
+                        if($product->other_uom_operator == 'M') { // Multiply
+                            $selling_price = $selling_price / $product->other_uom_conversion;
+                        }
+                        if($product->other_uom_operator == 'D') { // Divide
+                            $selling_price = $selling_price * $product->other_uom_conversion;
+                        }
+                    }
+
+                    $quantity = (int)$val['quantity'];
+
+                    // get total
+                    $uom_total = 0;
+                    if(strtoupper($uom) == strtoupper($product->stock_uom)) {
+                        $uom_total += $quantity * $selling_price;
+                    } else if($uom == $product->order_uom) { // order UOM
+                        // check operator
+                        if($product->order_uom_operator == 'M') { // Multiply
+                            $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
+                        }
+                        if($product->order_uom_operator == '') { // Divide
+                            $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
+                        }
+                    } else if($uom == $product->other_uom) { // other UOM
+                        // check operator
+                        if($product->other_uom_operator == 'M') { // Multiply
+                            $uom_total += ($quantity * $product->other_uom_conversion) * $selling_price;
+                        }
+                        if($product->other_uom_operator == 'D') { // Divide
+                            $uom_total += ($quantity / $product->other_uom_conversion) * $selling_price;
+                        }
+                    }
+
+                    // apply line discount
+                    $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
+                        ->where('company_id', $logged_account->account->company_id)
+                        ->first();
+                    $uom_discounted = $uom_total;
+                    if(!empty($line_discount)) {
+                        $discounted = $total;
+                        if($line_discount->discount_1 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
+                        }
+                        if($line_discount->discount_2 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_2) / 100);
+                        }
+                        if($line_discount->discount_3 > 0) {
+                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_3) / 100);
+                        }
+                    }
+
+                    if($uom_total > 0) {
+                        $orders['items'][$product->id]['data'][$uom] = [
+                            'quantity' => $quantity,
+                            'total' => $uom_total,
+                            'discount' => $line_discount->description ?? '0',
+                            'discounted' => $uom_discounted,
+                        ];
+                    }
+
+                    $product_total += $uom_discounted;
+                    $product_quantity += $quantity;
+                }
+
+                if($product_total > 0) {
+                    $orders['items'][$product->id]['product_total'] = $product_total;
+                    $orders['items'][$product->id]['product_quantity'] = $product_quantity;
+                } else {
+                    unset($orders['items'][$product->id]);
+                }
+
+                $total += $product_total;
+                $total_quantity += $product_quantity;
+            }
+        }
+
+        // apply inventory discount
+        $discounted = $total;
+        if(!empty($discount)) {
+            if($discount->discount_1 > 0) {
+                $discounted = $discounted * ((100 - $discount->discount_1) / 100);
+            }
+            if($discount->discount_2 > 0) {
+                $discounted = $discounted * ((100 - $discount->discount_2) / 100);
+            }
+            if($discount->discount_3 > 0) {
+                $discounted = $discounted * ((100 - $discount->discount_3) / 100);
+            }
+        }
+
+        $orders['total_quantity'] = $total_quantity;
+        $orders['total'] = $total;
+        $orders['discount_id'] = $discount->id ?? NULL;
+        $orders['grand_total'] = $discounted;
+        $orders['po_value'] = '';
+
+        return $orders;
+    }
+
+    private function isExcelDate(Cell $cell) {
+        return Date::isDateTime($cell);
     }
 
     public function generateXml($sales_order) {
