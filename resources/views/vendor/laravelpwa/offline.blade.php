@@ -12,3 +12,6 @@
     <a href="/home">Back to home</a>
 
 @endsection
+
+@section('js')
+@endsection

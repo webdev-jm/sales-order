@@ -25,11 +25,6 @@ use App\Imports\ActivityPlanImport;
 
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
-ini_set('memory_limit', '-1');
-ini_set('max_execution_time', 0);
-ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
-ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
-
 class SalesOrderController extends Controller
 {
     use GlobalTrait;
@@ -356,16 +351,16 @@ class SalesOrderController extends Controller
 
         $num = 0;
         $part = 1;
-        // $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
-        // $curr_limit = $limit;
+        $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
+        $curr_limit = $limit;
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            // if($num > $curr_limit) {
-            //     $curr_limit += $limit;
-            //     $part++;
-            // }
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
+                $part++;
+            }
 
             $sales_order_product = new SalesOrderProduct([
                 'sales_order_id' => $sales_order->id,
@@ -388,9 +383,9 @@ class SalesOrderController extends Controller
             }
         }
 
-        // if($sales_order->status == 'finalized') {
-        //     $this->generateXml($sales_order);
-        // }
+        if($sales_order->status == 'finalized') {
+            $this->generateXml($sales_order);
+        }
 
         // logs
         activity('create')
@@ -440,7 +435,7 @@ class SalesOrderController extends Controller
         $sales_order = SalesOrder::findOrFail($id);
 
         // check if already finalized
-        if($sales_order->status == 'for optimization') {
+        if($sales_order->status == 'finalized') {
             return redirect()->route('sales-order.show', $sales_order->id)->with([
                 'message_error' => 'SO cannot be edited once status has been finalized.'
             ]);
@@ -551,18 +546,18 @@ class SalesOrderController extends Controller
         
         $num = 0;
         $part = 1;
-        // $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
-        // $curr_limit = $limit;
+        $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
+        $curr_limit = $limit;
         $sales_order->order_products()->forceDelete();
         
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            // if($num > $curr_limit) {
-            //     $curr_limit += $limit;
-            //     $part++;
-            // }
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
+                $part++;
+            }
 
             $sales_order_product = new SalesOrderProduct([
                 'sales_order_id' => $sales_order->id,
@@ -629,11 +624,11 @@ class SalesOrderController extends Controller
         $ship_to_address_id = 'default';
         $po_value = '';
 
-        $ship_to_name = $logged_account->account->account_name;
-        $ship_to_address_1 = $logged_account->account->ship_to_address1;
-        $ship_to_address_2 = $logged_account->account->ship_to_address2;
-        $ship_to_address_3 = $logged_account->account->ship_to_address3;
-        $postal_code = $logged_account->account->postal_code;
+        $ship_to_name = '';
+        $ship_to_address_1 = '';
+        $ship_to_address_2 = '';
+        $ship_to_address_3 = '';
+        $postal_code = '';
 
         $path1 = $request->file('upload_file')->store('sales_order');
         $path = storage_path('app').'/'.$path1;
@@ -688,25 +683,22 @@ class SalesOrderController extends Controller
                     $product = Product::where('stock_code', $row[0])
                         ->first();
 
-                    if(!empty($product)) {
-                        $data[$product->id] = [
-                            'product' => $product,
-                            'stock_code' => $row[0],
-                            'description' => $product->description,
-                            'size' => $product->size,
-                            'data' => [
-                                $row[1] => [
-                                    'quantity' => $row[2],
-                                    'total' => 0,
-                                    'discount' => 0,
-                                    'discounted' => 0,
-                                ]
-                            ],
-                            'product_total' => 0,
-                            'product_quantity' => 0,
-                        ];
-                    }
-
+                    $data[$product->id] = [
+                        'product' => $product,
+                        'stock_code' => $row[0],
+                        'description' => $product->description,
+                        'size' => $product->size,
+                        'data' => [
+                            $row[1] => [
+                                'quantity' => $row[2],
+                                'total' => 0,
+                                'discount' => 0,
+                                'discounted' => 0,
+                            ]
+                        ],
+                        'product_total' => 0,
+                        'product_quantity' => 0,
+                    ];
                 }
             }
 
