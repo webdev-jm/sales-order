@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    @if(auth()->user()->can('sales order create') && $sales_order->status == 'finalized' && !empty(\Illuminate\Support\Facades\Session::get('logged_account')))
+    @if(auth()->user()->can('sales order create') && ($sales_order->status == 'for optimization' || $sales_order->status == 'finalized') && !empty(\Illuminate\Support\Facades\Session::get('logged_account')))
     <div class="row">
         <div class="col-12 text-right">
             <a href="{{route('sales-order.resubmit', $sales_order->id)}}" class="btn btn-warning">Resubmit Sales Order</a>
