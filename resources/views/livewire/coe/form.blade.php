@@ -890,6 +890,7 @@
                 @if(empty($status) || $status == 'draft')
                     <button class="btn btn-primary" wire:click.prevent="prev" wire:loading.attr="disabled"><i class="fa fa-pen-alt mr-1"></i>EDIT</button>
                     <button class="btn btn-success text-uppercase" wire:click.prevent="finalize"><i class="fa fa-thumbs-up mr-1"></i>FINALIZE</button>
+                    <button class="btn btn-warning"><i class="fa fa-download mr-1"></i>DOWNLOAD</button>
                 @endif
             </div>
         </div>
@@ -907,7 +908,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-
                             {{-- ACCOUNT --}}
                             <strong>
                                 <i class="fas fa-building"></i>
