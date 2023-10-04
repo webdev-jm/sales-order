@@ -21,7 +21,7 @@ class ChannelOperation extends Model
     ];
 
     public function branch_login() {
-        return $this->belongsTo('App/Models/BranchLogin');
+        return $this->belongsTo('App\Models\BranchLogin');
     }
 
     public function trade_displays() {

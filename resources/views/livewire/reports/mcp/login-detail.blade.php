@@ -76,6 +76,9 @@
                             <h3 class="card-title">COE REPORT</h3>
                             <div class="card-tools">
                                 <button type="button" class="btn btn-sm btn-{{$channel_operation->status == 'finalized' ? 'success' : 'secondary'}}">{{$channel_operation->status ?? 'draft'}}</button>
+                                @can('channel operation print')
+                                    <a href="{{route('channel-operation.print', $channel_operation->id)}}" class="btn btn-warning btn-sm" target="_blank"><i class="fa fa-print mr-1"></i>Print</a>
+                                @endcan
                             </div>
                         </div>
                         <div class="card-body">
@@ -290,7 +293,7 @@
                     {{-- TRADE MARKETING ACTIVITIES--}}
                     @php
                     $trade_marketing_activities = $channel_operation->trade_marketing_activities()->first();
-                    $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number)->first();
+                    $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number ?? 'NONE')->first();
                     @endphp
                     <div class="card card-outline card-primary">
                         <div class="card-header">

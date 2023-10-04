@@ -756,100 +756,102 @@ class SalesOrderController extends Controller
                     'size' => $product->size,
                 ];
 
+                // check price code
+                if($product->special_product) {
+                    $special_product = $logged_account->account->products()
+                        ->where('product_id', $product->id)
+                        ->first();
+
+                    $code = $special_product->pivot->price_code ?? $logged_account->account->price_code;
+                } else {
+                    $code = $logged_account->account->price_code;
+                }
+
+                $price_code = PriceCode::where('company_id', $logged_account->account->company_id)
+                    ->where('product_id', $product->id)
+                    ->where('code', $code)
+                    ->first();
+
                 $product_total = 0;
                 $product_quantity = 0;
-                foreach($details['data'] as $uom => $val) {
-                    // check price code
-                    if($product->special_product) {
-                        $special_product = $logged_account->account->products()
-                            ->where('product_id', $product->id)
+                if(!empty($price_code)) {
+                    foreach($details['data'] as $uom => $val) {
+                        // get price
+                        $selling_price = $price_code->selling_price;
+                        $price_basis = $price_code->price_basis;
+
+                        // convert selling price to stock uom price
+                        if($price_basis == 'A') {
+                            if($product->order_uom_operator == 'M') { // Multiply
+                                $selling_price = $selling_price / $product->order_uom_conversion;
+                            }
+                            if($product->order_uom_operator == 'D') { // Divide
+                                $selling_price = $selling_price * $product->order_uom_conversion;
+                            }
+                        } else if($price_basis == 'O') {
+                            // check operation
+                            if($product->other_uom_operator == 'M') { // Multiply
+                                $selling_price = $selling_price / $product->other_uom_conversion;
+                            }
+                            if($product->other_uom_operator == 'D') { // Divide
+                                $selling_price = $selling_price * $product->other_uom_conversion;
+                            }
+                        }
+
+                        $quantity = (int)$val['quantity'];
+
+                        // get total
+                        $uom_total = 0;
+                        if(strtoupper($uom) == strtoupper($product->stock_uom)) {
+                            $uom_total += $quantity * $selling_price;
+                        } else if($uom == $product->order_uom) { // order UOM
+                            // check operator
+                            if($product->order_uom_operator == 'M') { // Multiply
+                                $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
+                            }
+                            if($product->order_uom_operator == '') { // Divide
+                                $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
+                            }
+                        } else if($uom == $product->other_uom) { // other UOM
+                            // check operator
+                            if($product->other_uom_operator == 'M') { // Multiply
+                                $uom_total += ($quantity * $product->other_uom_conversion) * $selling_price;
+                            }
+                            if($product->other_uom_operator == 'D') { // Divide
+                                $uom_total += ($quantity / $product->other_uom_conversion) * $selling_price;
+                            }
+                        }
+
+                        // apply line discount
+                        $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
+                            ->where('company_id', $logged_account->account->company_id)
                             ->first();
+                        $uom_discounted = $uom_total;
+                        if(!empty($line_discount)) {
+                            $discounted = $total;
+                            if($line_discount->discount_1 > 0) {
+                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
+                            }
+                            if($line_discount->discount_2 > 0) {
+                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_2) / 100);
+                            }
+                            if($line_discount->discount_3 > 0) {
+                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_3) / 100);
+                            }
+                        }
 
-                        $code = $special_product->pivot->price_code ?? $logged_account->account->price_code;
-                    } else {
-                        $code = $logged_account->account->price_code;
+                        if($uom_total > 0) {
+                            $orders['items'][$product->id]['data'][$uom] = [
+                                'quantity' => $quantity,
+                                'total' => $uom_total,
+                                'discount' => $line_discount->description ?? '0',
+                                'discounted' => $uom_discounted,
+                            ];
+                        }
+
+                        $product_total += $uom_discounted;
+                        $product_quantity += $quantity;
                     }
-
-                    $price_code = PriceCode::where('company_id', $logged_account->account->company_id)
-                        ->where('product_id', $product->id)
-                        ->where('code', $code)
-                        ->first();
-
-                    // get price
-                    $selling_price = $price_code->selling_price;
-                    $price_basis = $price_code->price_basis;
-
-                    // convert selling price to stock uom price
-                    if($price_basis == 'A') {
-                        if($product->order_uom_operator == 'M') { // Multiply
-                            $selling_price = $selling_price / $product->order_uom_conversion;
-                        }
-                        if($product->order_uom_operator == 'D') { // Divide
-                            $selling_price = $selling_price * $product->order_uom_conversion;
-                        }
-                    } else if($price_basis == 'O') {
-                        // check operation
-                        if($product->other_uom_operator == 'M') { // Multiply
-                            $selling_price = $selling_price / $product->other_uom_conversion;
-                        }
-                        if($product->other_uom_operator == 'D') { // Divide
-                            $selling_price = $selling_price * $product->other_uom_conversion;
-                        }
-                    }
-
-                    $quantity = (int)$val['quantity'];
-
-                    // get total
-                    $uom_total = 0;
-                    if(strtoupper($uom) == strtoupper($product->stock_uom)) {
-                        $uom_total += $quantity * $selling_price;
-                    } else if($uom == $product->order_uom) { // order UOM
-                        // check operator
-                        if($product->order_uom_operator == 'M') { // Multiply
-                            $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
-                        }
-                        if($product->order_uom_operator == '') { // Divide
-                            $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
-                        }
-                    } else if($uom == $product->other_uom) { // other UOM
-                        // check operator
-                        if($product->other_uom_operator == 'M') { // Multiply
-                            $uom_total += ($quantity * $product->other_uom_conversion) * $selling_price;
-                        }
-                        if($product->other_uom_operator == 'D') { // Divide
-                            $uom_total += ($quantity / $product->other_uom_conversion) * $selling_price;
-                        }
-                    }
-
-                    // apply line discount
-                    $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
-                        ->where('company_id', $logged_account->account->company_id)
-                        ->first();
-                    $uom_discounted = $uom_total;
-                    if(!empty($line_discount)) {
-                        $discounted = $total;
-                        if($line_discount->discount_1 > 0) {
-                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
-                        }
-                        if($line_discount->discount_2 > 0) {
-                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_2) / 100);
-                        }
-                        if($line_discount->discount_3 > 0) {
-                            $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_3) / 100);
-                        }
-                    }
-
-                    if($uom_total > 0) {
-                        $orders['items'][$product->id]['data'][$uom] = [
-                            'quantity' => $quantity,
-                            'total' => $uom_total,
-                            'discount' => $line_discount->description ?? '0',
-                            'discounted' => $uom_discounted,
-                        ];
-                    }
-
-                    $product_total += $uom_discounted;
-                    $product_quantity += $quantity;
                 }
 
                 if($product_total > 0) {
@@ -858,7 +860,7 @@ class SalesOrderController extends Controller
                 } else {
                     unset($orders['items'][$product->id]);
                 }
-
+                
                 $total += $product_total;
                 $total_quantity += $product_quantity;
             }

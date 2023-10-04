@@ -24,7 +24,16 @@
 @endsection
 
 @section('content_header')
-    <h1>Dashboard</h1>
+    <div class="row">
+        <div class="col-lg-6">
+            <h1>Dashboard</h1>
+        </div>
+        @can('sales dashboard')
+        <div class="col-lg-6 text-right">
+            <a href="{{route('sales-dashboard.index')}}" class="btn btn-primary">SALES DASHBOARD</a>
+        </div>
+        @endcan
+    </div>
 @endsection
 
 @section('content')

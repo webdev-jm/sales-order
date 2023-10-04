@@ -22,7 +22,7 @@ class AccountLogged extends Component
         $this->sign_out_enabled = 0;
         $check = ChannelOperation::where('branch_login_id', $this->logged_branch->id)
             ->first();
-        if(!empty($check) && $check->status == 'finalized') {
+        if((!empty($check) && $check->status == 'finalized') || $this->logged_branch->branch->account_id != 241) {
             $this->sign_out_enabled = 1;
         }
     }
@@ -79,7 +79,7 @@ class AccountLogged extends Component
 
         $this->logged_branch = Session::get('logged_branch');
         
-        if(!empty($this->logged_branch) && $this->logged_branch->user->coe) {
+        if(!empty($this->logged_branch) && $this->logged_branch->user->coe && $this->logged_branch->branch->account_id != 241) {
             $this->setSignout();
         } else {
             $this->sign_out_enabled = 1;

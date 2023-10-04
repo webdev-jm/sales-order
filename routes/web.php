@@ -37,6 +37,7 @@ use App\Http\Controllers\ProductivityReportController;
 use App\Http\Controllers\SalesmanController;
 use App\Http\Controllers\SalesmenLocationController;
 use App\Http\Controllers\ChannelOperationController;
+use App\Http\Controllers\SalesDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +85,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     // DASHBOARD
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // SALES DASHBOARD
+    Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
 
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
@@ -194,6 +197,11 @@ Route::group(['middleware' => 'auth'], function () {
     // CHANNEL OPERATIONS
     Route::group(['middleware' => 'permission:channel operation report'], function() {
         Route::get('channel-operation', [ChannelOperationController::class, 'index'])->name('channel-operation.report');
+        Route::get('channel-operation/list', [ChannelOperationController::class, 'list'])->name('channel-operation.list')->middleware('permission:channel operation list');
+
+        Route::get('channel-operation/{id}/print', [ChannelOperationController::class, 'print'])->name('channel-operation.print')->middleware('permission:channel operation print');
+
+        Route::get('channel-operation/{id}', [ChannelOperationController::class, 'show'])->name('channel-operation.show');
     });
 
     // SO Cut-offs

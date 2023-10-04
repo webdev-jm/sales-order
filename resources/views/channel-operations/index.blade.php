@@ -13,6 +13,9 @@
         <h1>COE Reports</h1>
     </div>
     <div class="col-md-6 text-right">
+        @can('channel operation list')
+        <a href="{{route('channel-operation.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>COE REPORT LIST</a>
+        @endcan
     </div>
 </div>
 @endsection

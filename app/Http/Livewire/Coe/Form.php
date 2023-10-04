@@ -42,6 +42,8 @@ class Form extends Component
     public $dra_status_arr = ['IMPLEMENTED', 'NOT IMPLEMENTED', 'NONE'];
     public $pafs_data;
 
+    public $coe_id;
+
     public function finalize() {
         $this->status = 'finalized';
 
@@ -51,6 +53,8 @@ class Form extends Component
         $channel_operation->update([
             'status' => 'finalized'
         ]);
+
+        $this->coe_id = $channel_operation->id;
 
         $this->emit('setSignout');
     }
@@ -85,6 +89,10 @@ class Form extends Component
                 break;
 
             case 2: // MERCH UPDATE
+                $this->validate([
+                    'merch_updates.status' => 'required',
+                ]);
+
                 if($this->merch_updates['status'] == 'ON BOARD') {
                     $this->validate([
                         'merch_updates.status' => [
@@ -455,6 +463,7 @@ class Form extends Component
             'competetive_reports' => $this->competetive_reports,
             'total_findings' => $this->total_findings,
             'status' => $this->status,
+            'coe_id' => $this->coe_id,
         ];
 
         Session::put('coe_form_data', $coe_form_data);
@@ -475,6 +484,15 @@ class Form extends Component
             $this->competetive_reports = $data['competetive_reports'];
             $this->total_findings = $data['total_findings'];
             $this->status = $data['status'] ?? 'draft';
+            $this->coe_id = $data['coe_id'] ?? NULL;
+
+            if(empty($this->coe_id)) {
+                $channel_operation = ChannelOperation::where('branch_login_id', $this->logged_branch->id)
+                ->first();
+                if(!empty($channel_operation)) {
+                    $this->coe_id = $channel_operation->id;
+                }
+            }
             
             if(!empty($this->trade_marketing_activities['paf_number']) && $this->trade_marketing_activities['paf_number'] != 'NONE') {
                 $this->paf = Paf::where('PAFNo', $this->trade_marketing_activities['paf_number'])
@@ -505,6 +523,7 @@ class Form extends Component
                 $this->coe_reports['position'] = $channel_operation->position;
                 $this->total_findings = $channel_operation->total_findings;
                 $this->status = $channel_operation->status;
+                $this->coe_id = $channel_operation->id;
 
                 // MERCH UPDATES
                 $merch_update = $channel_operation->merch_updates()->first();
@@ -607,7 +626,7 @@ class Form extends Component
         $this->logged_branch = $logged_branch;
         $this->stage = 1;
 
-        $this->average_sales = BranchSalesHelper::getAverageSales($this->logged_branch->branch->branch_code, 2023);
+        $this->average_sales = BranchSalesHelper::getAverageSales($this->logged_branch->branch->branch_code, date('Y'));
 
         $date = date('Y-m-d', strtotime($this->logged_branch->time_in));
 

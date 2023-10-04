@@ -890,7 +890,10 @@
                 @if(empty($status) || $status == 'draft')
                     <button class="btn btn-primary" wire:click.prevent="prev" wire:loading.attr="disabled"><i class="fa fa-pen-alt mr-1"></i>EDIT</button>
                     <button class="btn btn-success text-uppercase" wire:click.prevent="finalize"><i class="fa fa-thumbs-up mr-1"></i>FINALIZE</button>
-                    <button class="btn btn-warning"><i class="fa fa-download mr-1"></i>DOWNLOAD</button>
+                @else
+                    @if(!empty($coe_id) && auth()->user()->can('channel operation print'))
+                    <a class="btn btn-warning" href="{{route('channel-operation.print', $coe_id)}}" target="_blank"><i class="fa fa-download mr-1"></i>DOWNLOAD</a>
+                    @endif
                 @endif
             </div>
         </div>
@@ -1379,7 +1382,11 @@
         <div class="card-footer text-right">
             @if(empty($status) || $status == 'draft')
                 <button class="btn btn-primary" wire:click.prevent="prev" wire:loading.attr="disabled"><i class="fa fa-pen-alt mr-1"></i>EDIT</button>
-                <button class="btn btn-success" wire:click.prevent="finalize"><i class="fa fa-thumbs-up mr-1"></i>FINALIZE</button>
+                <button class="btn btn-success text-uppercase" wire:click.prevent="finalize"><i class="fa fa-thumbs-up mr-1"></i>FINALIZE</button>
+            @else
+                @if(!empty($coe_id) && auth()->user()->can('channel operation print'))
+                <a class="btn btn-warning" href="{{route('channel-operation.print', $coe_id)}}" target="_blank"><i class="fa fa-download mr-1"></i>DOWNLOAD</a>
+                @endif
             @endif
         </div>
     </div>

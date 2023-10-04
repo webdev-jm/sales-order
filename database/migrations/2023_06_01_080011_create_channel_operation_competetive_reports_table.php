@@ -18,7 +18,7 @@ class CreateChannelOperationCompetetiveReportsTable extends Migration
             $table->unsignedBigInteger('channel_operation_id')->nullable();
             $table->string('company_name');
             $table->string('product_description');
-            $table->decimal('srp', 10, 2);
+            $table->string('srp');
             $table->string('type_of_promotion');
             $table->string('impact_to_our_product');
             $table->timestamps();
