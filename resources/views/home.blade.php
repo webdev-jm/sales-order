@@ -42,7 +42,8 @@
     </div>
 </div>
 @elseif(!empty($logged_branch))
-    @if(auth()->user()->coe)
+    {{-- exempt bevi offices --}}
+    @if(auth()->user()->coe && $logged_branch->branch->account_id != 241)
     <livewire:coe.form :logged_branch="$logged_branch"/>
     @else
         <div class="card">

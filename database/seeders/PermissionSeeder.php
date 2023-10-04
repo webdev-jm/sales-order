@@ -39,6 +39,8 @@ class PermissionSeeder extends Seeder
             // reports
             'report access',
             'report export',
+            // sales dashboard
+            'sales dashboard',
             //mcp
             'mcp access',
             'mcp create',
@@ -66,6 +68,8 @@ class PermissionSeeder extends Seeder
             'salesmen location delete',
             // Channel Operation
             'channel operation report',
+            'channel operation print',
+            'channel operation list',
             // sales order cut-off
             'SO cut-off access',
             'SO cut-off create',
