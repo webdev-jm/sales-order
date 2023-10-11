@@ -14,10 +14,13 @@ class CompetetiveReports extends Component
     protected $paginationTheme = 'bootstrap';
 
     public $user_data, $account_data;
+    public $date_from, $date_to;
 
     protected $listeners = [
         'setUser' => 'setUser', 
         'setAccount' => 'setAccount',
+        'setDateFrom' => 'setDateFrom',
+        'setDateTo' => 'setDateTo',
     ];
 
     public function setUser($user_data) {
@@ -28,6 +31,14 @@ class CompetetiveReports extends Component
     public function setAccount($account_data) {
         $this->account_data = $account_data;
         $this->resetPage('competetive-report-page');
+    }
+
+    public function setDateFrom($date_from) {
+        $this->date_from = $date_from;
+    }
+
+    public function setDateTo($date_to) {
+        $this->date_to = $date_to;
     }
 
     public function render()
@@ -49,6 +60,12 @@ class CompetetiveReports extends Component
             })
             ->when(!empty($this->account_data), function($query) {
                 $query->whereIn('a.id', $this->account_data);
+            })
+            ->when(!empty($this->date_from), function($query) {
+                $query->where('date', '>=', $this->date_from);
+            })
+            ->when(!empty($this->date_to), function($query) {
+                $query->where('date', '<=', $this->date_to);
             })
             ->paginate(10, ['*'], 'competetive-report-page');
 
