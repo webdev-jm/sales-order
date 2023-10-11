@@ -319,13 +319,13 @@ class Form extends Component
                     $trade_marketing_activity = new ChannelOperationTradeMarketingActivity([
                         'channel_operation_id' => $channel_operation->id,
                         'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                        'remarks' => $this->trade_marketing_activities['remarks'],
+                        'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
                     ]);
                     $trade_marketing_activity->save();
                 } else { // update
                     $trade_marketing_activity->update([
                         'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                        'remarks' => $this->trade_marketing_activities['remarks'],
+                        'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
                     ]);
                 }
     

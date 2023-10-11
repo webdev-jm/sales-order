@@ -3,6 +3,31 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
+                    <h3 class="card-title">DATE FILTER</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>From</label>
+                            <input type="date" class="form-control" wire:model.lazy="date_from">
+                        </div>
+
+                        <div class="col-lg-6">
+                            <label>To</label>
+                            <input type="date" class="form-control" wire:model.lazy="date_to">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
                     <h3 class="card-title">USER FILTER</h3>
                     <div class="card-tools">
                         @if(!empty($user_data))

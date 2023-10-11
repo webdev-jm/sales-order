@@ -10,6 +10,8 @@ class Filter extends Component
 {
     public $user_data;
     public $account_data;
+    public $date_from;
+    public $date_to;
 
     public function selectAccount($account_id) {
         if(!empty($this->account_data) && in_array($account_id, $this->account_data)) {
@@ -39,6 +41,20 @@ class Filter extends Component
     public function clearAccountFilter() {
         $this->reset('account_data');
         $this->emit('setAccount', $this->account_data);
+    }
+
+    public function updatedDateFrom() {
+        $this->emit('setDateFrom', $this->date_from);
+    }
+
+    public function updatedDateTo() {
+        $this->emit('setDateTo', $this->date_to);
+    }
+
+    public function mount() {
+        $this->date_from = date('Y-m').'-01';
+
+        $this->emit('setDateFrom', $this->date_from);
     }
 
     public function render()

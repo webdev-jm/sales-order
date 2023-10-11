@@ -251,7 +251,7 @@
 
 @endsection
 
-@section('plugins.Fullcalendar', true);
+@section('plugins.Fullcalendar', true)
 
 @section('js')
 <script>

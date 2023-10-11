@@ -21,6 +21,9 @@ class DashboardController extends Controller
     {
         if(auth()->user()->can('system logs')) {
             
+            $year = date('Y');
+            $month = date('n');
+            
             $results = DB::table('branch_logins as bl')
                 ->select(
                     DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
@@ -34,8 +37,8 @@ class DashboardController extends Controller
                 ->join('users as u', 'u.id', '=', 'bl.user_id')
                 ->join('branches as b', 'b.id', '=', 'bl.branch_id')
                 ->join('accounts as a', 'a.id', '=', 'b.account_id')
-                ->where(DB::raw('YEAR(time_in)'), 2023)
-                ->where(DB::raw('MONTH(time_in)'), 6)
+                ->where(DB::raw('YEAR(time_in)'), $year)
+                ->where(DB::raw('MONTH(time_in)'), $month)
                 ->get();
 
             $data = [];
