@@ -4,6 +4,9 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">DATE FILTER</h3>
+                    <div class="card-tools">
+                        <button class="btn btn-sm btn-success" wire:click.prevent="export"><i class="fa fa-file-excel mr-1"></i>Export Data</button>
+                    </div>
                 </div>
                 <div class="card-body">
 
