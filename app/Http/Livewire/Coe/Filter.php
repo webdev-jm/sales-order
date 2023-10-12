@@ -6,12 +6,19 @@ use Livewire\Component;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Exports\CoeReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class Filter extends Component
 {
     public $user_data;
     public $account_data;
     public $date_from;
     public $date_to;
+
+    public function export() {
+        return Excel::download(new CoeReportExport($this->user_data, $this->account_data, $this->date_from, $this->date_to), 'COE Report'.time().'.xlsx');
+    }
 
     public function selectAccount($account_id) {
         if(!empty($this->account_data) && in_array($account_id, $this->account_data)) {

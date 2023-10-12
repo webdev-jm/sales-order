@@ -69,7 +69,7 @@
                 <div class="card-header">
                     <div class="card-tools">
                         {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_sales_order']) !!}
-                        {!! Form::submit('For Truck Optimization', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_sales_order']) !!}
+                        {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_sales_order']) !!}
                         {!! Form::hidden('status', 'draft', ['form' => 'update_sales_order', 'id' => 'status']) !!}
                     </div>
                 </div>
@@ -209,8 +209,8 @@
             e.preventDefault();
             var status = $(this).val();
             var status_val = 'draft';
-            if(status == 'For Truck Optimization') {
-                status_val = 'for optimization';
+            if(status == 'Finalize') {
+                status_val = 'finalized';
             } else {
                 status_val = 'draft';
             }
