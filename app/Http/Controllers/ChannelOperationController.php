@@ -28,20 +28,22 @@ class ChannelOperationController extends Controller
 
         $channel_operations = ChannelOperation::orderBy('date', 'DESC') 
             ->when(!empty($search), function($query) use($search) {
-                $query->whereHas('branch_login', function($qry) use($search) {
-                    $qry->whereHas('branch', function($qry1) use($search) {
-                        $qry1->where('branch_code', 'like', '%'.$search.'%')
-                            ->orWhere('branch_name', 'like', '%'.$search.'%')
-                            ->orWhereHas('account', function($qry2) use($search) {
-                                $qry2->where('short_name', 'like', '%'.$search.'%');
-                            });
+                $query->where(function($query1) use($search) {
+                    $query1->whereHas('branch_login', function($qry) use($search) {
+                        $qry->whereHas('branch', function($qry1) use($search) {
+                            $qry1->where('branch_code', 'like', '%'.$search.'%')
+                                ->orWhere('branch_name', 'like', '%'.$search.'%')
+                                ->orWhereHas('account', function($qry2) use($search) {
+                                    $qry2->where('short_name', 'like', '%'.$search.'%');
+                                });
+                        })
+                        ->orWhereHas('user', function($qry1) use($search) {
+                            $qry1->where('firstname', 'like', '%'.$search.'%')
+                                ->orWhere('lastname', 'like', '%'.$search.'%');
+                        });
                     })
-                    ->orWhereHas('user', function($qry1) use($search) {
-                        $qry1->where('firstname', 'like', '%'.$search.'%')
-                            ->orWhere('lastname', 'like', '%'.$search.'%');
-                    });
-                })
-                ->orWhere('status', 'like', '%'.$search.'%');
+                    ->orWhere('status', 'like', '%'.$search.'%');
+                });
             })
             ->when(!empty($start_date), function($query) use($start_date) {
                 $query->where('date', '>=', $start_date);
@@ -49,10 +51,13 @@ class ChannelOperationController extends Controller
             ->when(!empty($end_date), function($query) use($end_date) {
                 $query->where('date', '<=', $end_date);
             })
-            ->paginate(10)->onEachSide(1);
+            ->paginate(10)->onEachSide(1)
+            ->appends(request()->query());
 
         return view('channel-operations.list')->with([
             'search' => $search,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
             'channel_operations' => $channel_operations,
         ]);
     }
