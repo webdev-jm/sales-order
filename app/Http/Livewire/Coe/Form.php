@@ -560,7 +560,7 @@ class Form extends Component
 
                     $this->paf = Paf::where('PAFNo', $trade_marketing_activity->paf_number)
                         ->first();
-                    $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo)
+                    $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo ?? '')
                         ->get();
 
                     $this->paf_number = $trade_marketing_activity->paf_number;
