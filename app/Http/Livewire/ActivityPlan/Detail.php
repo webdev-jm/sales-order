@@ -282,9 +282,9 @@ class Detail extends Component
         }
         
         $users = User::orderBy('firstname', 'ASC')
-        ->where('group_code', '<>', 'CMD')
-        ->where('group_code', '<>', NULL)
-        ->get();
+            ->where('group_code', '<>', 'CMD')
+            ->where('group_code', '<>', NULL)
+            ->get();
 
         if(!empty($this->searchAccountQuery)) {
             $accounts = Account::whereHas('users', function($query) {
