@@ -95,7 +95,7 @@ class Header extends Component
                     $month = 1;
                     $this->year = $this->year + 1;
                 } else {
-                    $month = ($month + 1) > 10 ? '0'.($month + 1) : ($month + 1);
+                    $month = ($month + 1) < 10 ? '0'.($month + 1) : ($month + 1);
                 }
 
                 $this->month = $month < 10 ? '0'.$month : $month;

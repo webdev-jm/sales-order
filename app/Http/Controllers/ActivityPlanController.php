@@ -111,7 +111,7 @@ class ActivityPlanController extends Controller
             }
         }
 
-        return view('mcp.create')->with([
+        return view('mcp.create2')->with([
             'position' => $position
         ]);
     }
@@ -384,7 +384,7 @@ class ActivityPlanController extends Controller
             }
         }
 
-        return view('mcp.edit')->with([
+        return view('mcp.edit2')->with([
             'position' => $position,
             'activity_plan' => $activity_plan,
             'status_arr' => $this->status_arr
