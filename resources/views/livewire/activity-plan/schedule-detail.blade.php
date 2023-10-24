@@ -36,15 +36,11 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-lg-6 text-center">
+                                <div class="col-lg-12 text-center">
+                                    
                                     <strong>TRIP NUMBER</strong>
                                     <br>
                                     <h3>{{$detail->trip->trip_number}}</h3>
-                                </div>
-                                <div class="col-lg-6 text-center">
-                                    <strong>REFERENCE NUMBER</strong>
-                                    <br>
-                                    <h3>{{$detail->trip->reference_number}}</h3>
                                 </div>
                             </div>
 
@@ -68,6 +64,16 @@
                                         <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
                                         </h3>
                                     </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <strong>REFERENCE NUMBER</strong>
+                                    <br>
+                                    <h3>{{$detail->trip->reference_number}}</h3>
                                 </div>
                             </div>
                         </div>
