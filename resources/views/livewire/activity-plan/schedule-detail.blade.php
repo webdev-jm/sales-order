@@ -28,6 +28,57 @@
                     </li>
                     @endif
                 </ul>
+
+                @if(!empty($detail->trip))
+                    <div class="card card-primary card-outline mt-2">
+                        <div class="card-header">
+                            <h3 class="card-title">TRIP DETAILS</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    
+                                    <strong>TRIP NUMBER</strong>
+                                    <br>
+                                    <h3>{{$detail->trip->trip_number}}</h3>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="timeline timeline-inverse">
+                                {{-- DEPARTURE --}}
+                                <div>
+                                    <i class="fas fa-plane-departure bg-info"></i>
+            
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->departure}}</strong>
+                                        </h3>
+                                    </div>
+                                </div>
+                                {{-- ARRIVAL --}}
+                                <div>
+                                    <i class="fas fa-plane-arrival bg-info"></i>
+            
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="row">
+                                <div class="col-lg-12 text-center">
+                                    <strong>REFERENCE NUMBER</strong>
+                                    <br>
+                                    <h3>{{$detail->trip->reference_number}}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endif
 
         </div>

@@ -141,9 +141,13 @@
                                                 </td>
                                                 {{-- trip --}}
                                                 <td class="p-0 align-middle text-center">
-                                                    <button class="btn btn-info btn-xs">
+                                                    <button class="btn {{isset($data['trip']) && !empty($data['trip']['trip_number']) ? 'btn-success' : 'btn-info'}} btn-xs btn-trip" data-year="{{$year}}" data-month="{{$month}}" data-date="{{$date}}" data-key="{{$line_key}}">
                                                         <i class="fa fa-plane"></i>
                                                         TRIP
+                                                        @if(isset($data['trip']) && !empty($data['trip']['trip_number']))
+                                                            NUMBER:
+                                                            <span class="ml-1 font-weight-bold">{{$data['trip']['trip_number']}}</span>
+                                                        @endif
                                                     </button>
                                                 </td>
                                                 {{-- remove row --}}

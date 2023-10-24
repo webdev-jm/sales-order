@@ -8,6 +8,7 @@ use App\Models\Branch;
 use App\Models\ActivityPlan;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanApproval;
+use App\Models\ActivityPlanDetailTrip;
 use App\Models\OrganizationStructure;
 use App\Http\Requests\StoreActivityPlanRequest;
 use App\Http\Requests\UpdateActivityPlanRequest;
@@ -188,6 +189,20 @@ class ActivityPlanController extends Controller
                                         'work_with' => $val['work_with'] ?? NULL,
                                     ]);
                                     $activity_plan_detail->save();
+
+                                    // check there's trip data
+                                    if(isset($val['trip']) && !empty($val['trip'])) {
+                                        $trip_data = $val['trip'];
+                                        $activity_plan_detail_trip = new ActivityPlanDetailTrip([
+                                            'activity_plan_detail_id' => $activity_plan_detail->id,
+                                            'trip_number' => $trip_data['trip_number'],
+                                            'departure' => $trip_data['departure'],
+                                            'arrival' => $trip_data['arrival'],
+                                            'reference_number' => $trip_data['reference_number']
+                                        ]);
+                                        $activity_plan_detail_trip->save();
+                                    }
+                                    
                                 }
                             }
                         } else {
