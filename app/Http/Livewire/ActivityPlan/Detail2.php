@@ -19,8 +19,15 @@ class Detail2 extends Component
     public $expand_dates;
 
     protected $listeners = [
-        'setDate' => 'setDate'
+        'setDate' => 'setDate',
+        'saveTrip' => 'saveTrip',
     ];
+
+    // load trip data after saving
+    public function saveTrip($year, $month, $date, $key, $trip_data) {
+        $this->month_days[$month][$date]['lines'][$key]['trip'] = $trip_data;
+        $this->setSession();
+    }
 
     // set date when header updates
     public function setDate($year, $month) {

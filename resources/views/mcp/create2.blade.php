@@ -84,8 +84,9 @@
 
 <livewire:activity-plan.detail2/>
 
-<div class="modal fade" id="modal-activities">
+<div class="modal fade" id="modal-trip">
     <div class="modal-dialog modal-lg">
+        <livewire:activity-plan.trip/>
     </div>
 </div>
 
@@ -146,6 +147,15 @@
 @section('js')
 <script>
     $(function() {
+        $('body').on('click', '.btn-trip', function(e) {
+            e.preventDefault();
+            var year = $(this).data('year');
+            var month = $(this).data('month');
+            var date = $(this).data('date');
+            var key = $(this).data('key');
+            Livewire.emit('setTrip', year, month, date, key);
+            $('#modal-trip').modal('show');
+        });
         
         // change status base on button clicked
         $('body').on('click', '.btn-submit', function(e) {
