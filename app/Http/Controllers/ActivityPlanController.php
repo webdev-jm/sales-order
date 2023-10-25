@@ -140,23 +140,28 @@ class ActivityPlanController extends Controller
                         $line_error = 0;
                         $line_empty = 1;
                         foreach($data['details'][$data['month']] as $date => $details) {
-                            // dates
-                            foreach($details['lines'] as $val) {
-                                // check for error
-                                if(empty($val['branch_id']) 
-                                    && 
-                                    (!empty($val['user_id']) || 
-                                    !empty($val['location']) ||
-                                    !empty(trim($val['purpose'])) ||
-                                    !empty($val['account_id']))
-                                ) {
-                                    $line_error = 1;
+                            if(!empty($details['lines'])) {
+                                // dates
+                                foreach($details['lines'] as $val) {
+                                    // check for error
+                                    if(empty($val['branch_id']) 
+                                        && 
+                                        (!empty($val['user_id']) || 
+                                        !empty($val['location']) ||
+                                        !empty(trim($val['purpose'])) ||
+                                        !empty($val['account_id']) ||
+                                        !empty($val['trip']))
+                                    ) {
+                                        $line_error = 1;
+                                    }
+    
+                                    // check if all lines are empty
+                                    if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty(trim($val['purpose'])) || !empty($val['account_id'])) {
+                                        $line_empty = 0;
+                                    }
                                 }
-
-                                // check if all lines are empty
-                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty(trim($val['purpose'])) || !empty($val['account_id'])) {
-                                    $line_empty = 0;
-                                }
+                            } else {
+                                $line_empty = 0;
                             }
                         }
 
@@ -177,32 +182,35 @@ class ActivityPlanController extends Controller
                             ->log(':causer.firstname :causer.lastname has created activity plan for :subject.year :subject.month');
 
                             foreach($data['details'][$data['month']] as $date => $details) {
-                                foreach($details['lines'] as $val) {
-                                    $activity_plan_detail = new ActivityPlanDetail([
-                                        'activity_plan_id' => $activity_plan->id,
-                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                        'day' => $details['day'],
-                                        'date' => $date,
-                                        'exact_location' => $val['location'],
-                                        'activity' => $val['purpose'],
-                                        'work_with' => $val['work_with'] ?? NULL,
-                                    ]);
-                                    $activity_plan_detail->save();
-
-                                    // check there's trip data
-                                    if(isset($val['trip']) && !empty($val['trip'])) {
-                                        $trip_data = $val['trip'];
-                                        $activity_plan_detail_trip = new ActivityPlanDetailTrip([
-                                            'activity_plan_detail_id' => $activity_plan_detail->id,
-                                            'trip_number' => $trip_data['trip_number'],
-                                            'departure' => $trip_data['departure'],
-                                            'arrival' => $trip_data['arrival'],
-                                            'reference_number' => $trip_data['reference_number']
-                                        ]);
-                                        $activity_plan_detail_trip->save();
+                                if(!empty($details['lines'])) {
+                                    foreach($details['lines'] as $val) {
+                                        if(!empty($val['branch_id'])) {
+                                            $activity_plan_detail = new ActivityPlanDetail([
+                                                'activity_plan_id' => $activity_plan->id,
+                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                'day' => $details['day'],
+                                                'date' => $date,
+                                                'exact_location' => $val['location'],
+                                                'activity' => $val['purpose'],
+                                                'work_with' => $val['work_with'] ?? NULL,
+                                            ]);
+                                            $activity_plan_detail->save();
+        
+                                            // check there's trip data
+                                            if(isset($val['trip']) && !empty($val['trip'])) {
+                                                $trip_data = $val['trip'];
+                                                $activity_plan_detail_trip = new ActivityPlanDetailTrip([
+                                                    'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                    'trip_number' => $trip_data['trip_number'],
+                                                    'departure' => $trip_data['departure'],
+                                                    'arrival' => $trip_data['arrival'],
+                                                    'reference_number' => $trip_data['reference_number'] ?? ''
+                                                ]);
+                                                $activity_plan_detail_trip->save();
+                                            }
+                                        }
                                     }
-                                    
                                 }
                             }
                         } else {
@@ -369,20 +377,34 @@ class ActivityPlanController extends Controller
                 $account_name = '['.$account->account_code.'], '.$account->short_name;
             }
 
+            $trip = array();
+            if(!empty($detail->trip)) {
+                $trip_data = $detail->trip;
+                $trip = [
+                    'trip_number' => $trip_data->trip_number,
+                    'departure' => $trip_data->departure,
+                    'arrival' => $trip_data->arrival,
+                    'reference_number' => $trip_data->references_number
+                ];
+            }
+
             $details[$detail->date]['day'] = $detail->day;
             $details[$detail->date]['date'] = date('M. d', strtotime($detail->date));
             $details[$detail->date]['class'] = $class;
-            $details[$detail->date]['lines'][] = [
-                'id' => $detail->id,
-                'location' => $detail->exact_location,
-                'account_id' => $detail->branch->account_id ?? '',
-                'account_name' => $account_name,
-                'branch_id' => $detail->branch_id,
-                'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
-                'purpose' => $detail->activity,
-                'user_id' => $detail->user_id,
-                'work_with' => $detail->work_with,
-            ];
+            if(!empty($detail->branch_id)) {
+                $details[$detail->date]['lines'][] = [
+                    'id' => $detail->id,
+                    'location' => $detail->exact_location,
+                    'account_id' => $detail->branch->account_id ?? '',
+                    'account_name' => $account_name,
+                    'branch_id' => $detail->branch_id,
+                    'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
+                    'purpose' => $detail->activity,
+                    'user_id' => $detail->user_id,
+                    'work_with' => $detail->work_with,
+                    'trip' => $trip
+                ];
+            }
         }
 
         $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
@@ -438,8 +460,9 @@ class ActivityPlanController extends Controller
                                     && 
                                     (!empty($val['user_id']) || 
                                     !empty($val['location']) ||
-                                    !empty($val['purpose']) ||
-                                    !empty($val['account_id']))
+                                    !empty(trim($val['purpose'])) ||
+                                    !empty($val['account_id']) ||
+                                    !empty($val['trip']))
                                 ) {
                                     $line_error = 1;
                                 }
@@ -498,6 +521,7 @@ class ActivityPlanController extends Controller
                                             ]);
                                             $activity_plan_detail->save();
                                         }
+
                                     } else { // insert
                                         $activity_plan_detail = new ActivityPlanDetail([
                                             'activity_plan_id' => $activity_plan->id,
@@ -511,6 +535,20 @@ class ActivityPlanController extends Controller
                                         ]);
                                         $activity_plan_detail->save();
                                     }
+
+                                    // detail trip
+                                    if(isset($val['trip']) && !empty($val['trip'])) {
+                                        $trip_data = $val['trip'];
+                                        $trip = ActivityPlanDetailTrip::updateOrInsert([
+                                            'activity_plan_detail_id' => $activity_plan_detail->id,
+                                        ],[
+                                            'trip_number' => $trip_data['trip_number'],
+                                            'departure' => $trip_data['departure'],
+                                            'arrival' => $trip_data['arrival'],
+                                            'reference_number' => $trip_data['reference_number'] ?? ''
+                                        ]);
+                                    }
+                                    
                                 }
                             }
                         } else {
@@ -770,16 +808,18 @@ class ActivityPlanController extends Controller
                 // user
                 $user = User::where('email', $line['work_with'])->first();
 
-                $details[$month][$date]['lines'][] = [
-                    'location' => $line['location'] ?? '',
-                    'account_id' => $account->id ?? '',
-                    'account_name' => $account->short_name ?? '',
-                    'branch_id' => $branch->id ?? '',
-                    'branch_name' => $branch->branch_name ?? '',
-                    'purpose' => $line['purpose'],
-                    'user_id' => $user->id ?? '',
-                    'work_with' => $line['work_with'],
-                ];
+                if(!empty($branch->id)) {
+                    $details[$month][$date]['lines'][] = [
+                        'location' => $line['location'] ?? '',
+                        'account_id' => $account->id ?? '',
+                        'account_name' => $account->short_name ?? '',
+                        'branch_id' => $branch->id ?? '',
+                        'branch_name' => $branch->branch_name ?? '',
+                        'purpose' => $line['purpose'],
+                        'user_id' => $user->id ?? '',
+                        'work_with' => $line['work_with'],
+                    ];
+                }
             }
 
         }
