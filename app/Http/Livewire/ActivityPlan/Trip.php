@@ -51,16 +51,13 @@ class Trip extends Component
             'arrival' => [
                 'required'
             ],
-            'reference_number' => [
-                'required'
-            ]
         ]);
 
         $trip_arr = [
             'trip_number' => $this->trip_number,
             'departure' => $this->departure,
             'arrival' => $this->arrival,
-            'reference_number' => $this->reference_number
+            'reference_number' => $this->reference_number ?? ''
         ];
 
         $activity_plan_data = Session::get('activity_plan_data');

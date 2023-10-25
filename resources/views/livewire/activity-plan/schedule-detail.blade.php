@@ -39,7 +39,7 @@
                                 <div class="col-lg-6 text-center align-middle">
                                     <strong>TRIP NUMBER</strong>
                                     <br>
-                                    <h3>{{$detail->trip->trip_number}}</h3>
+                                    <h3 class="font-weight-bold">{{$detail->trip->trip_number}}</h3>
                                 </div>
                                 <div class="col-lg-6 text-center">
                                     {!! QrCode::generate($detail->trip->trip_number); !!}
@@ -70,14 +70,15 @@
                             </div>
 
                             <hr>
-
-                            <div class="row">
-                                <div class="col-lg-12 text-center">
-                                    <strong>REFERENCE NUMBER</strong>
-                                    <br>
-                                    <h3>{{$detail->trip->reference_number}}</h3>
+                            @if(!empty($detail->trip->reference_number))
+                                <div class="row">
+                                    <div class="col-lg-12 text-center">
+                                        <strong>REFERENCE NUMBER</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$detail->trip->reference_number}}</h3>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 @endif
