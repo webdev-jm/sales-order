@@ -36,11 +36,13 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-lg-12 text-center">
-                                    
+                                <div class="col-lg-6 text-center align-middle">
                                     <strong>TRIP NUMBER</strong>
                                     <br>
                                     <h3>{{$detail->trip->trip_number}}</h3>
+                                </div>
+                                <div class="col-lg-6 text-center">
+                                    {!! QrCode::generate($detail->trip->trip_number); !!}
                                 </div>
                             </div>
 
@@ -61,7 +63,7 @@
                                     <i class="fas fa-plane-arrival bg-info"></i>
             
                                     <div class="timeline-item">
-                                        <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
+                                        <h3 class="timeline-header border-0"><a href="#">ARRIVAL: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
                                         </h3>
                                     </div>
                                 </div>
