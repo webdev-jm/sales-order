@@ -30,6 +30,28 @@
                                 </p>
                             </div>
                         </div>
+                    @elseif($action == 'return')
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="remarks">Remarks / Reason for returning</label>
+                                    <textarea id="remarks" class="form-control @error('remarks') is-invalid @enderror" wire:model.defer="remarks"></textarea>
+                                    @error('remarks')
+                                        <p class="text-danger">{{$message}}</p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    @elseif($action == 'confirm')
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <p>
+                                    <b class="text-uppercase">Are you sure to confirm this Activity Plan?</b>
+                                    <br>
+                                    <span><b class="text-info">NOTE: </b>This activity plan will be sent to the user's respective superior for approval.</span>
+                                </p>
+                            </div>
+                        </div>
                     @endif
                 @endif
 
@@ -37,10 +59,14 @@
             <div class="modal-footer text-right">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 @if(!empty($activity_plan) && !empty($action))
-                    @if($action == 'reject')
-                    <button class="btn btn-danger" wire:loading.attr="disabled">Reject</button>
+                    @if($action == 'return')
+                        <button class="btn btn-secondary" wire:loading.attr="disabled">Return</button>
+                    @elseif($action == 'confirm')
+                        <button class="btn btn-info" wire:loading.attr="disabled">Confirm</button>
+                    @elseif($action == 'reject')
+                        <button class="btn btn-danger" wire:loading.attr="disabled">Reject</button>
                     @elseif($action == 'approve')
-                    <button class="btn btn-success" wire:loading.attr="disabled">Approve</button>
+                        <button class="btn btn-success" wire:loading.attr="disabled">Approve</button>
                     @endif
                 @endif
             </div>

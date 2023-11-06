@@ -188,6 +188,7 @@ class Detail2 extends Component
     // remove schedule line
     public function removeLine($date, $key) {
         unset($this->month_days[$this->month][$date]['lines'][$key]);
+        $this->setSession();
     }
 
     // expand and minimize days
@@ -231,7 +232,7 @@ class Detail2 extends Component
                 'lines' => $data
             ];
 
-            $this->expand_dates[$date] = false;
+            $this->expand_dates[$date] = true;
         }
 
         $this->month_days[$this->month] = $days;

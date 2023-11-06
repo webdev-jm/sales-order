@@ -80,7 +80,8 @@ class UserBranchScheduleController extends Controller
 
                     foreach($schedules as $sched) {
                         // check login
-                        $branch_login = BranchLogin::where('user_id', $user_id)
+                        $branch_login = BranchLogin::with('branch')
+                            ->where('user_id', $user_id)
                             ->where('branch_id', $sched->branch_id)
                             ->where(DB::raw('DATE(time_in)'), $schedule->date)
                             ->first();
@@ -109,7 +110,8 @@ class UserBranchScheduleController extends Controller
                 ->get();
                 
                 foreach($schedules_date as $schedule) {
-                    $schedules = UserBranchSchedule::whereNotNull('id')
+                    $schedules = UserBranchSchedule::with('branch')
+                    ->whereNotNull('id')
                     ->where('status', 'for reschedule')
                     ->where('date', $schedule->date);
 

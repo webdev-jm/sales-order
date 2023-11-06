@@ -39,7 +39,9 @@ class ActivityPlanController extends Controller
         'draft' => 'secondary',
         'submitted' => 'info',
         'rejected' => 'danger',
-        'approved' => 'success'
+        'approved' => 'success',
+        'returned' => 'warning',
+        'confirmed' => 'primary',
     ];
 
     /**
@@ -205,7 +207,8 @@ class ActivityPlanController extends Controller
                                                     'trip_number' => $trip_data['trip_number'],
                                                     'departure' => $trip_data['departure'],
                                                     'arrival' => $trip_data['arrival'],
-                                                    'reference_number' => $trip_data['reference_number'] ?? ''
+                                                    'reference_number' => $trip_data['reference_number'] ?? '',
+                                                    'transportation_type' => $trip_data['transportation_type'],
                                                 ]);
                                                 $activity_plan_detail_trip->save();
                                             }
@@ -298,20 +301,19 @@ class ActivityPlanController extends Controller
         $schedule_data = [];
         foreach($activity_plan->details as $detail) {
             if(isset($detail->branch->branch_name)) {
+                $title = '['.strtoupper($detail->branch->branch_name).'] '.(!empty($detail->activity) ? '- '.$detail->activity : '');
+                $bg_color = '#09599e';
+                if(!empty($detail->trip)) {
+                    $trip_data = $detail->trip;
+                    $title = 'TRIP NUMBER: '.$trip_data->trip_number.' '.$title; 
+                    $bg_color = '#198731';
+                }
+
                 $schedule_data[] = [
-                    'title' => '['.strtoupper($detail->branch->branch_name).'] '.(!empty($detail->activity) ? '- '.$detail->activity : ''),
+                    'title' => $title,
                     'start' => $detail->date,
                     'allDay' => true,
-                    'backgroundColor' => '#09599e',
-                    'borderColor' => '#024d4d',
-                    'id' => $detail->id
-                ];
-            } else if(!empty($detail->activity)) {
-                $schedule_data[] = [
-                    'title' => $detail->activity,
-                    'start' => $detail->date,
-                    'allDay' => true,
-                    'backgroundColor' => '#09599e',
+                    'backgroundColor' => $bg_color,
                     'borderColor' => '#024d4d',
                     'id' => $detail->id
                 ];
@@ -354,78 +356,87 @@ class ActivityPlanController extends Controller
     {
         $activity_plan = ActivityPlan::findOrFail($id);
 
-        // header
-        $activity_plan_data[$activity_plan->year] = [
-            'year' => $activity_plan->year,
-            'month' => $activity_plan->month,
-            'objectives' => $activity_plan->objectives,
-        ];
+        // check status
+        if(in_array($activity_plan->status, ['draft', 'returned', 'rejected'])) {
+            
+            // header
+            $activity_plan_data[$activity_plan->year] = [
+                'year' => $activity_plan->year,
+                'month' => $activity_plan->month,
+                'objectives' => $activity_plan->objectives,
+            ];
 
-        // details
-        $details = [];
-        foreach($activity_plan->details as $detail) {
-            $class = '';
-            if($detail->day == 'Sun') {
-                $class = 'bg-navy';
-            } else if($detail->day == 'Sat') {
-                $class = 'bg-secondary';
+            // details
+            $details = [];
+            foreach($activity_plan->details as $detail) {
+                $class = '';
+                if($detail->day == 'Sun') {
+                    $class = 'bg-navy';
+                } else if($detail->day == 'Sat') {
+                    $class = 'bg-secondary';
+                }
+
+                $account = $detail->branch->account ?? '';
+                $account_name = '';
+                if(!empty($account)) {
+                    $account_name = '['.$account->account_code.'], '.$account->short_name;
+                }
+
+                $trip = array();
+                if(!empty($detail->trip)) {
+                    $trip_data = $detail->trip;
+                    $trip = [
+                        'trip_number' => $trip_data->trip_number,
+                        'departure' => $trip_data->departure,
+                        'arrival' => $trip_data->arrival,
+                        'reference_number' => $trip_data->references_number,
+                        'transportation_type' => $trip_data->transportation_type,
+                    ];
+                }
+
+                $details[$detail->date]['day'] = $detail->day;
+                $details[$detail->date]['date'] = date('M. d', strtotime($detail->date));
+                $details[$detail->date]['class'] = $class;
+                if(!empty($detail->branch_id)) {
+                    $details[$detail->date]['lines'][] = [
+                        'id' => $detail->id,
+                        'location' => $detail->exact_location,
+                        'account_id' => $detail->branch->account_id ?? '',
+                        'account_name' => $account_name,
+                        'branch_id' => $detail->branch_id,
+                        'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
+                        'purpose' => $detail->activity,
+                        'user_id' => $detail->user_id,
+                        'work_with' => $detail->work_with,
+                        'trip' => $trip
+                    ];
+                }
             }
 
-            $account = $detail->branch->account ?? '';
-            $account_name = '';
-            if(!empty($account)) {
-                $account_name = '['.$account->account_code.'], '.$account->short_name;
+            $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
+
+            if(empty(Session::get('activity_plan_data'))) {
+                Session::put('activity_plan_data', $activity_plan_data);
             }
 
-            $trip = array();
-            if(!empty($detail->trip)) {
-                $trip_data = $detail->trip;
-                $trip = [
-                    'trip_number' => $trip_data->trip_number,
-                    'departure' => $trip_data->departure,
-                    'arrival' => $trip_data->arrival,
-                    'reference_number' => $trip_data->references_number
-                ];
+            $position = [];
+            $organizations = $activity_plan->user->organizations;
+            if(!empty($organizations)) {
+                foreach($organizations as $organization) {
+                    $position[] = $organization->job_title->job_title;
+                }
             }
 
-            $details[$detail->date]['day'] = $detail->day;
-            $details[$detail->date]['date'] = date('M. d', strtotime($detail->date));
-            $details[$detail->date]['class'] = $class;
-            if(!empty($detail->branch_id)) {
-                $details[$detail->date]['lines'][] = [
-                    'id' => $detail->id,
-                    'location' => $detail->exact_location,
-                    'account_id' => $detail->branch->account_id ?? '',
-                    'account_name' => $account_name,
-                    'branch_id' => $detail->branch_id,
-                    'branch_name' => isset($detail->branch) ? '['.$detail->branch->branch_code.'] '.$detail->branch->branch_name : '',
-                    'purpose' => $detail->activity,
-                    'user_id' => $detail->user_id,
-                    'work_with' => $detail->work_with,
-                    'trip' => $trip
-                ];
-            }
+            return view('mcp.edit2')->with([
+                'position' => $position,
+                'activity_plan' => $activity_plan,
+                'status_arr' => $this->status_arr
+            ]);
+        } else {
+            return back()->with([
+                'message_error' => 'You cannot edit activity plan with status of '.$activity_plan->status
+            ]);
         }
-
-        $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
-
-        if(empty(Session::get('activity_plan_data'))) {
-            Session::put('activity_plan_data', $activity_plan_data);
-        }
-
-        $position = [];
-        $organizations = $activity_plan->user->organizations;
-        if(!empty($organizations)) {
-            foreach($organizations as $organization) {
-                $position[] = $organization->job_title->job_title;
-            }
-        }
-
-        return view('mcp.edit2')->with([
-            'position' => $position,
-            'activity_plan' => $activity_plan,
-            'status_arr' => $this->status_arr
-        ]);
     }
 
     /**
@@ -493,6 +504,8 @@ class ActivityPlanController extends Controller
                             ->withProperties($changes_arr)
                             ->log(':causer.firstname :causer.lastname has updated activity plan :subject.year :subject.month');
 
+                            $activity_plan->details()->forceDelete();
+
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 foreach($details['lines'] as $val) {
                                     // check if already exist
@@ -545,7 +558,8 @@ class ActivityPlanController extends Controller
                                             'trip_number' => $trip_data['trip_number'],
                                             'departure' => $trip_data['departure'],
                                             'arrival' => $trip_data['arrival'],
-                                            'reference_number' => $trip_data['reference_number'] ?? ''
+                                            'reference_number' => $trip_data['reference_number'] ?? '',
+                                            'transportation_type' => $trip_data['transportation_type'],
                                         ]);
                                     }
                                     
@@ -668,7 +682,7 @@ class ActivityPlanController extends Controller
             $details = $activity_plan->details()->where('date', $date)
             ->get();
             $data = [];
-            if(!empty($details)) {
+            if(!empty($details->count())) {
                 foreach($details as $detail) {
                     $branch_name = '';
                     $account_name = '';
@@ -677,12 +691,18 @@ class ActivityPlanController extends Controller
                         $account_name = $detail->branch->account->short_name;
                     }
 
+                    $trip = '';
+                    if(!empty($detail->trip)) {
+                        $trip = $detail->trip->trip_number;
+                    }
+
                     $data[] = [
                         'location' => $detail->exact_location,
                         'account_name' => $account_name,
                         'branch_name' => $branch_name,
                         'purpose' => $detail->activity,
                         'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : $detail->work_with,
+                        'trip' => $trip,
                     ];
                 }
             } else {
@@ -691,7 +711,8 @@ class ActivityPlanController extends Controller
                     'account_name' => '',
                     'branch_name' => '',
                     'purpose' => '',
-                    'work_with' => ''
+                    'work_with' => '',
+                    'trip' => '',
                 ];
             }
 
@@ -709,6 +730,12 @@ class ActivityPlanController extends Controller
         ]);
 
         return $pdf->stream('weekly-activity-report-'.$activity_plan->year.'-'.$activity_plan->month.'-'.time().'.pdf');
+
+        // return view('mcp.pdf')->with([
+        //     'activity_plan' => $activity_plan,
+        //     'position' => $position,
+        //     'lines' => $lines
+        // ]);
     }
 
     public function upload(Request $request) {

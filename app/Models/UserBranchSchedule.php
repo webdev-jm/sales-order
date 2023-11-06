@@ -12,6 +12,7 @@ class UserBranchSchedule extends Model
     protected $fillable = [
         'user_id',
         'branch_id',
+        'activity_plan_detail_trip_id',
         'date',
         'status',
         'reschedule_date',
@@ -29,6 +30,10 @@ class UserBranchSchedule extends Model
 
     public function approvals() {
         return $this->hasMany('App\Models\UserBranchScheduleApproval');
+    }
+
+    public function trip() {
+        return $this->hasOne('App\Models\ActivityPlanDetailTrip');
     }
 
     public function BranchLogin() {

@@ -51,7 +51,11 @@
                             <div class="timeline timeline-inverse">
                                 {{-- DEPARTURE --}}
                                 <div>
-                                    <i class="fas fa-plane-departure bg-info"></i>
+                                    @if($detail->trip->transportation_type == 'AIR')
+                                        <i class="fas fa-plane-departure bg-info"></i>
+                                    @else
+                                        <i class="fas fa-car bg-info"></i>
+                                    @endif
             
                                     <div class="timeline-item">
                                         <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->departure}}</strong>
@@ -60,7 +64,11 @@
                                 </div>
                                 {{-- ARRIVAL --}}
                                 <div>
-                                    <i class="fas fa-plane-arrival bg-info"></i>
+                                    @if($detail->trip->transportation_type == 'AIR')
+                                        <i class="fas fa-plane-arrival bg-info"></i>
+                                    @else
+                                        <i class="fas fa-car-side bg-info"></i>
+                                    @endif
             
                                     <div class="timeline-item">
                                         <h3 class="timeline-header border-0"><a href="#">ARRIVAL: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
@@ -70,15 +78,21 @@
                             </div>
 
                             <hr>
-                            @if(!empty($detail->trip->reference_number))
-                                <div class="row">
-                                    <div class="col-lg-12 text-center">
-                                        <strong>REFERENCE NUMBER</strong>
-                                        <br>
-                                        <h3 class="font-weight-bold">{{$detail->trip->reference_number}}</h3>
-                                    </div>
+                            
+                            <div class="row">
+                                <div class="col-lg-6 text-center">
+                                    <strong>TRANSPORTATION TYPE</strong>
+                                    <br>
+                                    <h3 class="font-weight-bold">{{$detail->trip->transportation_type}}</h3>
                                 </div>
-                            @endif
+                                @if(!empty($detail->trip->reference_number))
+                                <div class="col-lg-6 text-center">
+                                    <strong>REFERENCE NUMBER</strong>
+                                    <br>
+                                    <h3 class="font-weight-bold">{{$detail->trip->reference_number}}</h3>
+                                </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 @endif

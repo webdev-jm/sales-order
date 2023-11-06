@@ -16,8 +16,9 @@
         .text-left {
             text-align: left !important;
         }
-        .text-danger {
-            color: rgb(233, 29, 29);
+        .text-primary {
+            color: rgb(9, 12, 201);
+            font-weight: 600;
         }
         .mb-3 {
             margin-bottom: 15px;
@@ -95,7 +96,7 @@
     
     <div class="mb-3">
         <label>
-            <span class="font-weight-bold">ACTIVITY PLAN FOR THE MONTH OF</span> <span class="text-uppercase text-danger">{{date('F Y', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}}</span>
+            <span class="font-weight-bold">ACTIVITY PLAN FOR THE MONTH OF</span> <span class="text-uppercase text-primary">{{date('F Y', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}}</span>
         </label>
         <br>
         <label class="text-uppercase">
@@ -123,6 +124,7 @@
                 <th class="text-center">ACCOUNT</th>
                 <th class="text-center">PURPOSE / ACTIVITY</th>
                 <th class="text-center">WORK WITH</th>
+                <th class="text-center">TRIP #</th>
             </tr>
         </thead>
         <tbody>
@@ -141,6 +143,7 @@
                     </td>
                     <td class="text-left">{{$line['purpose']}}</td>
                     <td class="mw-100">{{$line['work_with']}}</td>
+                    <td class="mw-100">{{$line['trip']}}</td>
                 </tr>
                 @endforeach
             @endforeach

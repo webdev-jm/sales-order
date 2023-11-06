@@ -4,6 +4,8 @@ namespace App\Http\Livewire\ActivityPlan;
 
 use Livewire\Component;
 
+use App\Models\ActivityPlanDetailTrip;
+
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 
@@ -11,7 +13,7 @@ class Trip extends Component
 {
     public $year, $month, $date, $key;
     public $trip_number;
-    public $departure, $arrival, $reference_number;
+    public $departure, $arrival, $reference_number, $transportation_type;
 
     protected $listeners = [
         'setTrip' => 'setTrip'
@@ -23,7 +25,7 @@ class Trip extends Component
         $this->date = $date;
         $this->key = $key;
 
-        $this->reset('departure', 'arrival', 'reference_number', 'trip_number');
+        $this->reset('departure', 'arrival', 'reference_number', 'trip_number', 'transportation_type');
         
         // check data from session
         $activity_plan_data = Session::get('activity_plan_data');
@@ -34,12 +36,26 @@ class Trip extends Component
                 $this->departure = $trip_data['departure'] ?? '';
                 $this->arrival = $trip_data['arrival'] ?? '';
                 $this->reference_number = $trip_data['reference_number'] ?? '';
+                $this->transportation_type = $trip_data['transportation_type'] ?? '';
             }
         }
 
-        // create unique 8 character trip number
-        if(empty($this->trip_number)) {
-            $this->trip_number = strtoupper(substr(sha1(uniqid()), 0, 8));
+        $this->generateTripNumber();
+        
+    }
+
+    private function generateTripNumber() {
+        // Check if a trip number already exists
+        if (empty($this->trip_number)) {
+            $new_trip_number = null;
+
+            do {
+                // Generate a new trip number
+                $new_trip_number = strtoupper(substr(sha1(uniqid()), 0, 6));
+            } while (ActivityPlanDetailTrip::where('trip_number', $new_trip_number)->exists());
+
+            // Set the new trip number
+            $this->trip_number = $new_trip_number;
         }
     }
 
@@ -51,13 +67,17 @@ class Trip extends Component
             'arrival' => [
                 'required'
             ],
+            'transportation_type' => [
+                'required'
+            ]
         ]);
 
         $trip_arr = [
             'trip_number' => $this->trip_number,
             'departure' => $this->departure,
             'arrival' => $this->arrival,
-            'reference_number' => $this->reference_number ?? ''
+            'reference_number' => $this->reference_number ?? '',
+            'transportation_type' => $this->transportation_type,
         ];
 
         $activity_plan_data = Session::get('activity_plan_data');
@@ -83,6 +103,13 @@ class Trip extends Component
 
     public function render()
     {
-        return view('livewire.activity-plan.trip');
+        $transportation_types = [
+            'AIR',
+            'LAND'
+        ];
+
+        return view('livewire.activity-plan.trip')->with([
+            'transportation_types' => $transportation_types
+        ]);
     }
 }
