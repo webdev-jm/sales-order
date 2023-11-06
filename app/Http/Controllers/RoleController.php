@@ -25,8 +25,16 @@ class RoleController extends Controller
 
     public function create() {
         $permissions = Permission::all();
+        $permissions_arr = [];
+        foreach($permissions as $permission) {
+            $permissions_arr[$permission->module][$permission->id] = [
+                'name' => $permission->name,
+                'description' => $permission->description
+            ];
+        }
+
         return view('roles.create')->with([
-            'permissions' => $permissions
+            'permissions' => $permissions_arr
         ]);
     }
 
@@ -45,10 +53,19 @@ class RoleController extends Controller
 
     public function edit($id) {
         $role = Role::findOrFail($id);
+        
         $permissions = Permission::all();
+        $permissions_arr = [];
+        foreach($permissions as $permission) {
+            $permissions_arr[$permission->module][$permission->id] = [
+                'name' => $permission->name,
+                'description' => $permission->description
+            ];
+        }
+
         return view('roles.edit')->with([
             'role' => $role,
-            'permissions' => $permissions
+            'permissions' => $permissions_arr
         ]);
     }
 

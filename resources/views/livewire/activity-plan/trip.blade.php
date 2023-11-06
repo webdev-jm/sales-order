@@ -19,7 +19,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>Departure <i class="fa fa-plane-departure text-primary"></i></label>
-                        <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model="departure">
+                        <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model.lazy="departure">
                         <p class="text-danger">{{$errors->first('departure')}}</p>
                     </div>
                 </div>
@@ -27,15 +27,28 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>Arrival <i class="fa fa-plane-arrival text-primary"></i></label>
-                        <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model="arrival">
+                        <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model.lazy="arrival">
                         <p class="text-danger">{{$errors->first('arrival')}}</p>
                     </div>
                 </div>
 
                 <div class="col-lg-6">
                     <div class="form-group">
+                        <label>Transportation Type</label>
+                        <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model.lazy="transportation_type">
+                            <option value="" disabled>Select transpostation type</option>
+                            @foreach($transportation_types as $type)
+                                <option value="{{$type}}">{{$type}}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-danger">{{$errors->first('transportation_type')}}</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
                         <label>Reference Number</label>
-                        <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number" wire:model="reference_number">
+                        <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number" wire:model.lazy="reference_number">
                         <p class="text-danger">{{$errors->first('reference_number')}}</p>
                     </div>
                 </div>

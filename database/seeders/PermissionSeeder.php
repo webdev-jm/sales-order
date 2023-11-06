@@ -17,184 +17,402 @@ class PermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // $permissions_arr = [
+        //     // sales order list
+        //     'sales order list',
+        //     'sales order change status',
+        //     // sales order
+        //     'sales order access',
+        //     'sales order create',
+        //     'sales order edit',
+        //     'sales order delete',
+        //     // schedules
+        //     'schedule access',
+        //     'schedule create',
+        //     'schedule list',
+        //     'schedule reschedule',
+        //     'schedule approve request',
+        //     'schedule delete request',
+        //     'schedule approve reschedule',
+        //     'schedule approve delete request',
+        //     'schedule approve deviation',
+        //     // reports
+        //     'report access',
+        //     'report export',
+        //     // sales dashboard
+        //     'sales dashboard',
+        //     //mcp
+        //     'mcp access',
+        //     'mcp create',
+        //     'mcp edit',
+        //     'mcp delete',
+        //     'mcp approval',
+        //     'mcp confirmation',
+        //     // weekly activity report
+        //     'war access',
+        //     'war create',
+        //     'war edit',
+        //     'war delete',
+        //     'war approve',
+        //     // productivity report
+        //     'productivity report access',
+        //     'productivity report upload',
+        //     // salesmen
+        //     'salesman access',
+        //     'salesman create',
+        //     'salesman edit',
+        //     'salesman delete',
+        //     // salesmen code
+        //     'salesmen location access',
+        //     'salesmen location create',
+        //     'salesmen location edit',
+        //     'salesmen location delete',
+        //     // Channel Operation
+        //     'channel operation report',
+        //     'channel operation print',
+        //     'channel operation list',
+        //     // sales order cut-off
+        //     'SO cut-off access',
+        //     'SO cut-off create',
+        //     'SO cut-off edit',
+        //     'SO cut-off delete',
+        //     // company
+        //     'company access',
+        //     'company create',
+        //     'company edit',
+        //     'company delete',
+        //     // discounts
+        //     'discount access',
+        //     'discount create',
+        //     'discount edit',
+        //     'discount delete',
+        //     // accounts
+        //     'account access',
+        //     'account create',
+        //     'account edit',
+        //     'account delete',
+        //     // Account Reference
+        //     'account reference access',
+        //     'account reference create',
+        //     'account reference edit',
+        //     'account reference delete',
+        //     // Shipping Address
+        //     'shipping address access',
+        //     'shipping address create',
+        //     'shipping address edit',
+        //     'shipping address delete',
+        //     // Branches
+        //     'branch access',
+        //     'branch create',
+        //     'branch edit',
+        //     'branch delete',
+        //     // Regions
+        //     'region access',
+        //     'region create',
+        //     'region edit',
+        //     'region delete',
+        //     // classification
+        //     'classification access',
+        //     'classification create',
+        //     'classification edit',
+        //     'classification delete',
+        //     // Area
+        //     'area access',
+        //     'area create',
+        //     'area edit',
+        //     'area delete',
+        //     // Invoice Terms
+        //     'invoice term access',
+        //     'invoice term create',
+        //     'invoice term edit',
+        //     'invoice term delete',
+        //     // Products
+        //     'product access',
+        //     'product create',
+        //     'product edit',
+        //     'product delete',
+        //     // Price Code
+        //     'price code access',
+        //     'price code create',
+        //     'price code edit',
+        //     'price code delete',
+        //     // sales people
+        //     'sales people access',
+        //     'sales person create',
+        //     'sales person edit',
+        //     'sales person delete',
+        //     // operation process
+        //     'operation process access',
+        //     'operation process create',
+        //     'operation process edit',
+        //     'operation process delete',
+        //     // cost center
+        //     'cost center access',
+        //     'cost center create',
+        //     'cost center edit',
+        //     'cost center delete',
+        //     // district
+        //     'district access',
+        //     'district create',
+        //     'district edit',
+        //     'district delete',
+        //     'district assign',
+        //     // territory
+        //     'territory access',
+        //     'territory create',
+        //     'territory edit',
+        //     'territory delete',
+        //     'territory assign',
+        //     // holiday
+        //     'holiday access',
+        //     'holiday create',
+        //     'holiday edit',
+        //     'holiday delete',
+        //     // account logins
+        //     'account login access',
+        //     'account login export',
+        //     // users
+        //     'user access',
+        //     'user create',
+        //     'user upload',
+        //     'user edit',
+        //     'user change password',
+        //     'user delete',
+        //     // organizational structure
+        //     'organizational structure access',
+        //     'organizational structure create',
+        //     'organizational structure edit',
+        //     'organizational structure delete',
+        //     // roles
+        //     'role access',
+        //     'role create',
+        //     'role edit',
+        //     'role delete',
+        //     // System Logs
+        //     'system logs',
+        //     // Settings
+        //     'settings access',
+        // ];
+
         $permissions_arr = [
-            // sales order list
-            'sales order list',
-            'sales order change status',
-            // sales order
-            'sales order access',
-            'sales order create',
-            'sales order edit',
-            'sales order delete',
-            // schedules
-            'schedule access',
-            'schedule create',
-            'schedule list',
-            'schedule reschedule',
-            'schedule approve request',
-            'schedule delete request',
-            'schedule approve reschedule',
-            'schedule approve delete request',
-            'schedule approve deviation',
-            // reports
-            'report access',
-            'report export',
-            // sales dashboard
-            'sales dashboard',
-            //mcp
-            'mcp access',
-            'mcp create',
-            'mcp edit',
-            'mcp delete',
-            'mcp approval',
-            // weekly activity report
-            'war access',
-            'war create',
-            'war edit',
-            'war delete',
-            'war approve',
-            // productivity report
-            'productivity report access',
-            'productivity report upload',
-            // salesmen
-            'salesman access',
-            'salesman create',
-            'salesman edit',
-            'salesman delete',
-            // salesmen code
-            'salesmen location access',
-            'salesmen location create',
-            'salesmen location edit',
-            'salesmen location delete',
-            // Channel Operation
-            'channel operation report',
-            'channel operation print',
-            'channel operation list',
-            // sales order cut-off
-            'SO cut-off access',
-            'SO cut-off create',
-            'SO cut-off edit',
-            'SO cut-off delete',
-            // company
-            'company access',
-            'company create',
-            'company edit',
-            'company delete',
-            // discounts
-            'discount access',
-            'discount create',
-            'discount edit',
-            'discount delete',
-            // accounts
-            'account access',
-            'account create',
-            'account edit',
-            'account delete',
-            // Account Reference
-            'account reference access',
-            'account reference create',
-            'account reference edit',
-            'account reference delete',
-            // Shipping Address
-            'shipping address access',
-            'shipping address create',
-            'shipping address edit',
-            'shipping address delete',
-            // Branches
-            'branch access',
-            'branch create',
-            'branch edit',
-            'branch delete',
-            // Regions
-            'region access',
-            'region create',
-            'region edit',
-            'region delete',
-            // classification
-            'classification access',
-            'classification create',
-            'classification edit',
-            'classification delete',
-            // Area
-            'area access',
-            'area create',
-            'area edit',
-            'area delete',
-            // Invoice Terms
-            'invoice term access',
-            'invoice term create',
-            'invoice term edit',
-            'invoice term delete',
-            // Products
-            'product access',
-            'product create',
-            'product edit',
-            'product delete',
-            // Price Code
-            'price code access',
-            'price code create',
-            'price code edit',
-            'price code delete',
-            // sales people
-            'sales people access',
-            'sales person create',
-            'sales person edit',
-            'sales person delete',
-            // operation process
-            'operation process access',
-            'operation process create',
-            'operation process edit',
-            'operation process delete',
-            // cost center
-            'cost center access',
-            'cost center create',
-            'cost center edit',
-            'cost center delete',
-            // district
-            'district access',
-            'district create',
-            'district edit',
-            'district delete',
-            'district assign',
-            // territory
-            'territory access',
-            'territory create',
-            'territory edit',
-            'territory delete',
-            'territory assign',
-            // holiday
-            'holiday access',
-            'holiday create',
-            'holiday edit',
-            'holiday delete',
-            // account logins
-            'account login access',
-            'account login export',
-            // users
-            'user access',
-            'user create',
-            'user upload',
-            'user edit',
-            'user change password',
-            'user delete',
-            // organizational structure
-            'organizational structure access',
-            'organizational structure create',
-            'organizational structure edit',
-            'organizational structure delete',
-            // roles
-            'role access',
-            'role create',
-            'role edit',
-            'role delete',
-            // System Logs
-            'system logs',
-            // Settings
-            'settings access',
+            'Sales Order' => [
+                'sales order list'          => 'access to sales order lists',
+                'sales order change status' => 'access to change upload error status sales orders',
+                'sales order access'        => 'access to sales order module',
+                'sales order create'        => 'access to create sales order',
+                'sales order edit'          => 'access to edit sales order',
+                'sales order delete'        => 'access to delete sales order',
+            ],
+            'Schedule' => [
+                'schedule access'                   => 'access to schedule module',
+                'schedule create'                   => 'access to create schedule',
+                'schedule list'                     => 'access to view schedule list',
+                'schedule reschedule'               => 'access to create reschedule',
+                'schedule approve request'          => 'access to approve schedule request',
+                'schedule delete request'           => 'access to create delete schedule request',
+                'schedule approve reschedule'       => 'access to approve reschedule request',
+                'schedule approve delete request'   => 'access to approve delete schedule request',
+                'schedule approve deviation'        => 'access to approve deviation request',
+            ],
+            'Report' => [
+                'report access' => 'access to reports',
+                'report export' => 'access to export raw data of reports',
+            ],
+            'Sales Dashboard' => [
+                'sales dashboard'   => 'access to live sales dashboard',
+            ],
+            'Activity Plan/MCP' => [
+                'mcp access'        => 'access to activity plan module',
+                'mcp create'        => 'access to create activity plan',
+                'mcp edit'          => 'access to edit activity plan',
+                'mcp delete'        => 'access to delete activity plan',
+                'mcp approval'      => 'access to approve activity plan',
+                'mcp confirmation'  => 'access to confirm activity plan',
+            ],
+            'Weekly Activity Report' => [
+                'war access'    => 'access to weekly activity report module',
+                'war create'    => 'access to create weekly activity report',
+                'war edit'      => 'access to edit weekly activity report',
+                'war delete'    => 'access to delete weekly activity report',
+                'war approve'   => 'access to approve weekly activity report',
+            ],
+            'Productivity Report' => [
+                'productivity report access'    => 'access to productivity report module',
+                'productivity report upload'    => 'access to upload productivity report',
+            ],
+            'Salesman' => [
+                'salesman access'   => 'access to salesman module',
+                'salesman create'   => 'access to create salesman',
+                'salesman edit'     => 'access to edit salesman',
+                'salesman delete'   => 'access to delete salesman',
+            ],
+            'Salesman Location' => [
+                'salesmen location access'  => 'access to salesman location module',
+                'salesmen location create'  => 'access to create salesman location',
+                'salesmen location edit'    => 'access to edit salesman location',
+                'salesmen location delete'  => 'access to delete salesman location',
+            ],
+            'Channel Operation' => [
+                'channel operation report'  => 'access to channel operation reports',
+                'channel operation print'   => 'access to print channel operation report data',
+                'channel operation list'    => 'access to channel operation submission list',
+            ],
+            'Sales Order Cut-off' => [
+                'so cut-off access' => 'access to sales order cut-off module',
+                'so cut-off create' => 'access to create sales order cut-off',
+                'so cut-off edit'   => 'access to edit sales order cut-off',
+                'so cut-off delete' => 'access to delete sales order cut-off',
+            ],
+            'Company' => [
+                'company access'    => 'access to company module',
+                'company create'    => 'access to create company',
+                'company edit'      => 'access to edit company',
+                'company delete'    => 'access tp delete company',
+            ],
+            'Discount' => [
+                'discount access'   => 'access to discount module',
+                'discount create'   => 'access to create discount',
+                'discount edit'     => 'access to edit discount',
+                'discount delete'   => 'access to delete discount',
+            ],
+            'Account' => [
+                'account access'    => 'access to account module',
+                'account create'    => 'access to create account',
+                'account edit'      => 'access to edit account',
+                'account delete'    => 'access to delete account',
+            ],
+            'Account Reference' => [
+                'account reference access'  => 'access to account reference module',
+                'account reference create'  => 'access to create account reference',
+                'account reference edit'    => 'access to edit account reference',
+                'account reference delete'  => 'access to delete account reference',
+            ],
+            'Shipping Address' => [
+                'shipping address access'   => 'access to shipping address module',
+                'shipping address create'   => 'access to create shipping address',
+                'shipping address edit'     => 'access to edit shipping address',
+                'shipping address delete'   => 'access to delete shipping address',
+            ],
+            'Branches' => [
+                'branch access' => 'access to branches module',
+                'branch create' => 'access to create branches',
+                'branch edit'   => 'access to edit branches',
+                'branch delete' => 'access to delete branches',
+            ],
+            'Regions' => [
+                'region access' => 'access to regions module',
+                'region create' => 'access to create regions',
+                'region edit'   => 'access to edit regions',
+                'region delete' => 'access to delete regions',
+            ],
+            'Classification' => [
+                'classification access' => 'access to classification module',
+                'classification create' => 'access to create classification',
+                'classification edit'   => 'access to edit classification',
+                'classification delete' => 'access to delete classification',
+            ],
+            'Area' => [
+                'area access'   => 'access to area module',
+                'area create'   => 'access to create area',
+                'area edit'     => 'access to edit area',
+                'area delete'   => 'access to delete area',
+            ],
+            'Invoice Terms' => [
+                'invoice term access'   => 'access to invoice terms module',
+                'invoice term create'   => 'access to create invoice terms',
+                'invoice term edit'     => 'access to edit invoice terms',
+                'invoice term delete'   => 'access to delete invoice terms',
+            ],
+            'Products' => [
+                'product access'    => 'access to products module',
+                'product create'    => 'access to create products',
+                'product edit'      => 'access to edit products',
+                'product delete'    => 'access to delete products',
+            ],
+            'Price Code' => [
+                'price code access' => 'access to price code module',
+                'price code create' => 'access to create price code',
+                'price code edit'   => 'access to edit price code',
+                'price code delete' => 'access to delete price code',
+            ],
+            'Sales People' => [
+                'sales people access'   => 'access to sales people module',
+                'sales person create'   => 'access to create sales person',
+                'sales person edit'     => 'access to edit sales person',
+                'sales person delete'   => 'access to delete sales person',
+            ],
+            'Operation Process' => [
+                'operation process access'  => 'access to operation process module',
+                'operation process create'  => 'access to create operation process',
+                'operation process edit'    => 'access to edit operation process',
+                'operation process delete'  => 'access to delete operation process',
+            ],
+            'Cost Center' => [
+                'cost center access'    => 'access to cost center module',
+                'cost center create'    => 'access to create cost center',
+                'cost center edit'      => 'access to edit cost center',
+                'cost center delete'    => 'access to delete cost center',
+            ],
+            'District' => [
+                'district access'   => 'access to district module',
+                'district create'   => 'access to create district',
+                'district edit'     => 'access to edit district',
+                'district delete'   => 'access to delete district',
+                'district assign'   => 'assign districts',
+            ],
+            'Territory' => [
+                'territory access'  => 'access to territory module',
+                'territory create'  => 'access to create territory',
+                'territory edit'    => 'access to edit territory',
+                'territory delete'  => 'access to delete territory',
+                'territory assign'  => 'assign territories',
+            ],
+            'Holiday' => [
+                'holiday access'    => 'access to holiday module',
+                'holiday create'    => 'access to create holiday',
+                'holiday edit'      => 'access to edit holiday',
+                'holiday delete'    => 'access to delete holiday',
+            ],
+            'Account Logins' => [
+                'account login access' => 'access to account logins',
+                'account login export' => 'export account logins',
+            ],
+            'Users' => [
+                'user access'           => 'access to users',
+                'user create'           => 'create users',
+                'user upload'           => 'upload users',
+                'user edit'             => 'edit users',
+                'user change password'  => 'change user passwords',
+                'user delete'           => 'delete users',
+            ],
+            'Organizational Structure' => [
+                'organizational structure access'   => 'access to organizational structure',
+                'organizational structure create'   => 'create organizational structure',
+                'organizational structure edit'     => 'edit organizational structure',
+                'organizational structure delete'   => 'delete organizational structure',
+            ],
+            'Roles' => [
+                'role access'   => 'access to roles',
+                'role create'   => 'create roles',
+                'role edit'     => 'edit roles',
+                'role delete'   => 'delete roles',
+            ],
+            'System Log' => [
+                'system logs' => 'system logs',
+            ],
+            'Setting' => [
+                'settings' => 'settings access',
+            ],
         ];
 
-        foreach($permissions_arr as $permissions) {
-            Permission::create(['name' => $permissions]);
+        foreach($permissions_arr as $module => $permissions) {
+            foreach($permissions as $permission => $description) {
+                Permission::create([
+                    'name' => $permission,
+                    'module' => $module,
+                    'description' => $description
+                ]);
+            }
         }
     }
 }

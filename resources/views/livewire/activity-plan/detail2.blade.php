@@ -142,7 +142,11 @@
                                                 {{-- trip --}}
                                                 <td class="p-0 align-middle text-center">
                                                     <button class="btn {{isset($data['trip']) && !empty($data['trip']['trip_number']) ? 'btn-success' : 'btn-info'}} btn-xs btn-trip" data-year="{{$year}}" data-month="{{$month}}" data-date="{{$date}}" data-key="{{$line_key}}">
-                                                        <i class="fa fa-plane"></i>
+                                                        @if(isset($data['trip']) && !empty($data['trip']['transportation_type']) && $data['trip']['transportation_type'] == 'LAND')
+                                                            <i class="fa fa-car"></i>
+                                                        @else
+                                                            <i class="fa fa-plane"></i>
+                                                        @endif
                                                         TRIP
                                                         @if(isset($data['trip']) && !empty($data['trip']['trip_number']))
                                                             NUMBER:

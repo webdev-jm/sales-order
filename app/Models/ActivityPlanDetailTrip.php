@@ -15,7 +15,7 @@ class ActivityPlanDetailTrip extends Model
         'departure',
         'arrival',
         'reference_number',
-        'qr_code_path',
+        'transportation_type',
         'attachment_path',
     ];
 

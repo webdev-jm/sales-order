@@ -23,7 +23,17 @@ class Approval extends Component
     ];
 
     public function submitApproval() {
-        if($this->action == 'reject') {
+        if($this->action == 'return') {
+            $this->validate([
+                'remarks' => 'required'
+            ]);
+            $status = 'returned';
+
+        } else if($this->action == 'confirm') {
+            $status = 'confirmed';
+
+
+        } else if($this->action == 'reject') {
             $this->validate([
                 'remarks' => 'required'
             ]);
@@ -34,7 +44,7 @@ class Approval extends Component
             ->performedOn($this->activity_plan)
             ->log(':causer.firstname :causer.lastname has rejected activity plan of '.$this->activity_plan->user->fullName());
             
-        } else {
+        } else if($this->action == 'approve') {
             $status = 'approved';
 
             // logs
@@ -57,7 +67,11 @@ class Approval extends Component
 
         // notification
         $user = $this->activity_plan->user;
-        if($status == 'rejected') {
+        if($status == 'returned') {
+
+        } else if($status == 'confirmed') {
+            
+        } else if($status == 'rejected') {
             if(!empty($user)) {
                 Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
             }
@@ -71,13 +85,13 @@ class Approval extends Component
             foreach($details as $detail) {
                 if(isset($detail->branch)) {
                     // check if already exist
-                    $check = UserBranchSchedule::where('user_id', $this->activity_plan->user_id)
-                    ->where('branch_id', $detail->branch_id)
-                    ->where('date', $detail->date)
-                    ->whereNull('status')
-                    ->first();
+                    $schedule = UserBranchSchedule::where('user_id', $this->activity_plan->user_id)
+                        ->where('branch_id', $detail->branch_id)
+                        ->where('date', $detail->date)
+                        ->whereNull('status')
+                        ->first();
                     
-                    if(empty($check)) {
+                    if(empty($schedule)) {
                         $schedule = new UserBranchSchedule([
                             'user_id' => $this->activity_plan->user_id,
                             'branch_id' => $detail->branch_id,
@@ -89,11 +103,18 @@ class Approval extends Component
                         $schedule->save();
                     }
 
+                    // check if there's a trip detail
+                    if(!empty($detail->trip)) {
+                        $schedule->update([
+                            'activity_plan_detail_trip_id' => $detail->trip->id
+                        ]);
+                    }
+
                 }
             }
         }
 
-        // update remider
+        // update reminder
         $this->activity_plan->reminders()->whereNull('status')->update([
             'status' => 'done'
         ]);

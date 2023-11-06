@@ -16,11 +16,11 @@ class CreateActivityPlanDetailTripsTable extends Migration
         Schema::create('activity_plan_detail_trips', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('activity_plan_detail_id')->nullable();
-            $table->string('trip_number');
+            $table->string('trip_number')->unique();
             $table->string('departure');
             $table->string('arrival');
             $table->string('reference_number');
-            $table->string('qr_code_path')->nullable();
+            $table->string('transportation_type');
             $table->string('attachment_path')->nullable();
             $table->timestamps();
 

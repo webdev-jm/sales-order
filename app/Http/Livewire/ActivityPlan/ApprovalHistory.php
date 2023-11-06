@@ -20,7 +20,9 @@ class ApprovalHistory extends Component
         'draft' => 'secondary',
         'submitted' => 'info',
         'rejected' => 'danger',
-        'approved' => 'success'
+        'approved' => 'success',
+        'returned' => 'warning',
+        'confirmed' => 'primary',
     ];
 
     public function mount($activity_plan_id) {
