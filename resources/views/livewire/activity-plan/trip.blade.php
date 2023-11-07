@@ -35,8 +35,8 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>Transportation Type</label>
-                        <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model.lazy="transportation_type">
-                            <option value="" disabled>Select transpostation type</option>
+                        <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model="transportation_type">
+                            <option value="" selected="selected">Select transportation type</option>
                             @foreach($transportation_types as $type)
                                 <option value="{{$type}}">{{$type}}</option>
                             @endforeach

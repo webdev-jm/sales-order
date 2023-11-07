@@ -187,7 +187,12 @@ class Detail2 extends Component
 
     // remove schedule line
     public function removeLine($date, $key) {
-        unset($this->month_days[$this->month][$date]['lines'][$key]);
+        if(!empty($this->month_days[$this->month][$date]['lines'][$key]['id'])) {
+            $this->month_days[$this->month][$date]['lines'][$key]['deleted'] = true;
+        } else {
+            unset($this->month_days[$this->month][$date]['lines'][$key]);
+        }
+
         $this->setSession();
     }
 
@@ -197,6 +202,20 @@ class Detail2 extends Component
         if($this->expand_dates[$date]) {
             $this->expand_dates[$date] = false;
         } else {
+            $this->expand_dates[$date] = true;
+        }
+    }
+
+    // minimize all rows
+    public function minimizeAll() {
+        foreach($this->expand_dates as $date => $val) {
+            $this->expand_dates[$date] = false;
+        }
+    }
+
+    // expand all rows
+    public function expandAll() {
+        foreach($this->expand_dates as $date => $val) {
             $this->expand_dates[$date] = true;
         }
     }

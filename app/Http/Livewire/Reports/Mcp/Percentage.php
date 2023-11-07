@@ -46,6 +46,7 @@ class Percentage extends Component
                 DB::raw('COUNT(IF(status IS NULL AND source = "deviation", id, NULL)) as deviation_count'),
                 DB::raw('COUNT(IF(status IS NULL AND source = "request", id, NULL)) as request_count')
             )
+            ->whereNull('ubs.deleted_at')
             ->when(!empty($this->user_id), function($query) {
                 $query->where('user_id', $this->user_id);
             })

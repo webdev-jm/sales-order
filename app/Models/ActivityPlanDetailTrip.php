@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ActivityPlanDetailTrip extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'activity_plan_detail_id',
@@ -17,9 +19,14 @@ class ActivityPlanDetailTrip extends Model
         'reference_number',
         'transportation_type',
         'attachment_path',
+        'status',
     ];
 
     public function activity_plan_detail() {
         return $this->belongsTo('App\Models\ActivityPlanDetail');
+    }
+
+    public function approvals() {
+        return $this->hasMany('App\Models\ActivityPlanDetailTripApproval');
     }
 }

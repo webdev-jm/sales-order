@@ -17,14 +17,11 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ScheduleImport;
 
 use App\Http\Traits\GlobalTrait;
-
 use Barryvdh\DomPDF\Facade\Pdf;
-
 use Illuminate\Support\Facades\DB;
 
 class UserBranchScheduleController extends Controller
 {
-
     use GlobalTrait;
 
     /**
@@ -34,6 +31,9 @@ class UserBranchScheduleController extends Controller
      */
     public function index(Request $request)
     {
+        $date_from = date('Y-m', strtotime('last month')).'-01';
+        $date_to = date('Y-m-t');
+        
         $user_id = trim($request->get('user_id'));
         $account_id = trim($request->get('account_id'));
 
@@ -60,6 +60,8 @@ class UserBranchScheduleController extends Controller
                 // Schedules
                 $schedules_date = UserBranchSchedule::select('date')->distinct()
                 ->whereNull('status')
+                ->where('date', '>=', $date_from)
+                ->where('date', '<=', $date_to)
                 ->get();
                 
                 foreach($schedules_date as $schedule) {
@@ -107,6 +109,8 @@ class UserBranchScheduleController extends Controller
                 // for reschedule
                 $schedules_date = UserBranchSchedule::select('date')->distinct()
                 ->where('status', 'for reschedule')
+                ->where('date', '>=', $date_from)
+                ->where('date', '<=', $date_to)
                 ->get();
                 
                 foreach($schedules_date as $schedule) {
@@ -152,6 +156,8 @@ class UserBranchScheduleController extends Controller
                 // for deletion
                 $schedules_date = UserBranchSchedule::select('date')->distinct()
                 ->where('status', 'for deletion')
+                ->where('date', '>=', $date_from)
+                ->where('date', '<=', $date_to)
                 ->get();
                 
                 foreach($schedules_date as $schedule) {
@@ -196,6 +202,8 @@ class UserBranchScheduleController extends Controller
                 // for schedule request
                 $schedule_date = UserBranchSchedule::select('date')->distinct()
                 ->where('status', 'schedule request')
+                ->where('date', '>=', $date_from)
+                ->where('date', '<=', $date_to)
                 ->get();
 
                 foreach($schedule_date as $schedule) {
@@ -241,6 +249,8 @@ class UserBranchScheduleController extends Controller
                 // for deviation
                 $deviation_dates = Deviation::select('date')->distinct()
                 ->where('status', 'submitted')
+                ->where('date', '>=', $date_from)
+                ->where('date', '<=', $date_to)
                 ->get();
 
                 foreach($deviation_dates as $deviation) {
@@ -293,7 +303,9 @@ class UserBranchScheduleController extends Controller
             
             // Schedules
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->whereNull('status');
+            ->whereNull('status')
+            ->where('date', '>=', $date_from)
+            ->where('date', '<=', $date_to);
 
             if(empty($user_id)) {
                 $user_id = auth()->user()->id;
@@ -361,7 +373,9 @@ class UserBranchScheduleController extends Controller
 
             // For Reschedule
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'for reschedule');
+            ->where('status', 'for reschedule')
+            ->where('date', '>=', $date_from)
+            ->where('date', '<=', $date_to);
 
             if(!empty($user_id)) {
                 $schedules_date->where('user_id', $user_id);
@@ -416,7 +430,9 @@ class UserBranchScheduleController extends Controller
 
             // for deletion
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'for deletion');
+            ->where('status', 'for deletion')
+            ->where('date', '>=', $date_from)
+            ->where('date', '<=', $date_to);
 
             if(!empty($user_id)) {
                 $schedules_date->where('user_id', $user_id);
@@ -472,7 +488,9 @@ class UserBranchScheduleController extends Controller
 
             // for schedule request
             $schedules_date = UserBranchSchedule::select('date')->distinct()
-            ->where('status', 'schedule request');
+            ->where('status', 'schedule request')
+            ->where('date', '>=', $date_from)
+            ->where('date', '<=', $date_to);
 
             if(!empty($user_id)) {
                 $schedules_date->where('user_id', $user_id);
