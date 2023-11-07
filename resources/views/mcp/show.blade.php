@@ -68,7 +68,7 @@
             <span class="font-weight-bold text-uppercase">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</span>
         </h3>
         <div class="card-tools">
-            @if($activity_plan->status == 'confirmed' && (
+            @if($activity_plan->status == 'submitted' && (
                 in_array($activity_plan->user_id, $subordinate_ids) ||
                 auth()->user()->hasRole('superadmin') ||
                 auth()->user()->hasRole('admin') || 
@@ -76,15 +76,6 @@
             ))
                 <button class="btn btn-danger" id="btn-reject">Reject</button>
                 <button class="btn btn-success" id="btn-approve">Approve</button>
-            @endif
-            
-            @if($activity_plan->status == 'submitted' && (
-                auth()->user()->hasRole('superadmin') ||
-                auth()->user()->hasRole('admin') || 
-                auth()->user()->can('mcp confirmation')
-            ))
-                <button class="btn btn-secondary" id="btn-return">Return</button>
-                <button class="btn btn-info" id="btn-confirm">Confirm</button>
             @endif
             <button class="btn btn-warning" id="btn-approval-history"><i class="fa fa-clock mr-1"></i>Approval History</button>
         </div>
@@ -152,18 +143,6 @@ $(function() {
     $('#btn-approve').on('click', function(e) {
         e.preventDefault();
         Livewire.emit('setApproval', 'approve', {{$activity_plan->id}});
-        $('#modal-approval').modal('show');
-    });
-    // return
-    $('#btn-return').on('click', function(e) {
-        e.preventDefault();
-        Livewire.emit('setApproval', 'return', {{$activity_plan->id}});
-        $('#modal-approval').modal('show');
-    });
-    // confirm
-    $('#btn-confirm').on('click', function(e) {
-        e.preventDefault();
-        Livewire.emit('setApproval', 'confirm', {{$activity_plan->id}});
         $('#modal-approval').modal('show');
     });
 

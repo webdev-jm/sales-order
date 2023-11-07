@@ -23,17 +23,7 @@ class Approval extends Component
     ];
 
     public function submitApproval() {
-        if($this->action == 'return') {
-            $this->validate([
-                'remarks' => 'required'
-            ]);
-            $status = 'returned';
-
-        } else if($this->action == 'confirm') {
-            $status = 'confirmed';
-
-
-        } else if($this->action == 'reject') {
+        if($this->action == 'reject') {
             $this->validate([
                 'remarks' => 'required'
             ]);
@@ -67,11 +57,7 @@ class Approval extends Component
 
         // notification
         $user = $this->activity_plan->user;
-        if($status == 'returned') {
-
-        } else if($status == 'confirmed') {
-            
-        } else if($status == 'rejected') {
+        if($status == 'rejected') {
             if(!empty($user)) {
                 Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
             }

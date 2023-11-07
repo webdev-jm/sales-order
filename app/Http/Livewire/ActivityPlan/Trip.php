@@ -77,7 +77,7 @@ class Trip extends Component
             'departure' => $this->departure,
             'arrival' => $this->arrival,
             'reference_number' => $this->reference_number ?? '',
-            'transportation_type' => $this->transportation_type,
+            'transportation_type' => $this->transportation_type ?? '',
         ];
 
         $activity_plan_data = Session::get('activity_plan_data');

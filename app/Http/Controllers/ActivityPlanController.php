@@ -306,7 +306,12 @@ class ActivityPlanController extends Controller
                 if(!empty($detail->trip)) {
                     $trip_data = $detail->trip;
                     $title = 'TRIP NUMBER: '.$trip_data->trip_number.' '.$title; 
-                    $bg_color = '#198731';
+                    $bg_color = '#0CA1A4';
+
+                    // check if approved
+                    if(!empty($detail->trip->status) && $detail->trip->status == 'approved') {
+                        $bg_color = '#1CA40C';
+                    }
                 }
 
                 $schedule_data[] = [
@@ -466,22 +471,29 @@ class ActivityPlanController extends Controller
                         foreach($data['details'][$data['month']] as $date => $details) {
                             // dates
                             foreach($details['lines'] as $val) {
-                                // check for error
-                                if(empty($val['branch_id']) 
-                                    && 
-                                    (!empty($val['user_id']) || 
-                                    !empty($val['location']) ||
-                                    !empty(trim($val['purpose'])) ||
-                                    !empty($val['account_id']) ||
-                                    !empty($val['trip']))
-                                ) {
-                                    $line_error = 1;
+                                // check if line is deleted
+                                if(!empty($val['deleted']) && $val['deleted'] == true) {
+                                    $line_error = 0;
+                                    $line_empty = 0;
+                                } else {
+                                    // check for error
+                                    if(empty($val['branch_id']) 
+                                        && 
+                                        (!empty($val['user_id']) || 
+                                        !empty($val['location']) ||
+                                        !empty(trim($val['purpose'])) ||
+                                        !empty($val['account_id']) ||
+                                        !empty($val['trip']))
+                                    ) {
+                                        $line_error = 1;
+                                    }
+    
+                                    // check if all lines are empty
+                                    if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
+                                        $line_empty = 0;
+                                    }
                                 }
 
-                                // check if all lines are empty
-                                if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
-                                    $line_empty = 0;
-                                }
                             }
                         }
 
@@ -504,35 +516,41 @@ class ActivityPlanController extends Controller
                             ->withProperties($changes_arr)
                             ->log(':causer.firstname :causer.lastname has updated activity plan :subject.year :subject.month');
 
-                            $activity_plan->details()->forceDelete();
-
+                            // details
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 foreach($details['lines'] as $val) {
+                                    
                                     // check if already exist
                                     if(isset($val['id'])) { // update
                                         $activity_plan_detail = ActivityPlanDetail::find($val['id']);
-                                        if(!empty($activity_plan_detail)) {
-                                            $activity_plan_detail->update([
-                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                                'day' => $details['day'],
-                                                'date' => $date,
-                                                'exact_location' => $val['location'],
-                                                'activity' => $val['purpose'],
-                                                'work_with' => $val['work_with'] ?? NULL,
-                                            ]);
+
+                                        // check if line is deleted
+                                        if(!empty($val['deleted']) && $val['deleted'] == true) {
+                                            $activity_plan_detail->delete();
                                         } else {
-                                            $activity_plan_detail = new ActivityPlanDetail([
-                                                'activity_plan_id' => $activity_plan->id,
-                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                                'day' => $details['day'],
-                                                'date' => $date,
-                                                'exact_location' => $val['location'],
-                                                'activity' => $val['purpose'],
-                                                'work_with' => $val['work_with'] ?? NULL,
-                                            ]);
-                                            $activity_plan_detail->save();
+                                            if(!empty($activity_plan_detail)) {
+                                                $activity_plan_detail->update([
+                                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                    'day' => $details['day'],
+                                                    'date' => $date,
+                                                    'exact_location' => $val['location'],
+                                                    'activity' => $val['purpose'],
+                                                    'work_with' => $val['work_with'] ?? NULL,
+                                                ]);
+                                            } else {
+                                                $activity_plan_detail = new ActivityPlanDetail([
+                                                    'activity_plan_id' => $activity_plan->id,
+                                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                    'day' => $details['day'],
+                                                    'date' => $date,
+                                                    'exact_location' => $val['location'],
+                                                    'activity' => $val['purpose'],
+                                                    'work_with' => $val['work_with'] ?? NULL,
+                                                ]);
+                                                $activity_plan_detail->save();
+                                            }
                                         }
 
                                     } else { // insert
