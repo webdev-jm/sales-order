@@ -96,7 +96,7 @@
                         </div>
                     </div>
 
-                    @if(empty($detail->trip->status) && auth()->user()->can('mcp confirmation'))
+                    @if($detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
                         <div class="card mt-2">
                             <div class="card-header">
                                 <h3 class="card-title">REMARKS</h3>
@@ -111,7 +111,7 @@
 
         </div>
         <div class="modal-footer text-right">
-            @if(!empty($detail->trip) && $detail->trip->status == 'approved' && auth()->user()->can('mcp confirmation'))
+            @if(!empty($detail->trip) && $detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
                 <button type="button" class="btn btn-success" wire:click.prevent="approve({{$detail->trip->id}})" wire:loading.attr="disabled">Approve</button>
             @endif
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

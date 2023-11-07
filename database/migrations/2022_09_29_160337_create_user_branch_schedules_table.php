@@ -26,12 +26,16 @@ class CreateUserBranchSchedulesTable extends Migration
             $table->timestamps();
 
             $table->foreign('user_id')
-            ->references('id')->on('users')
-            ->onDelete('cascade');
+                ->references('id')->on('users')
+                ->onDelete('cascade');
 
             $table->foreign('branch_id')
-            ->references('id')->on('branches')
-            ->onDelete('cascade');
+                ->references('id')->on('branches')
+                ->onDelete('cascade');
+
+            $table->foreign('activity_plan_detail_trip_id', 'activity_detail_trip_id_foreign')
+                ->references('id')->on('activity_plan_detail_trips')
+                ->onDelete('cascade');
 
             $table->softDeletes();
         });

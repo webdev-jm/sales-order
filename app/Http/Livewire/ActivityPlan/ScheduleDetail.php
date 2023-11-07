@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\UserBranchSchedule;
 
 class ScheduleDetail extends Component
 {
@@ -26,6 +27,22 @@ class ScheduleDetail extends Component
         if(!empty($trip)) {
             $trip->update([
                 'status' => 'approved'
+            ]);
+
+            $detail = $trip->activity_plan_detail;
+            
+            $activity_plan = $detail->activity_plan;
+
+            // convert to schedules
+            $schedule = UserBranchSchedule::updateOrInsert([
+                'user_id' => $activity_plan->user_id,
+                'branch_id' => $detail->branch_id,
+                'date' => $detail->date,
+                'activity_plan_detail_trip_id' => $trip->id,
+            ], [
+                'status' => NULL,
+                'objective' => $detail->activity,
+                'source' => 'activity-plan',
             ]);
 
             // record approvals history

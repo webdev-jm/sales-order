@@ -78,19 +78,23 @@ class Approval extends Component
                         ->first();
                     
                     if(empty($schedule)) {
-                        $schedule = new UserBranchSchedule([
-                            'user_id' => $this->activity_plan->user_id,
-                            'branch_id' => $detail->branch_id,
-                            'date' => $detail->date,
-                            'status' => NULL,
-                            'objective' => $detail->activity,
-                            'source' => 'activity-plan'
-                        ]);
-                        $schedule->save();
+                        // do not convert schedules with trip via air 
+                        if(empty($detail->trip) || (!empty($detail->trip) && $detail->trip->transportation_type != 'AIR')) {
+                            $schedule = new UserBranchSchedule([
+                                'user_id' => $this->activity_plan->user_id,
+                                'branch_id' => $detail->branch_id,
+                                'date' => $detail->date,
+                                'status' => NULL,
+                                'objective' => $detail->activity,
+                                'source' => 'activity-plan'
+                            ]);
+                            $schedule->save();
+                        }
+
                     }
 
-                    // check if there's a trip detail
-                    if(!empty($detail->trip)) {
+                    // check if there's a trip data
+                    if(!empty($detail->trip) && !empty($schedule)) {
                         $schedule->update([
                             'activity_plan_detail_trip_id' => $detail->trip->id
                         ]);
