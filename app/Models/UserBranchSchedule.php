@@ -35,7 +35,7 @@ class UserBranchSchedule extends Model
     }
 
     public function trip() {
-        return $this->hasOne('App\Models\ActivityPlanDetailTrip');
+        return $this->belongsTo('App\Models\ActivityPlanDetailTrip', 'activity_plan_detail_trip_id', 'id');
     }
 
     public function BranchLogin() {

@@ -15,6 +15,80 @@
                     </p>
                 </div>
 
+                {{-- trip --}}
+                @if(!empty($schedule_data->trip))
+                    <div class="col-12">
+                        <div class="card card-primary card-outline">
+                            <div class="card-header">
+                                <h3 class="card-title">TRIP DETAILS</h3>
+                                <div class="card-tools">
+                                    <button class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>PRINT</button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6 text-center align-middle">
+                                        <strong>TRIP NUMBER</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$schedule_data->trip->trip_number}}</h3>
+                                    </div>
+                                    <div class="col-lg-6 text-center">
+                                        {!! QrCode::generate($schedule_data->trip->trip_number); !!}
+                                    </div>
+                                </div>
+
+                                <hr>
+
+                                <div class="timeline timeline-inverse">
+                                    {{-- DEPARTURE --}}
+                                    <div>
+                                        @if($schedule_data->trip->transportation_type == 'AIR')
+                                            <i class="fas fa-plane-departure bg-info"></i>
+                                        @else
+                                            <i class="fas fa-car bg-info"></i>
+                                        @endif
+                
+                                        <div class="timeline-item">
+                                            <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$schedule_data->trip->departure}}</strong>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    {{-- ARRIVAL --}}
+                                    <div>
+                                        @if($schedule_data->trip->transportation_type == 'AIR')
+                                            <i class="fas fa-plane-arrival bg-info"></i>
+                                        @else
+                                            <i class="fas fa-car-side bg-info"></i>
+                                        @endif
+                
+                                        <div class="timeline-item">
+                                            <h3 class="timeline-header border-0"><a href="#">ARRIVAL: </a> <strong class="text-uppercase">{{$schedule_data->trip->arrival}}</strong>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="col-lg-6 text-center">
+                                        <strong>TRANSPORTATION TYPE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$schedule_data->trip->transportation_type}}</h3>
+                                    </div>
+                                    @if(!empty($schedule_data->trip->reference_number))
+                                    <div class="col-lg-6 text-center">
+                                        <strong>REFERENCE NUMBER</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$schedule_data->trip->reference_number}}</h3>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 @if(!empty($action))
                     <div class="col-12">
                         @if($action == 'reschedule-request' && 1==0) {{-- temporary disable --}}

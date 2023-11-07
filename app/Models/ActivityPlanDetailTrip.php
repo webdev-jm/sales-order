@@ -22,6 +22,10 @@ class ActivityPlanDetailTrip extends Model
         'status',
     ];
 
+    public function schedule() {
+        return $this->hasOne('App\Models\UserBranchSchedule');
+    }
+
     public function activity_plan_detail() {
         return $this->belongsTo('App\Models\ActivityPlanDetail');
     }
