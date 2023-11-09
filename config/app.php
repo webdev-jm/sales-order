@@ -167,6 +167,7 @@ return [
          */
 
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+        Milon\Barcode\BarcodeServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -236,6 +237,9 @@ return [
         'AccountModel' => App\Models\Account::class,
         'ActivityPlanModel' => App\Models\ActivityPlan::class,
         'DeviationModel' => App\Models\Deviation::class,
+
+        'DNS1D' => Milon\Barcode\Facades\DNS1DFacade::class,
+        'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
 
     ],
 

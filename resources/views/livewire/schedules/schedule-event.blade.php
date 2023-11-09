@@ -22,66 +22,74 @@
                             <div class="card-header">
                                 <h3 class="card-title">TRIP DETAILS</h3>
                                 <div class="card-tools">
-                                    <button class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>PRINT</button>
+                                    <a href="{{route('trip.print', $schedule_data->trip->id)}}" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
                                 </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
-                                        <strong>TRIP NUMBER</strong>
+                                        {!! DNS1D::getBarcodeSVG($schedule_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        <br>
+                                        <strong class="text-muted">TRIP NUMBER</strong>
                                         <br>
                                         <h3 class="font-weight-bold">{{$schedule_data->trip->trip_number}}</h3>
                                     </div>
                                     <div class="col-lg-6 text-center">
-                                        {!! QrCode::generate($schedule_data->trip->trip_number); !!}
+                                        <strong>TRANSPORTATION TYPE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">
+                                            @if($schedule_data->trip->transportation_type == 'AIR')
+                                                <i class="fa fa-plane mr-1"></i>
+                                            @endif
+                                            @if($schedule_data->trip->transportation_type == 'LAND')
+                                                <i class="fa fa-car mr-1"></i>
+                                            @endif
+                                            {{$schedule_data->trip->transportation_type}}
+                                        </h3>
                                     </div>
                                 </div>
 
                                 <hr>
 
-                                <div class="timeline timeline-inverse">
-                                    {{-- DEPARTURE --}}
-                                    <div>
-                                        @if($schedule_data->trip->transportation_type == 'AIR')
-                                            <i class="fas fa-plane-departure bg-info"></i>
-                                        @else
-                                            <i class="fas fa-car bg-info"></i>
-                                        @endif
-                
-                                        <div class="timeline-item">
-                                            <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$schedule_data->trip->departure}}</strong>
-                                            </h3>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->departure}}</h1>
                                     </div>
-                                    {{-- ARRIVAL --}}
-                                    <div>
+                                    <div class="col-lg-2 text-center align-middle">
                                         @if($schedule_data->trip->transportation_type == 'AIR')
-                                            <i class="fas fa-plane-arrival bg-info"></i>
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-plane text-primary"></i>
+                                        </h1>
                                         @else
-                                            <i class="fas fa-car-side bg-info"></i>
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-car text-primary"></i>
+                                        </h1>
                                         @endif
-                
-                                        <div class="timeline-item">
-                                            <h3 class="timeline-header border-0"><a href="#">ARRIVAL: </a> <strong class="text-uppercase">{{$schedule_data->trip->arrival}}</strong>
-                                            </h3>
-                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->arrival}}</h1>
                                     </div>
                                 </div>
 
                                 <hr>
                                 
                                 <div class="row">
-                                    <div class="col-lg-6 text-center">
-                                        <strong>TRANSPORTATION TYPE</strong>
+                                    <div class="col-lg-4 text-center">
+                                        <strong class="text-muted">NAME</strong>
                                         <br>
-                                        <h3 class="font-weight-bold">{{$schedule_data->trip->transportation_type}}</h3>
+                                        <strong class="text-uppercase text-lg">{{$schedule_data->user->fullName()}}</strong>
+                                    </div>
+                                    <div class="col-lg-4 text-center">
+                                        <strong class="text-muted">DATE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($date))}}</strong>
                                     </div>
                                     @if(!empty($schedule_data->trip->reference_number))
-                                    <div class="col-lg-6 text-center">
-                                        <strong>REFERENCE NUMBER</strong>
-                                        <br>
-                                        <h3 class="font-weight-bold">{{$schedule_data->trip->reference_number}}</h3>
-                                    </div>
+                                        <div class="col-lg-4 text-center">
+                                            <strong class="text-muted">REFERENCE NUMBER</strong>
+                                            <br>
+                                            <strong class="text-uppercase text-lg">{{$schedule_data->trip->reference_number}}</strong>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
