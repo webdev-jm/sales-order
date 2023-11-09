@@ -123,7 +123,7 @@
 </div>
 
 <div class="modal fade" id="modal-detail">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <livewire:activity-plan.schedule-detail/>
     </div>
 </div>

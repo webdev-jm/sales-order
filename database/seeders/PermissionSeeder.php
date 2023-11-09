@@ -236,6 +236,11 @@ class PermissionSeeder extends Seeder
                 'war delete'    => 'access to delete weekly activity report',
                 'war approve'   => 'access to approve weekly activity report',
             ],
+            'Trip' => [
+                'trip access'   => 'access to trip module',
+                'trip print'    => 'access to print trip detail',
+                'trip approve'  => 'access to approve trip',
+            ],
             'Productivity Report' => [
                 'productivity report access'    => 'access to productivity report module',
                 'productivity report upload'    => 'access to upload productivity report',

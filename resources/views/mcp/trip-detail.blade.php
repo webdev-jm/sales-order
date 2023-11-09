@@ -130,6 +130,7 @@
             vertical-align: middle;
             padding-left: 5px;
             padding-right: 10px;
+            padding-bottom: 5px;
         }
     </style>
 </head>
@@ -204,7 +205,7 @@
                         <td class="border-0 border-left">
                             <span class="text-muted">REFERENCE NUMBER</span>
                             <br>
-                            <strong>{{$schedule_data->trip->reference_number}}</strong>
+                            <strong>{{$trip->reference_number}}</strong>
                         </td>
                     @else
                         <td class="border-0">
@@ -269,7 +270,7 @@
         </table>
 
         <div class="footer">
-            ver. 1
+            Rev.1
         </div>
 
     </div>

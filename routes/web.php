@@ -38,6 +38,7 @@ use App\Http\Controllers\SalesmanController;
 use App\Http\Controllers\SalesmenLocationController;
 use App\Http\Controllers\ChannelOperationController;
 use App\Http\Controllers\SalesDashboardController;
+use App\Http\Controllers\TripController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
     });
 
+    // TRIP FINANCE VIEW
+    Route::group(['middleware' => ['permission:trip access']], function() {
+        Route::get('trip', [TripController::class, 'index'])->name('trip.index');
+        Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
+
+        Route::get('trip/{id}/approve', [TripController::class, 'approve'])->name('trip.approve')->middleware('permission:trip approve');
+    });
+
+    Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');
+
     // Activity Plan / MCP
     Route::group(['middleware' => 'permission:mcp access'], function() {
         Route::get('mcp', [ActivityPlanController::class, 'index'])->name('mcp.index');
@@ -147,8 +158,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');
 
         Route::get('mcp/{id}/print', [ActivityPlanController::class, 'printPDF'])->name('mcp.print-pdf');
-
-        Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print');
     });
 
     // Weekly Activity Plan / WAR
