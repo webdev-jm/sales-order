@@ -45,6 +45,21 @@
         padding: 0 0 0 5px;
         margin-bottom: 0;
     }
+
+    .w100 {
+        width: 100px !important;
+    }
+    
+    .trip-icon {
+        font-size: 60px !important;
+        margin-bottom: 0;
+    }
+    .middle {
+        line-height: 100% !important;
+    }
+    .w-100 {
+        width: 100% !important;
+    }
 </style>
 @endsection
 

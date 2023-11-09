@@ -29,6 +29,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ActivityPlanImport;
 
+use \Milon\Barcode\DNS1D;
+
 class ActivityPlanController extends Controller
 {
     use GlobalTrait;
@@ -60,6 +62,8 @@ class ActivityPlanController extends Controller
 
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
             $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
+        } else if(auth()->user()->hasRole('finance')) { // get activity plans with trips via air
+            $activity_plans  = ActivityPlan::whereHas('');
         } else { // restricted to self and supervisors
             // get user subordinates
             $subordinate_ids = [];
@@ -862,7 +866,10 @@ class ActivityPlanController extends Controller
                         'branch_name' => $branch->branch_name ?? '',
                         'purpose' => $line['purpose'],
                         'user_id' => $user->id ?? '',
-                        'work_with' => $line['work_with'],
+                        'work_with' => $line['work_with'], 
+                        0
+
+                         
                     ];
                 }
             }
@@ -877,5 +884,23 @@ class ActivityPlanController extends Controller
             'message_success' => 'Data was uploaded.'
         ]);
 
+    }
+
+    public function printTrip($id) {
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        $bar_code = DNS1D::getBarcodeHTML($trip->trip_number, 'C39', 1.3, 25, 'black', false);
+
+        $pdf = PDF::loadView('mcp.trip-detail', [
+            'trip' => $trip,
+            'bar_code' => $bar_code
+        ]);
+
+        return $pdf->download('trip-details-'.time().'.pdf');
+
+        // return view('mcp.trip-detail')->with([
+        //     'trip' => $trip,
+        //     'bar_code' => $bar_code
+        // ]);
     }
 }

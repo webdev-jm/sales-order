@@ -33,16 +33,31 @@
                     <div class="card card-primary card-outline mt-2">
                         <div class="card-header">
                             <h3 class="card-title">TRIP DETAILS</h3>
+                            <div class="card-tools">
+                                <a href="{{route('trip.print', $detail->trip->id)}}" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-6 text-center align-middle">
-                                    <strong>TRIP NUMBER</strong>
+                                    {!! DNS1D::getBarcodeSVG($detail->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                    <br>
+                                    <strong class="text-muted">TRIP NUMBER</strong>
                                     <br>
                                     <h3 class="font-weight-bold">{{$detail->trip->trip_number}}</h3>
                                 </div>
                                 <div class="col-lg-6 text-center">
-                                    {!! QrCode::generate($detail->trip->trip_number); !!}
+                                    <strong>TRANSPORTATION TYPE</strong>
+                                    <br>
+                                    <h3 class="font-weight-bold">
+                                        @if($detail->trip->transportation_type == 'AIR')
+                                            <i class="fa fa-plane mr-1"></i>
+                                        @endif
+                                        @if($detail->trip->transportation_type == 'LAND')
+                                            <i class="fa fa-car mr-1"></i>
+                                        @endif
+                                        {{$detail->trip->transportation_type}}
+                                    </h3>
                                 </div>
                             </div>
 
@@ -80,17 +95,22 @@
                             <hr>
                             
                             <div class="row">
-                                <div class="col-lg-6 text-center">
-                                    <strong>TRANSPORTATION TYPE</strong>
+                                <div class="col-lg-4 text-center">
+                                    <strong class="text-muted">NAME</strong>
                                     <br>
-                                    <h3 class="font-weight-bold">{{$detail->trip->transportation_type}}</h3>
+                                    <strong class="text-uppercase text-lg">{{$detail->activity_plan->user->fullName()}}</strong>
                                 </div>
-                                @if(!empty($detail->trip->reference_number))
-                                <div class="col-lg-6 text-center">
-                                    <strong>REFERENCE NUMBER</strong>
+                                <div class="col-lg-4 text-center">
+                                    <strong class="text-muted">DATE</strong>
                                     <br>
-                                    <h3 class="font-weight-bold">{{$detail->trip->reference_number}}</h3>
+                                    <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->date))}}</strong>
                                 </div>
+                                @if(!empty($schedule_data->trip->reference_number))
+                                    <div class="col-lg-4 text-center">
+                                        <strong class="text-muted">REFERENCE NUMBER</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{$detail->trip->reference_number}}</strong>
+                                    </div>
                                 @endif
                             </div>
                         </div>
@@ -111,7 +131,7 @@
 
         </div>
         <div class="modal-footer text-right">
-            @if(!empty($detail->trip) && $detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
+            @if(!empty($detail->trip) && $detail->trip->status != 'approved' && $detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
                 <button type="button" class="btn btn-success" wire:click.prevent="approve({{$detail->trip->id}})" wire:loading.attr="disabled">Approve</button>
             @endif
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
