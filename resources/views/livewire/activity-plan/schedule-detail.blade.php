@@ -34,7 +34,9 @@
                         <div class="card-header">
                             <h3 class="card-title">TRIP DETAILS</h3>
                             <div class="card-tools">
-                                <a href="{{route('trip.print', $detail->trip->id)}}" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                @can('trip print')
+                                    <a href="{{route('trip.print', $detail->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                @endcan
                             </div>
                         </div>
                         <div class="card-body">
@@ -105,7 +107,7 @@
                                     <br>
                                     <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->date))}}</strong>
                                 </div>
-                                @if(!empty($schedule_data->trip->reference_number))
+                                @if(!empty($detail->trip->reference_number))
                                     <div class="col-lg-4 text-center">
                                         <strong class="text-muted">REFERENCE NUMBER</strong>
                                         <br>
@@ -116,7 +118,7 @@
                         </div>
                     </div>
 
-                    @if($detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
+                    @if($detail->activity_plan->status == 'approved' && auth()->user()->can('trip approve') && empty($detail->trip->status))
                         <div class="card mt-2">
                             <div class="card-header">
                                 <h3 class="card-title">REMARKS</h3>
@@ -131,7 +133,7 @@
 
         </div>
         <div class="modal-footer text-right">
-            @if(!empty($detail->trip) && $detail->trip->status != 'approved' && $detail->activity_plan->status == 'approved' && auth()->user()->can('mcp confirmation'))
+            @if(!empty($detail->trip) && $detail->trip->status != 'approved' && $detail->activity_plan->status == 'approved' && auth()->user()->can('trip approve'))
                 <button type="button" class="btn btn-success" wire:click.prevent="approve({{$detail->trip->id}})" wire:loading.attr="disabled">Approve</button>
             @endif
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

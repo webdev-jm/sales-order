@@ -22,7 +22,9 @@
                             <div class="card-header">
                                 <h3 class="card-title">TRIP DETAILS</h3>
                                 <div class="card-tools">
-                                    <a href="{{route('trip.print', $schedule_data->trip->id)}}" target="_blank" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                    @can('trip print')
+                                        <a href="{{route('trip.print', $schedule_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                    @endcan
                                 </div>
                             </div>
                             <div class="card-body">

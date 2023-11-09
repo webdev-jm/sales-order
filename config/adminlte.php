@@ -353,6 +353,13 @@ return [
             'active'    => ['war*']
         ],
         [
+            'text'      => 'Trips',
+            'url'       => '/trip',
+            'icon'      => 'fas fa-fw fa-plane',
+            'can'       => 'trip access',
+            'active'    => ['trip*']
+        ],
+        [
             'text'      => 'Reports',
             'url'       => '/report',
             'icon'      => 'fas fa-fw fa-chart-bar',

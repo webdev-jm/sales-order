@@ -251,7 +251,7 @@ class Detail2 extends Component
                 'lines' => $data
             ];
 
-            $this->expand_dates[$date] = true;
+            $this->expand_dates[$date] = false;
         }
 
         $this->month_days[$this->month] = $days;

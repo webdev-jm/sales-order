@@ -9,6 +9,7 @@ use App\Models\ActivityPlan;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanApproval;
 use App\Models\ActivityPlanDetailTrip;
+use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\OrganizationStructure;
 use App\Http\Requests\StoreActivityPlanRequest;
 use App\Http\Requests\UpdateActivityPlanRequest;
@@ -62,8 +63,6 @@ class ActivityPlanController extends Controller
 
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
             $activity_plans = ActivityPlan::ActivityPlanSearch($search, $settings->data_per_page);
-        } else if(auth()->user()->hasRole('finance')) { // get activity plans with trips via air
-            $activity_plans  = ActivityPlan::whereHas('');
         } else { // restricted to self and supervisors
             // get user subordinates
             $subordinate_ids = [];
@@ -215,6 +214,16 @@ class ActivityPlanController extends Controller
                                                     'transportation_type' => $trip_data['transportation_type'],
                                                 ]);
                                                 $activity_plan_detail_trip->save();
+
+                                                // add approvals
+                                                if($request->status == 'submitted') {
+                                                    $approval = new ActivityPlanDetailTripApproval([
+                                                        'user_id' => auth()->user()->id,
+                                                        'activity_plan_detail_trip_id' => $activity_plan_detail_trip->id,
+                                                        'status' => 'submitted',
+                                                    ]);
+                                                    $approval->save();
+                                                }
                                             }
                                         }
                                     }
@@ -583,6 +592,16 @@ class ActivityPlanController extends Controller
                                             'reference_number' => $trip_data['reference_number'] ?? '',
                                             'transportation_type' => $trip_data['transportation_type'],
                                         ]);
+
+                                        // add approvals
+                                        if($request->status == 'submitted') {
+                                            $approval = new ActivityPlanDetailTripApproval([
+                                                'user_id' => auth()->user()->id,
+                                                'activity_plan_detail_trip_id' => $trip->id,
+                                                'status' => 'submitted',
+                                            ]);
+                                            $approval->save();
+                                        }
                                     }
                                     
                                 }
