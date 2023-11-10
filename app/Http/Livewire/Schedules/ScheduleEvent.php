@@ -34,6 +34,8 @@ class ScheduleEvent extends Component
 
     public $accuracy, $longitude, $latitude;
 
+    public $trip_reference_number, $reference_number_edit = 0;
+
     protected $listeners = [
         'showEvents' => 'setDate'
     ];
@@ -41,6 +43,28 @@ class ScheduleEvent extends Component
     public function updatingSearch()
     {
         $this->resetPage();
+    }
+
+    // update trip reference number
+    public function updatedTripReferenceNumber() {
+        $this->schedule_data->trip->update([
+            'reference_number' => $this->trip_reference_number
+        ]);
+
+        $this->reference_number_edit = 0;
+    }
+
+    public function editReference() {
+        $this->reference_number_edit = 1;
+        $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
+    }
+
+    public function saveEditReference() {
+        $this->schedule_data->trip->update([
+            'reference_number' => $this->trip_reference_number
+        ]);
+
+        $this->reference_number_edit = 0;
     }
 
     // Sign In
@@ -206,6 +230,14 @@ class ScheduleEvent extends Component
 
     public function viewSchedule($schedule_id) {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+
+        if(!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
+            $this->reference_number_edit = 1;
+        } else {
+            $this->reference_number_edit = 0;
+        }
+
+        $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
     }
 
     public function back() {
@@ -216,7 +248,16 @@ class ScheduleEvent extends Component
         $this->date = $date;
         if(!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
+
+            if(!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
+                $this->reference_number_edit = 1;
+            } else {
+                $this->reference_number_edit = 0;
+            }
+
+            $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
         }
+
 
         // $this->reset('schedule_data');
     }
