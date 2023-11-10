@@ -50,8 +50,14 @@ class Trip extends Component
             $new_trip_number = null;
 
             do {
-                // Generate a new trip number
-                $new_trip_number = strtoupper(substr(sha1(uniqid()), 0, 6));
+                /// Generate a random letter
+                $random_letter = chr(65 + rand(0, 25)); // A-Z
+
+                // Generate the remaining part of the trip number (alphanumeric)
+                $random_alphanumeric = strtoupper(substr(sha1(uniqid()), 0, 5));
+
+                // Combine the letter and alphanumeric characters
+                $new_trip_number = $random_letter . $random_alphanumeric;
             } while (ActivityPlanDetailTrip::where('trip_number', $new_trip_number)->exists());
 
             // Set the new trip number

@@ -20,10 +20,19 @@
                     <div class="col-12">
                         <div class="card card-primary card-outline">
                             <div class="card-header">
-                                <h3 class="card-title">TRIP DETAILS</h3>
+                                <h3 class="card-title">
+                                    TRIP DETAILS 
+                                    @if($schedule_data->trip->status == 'approved')
+                                        <span class="badge badge-success">APPROVED</span>
+                                    @elseif($schedule_data->trip->source == 'schedule' && empty($schedule_data->trip->status))
+                                        <span class="badge badge-secondary">FOR APPROVAL</span>
+                                    @endif
+                                </h3>
                                 <div class="card-tools">
                                     @can('trip print')
-                                        <a href="{{route('trip.print', $schedule_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                        @if($schedule_data->trip->status == 'approved')
+                                            <a href="{{route('trip.print', $schedule_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                        @endif
                                     @endcan
                                 </div>
                             </div>
@@ -32,7 +41,7 @@
                                     <div class="col-lg-6 text-center align-middle">
                                         {!! DNS1D::getBarcodeSVG($schedule_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
                                         <br>
-                                        <strong class="text-muted">TRIP NUMBER</strong>
+                                        <strong class="text-muted">TRIP CODE</strong>
                                         <br>
                                         <h3 class="font-weight-bold">{{$schedule_data->trip->trip_number}}</h3>
                                     </div>
@@ -86,32 +95,33 @@
                                         <br>
                                         <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($date))}}</strong>
                                     </div>
-                                    @if(!empty($schedule_data->trip->reference_number) && $reference_number_edit == 0)
-                                        <div class="col-lg-4 text-center">
-                                            <strong class="text-muted">
-                                                REFERENCE NUMBER
-                                                @if($schedule_data->trip->transportation_type == 'AIR')
-                                                    <a href="#" class="ml-1" wire:click.prevent="editReference">
-                                                        <i class="fa fa-pen-alt text-success"></i>
+                                    @if($schedule_data->trip->status == 'approved')
+                                        @if(!empty($schedule_data->trip->reference_number) && $reference_number_edit == 0)
+                                            <div class="col-lg-4 text-center">
+                                                <strong class="text-muted">
+                                                    REFERENCE NUMBER
+                                                    @if($schedule_data->trip->transportation_type == 'AIR')
+                                                        <a href="#" class="ml-1" wire:click.prevent="editReference">
+                                                            <i class="fa fa-pen-alt text-success"></i>
+                                                        </a>
+                                                    @endif
+                                                </strong>
+                                                <br>
+                                                <strong class="text-uppercase text-lg">{{$schedule_data->trip->reference_number}}</strong>
+                                            </div>
+                                        @elseif(($schedule_data->trip->transportation_type == 'AIR' && $reference_number_edit == 1) || $schedule_data->trip->transportation_type == 'AIR' && empty($schedule_data->trip->reference_number))
+                                            <div class="col-lg-4 text-center">
+                                                <strong class="text-muted">
+                                                    REFERENCE NUMBER
+                                                    <a href="#" class="ml-1" wire:click.prevent="saveEditReference">
+                                                        <i class="fa fa-check text-primary"></i>
                                                     </a>
-                                                @endif
-                                            </strong>
-                                            <br>
-                                            <strong class="text-uppercase text-lg">{{$schedule_data->trip->reference_number}}</strong>
-                                        </div>
-                                    @elseif(($schedule_data->trip->transportation_type == 'AIR' && $reference_number_edit == 1) || $schedule_data->trip->transportation_type == 'AIR' && empty($schedule_data->trip->reference_number))
-                                        <div class="col-lg-4 text-center">
-                                            <strong class="text-muted">
-                                                REFERENCE NUMBER
-                                                <a href="#" class="ml-1" wire:click.prevent="saveEditReference">
-                                                    <i class="fa fa-check text-primary"></i>
-                                                </a>
-                                            </strong>
-                                            <br>
-                                            <input type="text" class="form-control" wire:model.lazy="trip_reference_number">
-                                        </div>
+                                                </strong>
+                                                <br>
+                                                <input type="text" class="form-control" wire:model.lazy="trip_reference_number">
+                                            </div>
+                                        @endif
                                     @endif
-                                    {{$reference_number_edit}}
                                 </div>
                             </div>
                         </div>
@@ -224,6 +234,65 @@
                                     <button class="btn btn-primary float-right" wire:loading.attr="disabled" type="submit">Sign In</button>
                                 </div>
                             </form>
+                        @elseif($action == 'add-trip')
+                            {{-- add trip --}}
+                            <form action="" wire:submit.prevent="submitTrip">
+                                <div class="row">
+                                    <div class="col-lg-12 text-center align-middle">
+                                        {!! DNS1D::getBarcodeSVG($trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        <br>
+                                        <strong class="text-muted">TRIP CODE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$trip_number}}</h3>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Departure <i class="fa fa-plane-departure text-primary"></i></label>
+                                            <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model="departure">
+                                            <p class="text-danger">{{$errors->first('departure')}}</p>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Arrival <i class="fa fa-plane-arrival text-primary"></i></label>
+                                            <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model="arrival">
+                                            <p class="text-danger">{{$errors->first('arrival')}}</p>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Transportation Type</label>
+                                            <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model="transportation_type">
+                                                <option value="" selected="selected">Select transportation type</option>
+                                                @foreach($transportation_types as $type)
+                                                    <option value="{{$type}}">{{$type}}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-danger">{{$errors->first('transportation_type')}}</p>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label>Reference Number</label>
+                                            <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number"  wire:model="reference_number">
+                                            <p class="text-danger">{{$errors->first('reference_number')}}</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-right">
+                                        <button class="btn btn-primary" type="submit">Add Trip</button>
+                                    </div>
+                    
+                                </div>
+
+                            </form>
                         @endif
                     </div>
 
@@ -239,7 +308,13 @@
                             {{-- <button class="btn btn-danger my-1" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button> --}}
                         @endcan
                         @if($schedule_data->user_id == auth()->user()->id)
-                        <button class="btn btn-info my-1" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>
+                            @if(empty($schedule_data->trip) && auth()->user()->can('trip create'))
+                                <button class="btn btn-primary" wire:click.prevent="setAction('add-trip')">
+                                    <i class="fa fa-plane mr-1"></i>
+                                    Add Trip
+                                </button>
+                            @endif
+                            <button class="btn btn-info my-1" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>
                         @endif
                     </div>
 

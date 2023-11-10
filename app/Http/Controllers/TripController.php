@@ -28,15 +28,25 @@ class TripController extends Controller
         $search = trim($request->get('search'));
 
         $trips = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')
-            ->whereHas('activity_plan_detail', function($query) use($user, $search, $date) {
-                $query->whereHas('activity_plan', function($qry) use($user, $date) {
-                    $qry->where('status', 'approved')
-                    ->when(!empty($user), function($qry1) use($user) {
-                        $qry1->where('user_id', $user);
+            ->where(function($query) use($user, $date) {
+                $query->whereHas('activity_plan_detail', function($query) use($user, $date) {
+                    $query->whereHas('activity_plan', function($qry) use($user, $date) {
+                        $qry->where('status', 'approved')
+                        ->when(!empty($user), function($qry1) use($user) {
+                            $qry1->where('user_id', $user);
+                        });
+                    })
+                    ->when(!empty($date), function($qry) use($date) {
+                        $qry->where('date', $date);
                     });
                 })
-                ->when(!empty($date), function($qry) use($date) {
-                    $qry->where('date', $date);
+                ->orWhereHas('schedule', function($query) use($user, $date) {
+                    $query->when(!empty($user), function($qry) use($user) {
+                        $qry->where('user_id', $user);
+                    })
+                    ->when(!empty($date), function($qry) use($date) {
+                        $qry->where('date', $date);
+                    });
                 });
             })
             ->where('transportation_type', 'AIR')
@@ -128,20 +138,22 @@ class TripController extends Controller
         ]);
         $approval->save();
 
-        $detail = $trip->activity_plan_detail;
-        $activity_plan = $detail->activity_plan;
-
-        // convert to schedules
-        $schedule = UserBranchSchedule::updateOrInsert([
-            'user_id' => $activity_plan->user_id,
-            'branch_id' => $detail->branch_id,
-            'date' => $detail->date,
-            'activity_plan_detail_trip_id' => $trip->id,
-        ], [
-            'status' => NULL,
-            'objective' => $detail->activity,
-            'source' => 'activity-plan',
-        ]);
+        if($trip->source == 'activity-plan') {
+            $detail = $trip->activity_plan_detail;
+            $activity_plan = $detail->activity_plan;
+    
+            // convert to schedules
+            $schedule = UserBranchSchedule::updateOrInsert([
+                'user_id' => $activity_plan->user_id,
+                'branch_id' => $detail->branch_id,
+                'date' => $detail->date,
+                'activity_plan_detail_trip_id' => $trip->id,
+            ], [
+                'status' => NULL,
+                'objective' => $detail->activity,
+                'source' => 'activity-plan',
+            ]);
+        }
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been approved.'
