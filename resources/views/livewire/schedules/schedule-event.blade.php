@@ -86,13 +86,32 @@
                                         <br>
                                         <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($date))}}</strong>
                                     </div>
-                                    @if(!empty($schedule_data->trip->reference_number))
+                                    @if(!empty($schedule_data->trip->reference_number) && $reference_number_edit == 0)
                                         <div class="col-lg-4 text-center">
-                                            <strong class="text-muted">REFERENCE NUMBER</strong>
+                                            <strong class="text-muted">
+                                                REFERENCE NUMBER
+                                                @if($schedule_data->trip->transportation_type == 'AIR')
+                                                    <a href="#" class="ml-1" wire:click.prevent="editReference">
+                                                        <i class="fa fa-pen-alt text-success"></i>
+                                                    </a>
+                                                @endif
+                                            </strong>
                                             <br>
                                             <strong class="text-uppercase text-lg">{{$schedule_data->trip->reference_number}}</strong>
                                         </div>
+                                    @elseif(($schedule_data->trip->transportation_type == 'AIR' && $reference_number_edit == 1) || $schedule_data->trip->transportation_type == 'AIR' && empty($schedule_data->trip->reference_number))
+                                        <div class="col-lg-4 text-center">
+                                            <strong class="text-muted">
+                                                REFERENCE NUMBER
+                                                <a href="#" class="ml-1" wire:click.prevent="saveEditReference">
+                                                    <i class="fa fa-check text-primary"></i>
+                                                </a>
+                                            </strong>
+                                            <br>
+                                            <input type="text" class="form-control" wire:model.lazy="trip_reference_number">
+                                        </div>
                                     @endif
+                                    {{$reference_number_edit}}
                                 </div>
                             </div>
                         </div>
