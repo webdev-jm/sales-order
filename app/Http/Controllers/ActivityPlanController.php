@@ -212,6 +212,7 @@ class ActivityPlanController extends Controller
                                                     'arrival' => $trip_data['arrival'],
                                                     'reference_number' => $trip_data['reference_number'] ?? '',
                                                     'transportation_type' => $trip_data['transportation_type'],
+                                                    'source' => 'activity-plan',
                                                 ]);
                                                 $activity_plan_detail_trip->save();
 
@@ -318,7 +319,7 @@ class ActivityPlanController extends Controller
                 $bg_color = '#09599e';
                 if(!empty($detail->trip)) {
                     $trip_data = $detail->trip;
-                    $title = 'TRIP NUMBER: '.$trip_data->trip_number.' '.$title; 
+                    $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title; 
                     $bg_color = '#0CA1A4';
 
                     // check if approved
@@ -591,6 +592,7 @@ class ActivityPlanController extends Controller
                                             'arrival' => $trip_data['arrival'],
                                             'reference_number' => $trip_data['reference_number'] ?? '',
                                             'transportation_type' => $trip_data['transportation_type'],
+                                            'source' => 'activity-plan',
                                         ]);
 
                                         // add approvals
@@ -915,7 +917,7 @@ class ActivityPlanController extends Controller
             'bar_code' => $bar_code
         ]);
 
-        return $pdf->download('trip-details-'.time().'.pdf');
+        return $pdf->download('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
 
         // return view('mcp.trip-detail')->with([
         //     'trip' => $trip,

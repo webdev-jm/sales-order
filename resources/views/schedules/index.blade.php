@@ -243,7 +243,7 @@
 
 
 <div class="modal fade" id="add-modal">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <livewire:schedules.schedule-add/>
     </div>
 </div>

@@ -23,6 +23,7 @@ class CreateActivityPlanDetailTripsTable extends Migration
             $table->string('transportation_type');
             $table->string('attachment_path')->nullable();
             $table->string('status')->nullable();
+            $table->string('source');
             $table->timestamps();
 
             $table->foreign('activity_plan_detail_id')

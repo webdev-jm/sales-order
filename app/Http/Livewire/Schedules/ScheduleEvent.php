@@ -10,6 +10,8 @@ use App\Models\User;
 use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
+use App\Models\ActivityPlanDetailTrip;
+use App\Models\ActivityPlanDetailTripApproval;
 
 use Illuminate\Support\Facades\Session;
 
@@ -35,6 +37,8 @@ class ScheduleEvent extends Component
     public $accuracy, $longitude, $latitude;
 
     public $trip_reference_number, $reference_number_edit = 0;
+    public $trip_number;
+    public $departure, $arrival, $reference_number, $transportation_type;
 
     protected $listeners = [
         'showEvents' => 'setDate'
@@ -111,6 +115,48 @@ class ScheduleEvent extends Component
             ]);
         }
         
+    }
+
+    // save trip
+    public function submitTrip() {
+        $this->validate([
+            'departure' => [
+                'required'
+            ],
+            'arrival' => [
+                'required'
+            ],
+            'transportation_type' => [
+                'required'
+            ]
+        ]);
+
+        $trip = new ActivityPlanDetailTrip([
+            'activity_plan_detail_id' => NULL,
+            'trip_number' => $this->trip_number,
+            'departure' => $this->departure,
+            'arrival' => $this->arrival,
+            'reference_number' => $this->reference_number ?? '',
+            'transportation_type' => $this->transportation_type,
+            'source' => 'schedule'
+        ]);
+        $trip->save();
+
+        $this->schedule_data->update([
+            'activity_plan_detail_trip_id' => $trip->id
+        ]);
+
+        // record to approvals
+        $approval = new ActivityPlanDetailTripApproval([
+            'user_id' => auth()->user()->id,
+            'activity_plan_detail_trip_id' => $trip->id,
+            'status' => 'submitted',
+        ]);
+        $approval->save();
+
+        return redirect(request()->header('Referer'))->with([
+            'message_success' => 'Trip '.$trip->trip_number.' has been created.'
+        ]);
     }
 
     public function loadLocation() {
@@ -222,6 +268,33 @@ class ScheduleEvent extends Component
         if($action == 'reschedule-request') {
             $this->reschedule_date = $this->date;
         }
+
+        // set trip number
+        if($action == 'add-trip') {
+            $this->reset('trip_number');
+            $this->generateTripNumber();
+        }
+    }
+
+    private function generateTripNumber() {
+        // Check if a trip number already exists
+        if (empty($this->trip_number)) {
+            $new_trip_number = null;
+
+            do {
+                /// Generate a random letter
+                $random_letter = chr(65 + rand(0, 25)); // A-Z
+
+                // Generate the remaining part of the trip number (alphanumeric)
+                $random_alphanumeric = strtoupper(substr(sha1(uniqid()), 0, 5));
+
+                // Combine the letter and alphanumeric characters
+                $new_trip_number = $random_letter . $random_alphanumeric;
+            } while (ActivityPlanDetailTrip::where('trip_number', $new_trip_number)->exists());
+
+            // Set the new trip number
+            $this->trip_number = $new_trip_number;
+        }
     }
 
     public function backAction() {
@@ -307,8 +380,14 @@ class ScheduleEvent extends Component
             }
         }
 
+        $transportation_types = [
+            'AIR',
+            'LAND'
+        ];
+
         return view('livewire.schedules.schedule-event')->with([
-            'branch_schedules' => $branch_schedules
+            'branch_schedules' => $branch_schedules,
+            'transportation_types' => $transportation_types
         ]);
     }
 }

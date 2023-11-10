@@ -56,7 +56,7 @@
                     <div class="col-lg-6 text-center align-middle">
                         {!! DNS1D::getBarcodeSVG($trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
                         <br>
-                        <strong class="text-muted">TRIP NUMBER</strong>
+                        <strong class="text-muted">TRIP CODE</strong>
                         <br>
                         <h3 class="font-weight-bold">{{$trip->trip_number}}</h3>
                     </div>
@@ -103,12 +103,20 @@
                     <div class="col-lg-4 text-center">
                         <strong class="text-muted">NAME</strong>
                         <br>
-                        <strong class="text-uppercase text-lg">{{$trip->activity_plan_detail->activity_plan->user->fullName()}}</strong>
+                        @if($trip->source == 'activity-plan')
+                            <strong class="text-uppercase text-lg">{{$trip->activity_plan_detail->activity_plan->user->fullName()}}</strong>
+                        @elseif($trip->source == 'schedule')
+                            <strong class="text-uppercase text-lg">{{$trip->schedule->user->fullName()}}</strong>
+                        @endif
                     </div>
                     <div class="col-lg-4 text-center">
                         <strong class="text-muted">DATE</strong>
                         <br>
-                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
+                        @if($trip->source == 'activity-plan')
+                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
+                        @elseif($trip->source == 'schedule')
+                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->schedule->date))}}</strong>
+                        @endif
                     </div>
                     @if(!empty($trip->reference_number))
                         <div class="col-lg-4 text-center">

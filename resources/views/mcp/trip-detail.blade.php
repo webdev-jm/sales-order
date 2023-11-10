@@ -166,108 +166,203 @@
 
         <hr>
 
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td class="border-0 w33">
-                        <span class="text-muted">NAME</span>
-                        <br>
-                        <strong>{{strtoupper($trip->activity_plan_detail->activity_plan->user->fullName())}}</strong>
-                    </td>
-                    <td class="border-0 border-left w33">
-                        <span class="text-muted">BRANCH</span>
-                        <br>
-                        <strong>{{$trip->activity_plan_detail->branch->branch_code}} - {{$trip->activity_plan_detail->branch->branch_name}}</strong>
-                    </td>
-                    <td class="border-0 border-left w33">
-                        <span class="text-muted">DATE</span>
-                        <br>
-                        <strong>{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3" class="border-0">
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="border-0">
-                        <span class="text-muted">DEPARTURE</span>
-                        <br>
-                        <strong>{{strtoupper($trip->departure)}}</strong>
-                    </td>
-                    <td class="border-0 border-left">
-                        <span class="text-muted">ARRIVAL</span>
-                        <br>
-                        <strong>{{$trip->arrival}}</strong>
-                    </td>
-                    @if(!empty($trip->reference_number))
-                        <td class="border-0 border-left">
-                            <span class="text-muted">REFERENCE NUMBER</span>
+        @if($trip->source == 'activity-plan')
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td class="border-0 w33">
+                            <span class="text-muted">NAME</span>
                             <br>
-                            <strong>{{$trip->reference_number}}</strong>
+                            <strong>{{strtoupper($trip->activity_plan_detail->activity_plan->user->fullName())}}</strong>
                         </td>
-                    @else
+                        <td class="border-0 border-left w33">
+                            <span class="text-muted">BRANCH</span>
+                            <br>
+                            <strong>{{$trip->activity_plan_detail->branch->branch_code}} - {{$trip->activity_plan_detail->branch->branch_name}}</strong>
+                        </td>
+                        <td class="border-0 border-left w33">
+                            <span class="text-muted">DATE</span>
+                            <br>
+                            <strong>{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="border-0">
+
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="border-0">
+                            <span class="text-muted">DEPARTURE</span>
+                            <br>
+                            <strong>{{strtoupper($trip->departure)}}</strong>
+                        </td>
+                        <td class="border-0 border-left">
+                            <span class="text-muted">ARRIVAL</span>
+                            <br>
+                            <strong>{{$trip->arrival}}</strong>
+                        </td>
+                        @if(!empty($trip->reference_number))
+                            <td class="border-0 border-left">
+                                <span class="text-muted">REFERENCE NUMBER</span>
+                                <br>
+                                <strong>{{$trip->reference_number}}</strong>
+                            </td>
+                        @else
+                            <td class="border-0">
+
+                            </td>
+                        @endif
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <strong class="text-muted">OBJECTIVE</strong>
+            <p class="objective">
+                {{$trip->activity_plan_detail->activity}}
+            </p>
+
+            <hr>
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        @php
+                            $approval  = $trip->activity_plan_detail->activity_plan->approvals()->where('status', 'submitted')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($approval))
+                            <td class="border-0 text-center">
+                                
+                                <span class="text-muted">SUBMITTED BY</span>
+                                <br>
+                                <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($approval->user->fullName())}}</strong>
+                            </td>
+                        @endif
+                        @php
+                            $approval  = $trip->activity_plan_detail->activity_plan->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($approval))
+                            <td class="border-0 text-center">
+                                <span class="text-muted">APPROVED BY</span>
+                                <br>
+                                <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($approval->user->fullName() ?? '')}}</strong>
+                            </td>
+                        @endif
+                        @php
+                            $trip_approval = $trip->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($trip_approval))
+                            <td class="border-0 text-center">
+                                <span class="text-muted">APPROVED BY</span>
+                                <br>
+                                <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
+                            </td>
+                        @endif
+                    </tr>
+                </tbody>
+            </table>
+        @else
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td class="border-0 w33">
+                            <span class="text-muted">NAME</span>
+                            <br>
+                            <strong>{{strtoupper($trip->schedule->user->fullName())}}</strong>
+                        </td>
+                        <td class="border-0 border-left w33">
+                            <span class="text-muted">BRANCH</span>
+                            <br>
+                            <strong>{{$trip->schedule->branch->branch_code}} - {{$trip->schedule->branch->branch_name}}</strong>
+                        </td>
+                        <td class="border-0 border-left w33">
+                            <span class="text-muted">DATE</span>
+                            <br>
+                            <strong>{{date('m/d/Y', strtotime($trip->schedule->date))}}</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="border-0">
 
                         </td>
-                    @endif
-                </tr>
-            </tbody>
-        </table>
+                    </tr>
+                    <tr>
+                        <td class="border-0">
+                            <span class="text-muted">DEPARTURE</span>
+                            <br>
+                            <strong>{{strtoupper($trip->departure)}}</strong>
+                        </td>
+                        <td class="border-0 border-left">
+                            <span class="text-muted">ARRIVAL</span>
+                            <br>
+                            <strong>{{$trip->arrival}}</strong>
+                        </td>
+                        @if(!empty($trip->reference_number))
+                            <td class="border-0 border-left">
+                                <span class="text-muted">REFERENCE NUMBER</span>
+                                <br>
+                                <strong>{{$trip->reference_number}}</strong>
+                            </td>
+                        @else
+                            <td class="border-0">
 
-        <hr>
+                            </td>
+                        @endif
+                    </tr>
+                </tbody>
+            </table>
 
-        <strong class="text-muted">OBJECTIVE</strong>
-        <p class="objective">
-            {{$trip->activity_plan_detail->activity}}
-        </p>
+            <hr>
 
-        <hr>
+            <strong class="text-muted">OBJECTIVE</strong>
+            <p class="objective">
+                {{$trip->schedule->objective}}
+            </p>
 
-        <table class="table">
-            <tbody>
-                <tr>
-                    @php
-                        $approval  = $trip->activity_plan_detail->activity_plan->approvals()->where('status', 'submitted')->orderBy('created_at', 'DESC')->first();
-                    @endphp
-                    @if(!empty($approval))
+            <hr>
+
+            <table class="table">
+                <tbody>
+                    <tr>
                         <td class="border-0 text-center">
                             
                             <span class="text-muted">SUBMITTED BY</span>
                             <br>
-                            <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}">
+                            <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($trip->created_at))}}">
                             <br>
-                            <strong>{{strtoupper($approval->user->fullName())}}</strong>
+                            <strong>{{strtoupper($trip->schedule->user->fullName())}}</strong>
                         </td>
-                    @endif
-                    @php
-                        $approval  = $trip->activity_plan_detail->activity_plan->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
-                    @endphp
-                    @if(!empty($approval))
                         <td class="border-0 text-center">
                             <span class="text-muted">APPROVED BY</span>
                             <br>
-                            <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}">
+                            <input type="text" class="signatory-line" value="">
                             <br>
-                            <strong>{{strtoupper($approval->user->fullName() ?? '')}}</strong>
+                            <strong></strong>
                         </td>
-                    @endif
-                    @php
-                        $trip_approval = $trip->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
-                    @endphp
-                    @if(!empty($trip_approval))
-                        <td class="border-0 text-center">
-                            <span class="text-muted">APPROVED BY</span>
-                            <br>
-                            <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
-                            <br>
-                            <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
-                        </td>
-                    @endif
-                </tr>
-            </tbody>
-        </table>
+                        @php
+                            $trip_approval = $trip->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($trip_approval))
+                            <td class="border-0 text-center">
+                                <span class="text-muted">APPROVED BY</span>
+                                <br>
+                                <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
+                            </td>
+                        @endif
+                    </tr>
+                </tbody>
+            </table>
+        @endif
 
         <div class="footer">
             Rev.1

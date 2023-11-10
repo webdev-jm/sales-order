@@ -20,6 +20,7 @@ class ActivityPlanDetailTrip extends Model
         'transportation_type',
         'attachment_path',
         'status',
+        'source',
     ];
 
     public function schedule() {

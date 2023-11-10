@@ -50,7 +50,7 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Trip Number</th>
+                    <th>Trip Code</th>
                     <th>Date</th>
                     <th>User</th>
                     <th>Departure</th>
@@ -63,8 +63,13 @@
                 @foreach($trips as $trip)
                     <tr>
                         <td>{{$trip->trip_number}}</td>
-                        <td>{{$trip->activity_plan_detail->date}}</td>
-                        <td>{{$trip->activity_plan_detail->activity_plan->user->fullName()}}</td>
+                        @if($trip->source == 'activity-plan')
+                            <td>{{$trip->activity_plan_detail->date ?? $trip->schedule->date}}</td>
+                            <td>{{$trip->activity_plan_detail->activity_plan->user->fullName()}}</td>
+                        @elseif($trip->source == 'schedule')
+                            <td>{{$trip->schedule->date}}</td>
+                            <td>{{$trip->schedule->user->fullName()}}</td>
+                        @endif
                         <td>{{$trip->departure}}</td>
                         <td>{{$trip->arrival}}</td>
                         <td class="text-center">

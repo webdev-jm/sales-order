@@ -10,7 +10,7 @@
 
             <div class="row">
                 <div class="col-12">
-                    <h4>TRIP NUMBER: <strong class="d-inline">{{$trip_number}}</strong></h4>
+                    <h4>TRIP CODE: <strong class="d-inline">{{$trip_number}}</strong></h4>
                 </div>
             </div>
 

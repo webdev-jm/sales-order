@@ -75,7 +75,7 @@
                                     <div class="col-lg-6 text-center align-middle">
                                         {!! DNS1D::getBarcodeSVG($schedule->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
                                         <br>
-                                        <strong class="text-muted">TRIP NUMBER</strong>
+                                        <strong class="text-muted">TRIP CODE</strong>
                                         <br>
                                         <h3 class="font-weight-bold">{{$schedule->trip->trip_number}}</h3>
                                     </div>
