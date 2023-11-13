@@ -134,10 +134,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
     });
 
-    // TRIP FINANCE VIEW
+    // TRIP
     Route::group(['middleware' => ['permission:trip access']], function() {
         Route::get('trip', [TripController::class, 'index'])->name('trip.index');
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
+        
+        Route::get('shedule/trip-list', [TripController::class, 'list'])->name('trip.list');
 
         Route::get('trip/{id}/approve', [TripController::class, 'approve'])->name('trip.approve')->middleware('permission:trip approve');
         Route::get('trip/{id}/reject', [TripController::class, 'reject'])->name('trip.reject')->middleware('permission:trip approve');
