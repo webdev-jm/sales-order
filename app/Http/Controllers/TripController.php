@@ -57,7 +57,8 @@ class TripController extends Controller
             ->when(!empty($search), function($query) use($search) {
                 $query->where(function($qry) use($search) {
                     $qry->where('departure', 'like', '%'.$search.'%')
-                        ->orWhere('arrival', 'like', '%'.$search.'%');
+                        ->orWhere('arrival', 'like', '%'.$search.'%')
+                        ->orWhere('trip_number', 'like', '%'.$search.'%');
 
                     if($search == 'for approval') {
                         $qry->orWhereNull('status');
@@ -86,6 +87,73 @@ class TripController extends Controller
         }
 
         return view('trips.index')->with([
+            'trips' => $trips,
+            'users' => $user_arr,
+            'user' => $user,
+            'search' => $search,
+            'date' => $date,
+        ]);
+    }
+
+    public function list(Request $request) {
+        $date = trim($request->get('date'));
+        $user = trim($request->get('user'));
+        $search = trim($request->get('search'));
+
+        $subordinates = auth()->user()->getSubordinateIds();
+        $subordinate_ids = [];
+        foreach($subordinates as $level => $ids) {
+            foreach($ids as $id) {
+                $subordinate_ids[] = $id;
+            }
+        }
+
+        $trips = ActivityPlanDetailTrip::with('schedule', 'schedule.user')
+            ->whereHas('schedule', function ($query) use ($user, $date) {
+                $query->when($user, function ($qry) use ($user) {
+                        $qry->where('user_id', $user);
+                    })
+                    ->when($date, function ($qry) use ($date) {
+                        $qry->where('date', $date);
+                    });
+            })
+            ->where('transportation_type', 'AIR')
+            ->where('source', 'schedule')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($qry) use ($search) {
+                    $qry->where('departure', 'like', '%' . $search . '%')
+                        ->orWhere('arrival', 'like', '%' . $search . '%')
+                        ->orWhere('trip_number', 'like', '%'.$search.'%')
+                        ->when($search == 'for approval', function ($qry) {
+                            $qry->orWhereNull('status');
+                        }, function ($qry) use ($search) {
+                            $qry->orWhere('status', 'like', '%' . $search . '%');
+                        });
+                });
+            })
+            ->paginate($this->setting->data_per_page)->onEachSide(1)
+            ->appends(request()->query());
+
+        // user filters
+        $users = User::whereHas('activity_plans', function($query) {
+            $query->where('status', 'approved')
+                ->whereHas('details', function($qry) {
+                    $qry->whereHas('trip');
+                });
+        })
+        ->when(!empty($subordinate_ids), function($query) {
+            $query->whereIn('id', $subordinate_ids);
+        })
+        ->get();
+
+        $user_arr = [
+            '' => 'ALL USER'
+        ];
+        foreach($users as $user) {
+            $user_arr[$user->id] = $user->fullName();
+        }
+        
+        return view('trips.list')->with([
             'trips' => $trips,
             'users' => $user_arr,
             'user' => $user,

@@ -61,9 +61,15 @@
         <h1>Schedules</h1>
     </div>
     <div class="col-md-6 text-right">
-        <a href="{{route('schedule.deviations')}}" class="btn btn-warning"><i class="fa fa-calendar mr-1"></i>Deviations</a>
+        @can('trip access')
+        <a href="{{route('trip.list')}}" class="btn btn-info">
+            <i class="fa fa-plane mr-1"></i>
+            TRIPS
+        </a>
+        @endif
+        <a href="{{route('schedule.deviations')}}" class="btn btn-warning"><i class="fa fa-calendar mr-1"></i>DEVIATIONS</a>
         @can('schedule list')
-        <a href="{{route('schedule.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>Schedule Requests</a>
+        <a href="{{route('schedule.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>SCHEDULE REQUEST</a>
         @endcan
     </div>
 </div>
