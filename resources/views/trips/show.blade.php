@@ -31,6 +31,8 @@
             <button type="button" class="btn btn-secondary">FOR APPROVAL</button>
         @elseif($trip->status == 'approved')
             <button type="button" class="btn btn-success">APPROVED</button>
+        @elseif($trip->status == 'rejected')
+        <button type="button" class="btn btn-danger">REJECTED</button>
         @endif
     </div>
     <div class="col-md-6 text-right">
@@ -128,7 +130,11 @@
                 </div>
             </div>
             <div class="card-footer text-right">
-                @if(auth()->user()->can('trip approve') && $trip->status != 'approved')
+                @if(auth()->user()->can('trip approve') && $trip->status != 'approved' && $trip->status != 'rejected')
+                    <a href="{{route('trip.reject', $trip->id)}}" class="btn btn-danger">
+                        <i class="fa fa-times-circle mr-1"></i>
+                        REJECT
+                    </a>
                     <a href="{{route('trip.approve', $trip->id)}}" class="btn btn-success">
                         <i class="fa fa-check mr-1"></i>
                         APPROVE
@@ -164,7 +170,7 @@
                                     <span class="time"><i class="far fa-clock"></i> {{$approval->created_at->diffForHumans()}}</span>
     
                                     <h3 class="timeline-header {{!empty($approval->remarks) ? '' : 'border-0'}}">
-                                        <a href="#">{{$approval->user->fullName()}}</a> <span class="mx-2 badge bg-{{$status_arr[$approval->status]}}">{{$approval->status}}</span> the activity plan
+                                        <a href="#">{{$approval->user->fullName()}}</a> <span class="mx-2 badge bg-{{$status_arr[$approval->status]}}">{{$approval->status}}</span> the trip request
                                     </h3>
     
                                     @if(!empty($approval->remarks))

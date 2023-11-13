@@ -12,6 +12,10 @@ use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\UserBranchSchedule;
 
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TripApproved;
+use App\Notifications\TripRejected;
+
 class TripController extends Controller
 {
     use GlobalTrait;
@@ -94,6 +98,7 @@ class TripController extends Controller
         $status_arr = [
             'submitted' => 'info',
             'approved' => 'success',
+            'rejected' => 'danger',
         ];
 
         $trip = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')->findOrFail($id);
@@ -141,6 +146,7 @@ class TripController extends Controller
         if($trip->source == 'activity-plan') {
             $detail = $trip->activity_plan_detail;
             $activity_plan = $detail->activity_plan;
+            $user = $activity_plan->user;
     
             // convert to schedules
             $schedule = UserBranchSchedule::updateOrInsert([
@@ -153,10 +159,43 @@ class TripController extends Controller
                 'objective' => $detail->activity,
                 'source' => 'activity-plan',
             ]);
+        } else {
+            $user = $trip->schedule->user;
         }
+
+        Notification::send($user, new TripApproved($trip));
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been approved.'
+        ]);
+    }
+
+    public function reject($id) {
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        // update status
+        $trip->update([
+            'status' => 'rejected'
+        ]);
+
+        // record approvals history
+        $approval = new ActivityPlanDetailTripApproval([
+            'user_id' => auth()->user()->id,
+            'activity_plan_detail_trip_id' => $trip->id,
+            'status' => 'rejected',
+        ]);
+        $approval->save();
+
+        if($trip->source == 'activity-plan') {
+            $user = $trip->activity_plan_detail->activity_plan->user;
+        } else {
+            $user = $trip->schedule->user;
+        }
+
+        Notification::send($user, new TripRejected($trip));
+        
+        return back()->with([
+            'message_success' => 'Trip '.$trip->trip_number.' has been rejected.'
         ]);
     }
 }

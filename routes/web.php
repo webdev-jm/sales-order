@@ -140,6 +140,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
 
         Route::get('trip/{id}/approve', [TripController::class, 'approve'])->name('trip.approve')->middleware('permission:trip approve');
+        Route::get('trip/{id}/reject', [TripController::class, 'reject'])->name('trip.reject')->middleware('permission:trip approve');
     });
 
     Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');
