@@ -255,7 +255,7 @@
                     <div class="card-body">
                         @php
                             $trade_marketing_activities = $channel_operation->trade_marketing_activities->first();
-                            $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number)
+                            $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number ?? '')
                                 ->first();
                         @endphp
                         {{-- PAF NUMBER --}}
@@ -313,7 +313,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if(!empty($trade_marketing_activities->skus->count()))
+                                        @if(!empty($trade_marketing_activities->skus) && !empty($trade_marketing_activities->skus->count()))
                                             @foreach($trade_marketing_activities->skus as $sku)
                                             <tr class="text-center">
                                                 <td>{{$sku['sku_code'] ?? ' - '}}</td>
