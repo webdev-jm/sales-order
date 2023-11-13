@@ -12,6 +12,7 @@ use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use Spatie\Permission\Models\Permission;
 
 use Illuminate\Support\Facades\Session;
 
@@ -156,15 +157,14 @@ class ScheduleEvent extends Component
         $approval->save();
 
         // notification
-        // $supervisor_id = auth()->user()->getImmediateSuperiorId();
-        // if(auth()->user()->id != $supervisor_id) {
-        //     $user = User::find($supervisor_id);
-        //     if(!empty($user)) {
-        //         Notification::send($user, new TripSubmitted($trip));
-        //     }
-        // }
-
-        Notification::send(auth()->user(), new TripSubmitted($trip));
+        // get all users with trip approve permission
+        $permission = Permission::where('name', 'trip approve')->first();
+        $users = $permission->users;
+        foreach($users as $user) {
+            if($user->id != auth()->user()->id) {
+                Notification::send($user, new TripSubmitted($trip));
+            }
+        }
 
         return redirect(request()->header('Referer'))->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been created.'

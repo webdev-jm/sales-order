@@ -32,8 +32,8 @@ class TripSubmitted extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
-        // return ['database', 'mail'];
+        // return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -49,6 +49,7 @@ class TripSubmitted extends Notification
             ->subject('Trip has been submitted')
             ->greeting('Hello! '.$notifiable->fullName())
             ->line(auth()->user()->fullName().' has initiated a trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)).', and it is currenly pending for your approval')
+            ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
 
