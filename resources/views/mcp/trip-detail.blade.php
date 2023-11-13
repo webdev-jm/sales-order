@@ -132,6 +132,27 @@
             padding-right: 10px;
             padding-bottom: 5px;
         }
+        .status-badge {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            padding-right: 6px;
+            padding-left: 6px;
+            float: right;
+            margin-right: 12px;
+            font-weight: 600;
+        }
+        .badge-success {
+            background-color: green;
+            color: white;
+        }
+        .badge-danger {
+            background-color: rgb(185, 0, 0);
+            color: white;
+        }
+        .badge-secondary {
+            background-color: rgb(99, 99, 99);
+            color: white;
+        }
     </style>
 </head>
 <body style="margin-left: 0;">
@@ -141,6 +162,13 @@
         <div class="logo-container">
             <img src="{{public_path('/assets/images/BEVI.jpg')}}" alt="logo" class="bevi-logo align-middle">
             <img src="{{public_path('/assets/images/asia.jpg')}}" alt="logo" class="logo align-middle">
+            @if($trip->status == 'approved')
+                <span class="status-badge badge-success">APPROVED</span>
+            @elseif($trip->status == 'rejected')
+                <span class="status-badge badge-danger">REJECTED</span>
+            @else
+                <span class="status-badge badge-secondary">FOR APPROVAL</span>
+            @endif
         </div>
         <div class="title-bar">
             <p class="title-bar-header">TRIP DETAILS</p>

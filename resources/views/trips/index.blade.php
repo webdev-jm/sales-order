@@ -75,6 +75,8 @@
                         <td class="text-center">
                             @if(!empty($trip->status) && $trip->status == 'approved')
                                 <span class="badge badge-success">{{$trip->status}}</span>
+                            @elseif(!empty($trip->status) && $trip->status == 'rejected')
+                                <span class="badge badge-danger">{{$trip->status}}</span>
                             @else
                                 <span class="badge badge-secondary">for approval</span>
                             @endif

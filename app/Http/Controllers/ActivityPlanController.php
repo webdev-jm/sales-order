@@ -917,7 +917,7 @@ class ActivityPlanController extends Controller
             'bar_code' => $bar_code
         ]);
 
-        return $pdf->download('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
+        return $pdf->stream('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
 
         // return view('mcp.trip-detail')->with([
         //     'trip' => $trip,
