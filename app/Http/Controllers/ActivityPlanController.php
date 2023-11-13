@@ -887,11 +887,7 @@ class ActivityPlanController extends Controller
                         'branch_name' => $branch->branch_name ?? '',
                         'purpose' => $line['purpose'],
                         'user_id' => $user->id ?? '',
-                        'work_with' => $line['work_with'], 
-                        0
-
-                         
-                    ];
+                        'work_with' => $line['work_with'],                    ];
                 }
             }
 

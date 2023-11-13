@@ -11,14 +11,17 @@ class TripRejected extends Notification
 {
     use Queueable;
 
+    public $trip;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($trip)
     {
-        //
+        $this->afterCommit();
+        $this->trip = $trip;
     }
 
     /**
@@ -29,7 +32,8 @@ class TripRejected extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        // return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -41,9 +45,12 @@ class TripRejected extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
+            ->subject('Trip has been rejected')
+            ->greeting('Hello! '.$notifiable->fullName())
+            ->line(auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)))
+            ->action('View Details', url('/trip/'.$this->trip->id))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -55,7 +62,14 @@ class TripRejected extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+            'id' => $this->trip->id,
+            'date' => $this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date,
+            'module' => 'Trip',
+            'status' => 'rejected',
+            'status_code' => 'danger',
+            'message' => auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)),
+            'color' => 'danger',
+            'url' => url('/trip/'.$this->trip->id)
         ];
     }
 }

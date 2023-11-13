@@ -32,8 +32,8 @@ class TripApproved extends Notification
      */
     public function via($notifiable)
     {
-        return ['database'];
-        // return ['database', 'mail'];
+        // return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -46,9 +46,10 @@ class TripApproved extends Notification
     {
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
-            ->subject('Trip has been submitted')
+            ->subject('Trip has been approved')
             ->greeting('Hello! '.$notifiable->fullName())
             ->line(auth()->user()->fullName().' has approved trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)))
+            ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
 

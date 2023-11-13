@@ -140,6 +140,7 @@
             float: right;
             margin-right: 12px;
             font-weight: 600;
+            border-radius: 5%;
         }
         .badge-success {
             background-color: green;
@@ -294,6 +295,18 @@
                                 <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
                             </td>
                         @endif
+                        @php
+                            $trip_approval = $trip->approvals()->where('status', 'rejected')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($trip_approval))
+                            <td class="border-0 text-center">
+                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY</span>
+                                <br>
+                                <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
+                            </td>
+                        @endif
                     </tr>
                 </tbody>
             </table>
@@ -368,19 +381,24 @@
                             <br>
                             <strong>{{strtoupper($trip->schedule->user->fullName())}}</strong>
                         </td>
-                        <td class="border-0 text-center">
-                            <span class="text-muted">APPROVED BY</span>
-                            <br>
-                            <input type="text" class="signatory-line" value="">
-                            <br>
-                            <strong></strong>
-                        </td>
                         @php
                             $trip_approval = $trip->approvals()->where('status', 'approved')->orderBy('created_at', 'DESC')->first();
                         @endphp
                         @if(!empty($trip_approval))
                             <td class="border-0 text-center">
-                                <span class="text-muted">APPROVED BY</span>
+                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY</span>
+                                <br>
+                                <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
+                                <br>
+                                <strong>{{strtoupper($trip_approval->user->fullName())}}</strong>
+                            </td>
+                        @endif
+                        @php
+                            $trip_approval = $trip->approvals()->where('status', 'rejected')->orderBy('created_at', 'DESC')->first();
+                        @endphp
+                        @if(!empty($trip_approval))
+                            <td class="border-0 text-center">
+                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY</span>
                                 <br>
                                 <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
                                 <br>
@@ -393,7 +411,7 @@
         @endif
 
         <div class="footer">
-            Rev.1
+            Rev.00
         </div>
 
     </div>
