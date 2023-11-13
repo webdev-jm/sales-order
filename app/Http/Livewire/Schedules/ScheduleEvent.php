@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ScheduleDeleteRequest;
 use App\Notifications\ScheduleRescheduleRequest;
+use App\Notifications\TripSubmitted;
 
 class ScheduleEvent extends Component
 {
@@ -153,6 +154,17 @@ class ScheduleEvent extends Component
             'status' => 'submitted',
         ]);
         $approval->save();
+
+        // notification
+        // $supervisor_id = auth()->user()->getImmediateSuperiorId();
+        // if(auth()->user()->id != $supervisor_id) {
+        //     $user = User::find($supervisor_id);
+        //     if(!empty($user)) {
+        //         Notification::send($user, new TripSubmitted($trip));
+        //     }
+        // }
+
+        Notification::send(auth()->user(), new TripSubmitted($trip));
 
         return redirect(request()->header('Referer'))->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been created.'
