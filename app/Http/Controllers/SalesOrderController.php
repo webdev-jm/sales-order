@@ -748,6 +748,11 @@ class SalesOrderController extends Controller
         $total = 0;
         $total_quantity = 0;
         if(!empty($data)) {
+
+            $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
+                ->where('company_id', $logged_account->account->company_id)
+                ->first();
+
             foreach($data as $product_id => $details) {
                 $product = $details['product'];
                 $orders['items'][$product_id] = [
@@ -798,7 +803,50 @@ class SalesOrderController extends Controller
                             }
                         }
 
-                        $quantity = (int)$val['quantity'];
+                        $quantity = (float)$val['quantity'];
+
+                        // check account sales order UOM
+                        if(!empty($logged_account->account->sales_order_uom) && $uom != $logged_account->account->sales_order_uom) {
+                            if($product->order_uom == $logged_account->account->sales_order_uom && $uom != $product->order_uom) {
+                                if($uom == $product->stock_uom) {
+                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                                } elseif($uom == $product->other_uom) {
+                                    // check operation
+                                    if($product->other_uom_operator == 'M') { // Multiply
+                                        // convert to stock uom first
+                                        $quantity = $quantity * $product->other_uom_conversion;
+                                        $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                                    } elseif($product->other_uom_operator == 'D') { // Divide
+                                        // convert to stock uom first
+                                        $quantity = $quantity / $product->other_uom_conversion;
+                                        $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                                    }
+                                }
+                                $uom = $product->order_uom;
+                            } else if($product->other_uom == $logged_account->account->sales_order_uom && $uom != $product->other_uom) {
+                                if($uom == $product->stock_uom) {
+                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                                } else if($uom == $product->order_uom) {
+                                    if($product->order_uom_operator == 'M') {
+                                        // convert to stock uom
+                                        $quantity = $quantity * $product->order_uom_conversion;
+                                        $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                                    } elseif($product->order_uom_operator == 'D') {
+                                        $quantity = $quantity / $product->order_uom_conversion;
+                                        $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                                    }
+                                }
+                                $uom = $product->other_uom;
+                            } else if($product->stock_uom == $logged_account->account->sales_order_uom && $uom != $product->stock_uom) {
+                                if($uom == $product->order_uom) {
+                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = false);
+                                } else if($uom == $product->other_uom) {
+                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = false);
+                                }
+
+                                $uom = $product->stock_uom;
+                            }
+                        }
 
                         // get total
                         $uom_total = 0;
@@ -823,9 +871,6 @@ class SalesOrderController extends Controller
                         }
 
                         // apply line discount
-                        $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
-                            ->where('company_id', $logged_account->account->company_id)
-                            ->first();
                         $uom_discounted = $uom_total;
                         if(!empty($line_discount)) {
                             $discounted = $total;
@@ -887,6 +932,24 @@ class SalesOrderController extends Controller
         $orders['po_value'] = '';
 
         return $orders;
+    }
+
+    private function quantityConversion($quantity, $conversion, $operator, $reverse = false) {
+        if($operator == 'M') { // mutiply
+            if($reverse) {
+                return $quantity / $conversion;
+            } else {
+                return $quantity * $conversion;
+            }
+        } elseif($operator == 'D') { // divide
+            if($reverse) {
+                return $quantity * $conversion;
+            } else {
+                return $quantity / $conversion;
+            }
+        }
+
+        return $quantity;
     }
 
     private function isExcelDate(Cell $cell) {

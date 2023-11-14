@@ -53,6 +53,24 @@ class ScheduleEvent extends Component
 
     // update trip reference number
     public function updatedTripReferenceNumber() {
+        // check if theres changes
+        if($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
+            $changes_arr = [
+                'old' => [
+                    'reference_number' => $this->schedule_data->trip->reference_number
+                ],
+                'changes' => [
+                    'reference_number' => $this->trip_reference_number
+                ]
+            ];
+
+            // systemlog
+            activity('update')
+                ->performedOn($this->schedule_data->trip)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has updated trip [ :subject.trip_number ]');
+        }
+
         $this->schedule_data->trip->update([
             'reference_number' => $this->trip_reference_number
         ]);
@@ -66,6 +84,24 @@ class ScheduleEvent extends Component
     }
 
     public function saveEditReference() {
+        // check if theres changes
+        if($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
+            $changes_arr = [
+                'old' => [
+                    'reference_number' => $this->schedule_data->trip->reference_number
+                ],
+                'changes' => [
+                    'reference_number' => $this->trip_reference_number
+                ]
+            ];
+
+            // systemlog
+            activity('update')
+                ->performedOn($this->schedule_data->trip)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has updated trip [ :subject.trip_number ]');
+        }
+
         $this->schedule_data->trip->update([
             'reference_number' => $this->trip_reference_number
         ]);
@@ -155,6 +191,11 @@ class ScheduleEvent extends Component
             'status' => 'submitted',
         ]);
         $approval->save();
+
+        // systemlog
+        activity('created')
+            ->performedOn($trip)
+            ->log(':causer.firstname :causer.lastname added a new trip :subject.trip_number');
 
         // notification
         // get all users with trip approve permission

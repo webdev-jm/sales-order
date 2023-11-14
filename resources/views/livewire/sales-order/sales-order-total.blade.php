@@ -49,7 +49,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>Total Quantity</label>
-                        <input type="text" class="form-control bg-white text-right" readonly value="{{number_format($orders['total_quantity'] ?? 0)}}">
+                        <input type="text" class="form-control bg-white text-right" readonly value="{{number_format($orders['total_quantity'] ?? 0, 2)}}">
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                             @foreach($order['data'] as $uom => $data)
                             <tr>
                                 <td class="text-center align-middle p-0">{{$uom}}</td>
-                                <td class="text-right align-middle p-1">{{number_format($data['quantity'])}}</td>
+                                <td class="text-right align-middle p-1">{{number_format($data['quantity'], 2)}}</td>
                                 <td class="text-right align-middle p-1">{{number_format($data['total'], 2)}}</td>
                                 <td class="text-right align-middle p-1">{{$data['discount']}}</td>
                                 <td class="text-right align-middle p-1">{{number_format($data['discounted'], 2)}}</td>

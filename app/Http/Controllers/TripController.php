@@ -197,11 +197,15 @@ class TripController extends Controller
 
     public function approve($id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        $changes_arr['old'] = $trip->getOriginal();
         
         // update status
         $trip->update([
             'status' => 'approved'
         ]);
+
+        $changes_arr['changes'] = $trip->getChanges();
 
         // record approvals history
         $approval = new ActivityPlanDetailTripApproval([
@@ -231,6 +235,13 @@ class TripController extends Controller
             $user = $trip->schedule->user;
         }
 
+        // logs
+        activity('update')
+            ->performedOn($trip)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has approved trip [ :subject.trip_number ].');
+
+        // notifications
         Notification::send($user, new TripApproved($trip));
 
         return back()->with([
@@ -241,10 +252,14 @@ class TripController extends Controller
     public function reject($id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
+        $changes_arr['old'] = $trip->getOriginal();
+
         // update status
         $trip->update([
             'status' => 'rejected'
         ]);
+
+        $changes_arr['changes'] = $trip->getChanges();
 
         // record approvals history
         $approval = new ActivityPlanDetailTripApproval([
@@ -260,6 +275,13 @@ class TripController extends Controller
             $user = $trip->schedule->user;
         }
 
+        // logs
+        activity('update')
+            ->performedOn($trip)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has rejected trip [ :subject.trip_number ].');
+
+        // notifications
         Notification::send($user, new TripRejected($trip));
         
         return back()->with([
