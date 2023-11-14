@@ -18,7 +18,7 @@ class CreateSalesOrderProductsTable extends Migration
             $table->unsignedBigInteger('sales_order_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
             $table->integer('part')->comment('divided into parts based on account limit');
-            $table->integer('total_quantity');
+            $table->decimal('total_quantity', 10, 2);
             $table->decimal('total_sales', 15,2);
             $table->timestamps();
 

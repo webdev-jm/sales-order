@@ -89,6 +89,11 @@ class Approval extends Component
                                 'source' => 'activity-plan'
                             ]);
                             $schedule->save();
+
+                            // logs
+                            activity('create')
+                                ->performedOn($detail->trip)
+                                ->log(':causer.firstname :causer.lastname has submitted trip plan for :subject.year :subject.month');
                         }
 
                     }

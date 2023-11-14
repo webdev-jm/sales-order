@@ -42,7 +42,7 @@ class AccountLoggedForm extends Component
         Session::forget('logged_account');
         Session::forget('order_data');
 
-        return redirect()->to('/home');
+        return redirect(request()->header('Referer'));
     }
 
     public function save_image($image_input, $id) {

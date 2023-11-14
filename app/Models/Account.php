@@ -27,6 +27,7 @@ class Account extends Model
         'postal_code',
         'tax_number',
         'on_hold',
+        'sales_order_uom',
     ];
 
     public function discount() {

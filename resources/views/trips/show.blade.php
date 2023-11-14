@@ -128,6 +128,17 @@
                         </div>
                     @endif
                 </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label>REMARKS</label>
+                            <textarea class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card-footer text-right">
                 @if(auth()->user()->can('trip approve') && $trip->status != 'approved' && $trip->status != 'rejected')

@@ -58,11 +58,33 @@ class SalesOrderTotal extends Component
         $this->emit('saveData');
     }
 
+    private function quantityConversion($quantity, $conversion, $operator, $reverse = false) {
+        if($operator == 'M') { // mutiply
+            if($reverse) {
+                return $quantity / $conversion;
+            } else {
+                return $quantity * $conversion;
+            }
+        } elseif($operator == 'D') { // divide
+            if($reverse) {
+                return $quantity * $conversion;
+            } else {
+                return $quantity / $conversion;
+            }
+        }
+
+        return $quantity;
+    }
+
     public function processDetails($product_details) {
         $orders = [];
         $total = 0;
         $total_quantity = 0;
         if(!empty($product_details)) {
+
+            $line_discount = Discount::where('discount_code', $this->account->line_discount_code)
+                ->where('company_id', $this->account->company_id)->first();
+
             foreach($product_details as $product_id => $details) {
                 // get product details
                 $product = Product::findOrFail($product_id);
@@ -115,7 +137,50 @@ class SalesOrderTotal extends Component
                         }
                     }
 
-                    $quantity = (int)$quantity;
+                    $quantity = (float)$quantity;
+
+                    // check account sales order UOM
+                    if(!empty($this->account->sales_order_uom) && $uom != $this->account->sales_order_uom) {
+                        if($product->order_uom == $this->account->sales_order_uom && $uom != $product->order_uom) {
+                            if($uom == $product->stock_uom) {
+                                $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                            } elseif($uom == $product->other_uom) {
+                                // check operation
+                                if($product->other_uom_operator == 'M') { // Multiply
+                                    // convert to stock uom first
+                                    $quantity = $quantity * $product->other_uom_conversion;
+                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                                } elseif($product->other_uom_operator == 'D') { // Divide
+                                    // convert to stock uom first
+                                    $quantity = $quantity / $product->other_uom_conversion;
+                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
+                                }
+                            }
+                            $uom = $product->order_uom;
+                        } else if($product->other_uom == $this->account->sales_order_uom && $uom != $product->other_uom) {
+                            if($uom == $product->stock_uom) {
+                                $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                            } else if($uom == $product->order_uom) {
+                                if($product->order_uom_operator == 'M') {
+                                    // convert to stock uom
+                                    $quantity = $quantity * $product->order_uom_conversion;
+                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                                } elseif($product->order_uom_operator == 'D') {
+                                    $quantity = $quantity / $product->order_uom_conversion;
+                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
+                                }
+                            }
+                            $uom = $product->other_uom;
+                        } else if($product->stock_uom == $this->account->sales_order_uom && $uom != $product->stock_uom) {
+                            if($uom == $product->order_uom) {
+                                $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = false);
+                            } else if($uom == $product->other_uom) {
+                                $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = false);
+                            }
+
+                            $uom = $product->stock_uom;
+                        }
+                    }
     
                     $uom_total = 0;
                     // check if stock UOM
@@ -140,8 +205,6 @@ class SalesOrderTotal extends Component
                     }
 
                     // apply line discount
-                    $line_discount = Discount::where('discount_code', $this->account->line_discount_code)
-                    ->where('company_id', $this->account->company_id)->first();
                     $uom_discounted = $uom_total;
                     if(!empty($line_discount)) {
                         $discounted = $total;
