@@ -128,28 +128,39 @@
                         </div>
                     @endif
                 </div>
-
-                <hr>
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <label>REMARKS</label>
-                            <textarea class="form-control"></textarea>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="card-footer text-right">
                 @if(auth()->user()->can('trip approve') && $trip->status != 'approved' && $trip->status != 'rejected')
-                    <a href="{{route('trip.reject', $trip->id)}}" class="btn btn-danger">
+                    {!! Form::open(['method' => 'POST', 'route' => ['trip.submit-approve', $trip->id], 'id' => 'approve_trip']) !!}
+                        <input type="hidden" name="status" id="status" form="approve_trip">
+                    {!! Form::close() !!}
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group text-left">
+                                <label>REMARKS</label>
+                                <textarea class="form-control" name="remarks" form="approve_trip"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- <a href="{{route('trip.reject', $trip->id)}}" class="btn btn-danger">
                         <i class="fa fa-times-circle mr-1"></i>
                         REJECT
                     </a>
                     <a href="{{route('trip.approve', $trip->id)}}" class="btn btn-success">
                         <i class="fa fa-check mr-1"></i>
                         APPROVE
-                    </a>
+                    </a> --}}
+                    
+                    <button class="btn btn-danger" type="button" form="approve_trip" id="btn-reject">
+                        <i class="fa fa-times-circle mr-1"></i>
+                        REJECT
+                    </button>
+
+                    <button class="btn btn-success" type="button" form="approve_trip" id="btn-approve">
+                        <i class="fa fa-check-circle mr-1"></i>
+                        APPROVE
+                    </button>
                 @endcan
             </div>
         </div>
@@ -216,6 +227,19 @@
 @section('js')
 <script>
     $(function() {
+        $('body').on('click', '#btn-reject', function(e) {
+            e.preventDefault();
+            var status = 'rejected';
+            $('body').find('#status').val(status);
+            $('#'+$(this).attr('form')).submit();
+        });
+
+        $('body').on('click', '#btn-approve', function(e) {
+            e.preventDefault();
+            var status = 'approved';
+            $('body').find('#status').val(status);
+            $('#'+$(this).attr('form')).submit();
+        });
     });
 </script>
 @endsection

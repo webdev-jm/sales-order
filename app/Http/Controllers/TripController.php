@@ -179,7 +179,8 @@ class TripController extends Controller
 
         $approval_data = [];
         foreach($approval_dates as $data) {
-            $approvals = ActivityPlanDetailTripApproval::orderBy('created_at', 'DESC')
+            $approvals = ActivityPlanDetailTripApproval::with('user')
+                ->orderBy('created_at', 'DESC')
                 ->where('activity_plan_detail_trip_id', $trip->id)
                 ->where(DB::raw('DATE(created_at)'), $data->date)
                 ->get();
@@ -192,6 +193,76 @@ class TripController extends Controller
             'approval_dates' => $approval_dates,
             'approvals' => $approval_data,
             'status_arr' => $status_arr,
+        ]);
+    }
+
+    public function submitApprove(Request $request, $id) {
+        $request->validate([
+            'status' => 'required',
+        ]);
+
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        $changes_arr['old'] = $trip->getOriginal();
+        
+        // update status
+        $trip->update([
+            'status' => $request->status
+        ]);
+
+        $changes_arr['changes'] = $trip->getChanges();
+
+        // record approvals history
+        $approval = new ActivityPlanDetailTripApproval([
+            'user_id' => auth()->user()->id,
+            'activity_plan_detail_trip_id' => $trip->id,
+            'status' => $request->status,
+            'remarks' => $request->remarks
+        ]);
+        $approval->save();
+
+        if($trip->source == 'activity-plan' && $request->status == 'approved') {
+            $detail = $trip->activity_plan_detail;
+            $activity_plan = $detail->activity_plan;
+            $user = $activity_plan->user;
+    
+            // convert to schedules
+            $schedule = UserBranchSchedule::updateOrInsert([
+                'user_id' => $activity_plan->user_id,
+                'branch_id' => $detail->branch_id,
+                'date' => $detail->date,
+                'activity_plan_detail_trip_id' => $trip->id,
+            ], [
+                'status' => NULL,
+                'objective' => $detail->activity,
+                'source' => 'activity-plan',
+            ]);
+        } else {
+            $user = $trip->schedule->user;
+        }
+
+        if($request->status == 'approved') {
+            // logs
+            activity('update')
+                ->performedOn($trip)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has approved trip [ :subject.trip_number ].');
+
+            // notifications
+            Notification::send($user, new TripApproved($trip));
+        } else {
+            // logs
+            activity('update')
+                ->performedOn($trip)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has rejected trip [ :subject.trip_number ].');
+
+            // notifications
+            Notification::send($user, new TripRejected($trip));
+        }
+
+        return back()->with([
+            'message_success' => 'Trip '.$trip->trip_number.' has been '.$request->status.'.'
         ]);
     }
 
