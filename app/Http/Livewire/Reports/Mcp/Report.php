@@ -9,7 +9,9 @@ use App\Models\UserBranchSchedule;
 use App\Models\BranchLogin;
 use App\Models\User;
 
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use App\Exports\MCPReportExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -42,132 +44,166 @@ class Report extends Component
         $this->dispatchBrowserEvent('showDetail');
     }
 
-    public function showScheduleDetail($schedule_id) {
-        $this->emit('showScheduleDetail', $schedule_id);
+    public function showScheduleDetail($schedule_id, $type) {
+        $this->emit('showScheduleDetail', $schedule_id, $type);
         $this->dispatchBrowserEvent('showScheduleDetail');
     }
 
+    public function updatedUserId() {
+        $this->reset(['schedules', 'actuals', 'deviations']);
+    }
+    
+    public function updatedDateFrom() {
+        $this->reset(['schedules', 'actuals', 'deviations']);
+    }
+
+    public function updatedDateTo() {
+        $this->reset(['schedules', 'actuals', 'deviations']);
+    }
+
+    private function getDates($start_date, $end_date) {
+        $start_date = Carbon::parse($start_date);
+        $end_date = Carbon::parse($end_date);
+
+        $all_dates = array();
+        for ($date = $start_date; $date->lte($end_date); $date->addDay()) {
+            // check if theres data
+            $check = User::where(function($query) use($date) {
+                    $query->whereHas('schedules', function($query) use($date) {
+                        $query->whereNull('status')
+                            ->where('date', $date->toDateString());
+                    })
+                    ->orWhereHas('branch_logins', function($query) use($date) {
+                        $query->where(DB::raw('date(time_in)'), $date->toDateString());
+                    });
+                })
+                ->when(!empty($this->user_id), function($query) {
+                    $query->where('id', $this->user_id);
+                })
+                ->first();
+                
+            if(!empty($check)) {
+                $all_dates[] = $date->toDateString();
+            }
+        }
+
+        return $all_dates;
+    }
+
+    private function paginateArray($data, $perPage) {
+        $currentPage = $this->page ?: 1;
+        $items = collect($data);
+        $offset = ($currentPage - 1) * $perPage;
+        $itemsForCurrentPage = $items->slice($offset, $perPage);
+        
+        $paginator = new LengthAwarePaginator(
+            $itemsForCurrentPage,
+            $items->count(),
+            $perPage,
+            $currentPage,
+            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'onEachSide' => 1]
+        );
+
+        return $paginator;
+    }
+
     public function mount() {
-        $this->date_from = date('Y-m').'-01';
     }
 
     public function render()
     {
+        $date_arr = $this->getDates($this->date_from, $this->date_to);
 
-        // get schedule dates of user
-        if(!empty($this->user_id) || !empty($this->date_from) || !empty($this->date_to)) {
-            $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
-            ->orderBy('date', 'ASC')
-            ->select('date', 'user_id')->distinct()
-            ->whereNull('status');
-            // USER
-            if(!empty($this->user_id)) {
-                $schedules_dates->where('user_id', $this->user_id);
-            }
-            // DATE FROM
-            if(!empty($this->date_from)) {
-                $schedules_dates->where('date', '>=', $this->date_from);
-            }
-            // DATE TO
-            if(!empty($this->date_to)) {
-                $schedules_dates->where('date', '<=', $this->date_to);
-            }
-            $schedules_dates = $schedules_dates->groupBy('date', 'user_id')->paginate(7, ['*'], 'report-page')->onEachSide(1);
-
-        } else {
-            $schedules_dates = UserBranchSchedule::orderBy('user_id', 'ASC')
-            ->orderBy('date', 'ASC')
-            ->select('date', 'user_id')->distinct()
-            ->whereNull('status')
-            ->groupBy('date', 'user_id')
-            ->paginate(7, ['*'], 'report-page')->onEachSide(1);
+        $paginatedData = NULL;
+        if(!empty($date_arr)) {
+            $paginatedData = $this->paginateArray($date_arr, 3);
         }
 
-        foreach($schedules_dates as $schedule_date) {
-            // get schedules
-            $schedules = UserBranchSchedule::where('user_id', $schedule_date->user_id)
-            ->where('date', $schedule_date->date)
-            ->whereNull('status')
-            ->where(function($query) {
-                $query->where('source', 'activity-plan')
-                    ->orWhere('source', 'request')
-                    ->orWhere('source', 'deviation');
-            })
-            ->get();
-
-            $this->schedules[$schedule_date->user_id][$schedule_date->date] = $schedules;
-
-            foreach($schedules as $schedule) {
-                // get actual branch sign-in
-                $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
-                ->where('branch_id', $schedule->branch_id)
-                ->where('time_in', 'like', $schedule->date.'%')
-                ->get();
-
-                if(!empty($branch_logins)) {
-                    $this->actuals[$schedule->id] = $branch_logins;
+        if(!empty($date_arr)) {
+            foreach($date_arr as $key => $date) {
+                $users_arr = User::where(function($query) use($date) {
+                        $query->whereHas('schedules', function($query) use($date) {
+                            $query->whereNull('status')
+                                ->where('date', $date);
+                        })
+                        ->orWhereHas('branch_logins', function($query) use($date) {
+                            $query->where(DB::raw('date(time_in)'), $date);
+                        });
+                    })
+                    ->when(!empty($this->user_id), function($query) {
+                        $query->where('id', $this->user_id);
+                    })
+                    ->get();
+    
+                if(!empty($users_arr->count())) {
+                    foreach($users_arr as $user) {
+                        // get schedules
+                        $schedules_data = UserBranchSchedule::with('branch', 'branch.account')
+                            ->where('date', $date)
+                            ->whereNull('status')
+                            ->where(function($query) {
+                                $query->where('source', 'activity-plan')
+                                    ->orWhere('source', 'request')
+                                    ->orWhere('source', 'deviation');
+                            })
+                            ->where('user_id', $user->id)
+                            ->get();
+    
+                        $this->schedules[$date][$user->id]['schedules'] = $schedules_data;
+                        $this->schedules[$date][$user->id]['user'] = $user;
+    
+                        foreach($schedules_data as $schedule) {
+                            // get actual branch sign-in
+                            $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
+                                ->where('branch_id', $schedule->branch_id)
+                                ->where(DB::raw('date(time_in)'), $schedule->date)
+                                ->get();
+            
+                            if(!empty($branch_logins)) {
+                                $this->actuals[$schedule->id] = $branch_logins;
+                            }
+                        }
+    
+                        // get deviated schedules
+                        $deviations_data = BranchLogin::orderBy('time_in', 'ASC')
+                            ->where('user_id', $user->id)
+                            ->where('time_in', 'like', $date.'%')
+                            ->whereNotIn('branch_id', $schedules_data->pluck('branch_id'))
+                            ->get();
+    
+                        foreach($deviations_data as $key => $deviation) {
+    
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['id'] = $deviation->id;
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['date'] = date('Y-m-d', strtotime($deviation->time_in));
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['branch_code'] = $deviation->branch->branch_code;
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['branch_name'] = $deviation->branch->branch_name;
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['account_name'] = $deviation->branch->account->short_name;
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['source'] = $deviation->source;
+    
+                            // actuals
+                            $this->deviations[$date][$user->id][$deviation->branch_id]['actuals'][$deviation->id] = [
+                                'id' => $deviation->id,
+                                'latitude' => $deviation->latitude,
+                                'longitude' => $deviation->longitude,
+                                'time_in' => $deviation->time_in,
+                                'time_out' => $deviation->time_out,
+                            ];
+    
+                        }
+                    }
+                } else {
+                    $this->schedules[$date] = [];
                 }
+                
             }
-
-            // get deviated schedules
-            $deviations_data = BranchLogin::orderBy('time_in', 'ASC')
-            ->where('user_id', $schedule_date->user_id)
-            ->where('time_in', 'like', $schedule_date->date.'%')
-            ->whereNotIn('branch_id', $schedules->pluck('branch_id'))
-            ->get();
-
-            foreach($deviations_data as $key => $deviation) {
-
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['date'] = date('Y-m-d', strtotime($deviation->time_in));
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['branch_code'] = $deviation->branch->branch_code;
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['branch_name'] = $deviation->branch->branch_name;
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['account_name'] = $deviation->branch->account->short_name;
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['souce'] = $deviation->source;
-
-                // actuals
-                $this->deviations[$schedule_date->user_id][$schedule_date->date][$deviation->branch_id]['actuals'][$deviation->id] = [
-                    'id' => $deviation->id,
-                    'latitude' => $deviation->latitude,
-                    'longitude' => $deviation->longitude,
-                    'time_in' => $deviation->time_in,
-                    'time_out' => $deviation->time_out,
-                ];
-
-            }
-
         }
-
-        // get unscheduled visits
-        $unscheduled_visits = BranchLogin::orderBy('user_id', 'ASC')->orderBy('time_in', 'ASC')
-        ->whereNotExists(function($query) {
-            $query->from('user_branch_schedules')
-                ->select('*')
-                ->where('user_branch_schedules.date','=',DB::raw('date(branch_logins.time_in)'))
-                ->where('user_branch_schedules.user_id','=',DB::raw('branch_logins.user_id'))
-                ->where('user_branch_schedules.branch_id','=',DB::raw('branch_logins.branch_id'));
-        });
-        // user
-        if(!empty($this->user_id)) {
-            $unscheduled_visits->where('user_id', $this->user_id);
-        }
-        // date from
-        if(!empty($this->date_from)) {
-            $unscheduled_visits->where(DB::raw('date(time_in)'), '>=', $this->date_from);
-        }
-        // date to
-        if(!empty($this->date_to)) {
-            $unscheduled_visits->where(DB::raw('date(time_in)'), '<=', $this->date_to);
-        }
-
-        $unscheduled_visits = $unscheduled_visits->paginate(10, ['*'], 'unschedule-page')->onEachSide(1);
-
+        
         // Filter options
         $users = User::orderBy('firstname', 'ASC')
-        ->whereHas('schedules')->get();
+            ->whereHas('schedules')->get();
 
         return view('livewire.reports.mcp.report')->with([
-            'schedule_dates' => $schedules_dates,
-            'unscheduled_visits' => $unscheduled_visits,
+            'paginatedData' => $paginatedData,
             'users' => $users,
         ]);
     }

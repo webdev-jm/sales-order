@@ -4,7 +4,7 @@
             <h4 class="modal-title">Schedule Details</h4>
         </div>
         <div class="modal-body p-0">
-            @if(!empty($schedule))
+            @if(!empty($schedule) && $type == 'schedule')
                 <ul class="list-group">
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
@@ -58,7 +58,7 @@
                     @endif
                 @endif
 
-                {{-- trip --}}
+                {{-- TRIP --}}
                 @if(!empty($schedule->trip) && $schedule->trip->status == 'approved')
                     <div class="col-12">
                         <div class="card card-primary card-outline">
@@ -141,6 +141,23 @@
                         </div>
                     </div>
                 @endif
+            @elseif(!empty($branch_login) && $type == 'unscheduled')
+                <ul class="list-group">
+                    <li class="list-group-item py-2">
+                        <span class="font-weight-bold text-uppercase">
+                            {{$branch_login->user->fullName()}}
+                        </span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <span class="font-weight-bold text-uppercase">
+                            [{{$branch_login->branch->account->short_name}}] {{$branch_login->branch->branch_code}} - {{$branch_login->branch->branch_name}} 
+                        </span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <b>Source:</b>
+                        {{$type}}
+                    </li>
+                </ul>
             @endif
         </div>
         <div class="modal-footer text-right">

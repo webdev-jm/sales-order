@@ -183,8 +183,8 @@ class ActivityPlanController extends Controller
 
                             // logs
                             activity('create')
-                            ->performedOn($activity_plan)
-                            ->log(':causer.firstname :causer.lastname has created activity plan for :subject.year :subject.month');
+                                ->performedOn($activity_plan)
+                                ->log(':causer.firstname :causer.lastname has created activity plan for :subject.year :subject.month');
 
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 if(!empty($details['lines'])) {
@@ -526,9 +526,9 @@ class ActivityPlanController extends Controller
 
                             // logs
                             activity('update')
-                            ->performedOn($activity_plan)
-                            ->withProperties($changes_arr)
-                            ->log(':causer.firstname :causer.lastname has updated activity plan :subject.year :subject.month');
+                                ->performedOn($activity_plan)
+                                ->withProperties($changes_arr)
+                                ->log(':causer.firstname :causer.lastname has updated activity plan :subject.year :subject.month');
 
                             // details
                             foreach($data['details'][$data['month']] as $date => $details) {

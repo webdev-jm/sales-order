@@ -101,181 +101,152 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($schedule_dates as $schedule_date)
+                        @if(!empty($paginatedData))
+                            @foreach($paginatedData as $key => $date)
+                                @if(!empty($schedules[$date]))
+                                    @foreach($schedules[$date] as $user_id => $val)
+                                        <tr class="bg-secondary">
+                                            <td></td>
+                                            <td class="font-weight-bold text-center">
+                                                {{$date}}
+                                            </td>
+                                            <td colspan="7" class="font-weight-bold text-uppercase">{{$val['user']['firstname']}} {{$val['user']['lastname']}}</td>
+                                        </tr>
 
-                            <tr class="bg-secondary">
-                                <td></td>
-                                <td class="font-weight-bold text-center">
-                                    {{$schedule_date->date}}
-                                </td>
-                                <td colspan="7" class="font-weight-bold text-uppercase">{{$schedule_date->user->fullName()}}</td>
-                            </tr>
-                            {{-- Scheduled --}}
-                            @php
-                                $schedule_count = 0;
-                                $visited_count = 0;
-                            @endphp
-                            @foreach($schedules[$schedule_date->user_id][$schedule_date->date] as $schedule)
-                                @php
-                                    $schedule_count++;
-                                @endphp
-                            <tr>
-                                <td class="p-0 text-center align-middle">
-                                    <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$schedule->id}})">
-                                        <i class="fa fa-info-circle {{$schedule->source == 'deviation' ? 'text-danger' : ($schedule->source == 'request' ? 'text-warning' : 'text-info')}}" title="{{$schedule->source}}"></i>
-                                    </a>
-                                </td>
-                                <td class="align-middle text-center">
-                                    {{$schedule->date}}
-                                </td>
-                                <td class="align-middle">[{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
-                                @if(isset($actuals[$schedule->id]))
-                                    <td class="text-left">
-                                        @foreach($actuals[$schedule->id] as $actual)
-                                        <p class="mb-0">
-                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
-                                                <i class="fa fa-info-circle text-primary mr-2"></i>
-                                            </a>
-                                            {{$actual->latitude}}, {{$actual->longitude}}
-                                        </p>
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center">
-                                        @foreach($actuals[$schedule->id] as $actual)
-                                        <p class="mb-0">
-                                            {{date('h:i:s a', strtotime($actual->time_in))}}
-                                        </p>
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center">
-                                        @foreach($actuals[$schedule->id] as $actual)
-                                            @if(!empty($actual->time_out))
-                                            <p class="mb-0">
-                                                {{date('h:i:s a', strtotime($actual->time_out))}}
-                                            </p>
-                                            @endif
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center align-middle p-0">
-                                        @if(!empty($actuals[$schedule->id]->count()))
+                                        {{-- SCHEDULES --}}
+                                        @php
+                                            $schedule_count = 0;
+                                            $visited_count = 0;
+                                        @endphp
+                                        @foreach($val['schedules'] as $schedule)
                                             @php
-                                                $visited_count++;
+                                                $schedule_count++;
                                             @endphp
-                                            <i class="fa fa-check text-success" title="Visited"></i>
-                                        @else
-                                            <i class="fa fa-times text-danger" title="Not Visited"></i>
-                                        @endif
-                                    </td>
-                                    <td></td>
-                                @endif
-                            </tr>
-                            @endforeach
-                            {{-- Deviations --}}
-                            @if(isset($deviations[$schedule_date->user_id][$schedule_date->date]))
-                                
-                                @foreach($deviations[$schedule_date->user_id][$schedule_date->date] as $branch_id => $deviation)
-                                <tr>
-                                    <td class="p-0 text-center align-middle">
-                                        <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$schedule->id}})">
-                                            <i class="fa fa-info-circle {{$schedule->source == 'deviation' ? 'text-danger' : ($schedule->source == 'request' ? 'text-warning' : 'text-info')}}" title="{{$schedule->source}}"></i>
-                                        </a>
-                                    </td>
-                                    <td class="align-middle text-center">
-                                        {{$deviation['date']}}
+                                            <tr>
+                                                <td class="p-0 text-center align-middle">
+                                                    <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$schedule->id}}, 'schedule')">
+                                                        <i class="fa fa-list-alt {{$schedule->source == 'deviation' ? 'text-danger' : ($schedule->source == 'request' ? 'text-warning' : 'text-info')}}" title="{{$schedule->source}}"></i>
+                                                    </a>
+                                                </td>
+                                                <td class="align-middle text-center">
+                                                    {{$schedule->date}}
+                                                </td>
+                                                <td class="align-middle">[{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
+                                                @if(isset($actuals[$schedule->id]))
+                                                    <td class="text-left">
+                                                        @foreach($actuals[$schedule->id] as $actual)
+                                                        <p class="mb-0">
+                                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
+                                                                <i class="fa fa-info-circle text-primary mr-2"></i>
+                                                            </a>
+                                                            {{$actual->latitude}}, {{$actual->longitude}}
+                                                        </p>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @foreach($actuals[$schedule->id] as $actual)
+                                                        <p class="mb-0">
+                                                            {{date('h:i:s a', strtotime($actual->time_in))}}
+                                                        </p>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @foreach($actuals[$schedule->id] as $actual)
+                                                            @if(!empty($actual->time_out))
+                                                            <p class="mb-0">
+                                                                {{date('h:i:s a', strtotime($actual->time_out))}}
+                                                            </p>
+                                                            @endif
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center align-middle p-0">
+                                                        @if(!empty($actuals[$schedule->id]->count()))
+                                                            @php
+                                                                $visited_count++;
+                                                            @endphp
+                                                            <i class="fa fa-check text-success" title="Visited"></i>
+                                                        @else
+                                                            <i class="fa fa-times text-danger" title="Not Visited"></i>
+                                                        @endif
+                                                    </td>
+                                                    <td></td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                        {{-- DEVIATIONS --}}
                                         
-                                    </td>
-                                    <td class="align-middle">
-                                        [{{$deviation['account_name']}}] {{$deviation['branch_code']}} {{$deviation['branch_name']}}
-                                    </td>
-                                    <td class="text-left">
-                                        @foreach($deviation['actuals'] as $actual)
-                                        <p class="mb-0">
-                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual['id']}})">
-                                                <i class="fa fa-info-circle text-primary mr-2"></i>
-                                            </a>
-                                            {{$actual['latitude']}}, {{$actual['longitude']}}
-                                        </p>
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center">
-                                        @foreach($deviation['actuals'] as $actual)
-                                        <p class="mb-0">
-                                            {{date('h:i:s a', strtotime($actual['time_in']))}}
-                                        </p>
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center">
-                                        @foreach($deviation['actuals'] as $actual)
-                                            @if(!empty($actual['time_out']))
-                                            <p class="mb-0">
-                                                {{date('h:i:s a', strtotime($actual['time_out']))}}
-                                            </p>
-                                            @endif
-                                        @endforeach
-                                    </td>
-                                    <td class="text-center align-middle p-0">
-                                        @if($schedule_count == $visited_count && $schedule_count > 0)
-                                            <i class="fa fa-check text-primary" title="Visited"></i>
-                                        @else
-                                            <i class="fa fa-plus text-warning" title="Deviation"></i>
-                                        @endif
-                                    </td>
+                                        @isset($deviations[$date][$user_id])
+                                            @foreach($deviations[$date][$user_id] as $branch_id => $deviation)
+                                                <tr>
+                                                    <td class="p-0 text-center align-middle">
+                                                        <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$deviation['id']}}, 'unscheduled')">
+                                                            <i class="fa fa-list-alt {{$deviation['source'] == 'deviation' ? 'text-danger' : ($deviation['source'] == 'request' ? 'text-warning' : 'text-info')}}" title="{{$deviation['source']}}"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td class="align-middle text-center">
+                                                        {{$deviation['date']}}
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        [{{$deviation['account_name']}}] {{$deviation['branch_code']}} {{$deviation['branch_name']}}
+                                                    </td>
+                                                    <td class="text-left">
+                                                        @foreach($deviation['actuals'] as $actual)
+                                                        <p class="mb-0">
+                                                            <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual['id']}})">
+                                                                <i class="fa fa-info-circle text-primary mr-2"></i>
+                                                            </a>
+                                                            {{$actual['latitude']}}, {{$actual['longitude']}}
+                                                        </p>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @foreach($deviation['actuals'] as $actual)
+                                                        <p class="mb-0">
+                                                            {{date('h:i:s a', strtotime($actual['time_in']))}}
+                                                        </p>
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @foreach($deviation['actuals'] as $actual)
+                                                            @if(!empty($actual['time_out']))
+                                                            <p class="mb-0">
+                                                                {{date('h:i:s a', strtotime($actual['time_out']))}}
+                                                            </p>
+                                                            @endif
+                                                        @endforeach
+                                                    </td>
+                                                    <td class="text-center align-middle p-0">
+                                                        @if($schedule_count == $visited_count && $schedule_count > 0)
+                                                            <i class="fa fa-check text-primary" title="Visited"></i>
+                                                        @else
+                                                            <i class="fa fa-plus text-warning" title="Deviation"></i>
+                                                        @endif
+                                                    </td>
+                                                    <td></td>
+                                                </tr>
+                                            @endforeach
+                                        @endisset
+                                    @endforeach
+                                @else
+                                <tr class="bg-secondary">
                                     <td></td>
+                                    <td class="font-weight-bold text-center">
+                                        {{$date}}
+                                    </td>
+                                    <td colspan="7" class="font-weight-bold text-uppercase">NO AVAILABLE DATA</td>
                                 </tr>
-                                @endforeach
-                            @endif
-                            
-                        @endforeach
+                                @endif
+                                
+                            @endforeach
+                        @endif
                     </tbody>
                 </table>
         
             </div>
             <div class="card-footer pb-0">
-                {{$schedule_dates->links()}}
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Unscheduled Visits</h3>
-            </div>
-            <div class="card-body table-responsive p-0">
-                <table class="table table-bordered table-sm">
-                    <thead>
-                        <tr class="text-center">
-                            <th class="align-middle p-2">Date</th>
-                            <th class="align-middle p-2">User</th>
-                            <th class="align-middle p-2">Branch</th>
-                            {{-- <th class="align-middle p-2">details</th> --}}
-                            <th class="align-middle p-2">Time In</th>
-                            <th class="align-middle p-2">Time Out</th>
-                            <th class="align-middle p-1">Visited</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($unscheduled_visits as $unscheduled_visit)
-                        <tr>
-                            <td class="p-1 align-middle">{{date('Y-m-d', strtotime($unscheduled_visit->time_in))}}</td>
-                            <td class="p-1">{{$unscheduled_visit->user->fullName()}}</td>
-                            <td class="p-1">[{{$unscheduled_visit->branch->account->short_name ?? ''}}] {{$unscheduled_visit->branch->branch_code.' '.$unscheduled_visit->branch->branch_name}}</td>
-                            {{-- <td class="p-0 text-center align-middle">
-                                
-                            </td> --}}
-                            <td class="p-1 align-middle">{{date('h:i:s a', strtotime($unscheduled_visit->time_in))}}</td>
-                            <td class="p-1 align-middle">{{date('h:i:s a', strtotime($unscheduled_visit->time_out))}}</td>
-                            <td class="text-center align-middle p-0">
-                                <i class="fa fa-plus text-warning" title="Deviation"></i>
-                                <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$unscheduled_visit->id}})">
-                                    <i class="fa fa-info-circle text-primary ml-1"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-            <div class="card-footer">
-                {{$unscheduled_visits->links()}}
+                @if(!empty($paginatedData))
+                    {{$paginatedData->links()}}
+                @endif
             </div>
         </div>
     </div>
