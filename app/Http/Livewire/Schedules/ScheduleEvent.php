@@ -46,8 +46,7 @@ class ScheduleEvent extends Component
         'showEvents' => 'setDate'
     ];
 
-    public function updatingSearch()
-    {
+    public function updatingSearch() {
         $this->resetPage();
     }
 

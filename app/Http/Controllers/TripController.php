@@ -31,7 +31,7 @@ class TripController extends Controller
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
 
-        $trips = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')
+        $trips = ActivityPlanDetailTrip::with('activity_plan_detail', 'activity_plan_detail.activity_plan', 'activity_plan_detail.activity_plan.user', 'approvals')
             ->where(function($query) use($user, $date) {
                 $query->whereHas('activity_plan_detail', function($query) use($user, $date) {
                     $query->whereHas('activity_plan', function($qry) use($user, $date) {
@@ -221,22 +221,25 @@ class TripController extends Controller
         ]);
         $approval->save();
 
-        if($trip->source == 'activity-plan' && $request->status == 'approved') {
-            $detail = $trip->activity_plan_detail;
-            $activity_plan = $detail->activity_plan;
+        if($trip->source == 'activity-plan') {
+            if($request->status == 'approved') {
+                $detail = $trip->activity_plan_detail;
+                $activity_plan = $detail->activity_plan;
+                
+                // convert to schedules
+                $schedule = UserBranchSchedule::updateOrInsert([
+                    'user_id' => $activity_plan->user_id,
+                    'branch_id' => $detail->branch_id,
+                    'date' => $detail->date,
+                    'activity_plan_detail_trip_id' => $trip->id,
+                ], [
+                    'status' => NULL,
+                    'objective' => $detail->activity,
+                    'source' => 'activity-plan',
+                ]);
+            }
+
             $user = $activity_plan->user;
-    
-            // convert to schedules
-            $schedule = UserBranchSchedule::updateOrInsert([
-                'user_id' => $activity_plan->user_id,
-                'branch_id' => $detail->branch_id,
-                'date' => $detail->date,
-                'activity_plan_detail_trip_id' => $trip->id,
-            ], [
-                'status' => NULL,
-                'objective' => $detail->activity,
-                'source' => 'activity-plan',
-            ]);
         } else {
             $user = $trip->schedule->user;
         }

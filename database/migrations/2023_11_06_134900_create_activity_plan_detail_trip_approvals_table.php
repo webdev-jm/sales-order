@@ -27,7 +27,7 @@ class CreateActivityPlanDetailTripApprovalsTable extends Migration
 
             $table->foreign('activity_plan_detail_trip_id', 'mcp_detail_trip_id_foreign')
                 ->references('id')->on('activity_plan_detail_trips')
-                ->onEachSide(1);
+                ->onDelete('cascade');
 
             $table->softDeletes();
         });

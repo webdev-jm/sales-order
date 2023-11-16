@@ -7,6 +7,46 @@
     <title>DEVIATION FORM</title>
 
     <style>
+        .container {
+            width: 100%;
+            border: 2px solid black;
+            padding-right: 7.5px;
+            padding-left: 7.5px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .logo-container {
+            width: 100%;
+            padding-top: 5px;
+            padding-left: 10px;
+        }
+        .logo {
+            height: 30px;
+            vertical-align: middle;
+            margin-top: 5px;
+        }
+        .bevi-logo {
+            height: 30px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .title-bar {
+            border: 2px solid black;
+            width: 99%;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 10px;
+            background-color: rgb(219, 218, 218);
+        }
+        .title-bar-header {
+            font-weight: 800;
+            font-size: 25px;
+            margin: 0 0 0 0;
+        }
+        
         .page-break {
             page-break-after: always;
         }
@@ -102,6 +142,24 @@
     </style>
 </head>
 <body>
+
+    <div class="container">
+        {{-- header --}}
+        <div class="logo-container">
+            <img src="{{public_path('/assets/images/BEVI.jpg')}}" alt="logo" class="bevi-logo align-middle">
+            <img src="{{public_path('/assets/images/asia.jpg')}}" alt="logo" class="logo align-middle">
+            @if($trip->status == 'approved')
+                <span class="status-badge badge-success">APPROVED</span>
+            @elseif($trip->status == 'rejected')
+                <span class="status-badge badge-danger">REJECTED</span>
+            @else
+                <span class="status-badge badge-secondary">FOR APPROVAL</span>
+            @endif
+        </div>
+        <div class="title-bar">
+            <p class="title-bar-header">TRIP DETAILS</p>
+        </div>
+    </div>
 
 
     <div class="row">
