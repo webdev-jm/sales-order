@@ -350,22 +350,27 @@ class SalesOrderController extends Controller
             'total_quantity' => $order_data['total_quantity'],
             'total_sales' => $order_data['total'],
             'grand_total' => $order_data['grand_total'],
-            'po_value' => $order_data['po_value']
+            'po_value' => $order_data['po_value'] ?? 0
         ]);
         $sales_order->save();
 
         $num = 0;
         $part = 1;
-        // $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
-        // $curr_limit = $limit;
+        $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
+        // CUSTOM LIMIT FOR WATSON
+        if($account->short_name == 'WATSONS') {
+            $curr_limit = 23;
+        } else {
+            $curr_limit = $limit;
+        }
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            // if($num > $curr_limit) {
-            //     $curr_limit += $limit;
-            //     $part++;
-            // }
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
+                $part++;
+            }
 
             $sales_order_product = new SalesOrderProduct([
                 'sales_order_id' => $sales_order->id,
@@ -546,23 +551,29 @@ class SalesOrderController extends Controller
             'total_quantity' => $order_data['total_quantity'],
             'total_sales' => $order_data['total'],
             'grand_total' => $order_data['grand_total'],
-            'po_value' => $order_data['po_value'],
+            'po_value' => $order_data['po_value'] ?? 0,
         ]);
         
         $num = 0;
         $part = 1;
-        // $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
-        // $curr_limit = $limit;
+        $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
+        $curr_limit = $limit;
+        // CUSTOM LIMIT FOR WATSON
+        if($logged_account->account->short_name == 'WATSONS') {
+            $curr_limit = 23;
+        } else {
+            $curr_limit = $limit;
+        }
+
         $sales_order->order_products()->forceDelete();
-        
         foreach($order_data['items'] as $product_id => $items) {
             $num++;
 
             // divide by parts
-            // if($num > $curr_limit) {
-            //     $curr_limit += $limit;
-            //     $part++;
-            // }
+            if($num > $curr_limit) {
+                $curr_limit += $limit;
+                $part++;
+            }
 
             $sales_order_product = new SalesOrderProduct([
                 'sales_order_id' => $sales_order->id,
@@ -589,9 +600,9 @@ class SalesOrderController extends Controller
 
         // logs
         activity('update')
-        ->performedOn($sales_order)
-        ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated sales order :subject.control_number :subject.po_number .');
+            ->performedOn($sales_order)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated sales order :subject.control_number :subject.po_number .');
 
         if($sales_order->status == 'draft') {
             return back()->with([
@@ -724,7 +735,7 @@ class SalesOrderController extends Controller
             'ship_date' => $ship_date,
             'shipping_instruction' => $shipping_instruction,
             'shipping_address_id' => $ship_to_address_id,
-            'po_value' => $po_value,
+            'po_value' => $po_value ?? 0,
             'ship_to_name' => $ship_to_name,
             'ship_to_address1' => $ship_to_address_1,
             'ship_to_address2' => $ship_to_address_2,
