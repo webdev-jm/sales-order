@@ -47,6 +47,16 @@ class Header extends Component
 
         $this->prev_year = $this->year - 1;
         $this->next_year = $this->year + 1;
+    }
+
+    public function render()
+    {
+        // set months data
+        $months_arr = [];
+        for($i = 1; $i <= 12; $i++) {
+            $key = $i < 10 ? '0'.$i : $i;
+            $months_arr[$key] = date('M', strtotime(date('Y').'-'.$key.'-01'));
+        }
 
         $user_options = [];
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('finance')) {
@@ -80,19 +90,9 @@ class Header extends Component
         }
 
         $this->user_options = $user_options;
-    }
-
-    public function render()
-    {
-        // set months data
-        $months_arr = [];
-        for($i = 1; $i <= 12; $i++) {
-            $key = $i < 10 ? '0'.$i : $i;
-            $months_arr[$key] = date('M', strtotime(date('Y').'-'.$key.'-01'));
-        }
 
         return view('livewire.reports.combined.header')->with([
-            'months' => $months_arr
+            'months' => $months_arr,
         ]);
     }
 }
