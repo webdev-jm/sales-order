@@ -7,9 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Http\Traits\GlobalTrait;
+
 class WeeklyActivityReportApproved extends Notification
 {
     use Queueable;
+    use GlobalTrait;
 
     public $weekly_activity_report;
 
@@ -32,8 +35,13 @@ class WeeklyActivityReportApproved extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        $setting = $this->getSettings();
+
+        if($setting->email_sending) {
+            return ['mail', 'database'];
+        } else {
+            return ['database'];
+        }
     }
 
     /**
