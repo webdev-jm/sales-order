@@ -7,9 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Http\Traits\GlobalTrait;
+
 class TripRejected extends Notification
 {
     use Queueable;
+    use GlobalTrait;
 
     public $trip;
 
@@ -32,8 +35,13 @@ class TripRejected extends Notification
      */
     public function via($notifiable)
     {
-        // return ['database'];
-        return ['database', 'mail'];
+        $setting = $this->getSettings();
+
+        if($setting->email_sending) {
+            return ['mail', 'database'];
+        } else {
+            return ['database'];
+        }
     }
 
     /**

@@ -18,6 +18,7 @@ class CreateSettingsTable extends Migration
             $table->integer('data_per_page');
             $table->integer('sales_order_limit');
             $table->integer('mcp_deadline');
+            $table->integer('email_sending')->default(0);
             $table->timestamps();
         });
     }

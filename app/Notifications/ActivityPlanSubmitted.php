@@ -7,9 +7,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Http\Traits\GlobalTrait;
+
 class ActivityPlanSubmitted extends Notification
 {
     use Queueable;
+    use GlobalTrait;
 
     public $activity_plan;
 
@@ -32,8 +35,13 @@ class ActivityPlanSubmitted extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail', 'database'];
-        // return ['database'];
+        $setting = $this->getSettings();
+
+        if($setting->email_sending) {
+            return ['mail', 'database'];
+        } else {
+            return ['database'];
+        }
     }
 
     /**
