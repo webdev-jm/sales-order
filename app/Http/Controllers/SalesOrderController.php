@@ -119,11 +119,12 @@ class SalesOrderController extends Controller
 
             Session::forget('order_data');
 
-            $date = date('Y-m-d');
+            $date = time();
 
             // check if theres cut-off today
-            $cut_off = SalesOrderCutOff::orderBy('time', 'ASC')
-            ->where('date', $date)->first();
+            $cut_off = SalesOrderCutOff::where('start_date', '<=', $date)
+                ->where('end_date', '>=', $date)
+                ->first();
 
             $sales_orders = SalesOrder::SalesOrderSearch($search, $logged_account,$this->setting->data_per_page);
             return view('sales-orders.index')->with([

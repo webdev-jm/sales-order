@@ -32,22 +32,46 @@
 
         <div class="row">
 
-            <div class="col-lg-3">
-                <div class="form-group">
-                    {!! Form::label('date', 'Date') !!}
-                    {!! Form::date('date', $cut_off->date, ['class' => 'form-control'.($errors->has('date') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
-                    <p class="text-danger">{{$errors->first('date')}}</p>
-                </div>
-            </div>
+            <div class="col-lg-6">
 
-            <div class="col-lg-3">
-                <div class="form-group">
-                    {!! Form::label('time', 'Time') !!}
-                    {!! Form::time('time', $cut_off->time, ['class' => 'form-control'.($errors->has('time') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
-                    <p class="text-danger">{{$errors->first('time')}}</p>
-                </div>
-            </div>
+                <div class="row">
+                    
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('start_date', 'Start Date') !!}
+                            {!! Form::date('start_date', date('Y-m-d', $cut_off->start_date), ['class' => 'form-control'.($errors->has('start_date') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
+                            <p class="text-danger">{{$errors->first('start_date')}}</p>
+                        </div>
+                    </div>
+        
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('start_time', 'Time') !!}
+                            {!! Form::time('start_time', date('H:i:s', $cut_off->start_date), ['class' => 'form-control'.($errors->has('start_time') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
+                            <p class="text-danger">{{$errors->first('start_time')}}</p>
+                        </div>
+                    </div>
 
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('end_date', 'End Date') !!}
+                            {!! Form::date('end_date', date('Y-m-d', $cut_off->end_date), ['class' => 'form-control'.($errors->has('end_date') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
+                            <p class="text-danger">{{$errors->first('end_date')}}</p>
+                        </div>
+                    </div>
+        
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            {!! Form::label('end_time', 'Time') !!}
+                            {!! Form::time('end_time', date('H:i:s', $cut_off->end_date), ['class' => 'form-control'.($errors->has('end_time') ? ' is-invalid' : ''), 'form' => 'update_cut_off']) !!}
+                            <p class="text-danger">{{$errors->first('end_time')}}</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            
             <div class="col-lg-6">
                 <div class="form-group">
                     {!! Form::label('message', 'Message') !!}

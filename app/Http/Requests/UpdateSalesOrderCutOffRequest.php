@@ -24,10 +24,16 @@ class UpdateSalesOrderCutOffRequest extends FormRequest
     public function rules()
     {
         return [
-            'date' => [
+            'start_date' => [
                 'required',
             ],
-            'time' => [
+            'start_time' => [
+                'required'
+            ],
+            'end_date' => [
+                'required',
+            ],
+            'end_time' => [
                 'required'
             ],
             'message' => [

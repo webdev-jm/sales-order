@@ -13,7 +13,7 @@
         <h1>Sales Orders</h1>
     </div>
     <div class="col-md-6 text-right">
-        @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
+        @if(empty($cut_off))
             @can('sales order create')
             <a href="{{route('sales-order.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Sales Order</a>
             @endcan
@@ -28,7 +28,7 @@
                 {{$cut_off->message}}
             </p>
             <hr class="my-1">
-            <p class="mb-0">cut-off: <b>{{$cut_off->date}} {{$cut_off->time}}</b></p>
+            <p class="mb-0">SO CUT-OFF: from <b>{{date('Y-m-d H:i:s a', $cut_off->start_date)}}</b> to <b>{{date('Y-m-d H:i:s a', $cut_off->end_date)}}</b></p>
           </div>
     </div>
     @endif

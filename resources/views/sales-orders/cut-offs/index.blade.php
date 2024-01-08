@@ -31,8 +31,8 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Time</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
                     <th>Message</th>
                     <th>{{date('h:m:s a')}}</th>
                 </tr>
@@ -40,8 +40,8 @@
             <tbody>
                 @foreach($cut_offs as $cut_off)
                 <tr>
-                    <td>{{$cut_off->date}}</td>
-                    <td>{{$cut_off->time}}</td>
+                    <td>{{date('Y-m-d H:i:s a', $cut_off->start_date)}}</td>
+                    <td>{{date('Y-m-d H:i:s a', $cut_off->end_date)}}</td>
                     <td>{{$cut_off->message}}</td>
                     <td class="text-right">
                         @can('SO cut-off edit')
