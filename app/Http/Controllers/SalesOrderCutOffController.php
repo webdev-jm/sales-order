@@ -41,10 +41,13 @@ class SalesOrderCutOffController extends Controller
      */
     public function store(StoreSalesOrderCutOffRequest $request)
     {
+        $start = strtotime($request->start_date.' '.$request->start_time);
+        $end = strtotime($request->end_date.' '.$request->end_time);
+
         $cut_off = new SalesOrderCutOff([
             'user_id' => auth()->user()->id,
-            'date' => $request->date,
-            'time' => $request->time,
+            'start_date' => $start,
+            'end_date' => $end,
             'message' => $request->message
         ]);
         $cut_off->save();
@@ -95,12 +98,14 @@ class SalesOrderCutOffController extends Controller
     public function update(UpdateSalesOrderCutOffRequest $request, $id)
     {
         $cut_off = SalesOrderCutOff::findOrFail($id);
-
         $changes_arr['old'] = $cut_off->getOriginal();
 
+        $start = strtotime($request->start_date.' '.$request->start_time);
+        $end = strtotime($request->end_date.' '.$request->end_time);
+
         $cut_off->update([
-            'date' => $request->date,
-            'time' => $request->time,
+            'start_date' => $start,
+            'end_date' => $end,
             'message' => $request->message
         ]);
 
@@ -108,9 +113,9 @@ class SalesOrderCutOffController extends Controller
 
         // logs
         activity('update')
-        ->performedOn($cut_off)
-        ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated sales order cut-off :subject.date');
+            ->performedOn($cut_off)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated sales order cut-off :subject.date');
 
         return back()->with([
             'message_success' => 'Sales order cut-off was updated'

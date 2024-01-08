@@ -11,8 +11,8 @@ class SalesOrderCutOff extends Model
 
     protected $fillable = [
         'user_id',
-        'date',
-        'time',
+        'start_date',
+        'end_date',
         'message',
     ];
 
