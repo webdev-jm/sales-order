@@ -276,7 +276,7 @@
                         @endphp
                         @if(!empty($approval))
                             <td class="border-0 text-center">
-                                <span class="text-muted">APPROVED BY</span>
+                                <span class="text-muted">APPROVED BY SUPERVISOR</span>
                                 <br>
                                 <input type="text" class="signatory-line" value="{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}">
                                 <br>
@@ -288,7 +288,7 @@
                         @endphp
                         @if(!empty($trip_approval))
                             <td class="border-0 text-center">
-                                <span class="text-muted">APPROVED BY</span>
+                                <span class="text-muted">APPROVED BY FINANCE</span>
                                 <br>
                                 <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
                                 <br>
@@ -386,7 +386,7 @@
                         @endphp
                         @if(!empty($trip_approval))
                             <td class="border-0 text-center">
-                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY</span>
+                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY SUPERVISOR</span>
                                 <br>
                                 <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
                                 <br>
@@ -398,7 +398,7 @@
                         @endphp
                         @if(!empty($trip_approval))
                             <td class="border-0 text-center">
-                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY</span>
+                                <span class="text-muted">{{strtoupper($trip_approval->status)}} BY FINANCE</span>
                                 <br>
                                 <input type="text" class="signatory-line align-bottom" value="{{date('m/d/Y H:i:s a', strtotime($trip_approval->created_at))}}">
                                 <br>
