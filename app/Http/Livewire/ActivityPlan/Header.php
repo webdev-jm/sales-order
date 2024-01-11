@@ -90,15 +90,13 @@ class Header extends Component
             }
     
             if(empty($this->month)) {
-                $month = (int)date('m');
+                $month = date('m');
                 if($month == 12) {
-                    $month = 1;
-                    $this->year = $this->year + 1;
+                    $this->month = '01';
+                    $this->year = date('Y') + 1;
                 } else {
-                    $month = ($month + 1) < 10 ? '0'.($month + 1) : ($month + 1);
+                    $this->month = ($month + 1) < 10 ? '0'.($month + 1) : ($month + 1);
                 }
-
-                $this->month = $month < 10 ? '0'.$month : $month;
             }
         }
 
