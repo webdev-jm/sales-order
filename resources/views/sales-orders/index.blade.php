@@ -17,6 +17,11 @@
             @can('sales order create')
             <a href="{{route('sales-order.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Sales Order</a>
             @endcan
+
+            <a href="{{route('sales-order-multiple.index')}}" class="btn btn-success">
+                <i class="fa fa-upload mr-1"></i>
+                UPLOAD MULTIPLE SO
+            </a>
         @endif
     </div>
 

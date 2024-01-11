@@ -39,6 +39,7 @@ use App\Http\Controllers\SalesmenLocationController;
 use App\Http\Controllers\ChannelOperationController;
 use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\TripController;
+use App\Http\Controllers\SalesOrderMultipleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +107,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('list-sales-order/list', [SalesOrderController::class, 'list'])->name('sales-order.list')->middleware('permission:sales order list');
         Route::get('list-sales-order/dashboard', [SalesOrderController::class, 'dashboard'])->name('sales-order.dashboard')->middleware('permission:sales order list');
+
+        // MULTIPLE UPLOADS
+        Route::get('sales-order-multiple', [SalesOrderMultipleController::class, 'index'])->name('sales-order-multiple.index');
     });
 
     // SCHEDULE
