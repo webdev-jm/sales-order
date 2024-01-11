@@ -44,23 +44,58 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">CONTROL NUMBER: N/A</div>
+                        <div class="card-title">CONTROL NUMBER: {{$success_data[$po_number]['control_number'] ?? 'N/A'}}</div>
                         <div class="card-tools">
-                            <button class="btn btn-secondary" wire:click.prevent="save('draft', '{{$po_number}}')">
-                                Save as Draft
-                            </button>
-                            <button class="btn btn-success" wire:click.prevent="save('finalized', '{{$po_number}}')">
-                                Finalize
-                            </button>
+                            @if(empty($success_data[$po_number]['control_number']))
+                                <button class="btn btn-secondary" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')">
+                                    Save as Draft
+                                </button>
+                                <button class="btn btn-success" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
+                                    Finalize
+                                </button>
+                            @endif
                         </div>
                     </div>
                     <div class="card-body">
+
+                        @if(!empty($err_data[$po_number]))
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-danger pl-0">
+                                        <ul class="mb-0">
+                                            @foreach($err_data[$po_number] as $err)
+                                                <li class="">{{$err}}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if(!empty($success_data[$po_number]['message']))
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-success">
+                                    {{$success_data[$po_number]['message']}}
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         <div class="row">
                             <div class="col-12">
                                 <h4>
-                                    N/A
+                                    {{$success_data[$po_number]['control_number'] ?? 'N/A'}}
                                     <small class="float-right">
-                                        <span class="badge badge-info">preview</span>
+                                        @if(!empty($success_data[$po_number]['status']))
+                                            <span class="badge {{$success_data[$po_number]['status'] == 'draft' ? 'bg-secondary' : 'bg-success'}}">
+                                                {{$success_data[$po_number]['status']}}
+                                            </span>
+                                        @else
+                                            <span class="badge badge-info">
+                                                preview
+                                            </span>
+                                        @endif
                                     </small>
                                 </h4>
                             </div>

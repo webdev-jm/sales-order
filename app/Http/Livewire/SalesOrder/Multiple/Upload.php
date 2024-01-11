@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
+use App\Models\PurchaseOrderNumber;
 
 use App\Http\Traits\SoProductPriceTrait;
 use App\Http\Traits\GlobalTrait;
@@ -36,6 +37,8 @@ class Upload extends Component
     public $setting;
     public $so_file;
     public $so_data;
+    public $err_data;
+    public $success_data;
 
     public function checkFileData() {
         $this->validate([
@@ -73,8 +76,13 @@ class Upload extends Component
                         ->first();
                 }
 
+                $ship_date = $row[2];
+                if(is_int($ship_date)) {
+                    $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
+                }
+
                 $data_arr[$row[0]]['paf_number'] = $row[1];
-                $data_arr[$row[0]]['ship_date'] = $row[2];
+                $data_arr[$row[0]]['ship_date'] = $ship_date;
                 $data_arr[$row[0]]['shipping_instruction'] = $row[3];
                 $data_arr[$row[0]]['ship_to_address'] = $row[4];
                 $data_arr[$row[0]]['shipping_address'] = $shipping_address;
@@ -132,7 +140,7 @@ class Upload extends Component
         return $control_number;
     }
 
-    public function save($status, $po_number) {
+    public function saveSalesOrder($status, $po_number) {
         // validate
         $data = $this->so_data[$po_number];
         $err = array();
@@ -145,8 +153,15 @@ class Upload extends Component
         if(empty($data['ship_date'])) {
             $err[] = 'Ship date is required.';
         }
-        if(empty($data['po_number'])) {
+        if(empty($po_number)) {
             $err[] = 'PO number is required';
+        } else {
+            // check for duplicates
+            $check1 = SalesOrder::where('po_number', $po_number)->withTrashed()->exists();
+            $check2 = PurchaseOrderNumber::where('po_number', $po_number)->exists();
+            if(!empty($check1) || !empty($check2)) {
+                $err[] = 'Po number already exists';
+            }
         }
 
         if(empty($err)) {
@@ -180,7 +195,7 @@ class Upload extends Component
                 'ship_to_building' => $ship_to_building,
                 'ship_to_street' => $ship_to_street,
                 'ship_to_city' => $ship_to_city,
-                'ship_to_postal' => $ship_to_postal,
+                'ship_to_postal' => $postal,
                 'status' => $status,
                 'total_quantity' => 0,
                 'total_sales' => 0,
@@ -192,12 +207,16 @@ class Upload extends Component
             $num = 0;
             $limit = $this->account->company->order_limit ?? $this->setting->sales_order_limit;
             // CUSTOM LIMIT FOR WATSON
-            if($account->short_name == 'WATSONS') {
+            if($this->account->short_name == 'WATSONS') {
                 $curr_limit = 23;
             } else {
                 $curr_limit = $limit;
             }
-            foreach($data['lines'] as $items) {
+
+            $total_quantity = 0;
+            $total_sales = 0;
+            $part = 1;
+            foreach($data['lines'] as $item) {
                 $num++;
 
                 // divide by parts
@@ -208,21 +227,51 @@ class Upload extends Component
 
                 $sales_order_product = new SalesOrderProduct([
                     'sales_order_id' => $sales_order->id,
-                    'product_id' => $items['product']['id'],
+                    'product_id' => $item['product']['id'],
                     'part' => $part,
-                    'total_quantity' => $items['quantity'],
-                    'total_sales' => $items['total'],
+                    'total_quantity' => $item['quantity'],
+                    'total_sales' => $item['total'],
                 ]);
                 $sales_order_product->save();
 
                 $sales_order_product_uom = new SalesOrderProductUom([
                     'sales_order_product_id' => $sales_order_product->id,
-                    'uom' => $items['uom'],
+                    'uom' => $item['uom'],
                     'quantity' => $item['quantity'],
                     'uom_total' => $item['total'],
                     'uom_total_less_disc' => $item['total_less_discount'],
                 ]);
+                $sales_order_product_uom->save();
+
+                $total_quantity += $item['quantity'];
+                $total_sales += $item['total'];
             }
+
+            // apply discount
+            $grand_total = $total_sales;
+            if(!empty($data['discount'])) {
+                $discounts = [$data['discount']['discount_1'], $data['discount']['discount_2'], $data['discount']['discount_3']];
+
+                foreach ($discounts as $discountValue) {
+                    if ($discountValue > 0) {
+                        $grand_total = $grand_total * ((100 - $discountValue) / 100);
+                    }
+                }
+            }
+
+            $sales_order->update([
+                'total_quantity' => $total_quantity,
+                'total_sales' => $total_sales,
+                'grand_total' => $grand_total
+            ]);
+
+            $this->success_data[$po_number] = [
+                'message' => 'Sales Order has been created.',
+                'control_number' => $control_number,
+                'status' => $status
+            ];
+        } else {
+            $this->err_data[$po_number] = $err;
         }
     }
 

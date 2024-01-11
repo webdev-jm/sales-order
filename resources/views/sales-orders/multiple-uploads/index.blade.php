@@ -5,6 +5,7 @@
 @endsection
 
 @section('css')
+<script src="{{ asset('js/gsap.min.js') }}"></script>
 @endsection
 
 @section('content_header')
