@@ -210,13 +210,16 @@
             var status = $(this).val();
             var status_val = 'draft';
             if(status == 'Finalize') {
-                status_val = 'finalized';
+                if(confirm('Are you sure to finalize this sales order?')) {
+                    status_val = 'finalized';
+                    $('#status').val(status_val);
+                    $('#'+$(this).attr('form')).submit();
+                }
             } else {
                 status_val = 'draft';
+                $('#status').val(status_val);
+                $('#'+$(this).attr('form')).submit();
             }
-
-            $('#status').val(status_val);
-            $('#'+$(this).attr('form')).submit();
         });
 
         $('body').on('change', '[form="update_sales_order"]', function(e) {

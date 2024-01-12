@@ -85,7 +85,7 @@
                         @if(isset($sales_order->upload_status))
                             <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
                         @else
-                            <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-primary'}}">{{$sales_order->status}}</span>
+                            <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
                         @endif
                     </td>
                     <td>
