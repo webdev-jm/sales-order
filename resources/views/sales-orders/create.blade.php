@@ -62,7 +62,7 @@
                 <button class="btn btn-success" id="btn-upload"><i class="fa fa-upload mr-1"></i>Upload SO</button>
                 <div class="card-tools">
                     {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'add_sales_order']) !!}
-                    {!! Form::submit('For Truck Optimization', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_sales_order']) !!}
+                    {!! Form::submit('Finalize', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_sales_order']) !!}
                     {!! Form::hidden('status', 'draft', ['form' => 'add_sales_order', 'id' => 'status']) !!}
                 </div>
             </div>
@@ -255,9 +255,9 @@
             e.preventDefault();
             var status = $(this).val();
             var status_val = 'draft';
-            if(status == 'For Truck Optimization') {
-                if(confirm('Are you sure to send this sales order for truck optimization?')) {
-                    status_val = 'for optimization';
+            if(status == 'Finalize') {
+                if(confirm('Are you sure to finalize this sales order?')) {
+                    status_val = 'finalized';
                     $('#status').val(status_val);
                     $('#'+$(this).attr('form')).submit();
                 }

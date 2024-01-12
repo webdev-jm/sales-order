@@ -63,6 +63,12 @@ class Upload extends Component
     }
 
     private function processData($data) {
+        $this->reset([
+            'so_data',
+            'err_data',
+            'success_data'
+        ]);
+
         $data_arr = array();
         foreach($data as $key => $row) {
             if($key != 0) {
@@ -70,41 +76,50 @@ class Upload extends Component
                 $account = $this->account;
                 $discount = $account->discount;
 
+                $po_number = trim($row[0]);
+                $ship_date = $row[1];
+                $ship_to_address = trim($row[2]);
+                $sku_code = trim($row[3]);
+                $quantity = (int)trim($row[4]);
+                $uom = strtoupper(trim($row[5]));
+                $po_value = (float)trim($row[6]);
+                $paf_number = trim($row[7]);
+                $shipping_instruction = trim($row[8]);
+
                 $shipping_address = array();
-                if(!empty($row['4']) && !empty($this->shipping_addresses)) {
-                    $shipping_address = $this->shipping_addresses->where('address_code', $row[4])
+                if(!empty($ship_to_address) && !empty($this->shipping_addresses)) {
+                    $shipping_address = $this->shipping_addresses->where('address_code', $ship_to_address)
                         ->first();
                 }
 
-                $ship_date = $row[2];
                 if(is_int($ship_date)) {
                     $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
                 }
 
-                $data_arr[$row[0]]['paf_number'] = $row[1];
-                $data_arr[$row[0]]['ship_date'] = $ship_date;
-                $data_arr[$row[0]]['shipping_instruction'] = $row[3];
-                $data_arr[$row[0]]['ship_to_address'] = $row[4];
-                $data_arr[$row[0]]['shipping_address'] = $shipping_address;
-                $data_arr[$row[0]]['po_value'] = $row[5];
-                $data_arr[$row[0]]['discount'] = $discount;
+                $data_arr[$po_number]['ship_to_address'] = $ship_to_address;
+                $data_arr[$po_number]['shipping_address'] = !empty($shipping_address) ? $shipping_address : $data_arr[$po_number]['shipping_address'] ?? [];
+                $data_arr[$po_number]['ship_date'] = $ship_date;
+                $data_arr[$po_number]['po_value'] = !empty($data_arr[$po_number]['po_value']) ? $data_arr[$po_number]['po_value'] + $po_value ?? 0 : $po_value ?? 0;
+                $data_arr[$po_number]['paf_number'] = !empty($paf_number) ? $paf_number : $data_arr[$po_number]['paf_number'] ?? '';
+                $data_arr[$po_number]['shipping_instruction'] = !empty($shipping_instruction) ? $shipping_instruction : $data_arr[$po_number]['shipping_instruction'] ?? '';
+                $data_arr[$po_number]['discount'] = $discount;
                 
-                $product = Product::where('stock_code', $row[6])
+                $product = Product::where('stock_code', $sku_code)
                     ->first();
 
                 $total_val = array();
-                if(!empty($product) && !empty($row['7']) && !empty($row[8])) {
-                    $total_val = $this->getProductPrice($product, $account, $row[7], $row[8]);
+                if(!empty($product) && !empty($quantity) && !empty($uom)) {
+                    $total_val = $this->getProductPrice($product, $account, $uom, $quantity);
                 }
 
-                $data_arr[$row[0]]['lines'][] = [
-                    'sku_code' => $row[6],
+                $data_arr[$po_number]['lines'][] = [
+                    'sku_code' => $sku_code,
                     'product' => $product ?? '',
-                    'uom' => $row[7],
-                    'quantity' => $row[8],
+                    'uom' => $uom,
+                    'quantity' => $quantity,
                     'total' => $total_val['total'] ?? 0,
                     'total_less_discount' => $total_val['discounted'] ?? 0,
-                    'line_discount' => $total_val['line_discount']
+                    'line_discount' => $total_val['line_discount'] ?? NULL
                 ];
             }
         }
@@ -145,22 +160,22 @@ class Upload extends Component
         $data = $this->so_data[$po_number];
         $err = array();
         if(empty($data['lines'])) {
-            $err[] = 'Please add items first';
+            $err['lines'] = 'Please add items first';
         }
         if(empty($data['po_value']) || $data['po_value'] <= 0) {
-            $err[] = 'PO value is required';
+            $err['po_value'] = 'PO value is required';
         }
         if(empty($data['ship_date'])) {
-            $err[] = 'Ship date is required.';
+            $err['ship_date'] = 'Ship date is required.';
         }
         if(empty($po_number)) {
-            $err[] = 'PO number is required';
+            $err['po_number'] = 'PO number is required';
         } else {
             // check for duplicates
             $check1 = SalesOrder::where('po_number', $po_number)->withTrashed()->exists();
             $check2 = PurchaseOrderNumber::where('po_number', $po_number)->exists();
             if(!empty($check1) || !empty($check2)) {
-                $err[] = 'Po number already exists';
+                $err['po_number'] = 'Po number already exists';
             }
         }
 
@@ -265,8 +280,13 @@ class Upload extends Component
                 'grand_total' => $grand_total
             ]);
 
+            // logs
+            activity('create')
+                ->performedOn($sales_order)
+                ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number [ :subject.po_number ]');
+
             $this->success_data[$po_number] = [
-                'message' => 'Sales Order has been created.',
+                'message' => 'Sales Order '.$control_number.' has been created.',
                 'control_number' => $control_number,
                 'status' => $status
             ];
@@ -275,16 +295,26 @@ class Upload extends Component
         }
     }
 
+    public function saveAll($status) {
+        $this->reset([
+            'success_data',
+            'err_data',
+        ]);
+
+        foreach($this->so_data as $po_number => $data) {
+            $this->saveSalesOrder($status, $po_number);
+        }
+    }
+
     public function mount($logged_account) {
         $this->logged_account = $logged_account;
         $this->account = $logged_account->account;
-        $this->shipping_address = $this->account->shipping_addresses;
+        $this->shipping_addresses = $this->account->shipping_addresses;
 
         $this->setting = $this->getSettings();
     }
 
-    public function render()
-    {
+    public function render() {
         return view('livewire.sales-order.multiple.upload');
     }
 }

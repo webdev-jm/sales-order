@@ -22,7 +22,8 @@
             </div>
             <div class="card-footer text-right">
                 <button class="btn btn-primary" type="submit" wire:loading.attr="disabled">
-                    <i class="fa fa-upload mr-1"></i>
+                    <i class="fa fa-upload mr-1" wire:loading.remove></i>
+                    <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                     UPLOAD
                 </button>
             </div>
@@ -32,27 +33,28 @@
     @if(!empty($so_data))
     <div class="row">
         <div class="col-12 mb-3">
-            <button class="btn btn-secondary">
+            <button class="btn btn-secondary" wire:click.prevent="saveAll('draft')" wire:loading.attr="disabled">
+                <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 DRAFT ALL
             </button>
-            <button class="btn btn-success">
+            {{-- <button class="btn btn-success" wire:click.prevent="saveAll('finalized')">
                 FINALIZE ALL
-            </button>
+            </button> --}}
         </div>
 
         @foreach($so_data as $po_number => $data)
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">CONTROL NUMBER: {{$success_data[$po_number]['control_number'] ?? 'N/A'}}</div>
+                        <div class="card-title">CONTROL NUMBER: <b>{{$success_data[$po_number]['control_number'] ?? 'N/A'}}</b></div>
                         <div class="card-tools">
                             @if(empty($success_data[$po_number]['control_number']))
-                                <button class="btn btn-secondary" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')">
+                                <button class="btn btn-secondary" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')" wire:loading.attr="disabled">
                                     Save as Draft
                                 </button>
-                                <button class="btn btn-success" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
+                                {{-- <button class="btn btn-success" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
                                     Finalize
-                                </button>
+                                </button> --}}
                             @endif
                         </div>
                     </div>
@@ -73,13 +75,13 @@
                         @endif
 
                         @if(!empty($success_data[$po_number]['message']))
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="alert alert-success">
-                                    {{$success_data[$po_number]['message']}}
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-success">
+                                        {{$success_data[$po_number]['message']}}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         @endif
 
                         <div class="row">
@@ -123,7 +125,7 @@
                             
                             <div class="col-sm-4 invoice-col">
                                 <b>PO Number: {{$po_number}}</b><br>
-                                <b>PO Value:</b> {{number_format($data['po_value'])}}<br>
+                                <b>PO Value:</b> {{number_format($data['po_value'], 2)}}<br>
                                 <b>Order Date:</b> {{date('Y-m-d')}}<br>
                                 <b>Ship Date:</b> {{$data['ship_date']}}<br>
                                 <b>Discount:</b> {{$account->discount->description ?? ''}}<br>
@@ -167,8 +169,14 @@
                                             @endphp
                                             <tr>
                                                 <td class="align-middle text-center">{{$num}}</td>
-                                                <td class="align-middle">{{$val['product']['stock_code']}}</td>
-                                                <td class="align-middle">{{$val['product']['description']}} [{{$val['product']['size']}}]</td>
+                                                <td class="align-middle">{{$val['sku_code']}}</td>
+                                                @if(!empty($val['product']))
+                                                    <td class="align-middle">{{$val['product']['description']}} [{{$val['product']['size']}}]</td>
+                                                @else
+                                                    <td class="align-middle">
+                                                        product not found
+                                                    </td>
+                                                @endif
                                                 <td>{{$val['uom']}}</td>
                                                 <td class="text-right">{{$val['quantity']}}</td>
                                                 <td class="text-right">{{number_format($val['total'], 2)}}</td>
