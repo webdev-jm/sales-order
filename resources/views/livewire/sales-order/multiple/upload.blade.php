@@ -5,7 +5,10 @@
             <div class="card-header">
                 <h3 class="card-title">UPLOAD MULTIPLE SO<i class="fa fa-spinner-fa-spin" wire:loading></i></h3>
                 <div class="card-tools">
-                    
+                    <a href="{{asset('/assets/SMS Multiple PO upload Format.xlsx')}}" class="btn btn-success btn-sm">
+                        <i class="fa fa-download mr-1"></i>
+                        DOWNLOAD TEMPLATE
+                    </a>
                 </div>
             </div>
             <div class="card-body">
