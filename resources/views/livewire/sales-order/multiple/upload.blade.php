@@ -17,7 +17,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             <label for="">UPLOAD FILE</label>
-                            <input type="file" class="form-control" wire:model.defer="so_file">
+                            <input type="file" class="form-control" wire:model.defer="so_file" accept=".xls, .xlsx">
                         </div>
                     </div>
                 </div>
@@ -52,7 +52,8 @@
                         <div class="card-title">CONTROL NUMBER: <b>{{$success_data[$po_number]['control_number'] ?? 'N/A'}}</b></div>
                         <div class="card-tools">
                             @if(empty($success_data[$po_number]['control_number']))
-                                <button class="btn btn-secondary" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')" wire:loading.attr="disabled">
+                                <button class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')">
+                                    <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Save as Draft
                                 </button>
                                 {{-- <button class="btn btn-success" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
