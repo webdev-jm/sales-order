@@ -6,6 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Models\SalesOrder;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 
 class StoreSalesOrderRequest extends FormRequest
@@ -54,7 +55,16 @@ class StoreSalesOrderRequest extends FormRequest
                 'required'
             ],
             'ship_date' => [
-                'required'
+                'required',
+                function ($attribute, $value, $fail) {
+                    // Check if the ship date is at least 3 days from the current date
+                    $currentDate = now()->addDays(3)->startOfDay();
+                    $shipDate = Carbon::parse($value)->startOfDay();
+    
+                    if ($shipDate < $currentDate) {
+                        $fail('The ship date must be at least 3 days from the current date.');
+                    }
+                },
             ],
             'shipping_instruction' => [
                 'max:1000'
@@ -79,7 +89,7 @@ class StoreSalesOrderRequest extends FormRequest
 
     public function messages() {
         return [
-            'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".'
+            'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".',
         ];
     }
 }

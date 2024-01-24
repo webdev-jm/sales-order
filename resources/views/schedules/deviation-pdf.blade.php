@@ -143,8 +143,7 @@
 </head>
 <body>
 
-    <div class="container">
-        {{-- header --}}
+    {{-- <div class="container">
         <div class="logo-container">
             <img src="{{public_path('/assets/images/BEVI.jpg')}}" alt="logo" class="bevi-logo align-middle">
             <img src="{{public_path('/assets/images/asia.jpg')}}" alt="logo" class="logo align-middle">
@@ -159,7 +158,7 @@
         <div class="title-bar">
             <p class="title-bar-header">TRIP DETAILS</p>
         </div>
-    </div>
+    </div> --}}
 
 
     <div class="row">

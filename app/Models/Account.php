@@ -28,6 +28,7 @@ class Account extends Model
         'tax_number',
         'on_hold',
         'sales_order_uom',
+        'po_process_date',
     ];
 
     public function discount() {

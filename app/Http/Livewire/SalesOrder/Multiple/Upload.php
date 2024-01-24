@@ -71,56 +71,58 @@ class Upload extends Component
 
         $data_arr = array();
         foreach($data as $key => $row) {
-            if($key != 0) {
-
-                $account = $this->account;
-                $discount = $account->discount;
-
-                $po_number = trim($row[0]);
-                $ship_date = $row[1];
-                $ship_to_address = trim($row[2]);
-                $sku_code = trim($row[3]);
-                $quantity = (int)trim($row[4]);
-                $uom = strtoupper(trim($row[5]));
-                $po_value = (float)trim($row[6]);
-                $paf_number = trim($row[7]);
-                $shipping_instruction = trim($row[8]);
-
-                $shipping_address = array();
-                if(!empty($ship_to_address) && !empty($this->shipping_addresses)) {
-                    $shipping_address = $this->shipping_addresses->where('address_code', $ship_to_address)
+            if(!empty(trim($row[0]))) {
+                if($key != 0) {
+    
+                    $account = $this->account;
+                    $discount = $account->discount;
+    
+                    $po_number = trim($row[0]);
+                    $ship_date = $row[1];
+                    $ship_to_address = trim($row[2]);
+                    $sku_code = trim($row[3]);
+                    $quantity = (int)trim($row[4]);
+                    $uom = strtoupper(trim($row[5]));
+                    $po_value = (float)trim($row[6]);
+                    $paf_number = trim($row[7]);
+                    $shipping_instruction = trim($row[8]);
+    
+                    $shipping_address = array();
+                    if(!empty($ship_to_address) && !empty($this->shipping_addresses)) {
+                        $shipping_address = $this->shipping_addresses->where('address_code', $ship_to_address)
+                            ->first();
+                    }
+    
+                    if(is_int($ship_date)) {
+                        $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
+                    }
+    
+                    $data_arr[$po_number]['ship_to_address'] = $ship_to_address;
+                    $data_arr[$po_number]['shipping_address'] = !empty($shipping_address) ? $shipping_address : $data_arr[$po_number]['shipping_address'] ?? [];
+                    $data_arr[$po_number]['ship_date'] = $ship_date;
+                    $data_arr[$po_number]['po_value'] = !empty($data_arr[$po_number]['po_value']) ? $data_arr[$po_number]['po_value'] + $po_value ?? 0 : $po_value ?? 0;
+                    $data_arr[$po_number]['paf_number'] = !empty($paf_number) ? $paf_number : $data_arr[$po_number]['paf_number'] ?? '';
+                    $data_arr[$po_number]['shipping_instruction'] = !empty($shipping_instruction) ? $shipping_instruction : $data_arr[$po_number]['shipping_instruction'] ?? '';
+                    $data_arr[$po_number]['discount'] = $discount;
+                    
+                    $product = Product::where('stock_code', $sku_code)
                         ->first();
+    
+                    $total_val = array();
+                    if(!empty($product) && !empty($quantity) && !empty($uom)) {
+                        $total_val = $this->getProductPrice($product, $account, $uom, $quantity);
+                    }
+    
+                    $data_arr[$po_number]['lines'][] = [
+                        'sku_code' => $sku_code,
+                        'product' => $product ?? '',
+                        'uom' => $uom,
+                        'quantity' => $quantity,
+                        'total' => $total_val['total'] ?? 0,
+                        'total_less_discount' => $total_val['discounted'] ?? 0,
+                        'line_discount' => $total_val['line_discount'] ?? NULL
+                    ];
                 }
-
-                if(is_int($ship_date)) {
-                    $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
-                }
-
-                $data_arr[$po_number]['ship_to_address'] = $ship_to_address;
-                $data_arr[$po_number]['shipping_address'] = !empty($shipping_address) ? $shipping_address : $data_arr[$po_number]['shipping_address'] ?? [];
-                $data_arr[$po_number]['ship_date'] = $ship_date;
-                $data_arr[$po_number]['po_value'] = !empty($data_arr[$po_number]['po_value']) ? $data_arr[$po_number]['po_value'] + $po_value ?? 0 : $po_value ?? 0;
-                $data_arr[$po_number]['paf_number'] = !empty($paf_number) ? $paf_number : $data_arr[$po_number]['paf_number'] ?? '';
-                $data_arr[$po_number]['shipping_instruction'] = !empty($shipping_instruction) ? $shipping_instruction : $data_arr[$po_number]['shipping_instruction'] ?? '';
-                $data_arr[$po_number]['discount'] = $discount;
-                
-                $product = Product::where('stock_code', $sku_code)
-                    ->first();
-
-                $total_val = array();
-                if(!empty($product) && !empty($quantity) && !empty($uom)) {
-                    $total_val = $this->getProductPrice($product, $account, $uom, $quantity);
-                }
-
-                $data_arr[$po_number]['lines'][] = [
-                    'sku_code' => $sku_code,
-                    'product' => $product ?? '',
-                    'uom' => $uom,
-                    'quantity' => $quantity,
-                    'total' => $total_val['total'] ?? 0,
-                    'total_less_discount' => $total_val['discounted'] ?? 0,
-                    'line_discount' => $total_val['line_discount'] ?? NULL
-                ];
             }
         }
 

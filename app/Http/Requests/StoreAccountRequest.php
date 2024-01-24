@@ -65,6 +65,9 @@ class StoreAccountRequest extends FormRequest
             'on_hold' => [
                 'max:1'
             ],
+            'po_process_date' => [
+                'max:10'
+            ]
         ];
     }
 }

@@ -30,6 +30,7 @@ class CreateAccountsTable extends Migration
             $table->string('tax_number')->nullable();
             $table->boolean('on_hold')->default(false);
             $table->string('sales_order_uom')->nullable();
+            $table->integer('po_process_date')->nullable();
             $table->timestamps();
 
             $table->foreign('invoice_term_id')

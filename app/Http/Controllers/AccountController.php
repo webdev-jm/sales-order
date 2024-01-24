@@ -101,6 +101,7 @@ class AccountController extends Controller
             'postal_code' => $request->postal_code,
             'tax_number' => $request->tax_number,
             'on_hold' => $request->on_hold,
+            'po_process_date' => $request->po_process_date,
         ]);
         $account->save();
 
@@ -195,6 +196,7 @@ class AccountController extends Controller
             'postal_code' => $request->postal_code,
             'tax_number' => $request->tax_number,
             'on_hold' => $request->on_hold,
+            'po_process_date' => $request->po_process_date
         ]);
         
         $changes_arr['changes'] = $account->getChanges();
