@@ -176,10 +176,16 @@ class SalesOrderController extends Controller
             array_push($control_number_arr, $number);
             $control_number = implode('-', $control_number_arr);
         }
+        
+        $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +3 days'));
+        if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
+            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' days'));
+        }
 
         return view('sales-orders.create')->with([
             'control_number' => $control_number,
-            'logged_account' => $logged_account
+            'logged_account' => $logged_account,
+            'process_ship_date' => $process_ship_date
         ]);
     }
 
@@ -249,9 +255,15 @@ class SalesOrderController extends Controller
 
         Session::put('order_data', $order_data);
 
+        $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +3 days'));
+        if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
+            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' days'));
+        }
+
         return view('sales-orders.create')->with([
             'control_number' => $control_number,
-            'logged_account' => $logged_account
+            'logged_account' => $logged_account,
+            'process_ship_date' => $process_ship_date,
         ]);
     }
 

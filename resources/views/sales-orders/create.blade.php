@@ -107,7 +107,7 @@
                         <div class="form-group">
                             {!! Form::label('ship_date', 'Ship Date') !!}
                             <small class="ml-1"><i class="fas fa-asterisk text-danger"></i></small>
-                            {!! Form::date('ship_date', session('ship_date') ?? now(), ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
+                            {!! Form::date('ship_date', session('ship_date') ?? $process_ship_date, ['class' => 'form-control form-control-sm'.($errors->has('ship_date') ? ' is-invalid' : ''), 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>

@@ -124,6 +124,14 @@
                     <p class="text-danger">{{$errors->first('tax_number')}}</p>
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('po_process_date', 'PO Processing Date') !!}
+                    {!! Form::number('po_process_date', '', ['class' => 'form-control'.($errors->has('po_process_date') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('po_process_date')}}</p>
+                </div>
+            </div>
             
             <div class="col-md-3">
                 <div class="form-group">
