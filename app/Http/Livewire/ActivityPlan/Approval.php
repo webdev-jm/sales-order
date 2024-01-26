@@ -8,9 +8,12 @@ use App\Models\ActivityPlan;
 use App\Models\ActivityPlanApproval;
 use App\Models\UserBranchSchedule;
 
+use Spatie\Permission\Models\Permission;
+
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityPlanRejected;
 use App\Notifications\ActivityPlanApproved;
+use App\Notifications\TripSubmitted;
 
 use App\Models\Reminders;
 
@@ -78,24 +81,22 @@ class Approval extends Component
                         ->first();
                     
                     if(empty($schedule)) {
-                        // do not convert schedules with trip via air 
-                        if(empty($detail->trip) || (!empty($detail->trip) && $detail->trip->transportation_type != 'AIR')) {
-                            $schedule = new UserBranchSchedule([
-                                'user_id' => $this->activity_plan->user_id,
-                                'branch_id' => $detail->branch_id,
-                                'date' => $detail->date,
-                                'status' => NULL,
-                                'objective' => $detail->activity,
-                                'source' => 'activity-plan'
-                            ]);
-                            $schedule->save();
 
-                            if(!empty($detail->trip)) {
-                                // logs
-                                activity('create')
-                                    ->performedOn($detail->trip)
-                                    ->log(':causer.firstname :causer.lastname has submitted trip [ :subject.trip_number ]');
-                            }
+                        $schedule = new UserBranchSchedule([
+                            'user_id' => $this->activity_plan->user_id,
+                            'branch_id' => $detail->branch_id,
+                            'date' => $detail->date,
+                            'status' => NULL,
+                            'objective' => $detail->activity,
+                            'source' => 'activity-plan'
+                        ]);
+                        $schedule->save();
+
+                        if(!empty($detail->trip) && $detail->trip->trasportation_type == 'AIR') {
+                            // logs
+                            activity('create')
+                                ->performedOn($detail->trip)
+                                ->log(':causer.firstname :causer.lastname has submitted trip [ :subject.trip_number ]');
                         }
 
                     }
@@ -105,6 +106,15 @@ class Approval extends Component
                         $schedule->update([
                             'activity_plan_detail_trip_id' => $detail->trip->id
                         ]);
+
+                        // notify trip approver's
+                        $permission = Permission::where('name', 'trip approve')->first();
+                        $users = $permission->users;
+                        foreach($users as $user) {
+                            if($user->id != auth()->user()->id) {
+                                Notification::send($user, new TripSubmitted($detail->trip));
+                            }
+                        }
                     }
 
                 }
