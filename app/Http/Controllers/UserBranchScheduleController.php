@@ -35,7 +35,7 @@ class UserBranchScheduleController extends Controller
     {
         // Set date range for schedules
         $date_from = date('Y-m', strtotime('last month')).'-01';
-        $date_to = date('Y-m-t');
+        $date_to = date('Y-m-d', strtotime('first day of next month last day of next month'));
 
         // Extract user and account IDs from the request
         $user_id = trim($request->get('user_id'));

@@ -57,12 +57,22 @@ class StoreSalesOrderRequest extends FormRequest
             'ship_date' => [
                 'required',
                 function ($attribute, $value, $fail) use ($logged_account) {
-                    // Check if the ship date is at least 3 days from the current date
-                    $currentDate = now()->addDays(3)->startOfDay();
-                    $shipDate = Carbon::parse($value)->startOfDay();
-    
-                    if (!empty($logged_account->account->po_process_date) && $shipDate < $currentDate) {
-                        $fail('The ship date must be at least 3 days from the current date.');
+                    
+                    if (!empty($logged_account->account->po_process_date)) {
+                        // Check if the ship date is at least 3 days from the order date
+                        $leadDate = Carbon::parse($this->order_date)->addDays($logged_account->account->po_process_date)->startOfDay();
+                        $shipDate = Carbon::parse($value)->startOfDay();
+                        
+                        if($shipDate < $leadDate) {
+                            $fail('The ship date must be at least '.$logged_account->account->po_process_date.' day/s from the order date.');
+                        }
+                    } else {
+                        $leadDate = Carbon::parse($this->order_date)->addDays(1)->startOfDay();
+                        $shipDate = Carbon::parse($value)->startOfDay();
+
+                        if($shipDate < $leadDate) {
+                            $fail('The ship date must be at least 1 day from the order date.');
+                        }
                     }
                 },
             ],

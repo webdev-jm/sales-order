@@ -584,7 +584,7 @@ class ActivityPlanController extends Controller
                                     // detail trip
                                     if(isset($val['trip']) && !empty($val['trip'])) {
                                         $trip_data = $val['trip'];
-                                        $trip = ActivityPlanDetailTrip::updateOrInsert([
+                                        $trip = ActivityPlanDetailTrip::firstOrNew([
                                             'activity_plan_detail_id' => $activity_plan_detail->id,
                                         ],[
                                             'trip_number' => $trip_data['trip_number'],
@@ -594,6 +594,7 @@ class ActivityPlanController extends Controller
                                             'transportation_type' => $trip_data['transportation_type'],
                                             'source' => 'activity-plan',
                                         ]);
+                                        $trip->save();
 
                                         // add approvals
                                         if($request->status == 'submitted') {
