@@ -12,12 +12,14 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
 use App\Models\PurchaseOrderNumber;
+use App\Models\ShippingAddress;
 
 use App\Http\Traits\SoProductPriceTrait;
 use App\Http\Traits\GlobalTrait;
@@ -311,7 +313,12 @@ class Upload extends Component
     public function mount($logged_account) {
         $this->logged_account = $logged_account;
         $this->account = $logged_account->account;
-        $this->shipping_addresses = $this->account->shipping_addresses;
+        $shipping_addresses = ShippingAddress::where('account_id', $this->account->id)
+            ->get();
+
+        $this->shipping_addresses = $shipping_addresses->map(function ($address) {
+            return array_map('trim', $address->toArray());
+        });
 
         $this->setting = $this->getSettings();
     }
