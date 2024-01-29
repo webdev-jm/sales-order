@@ -141,6 +141,8 @@ Route::group(['middleware' => 'auth'], function () {
     // TRIP
     Route::group(['middleware' => ['permission:trip access']], function() {
         Route::get('trip', [TripController::class, 'index'])->name('trip.index');
+        Route::get('trip/create', [TripController::class, 'create'])->name('trip.create')->middleware('permission:trip create');
+        
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
         
         Route::get('shedule/trip-list', [TripController::class, 'list'])->name('trip.list');
@@ -149,6 +151,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         // Route::get('trip/{id}/approve', [TripController::class, 'approve'])->name('trip.approve')->middleware('permission:trip approve');
         Route::get('trip/{id}/reject', [TripController::class, 'reject'])->name('trip.reject')->middleware('permission:trip approve');
+
+        
     });
 
     Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');

@@ -231,6 +231,7 @@ class PermissionSeeder extends Seeder
                 'trip print'    => 'access to print trip detail',
                 'trip approve'  => 'access to approve trip',
                 'trip create'   => 'access to create trip',
+                'trip edit'     => 'access to edit trip details.'
             ],
         ];
 
