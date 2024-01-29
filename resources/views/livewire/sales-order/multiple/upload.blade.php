@@ -1,5 +1,6 @@
 <div>
 
+
     <form wire:submit.prevent="checkFileData">
         <div class="card">
             <div class="card-header">
