@@ -12,6 +12,12 @@
     <div class="col-md-6">
         <h1>Trips</h1>
     </div>
+    <div class="col-md-6 text-right">
+        <a href="{{route('trip.create')}}" class="btn btn-primary">
+            <i class="fa fa-plus mr-1"></i>
+            ADD TRIP
+        </a>
+    </div>
 </div>
 @endsection
 

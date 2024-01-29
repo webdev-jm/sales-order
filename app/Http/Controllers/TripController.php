@@ -362,4 +362,9 @@ class TripController extends Controller
             'message_success' => 'Trip '.$trip->trip_number.' has been rejected.'
         ]);
     }
+
+    public function create() {
+        
+        return view('trips.create');
+    }
 }
