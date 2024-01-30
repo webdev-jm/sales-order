@@ -110,8 +110,7 @@ class Trip extends Component
     public function render()
     {
         $transportation_types = [
-            'AIR',
-            'LAND'
+            'AIR'
         ];
 
         return view('livewire.activity-plan.trip')->with([
