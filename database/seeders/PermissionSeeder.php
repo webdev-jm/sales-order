@@ -233,6 +233,12 @@ class PermissionSeeder extends Seeder
                 'trip create'   => 'access to create trip',
                 'trip edit'     => 'access to edit trip details.'
             ],
+            'Department' => [
+                'department access' => 'Access to departments module',
+                'department create' => 'Access to create a department.',
+                'department edit'   => 'Access to edit department details',
+                'department delete' => 'Access to delete department',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {

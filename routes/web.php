@@ -40,6 +40,7 @@ use App\Http\Controllers\ChannelOperationController;
 use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\SalesOrderMultipleController;
+use App\Http\Controllers\DepartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -156,6 +157,17 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');
+
+    Route::group(['middleware' => ['permission:department access']], function() {
+        Route::get('department', [DepartmentController::class, 'index'])->name('department.index');
+        Route::get('department/create', [DepartmentController::class, 'create'])->name('department.create')->middleware('permission:department create');
+        Route::post('department', [DepartmentController::class, 'store'])->name('department.store')->middleware('permission:department create');
+
+        Route::get('department/{id}', [DepartmentController::class, 'show'])->name('department.show');
+
+        Route::get('department/{id}/edit', [DepartmentController::class, 'edit'])->name('department.edit')->middleware('permission:department edit');
+        Route::post('department/{id}', [DepartmentController::class, 'update'])->name('department.update')->middleware('permission:department edit');
+    });
 
     // Activity Plan / MCP
     Route::group(['middleware' => 'permission:mcp access'], function() {
