@@ -427,6 +427,7 @@ return [
         [
             'header'    => 'maintenance',
             'can'       => [
+                'department access',
                 'SO cut-off access',
                 'company access',
                 'discount access',
@@ -438,6 +439,13 @@ return [
                 'sales people access',
                 'operation process access',
             ]
+        ],
+        [
+            'text'      => 'Departments',
+            'url'       => '/department',
+            'icon'      => 'fas fa-fw fa-layer-group',
+            'can'       => 'department access',
+            'active'    => ['department*']
         ],
         [
             'text'      => 'SO Cut-offs',
