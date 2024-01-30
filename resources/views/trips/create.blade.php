@@ -22,23 +22,8 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['trip.index'], 'id' => 'search_form']) !!}
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">CREATE TRIP</h3>
-        <div class="card-tools">
-            
-        </div>
-    </div>
-    <div class="card-body">
-
-        
-
-    </div>
-    <div class="card-footer">
-    </div>
-</div>
+<livewire:trip.trip-create/>
 
 @endsection
 

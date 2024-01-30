@@ -539,7 +539,7 @@ class ActivityPlanController extends Controller
                                         $activity_plan_detail = ActivityPlanDetail::find($val['id']);
 
                                         // check if line is deleted
-                                        if(!empty($val['deleted']) && $val['deleted'] == true) {
+                                        if(!empty($val['deleted']) && $val['deleted'] == true && !empty($activity_plan_detail)) {
                                             $activity_plan_detail->delete();
                                         } else {
                                             if(!empty($activity_plan_detail)) {
