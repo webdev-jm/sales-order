@@ -91,8 +91,9 @@ class Upload extends Component
     
                     $shipping_address = array();
                     if(!empty($ship_to_address) && !empty($this->shipping_addresses)) {
-                        $shipping_address = $this->shipping_addresses->where('address_code', $ship_to_address)
-                            ->first();
+                        $shipping_address = $this->shipping_addresses->filter(function ($address) use ($ship_to_address) {
+                            return $address['address_code'] === $ship_to_address;
+                        })->first();
                     }
     
                     if(is_int($ship_date)) {
@@ -314,6 +315,7 @@ class Upload extends Component
         $this->logged_account = $logged_account;
         $this->account = $logged_account->account;
         $shipping_addresses = ShippingAddress::where('account_id', $this->account->id)
+            ->orderBy('address_code', 'ASC')
             ->get();
 
         $this->shipping_addresses = $shipping_addresses->map(function ($address) {
