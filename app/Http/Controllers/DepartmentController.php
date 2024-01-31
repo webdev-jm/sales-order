@@ -79,6 +79,9 @@ class DepartmentController extends Controller
     {
         $department = Department::findOrFail($id);
         
+        return view('departments.show')->with([
+            'department' => $department
+        ]);
     }
 
     /**

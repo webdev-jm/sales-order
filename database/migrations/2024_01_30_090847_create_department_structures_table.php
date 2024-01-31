@@ -17,7 +17,7 @@ class CreateDepartmentStructuresTable extends Migration
             $table->id();
             $table->unsignedBigInteger('department_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('reports_to_id')->nullable();
+            $table->text('reports_to_ids')->nullable();
             $table->string('designation');
             $table->timestamps();
 

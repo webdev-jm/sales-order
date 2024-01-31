@@ -14,7 +14,7 @@ class DepartmentStructure extends Model
     protected $fillable = [
         'department_id',
         'user_id',
-        'reports_to_id',
+        'reports_to_ids',
         'designation',
     ];
 
