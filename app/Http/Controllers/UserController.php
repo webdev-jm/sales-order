@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Account;
 use App\Models\Company;
+use App\Models\Department;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 
@@ -51,8 +52,18 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::orderBy('name', 'ASC')->get();
+        
+        $departments = Department::orderBy('department_code', 'ASC')->get();
+        $department_options = [
+            '' => '- Select department -'
+        ];
+        foreach($departments as $department) {
+            $department_options[$department->id] = '['.$department->department_code.'] '.$department->department_name;
+        }
+
         return view('users.create')->with([
-            'roles' => $roles
+            'roles' => $roles,
+            'departments' => $department_options
         ]);
     }
 
@@ -68,6 +79,7 @@ class UserController extends Controller
         $password = reset($email_arr).'123!';
         
         $user = new User([
+            'department_id' => $request->department_id,
             'firstname' => $request->firstname,
             'middlename' => $request->middlename,
             'lastname' => $request->lastname,
@@ -117,9 +129,18 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $roles = Role::orderBy('name', 'ASC')->get();
 
+        $departments = Department::orderBy('department_code', 'ASC')->get();
+        $department_options = [
+            '' => '- Select department -'
+        ];
+        foreach($departments as $department) {
+            $department_options[$department->id] = '['.$department->department_code.'] '.$department->department_name;
+        }
+
         return view('users.edit')->with([
             'user' => $user,
-            'roles' => $roles
+            'roles' => $roles,
+            'departments' => $department_options
         ]);
     }
 
@@ -137,6 +158,7 @@ class UserController extends Controller
         $changes_arr['old'] = $user->getOriginal();
 
         $user->update([
+            'department_id' => $request->department_id,
             'firstname' => $request->firstname,
             'middlename' => $request->middlename,
             'lastname' => $request->lastname,

@@ -72,6 +72,14 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('department_id', 'Department') !!}
+                    {!! Form::select('department_id', $departments, $user->department_id, ['class' => 'form-control'.($errors->has('department_id') ? ' is-invalid' : ''), 'form' => 'update_user']) !!}
+                    <p class="text-danger mt-1">{{$errors->first('department_id')}}</p>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">
@@ -109,16 +117,22 @@
                 </div>
             </div>
 
-            <div class="col-md-6 text-align-middle">
-                <label>User Roles{!!$errors->has('roles') ? '<span class="ml-2 badge badge-danger">Required</span>' : ''!!}</label>
-                <p class="text-danger mb-0">{{$errors->first('roles')}}</p>
-                @foreach ($roles as $role)
-                    @if($role->name != 'superadmin' || auth()->user()->hasRole('superadmin'))
-                    <div class="custom-control custom-checkbox mb-3">
-                        {!! Form::checkbox('roles[]', $role->name, $user->hasRole($role->name), ['class' => 'custom-control-input', 'id' => 'role'.$role->id, 'form' => 'update_user']) !!}
-                        {!! Form::label('role'.$role->id, $role->name, ['class' => 'custom-control-label']) !!}
+            <div class="col-12">
+                <label class="mb-0">USER ROLES{!!$errors->has('roles') ? '<span class="ml-2 badge badge-danger">Required</span>' : ''!!}</label>
+                <hr class="m-0 mb-2">
+            </div>
+            <div class="col-12 row">
+                @foreach($roles->chunk(5) as $role_group)
+                    <div class="col-lg-3">
+                        @foreach ($role_group as $role)
+                            @if($role->name != 'superadmin' || auth()->user()->hasRole('superadmin'))
+                                <div class="custom-control custom-checkbox mb-3">
+                                    {!! Form::checkbox('roles[]', $role->name, $user->hasRole($role->name), ['class' => 'custom-control-input', 'id' => 'role'.$role->id, 'form' => 'update_user']) !!}
+                                    {!! Form::label('role'.$role->id, $role->name, ['class' => 'custom-control-label']) !!}
+                                </div>
+                            @endif
+                        @endforeach
                     </div>
-                    @endif
                 @endforeach
             </div>
 
