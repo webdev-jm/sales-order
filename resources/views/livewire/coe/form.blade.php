@@ -391,7 +391,7 @@
                                         <div class="card-tools">
                                             @php
                                                 $percent = 0;
-                                                if(!empty($trade_displays['osa_face_actual']) && !empty($trade_displays['osa_face_target'])) {
+                                                if(!empty($trade_displays['osa_face_actual']) && !empty($trade_displays['osa_face_target']) && $trade_displays['osa_face_target'] > 0 && $trade_displays['osa_face_actual'] > 0) {
                                                     $percent = ($trade_displays['osa_face_actual'] / $trade_displays['osa_face_target']) * 100;
                                                 }
                                             @endphp
