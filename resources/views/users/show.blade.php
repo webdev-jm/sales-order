@@ -40,6 +40,9 @@
                         <b>Email</b> <a class="float-right">{{$user->notify_email ?? '-'}}</a>
                     </li>
                     <li class="list-group-item">
+                        <b>Department</b> <a class="float-right">{{$user->department->department_code ?? '-'}}</a>
+                    </li>
+                    <li class="list-group-item">
                         <b>Last Activity</b> <span class="float-right">{{!empty($user->last_activity) ? date('F, j Y H:i:s a', strtotime($user->last_activity)) : '-'}}</span>
                     </li>
                 </ul>

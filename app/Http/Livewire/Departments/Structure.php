@@ -141,7 +141,9 @@ class Structure extends Component
     {
         $this->loadChart();
 
-        $users = User::orderBy('firstname', 'ASC')->get();
+        $users = User::orderBy('firstname', 'ASC')
+            ->where('department_id', $this->department->id)
+            ->get();
 
         $structures = DepartmentStructure::where('department_id', $this->department->id)
             ->paginate(10, ['*'], 'structure-page')->onEachSide(1);

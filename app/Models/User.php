@@ -25,6 +25,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'department_id',
         'firstname',
         'middlename',
         'lastname',
@@ -88,6 +89,10 @@ class User extends Authenticatable
         }
         
         return ucwords(strtolower($name));
+    }
+
+    public function department() {
+        return $this->belongsTo('App\Models\Department');
     }
 
     public function accounts() {
