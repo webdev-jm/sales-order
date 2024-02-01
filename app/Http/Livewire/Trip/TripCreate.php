@@ -10,6 +10,36 @@ class TripCreate extends Component
 {
     public $type;
     public $trip_number;
+    public $from, $to, $departure, $return, $passenger;
+
+    public function submitTrip() {
+        $this->validate([
+            'from' => [
+                'required'
+            ],
+            'to' => [
+                'required'
+            ],
+            'departure' => [
+                'required'
+            ],
+            'return' => [
+                function ($attribute, $value, $fail) {
+                    if ($this->type == 'round_trip' && empty($value)) {
+                        $fail('The return field is required for round trips.');
+                    }
+                }
+            ]
+        ]);
+    }
+
+    public function switch() {
+        $from = $this->from;
+        $to = $this->to;
+
+        $this->from = $to;
+        $this->to = $from;
+    }
 
     public function selectType($type) {
         $this->type = $type;
@@ -39,6 +69,7 @@ class TripCreate extends Component
     public function mount() {
         $this->type = 'one_way';
         $this->generateTripNumber();
+        $this->passenger = 1;
     }
 
     public function render()

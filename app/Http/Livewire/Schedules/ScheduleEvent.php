@@ -434,7 +434,6 @@ class ScheduleEvent extends Component
 
         $transportation_types = [
             'AIR',
-            'LAND'
         ];
 
         return view('livewire.schedules.schedule-event')->with([
