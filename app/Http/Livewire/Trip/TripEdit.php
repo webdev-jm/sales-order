@@ -12,12 +12,21 @@ use App\Notifications\TripSubmitted;
 
 use Carbon\Carbon;
 
-class TripCreate extends Component
+class TripEdit extends Component
 {
     public $type;
-    public $trip_number;
+    public $trip;
     public $from, $to, $departure, $return, $passenger;
     public $form_errors;
+    public $status_arr = [
+        'submitted'             => 'secondary',
+        'for revision'          => 'warning',
+        'approved'              => 'primary',
+        'returned'              => 'danger',
+        'for approval'          => 'info',
+        'approved by finance'   => 'success',
+        'rejected by finance'   => 'orange',
+    ];
 
     public function submitTrip() {
         $this->validate([
@@ -55,35 +64,24 @@ class TripCreate extends Component
                         $fail('The return date must be on or before the departure date.');
                     }
                 }
-            ],
-            'passenger' => [
-                'required'
             ]
         ]);
 
-        $trip_number = $this->generateTripNumber();
-
-        $trip = new ActivityPlanDetailTrip([
-            'activity_plan_detail_id' => NULL,
-            'user_id' => auth()->user()->id,
-            'trip_number' => $trip_number,
+        $this->trip->update([
             'from' => $this->from,
             'to' => $this->to,
             'departure' => $this->departure,
             'return' => $this->type == 'round_trip' ? $this->return : NULL,
-            'amount' => NULL,
             'trip_type' => $this->type,
             'transportation_type' => 'AIR',
             'passenger' => $this->passenger,
             'status' => 'submitted',
-            'source' => 'trip-add',
         ]);
-        $trip->save();
 
         // approval history
         $approval = new ActivityPlanDetailTripApproval([
             'user_id' => auth()->user()->id,
-            'activity_plan_detail_trip_id' => $trip->id,
+            'activity_plan_detail_trip_id' => $this->trip->id,
             'status' => 'submitted',
             'remarks' => NULL,
         ]);
@@ -95,17 +93,17 @@ class TripCreate extends Component
         if(!empty($department)) {
             $admin = $department->department_head;
             if(!empty($admin) && $admin->id != auth()->user()->id) {
-                Notification::send($admin, new TripSubmitted($trip));
+                Notification::send($admin, new TripSubmitted($this->trip));
             }
         }
 
         // systemlog
         activity('created')
-            ->performedOn($trip)
-            ->log(':causer.firstname :causer.lastname added a new trip :subject.trip_number');
+            ->performedOn($this->trip)
+            ->log(':causer.firstname :causer.lastname submitted a trip :subject.trip_number');
 
         return redirect()->route('trip.index')->with([
-            'message_success' => 'Trip has been created with ticket number: '.$trip->ticket_number
+            'message_success' => 'Trip has been updated with ticket number: '.$this->trip->ticket_number
         ]);
     }
 
@@ -138,31 +136,18 @@ class TripCreate extends Component
         $this->type = $type;
     }
 
-    private function generateTripNumber() {
-        // Check if a trip number already exists
-        $new_trip_number = null;
-
-        do {
-            /// Generate a random letter
-            $random_letter = chr(65 + rand(0, 25)); // A-Z
-
-            // Generate the remaining part of the trip number (alphanumeric)
-            $random_alphanumeric = strtoupper(substr(sha1(uniqid()), 0, 5));
-
-            // Combine the letter and alphanumeric characters
-            $new_trip_number = $random_letter . $random_alphanumeric;
-        } while (ActivityPlanDetailTrip::where('trip_number', $new_trip_number)->exists());
-
-        return $new_trip_number;
-    }
-
-    public function mount() {
-        $this->type = 'one_way';
-        $this->passenger = 1;
+    public function mount($trip) {
+        $this->trip = $trip;
+        $this->from = $trip->from;
+        $this->to = $trip->to;
+        $this->departure = $trip->departure;
+        $this->return = $trip->return;
+        $this->passenger = $trip->passenger;
+        $this->type = $trip->trip_type;
     }
 
     public function render()
     {
-        return view('livewire.trip.trip-create');
+        return view('livewire.trip.trip-edit');
     }
 }

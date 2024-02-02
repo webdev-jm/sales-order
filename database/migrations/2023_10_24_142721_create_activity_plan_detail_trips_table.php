@@ -25,6 +25,7 @@ class CreateActivityPlanDetailTripsTable extends Migration
             $table->decimal('amount', 10, 2)->nullable();
             $table->string('trip_type');
             $table->string('transportation_type');
+            $table->integer('passenger');
             $table->string('status')->nullable();
             $table->string('source');
             $table->timestamps();

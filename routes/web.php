@@ -146,11 +146,11 @@ Route::group(['middleware' => 'auth'], function () {
         
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
         
+        Route::get('trip/{id}/edit', [TripController::class, 'edit'])->name('trip.edit')->middleware('permission:trip edit');
+
         Route::get('shedule/trip-list', [TripController::class, 'list'])->name('trip.list');
 
         Route::post('trip/{id}/approve', [TripController::class, 'submitApprove'])->name('trip.submit-approve')->middleware('permission:trip approve');
-
-        // Route::get('trip/{id}/approve', [TripController::class, 'approve'])->name('trip.approve')->middleware('permission:trip approve');
         Route::get('trip/{id}/reject', [TripController::class, 'reject'])->name('trip.reject')->middleware('permission:trip approve');
 
         

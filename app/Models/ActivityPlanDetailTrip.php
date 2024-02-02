@@ -22,6 +22,7 @@ class ActivityPlanDetailTrip extends Model
         'amount',
         'trip_type',
         'transportation_type',
+        'passenger',
         'status',
         'source',
     ];
