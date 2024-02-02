@@ -264,5 +264,9 @@ class User extends Authenticatable
         // get first value
         return reset($supervisor_ids);
     }
+
+    public function getDepartmentSubordinates() {
+        $department = $this->department;
+    }
     
 }

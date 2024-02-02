@@ -227,11 +227,12 @@ class PermissionSeeder extends Seeder
                 'settings' => 'settings access',
             ],
             'Trip' => [
-                'trip access'   => 'access to trip module',
-                'trip print'    => 'access to print trip detail',
-                'trip approve'  => 'access to approve trip',
-                'trip create'   => 'access to create trip',
-                'trip edit'     => 'access to edit trip details.'
+                'trip access'           => 'access to trip module',
+                'trip print'            => 'access to print trip detail',
+                'trip approve'          => 'access to approve trip',
+                'trip create'           => 'access to create trip',
+                'trip edit'             => 'access to edit trip details.',
+                'trip finance approver' => 'access to approve or reject trip ticket requests'
             ],
             'Department' => [
                 'department access' => 'Access to departments module',

@@ -25,4 +25,8 @@ class Department extends Model
     public function department_admin() {
         return $this->belongsTo('App\Models\User', 'department_admin_id');
     }
+
+    public function users() {
+        return $this->hasMany('App\Models\User');
+    }
 }

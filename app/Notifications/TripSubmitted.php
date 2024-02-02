@@ -56,7 +56,7 @@ class TripSubmitted extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Trip has been submitted')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line(auth()->user()->fullName().' has initiated a trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)).', and it is currenly pending for your approval')
+            ->line(auth()->user()->fullName().' has initiated a trip request with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', and it is currenly pending for your approval')
             ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
@@ -75,7 +75,7 @@ class TripSubmitted extends Notification
             'module' => 'Trip',
             'status' => 'submitted',
             'status_code' => 'secondary',
-            'message' => auth()->user()->fullName().' has initiated a trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)).', and it is currenly pending for your approval',
+            'message' => auth()->user()->fullName().'  has initiated a trip request with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', and it is currenly pending for your approval',
             'color' => 'secondary',
             'url' => url('/trip/'.$this->trip->id)
         ];
