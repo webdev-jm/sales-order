@@ -1,10 +1,19 @@
 <div>
+    @if($form_errors)
+        <div class="row mb-1">
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <h5>
+                        <i class="icon fas fa-exclamation-triangle mr-1"></i>
+                         NOTE:
+                    </h5>
+                    {{$form_errors}}
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="row mb-1">
-
-        <div class="col-lg-12">
-            <h3 class="font-weight-bold mb-0" style="font-size: 30px">TICKET #: {{$trip_number}}</h3>
-        </div>
                 
         <div class="col-lg-12">
             <button class="btn {{$type == 'one_way' ? 'btn-info' : 'btn-default'}}" wire:click.prevent="selectType('one_way')">
@@ -19,7 +28,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <form wire:click.prevent="submitTrip">
+            <form wire:submit.prevent="submitTrip">
                 <div class="card card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">TRIP</h3>
@@ -84,13 +93,13 @@
                                 </div>
                             @endif
 
-                    </div>
+                        </div>
                 
                     </div>
                     <div class="card-footer text-right">
                         <button class="btn btn-primary">
-                            <i class="fa fa-plus mr-1"></i>
-                            Add Trip
+                            <i class="fa fa-check mr-1"></i>
+                            Submit for Approval
                         </button>
                     </div>
                 </div>

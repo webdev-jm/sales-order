@@ -13,12 +13,15 @@ class ActivityPlanDetailTrip extends Model
 
     protected $fillable = [
         'activity_plan_detail_id',
+        'user_id',
         'trip_number',
+        'from',
+        'to',
         'departure',
-        'arrival',
-        'reference_number',
+        'return',
+        'amount',
+        'trip_type',
         'transportation_type',
-        'attachment_path',
         'status',
         'source',
     ];
@@ -33,5 +36,9 @@ class ActivityPlanDetailTrip extends Model
 
     public function approvals() {
         return $this->hasMany('App\Models\ActivityPlanDetailTripApproval');
+    }
+
+    public function user() {
+        return $this->belongsTo('App\Models\User');
     }
 }

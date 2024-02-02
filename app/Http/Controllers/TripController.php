@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\UserBranchSchedule;
+use App\Models\Department;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TripApproved;
@@ -21,6 +22,15 @@ class TripController extends Controller
     use GlobalTrait;
 
     public $setting;
+    public $status_arr = [
+        'submitted'             => 'secondary',
+        'for revision'          => 'warning',
+        'approved'              => 'primary',
+        'returned'              => 'danger',
+        'for approval'          => 'info',
+        'approved by finance'   => 'success',
+        'rejected by finance'   => 'orange',
+    ];
 
     public function __construct() {
         $this->setting = $this->getSettings();
@@ -31,67 +41,57 @@ class TripController extends Controller
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
 
-        $trips = ActivityPlanDetailTrip::with('activity_plan_detail', 'activity_plan_detail.activity_plan', 'activity_plan_detail.activity_plan.user', 'approvals')
-            ->where(function($query) use($user, $date) {
-                $query->whereHas('activity_plan_detail', function($query) use($user, $date) {
-                    $query->whereHas('activity_plan', function($qry) use($user, $date) {
-                        $qry->where('status', 'approved')
-                        ->when(!empty($user), function($qry1) use($user) {
-                            $qry1->where('user_id', $user);
-                        });
-                    })
-                    ->when(!empty($date), function($qry) use($date) {
-                        $qry->where('date', $date);
+        if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
+            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
+                ->when(!empty($date), function($query) use($date) {
+                    $query->where(function($qry) use($date) {
+                        $qry->where('departure', $date)
+                            ->orWhere('return', $date);
                     });
                 })
-                ->orWhereHas('schedule', function($query) use($user, $date) {
-                    $query->when(!empty($user), function($qry) use($user) {
-                        $qry->where('user_id', $user);
-                    })
-                    ->when(!empty($date), function($qry) use($date) {
-                        $qry->where('date', $date);
+                ->when(!empty($user), function($query) use($user) {
+                    $query->where('user_id', $user);
+                })
+                ->when(!empty($search), function($query) use($search) {
+                    $query->where(function($qry) use($search) {
+                        $qry->where('from', 'like', '%'.$search.'%')
+                            ->orWhere('to', 'like', '%'.$search.'%')
+                            ->orWhere('status', 'like', '%'.$search.'%');
                     });
-                });
-            })
-            ->where('transportation_type', 'AIR')
-            ->when(!empty($search), function($query) use($search) {
-                $query->where(function($qry) use($search) {
-                    $qry->where('departure', 'like', '%'.$search.'%')
-                        ->orWhere('arrival', 'like', '%'.$search.'%')
-                        ->orWhere('trip_number', 'like', '%'.$search.'%');
+                })
+                ->paginate(10)->onEachSide(1)
+                ->appends(request()->query());
+        } else { // users entry and user subordinate entries
+            // get subordinates of the user.
 
-                    if($search == 'for approval') {
-                        $qry->orWhereNull('status');
-                    } else {
-                        $qry->orWhere('status', 'like', '%'.$search.'%');
-                    }
-                });
-            })
-            ->paginate($this->setting->data_per_page)->onEachSide(1)
-            ->appends(request()->query());
+            // check if user is admin of a department
+            $departments = Department::where('department_admin_id', auth()->user()->id)->get();
+            // get all users under departments
+            $users_ids = array();
+            foreach($departments as $department) {
+                $users = $department->users;
+                foreach($users as $user) {
+                    $users_ids[] = $user->id;
+                }
+            }
+            $users_ids = array_unique($user_ids);
 
-        // user filters
-        $users = User::whereHas('activity_plans', function($query) {
-            $query->where('status', 'approved')
-                ->whereHas('details', function($qry) {
-                    $qry->whereHas('trip');
-                });
-        })
-        ->get();
-
-        $user_arr = [
-            '' => 'ALL USER'
-        ];
-        foreach($users as $user) {
-            $user_arr[$user->id] = $user->fullName();
+            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
+                ->where(function($query) use($users_ids) {
+                    $query->where('user_id', auth()->user()->id)
+                        ->orWhereIn('user_id', $users_ids);
+                })
+                ->when
+                ->paginate(10)->onEachSide(1)
+                ->appends(request()->query());
         }
 
         return view('trips.index')->with([
-            'trips' => $trips,
-            'users' => $user_arr,
             'user' => $user,
             'search' => $search,
             'date' => $date,
+            'trips' => $trips,
+            'status_arr' => $this->status_arr,
         ]);
     }
 
