@@ -86,9 +86,13 @@
                             <a href="{{route('trip.show', $trip->id)}}" title="view" class=" btn btn-xs btn-primary mr-1">
                                 <i class="fa fa-eye"></i>
                             </a>
-                            <a href="" class="btn btn-xs btn-success mr-1">
-                                <i class="fa fa-pen-alt"></i>
-                            </a>
+                            @can('trip edit')
+                                @if(($trip->status == 'for revision' || $trip->status == 'returned') && auth()->user()->id == $trip->user_id)
+                                    <a href="{{route('trip.edit', $trip->id)}}" class="btn btn-xs btn-success mr-1">
+                                        <i class="fa fa-pen-alt"></i>
+                                    </a>
+                                @endif
+                            @endcan
                             @can('trip print')
                                 <a href="{{route('trip.print', $trip->id)}}" title="download" class="btn btn-xs btn-danger">
                                     <i class="fa fa-file-pdf"></i>

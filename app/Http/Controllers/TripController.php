@@ -81,7 +81,13 @@ class TripController extends Controller
                     $query->where('user_id', auth()->user()->id)
                         ->orWhereIn('user_id', $users_ids);
                 })
-                ->when
+                ->when(!empty($search), function($query) use($search) {
+                    $query->where(function($qry) use($search) {
+                        $qry->where('from', 'like', '%'.$search.'%')
+                            ->orWhere('to', 'like', '%'.$search.'%')
+                            ->orWhere('status', 'like', '%'.$search.'%');
+                    });
+                })
                 ->paginate(10)->onEachSide(1)
                 ->appends(request()->query());
         }
@@ -364,7 +370,14 @@ class TripController extends Controller
     }
 
     public function create() {
-        
         return view('trips.create');
+    }
+
+    public function edit($id) {
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        return view('trips.edit')->with([
+            'trip' => $trip
+        ]);
     }
 }

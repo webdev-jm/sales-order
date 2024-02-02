@@ -81,7 +81,7 @@
 
                 <div class="row">
                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                        <h1 class="font-weight-bold w-100">{{$trip->departure}}</h1>
+                        <h1 class="font-weight-bold w-100">{{$trip->from}}</h1>
                     </div>
                     <div class="col-lg-2 text-center align-middle">
                         @if($trip->transportation_type == 'AIR')
@@ -95,38 +95,36 @@
                         @endif
                     </div>
                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                        <h1 class="font-weight-bold w-100">{{$trip->arrival}}</h1>
+                        <h1 class="font-weight-bold w-100">{{$trip->to}}</h1>
                     </div>
                 </div>
 
                 <hr>
                 
                 <div class="row">
-                    <div class="col-lg-4 text-center">
+                    <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                         <strong class="text-muted">NAME</strong>
                         <br>
-                        @if($trip->source == 'activity-plan')
-                            <strong class="text-uppercase text-lg">{{$trip->activity_plan_detail->activity_plan->user->fullName()}}</strong>
-                        @elseif($trip->source == 'schedule')
-                            <strong class="text-uppercase text-lg">{{$trip->schedule->user->fullName()}}</strong>
-                        @endif
+                        <strong class="text-uppercase text-lg">{{$trip->user->fullName()}}</strong>
                     </div>
-                    <div class="col-lg-4 text-center">
-                        <strong class="text-muted">DATE</strong>
+                    <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                        <strong class="text-muted">DEPARTURE DATE</strong>
                         <br>
-                        @if($trip->source == 'activity-plan')
-                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
-                        @elseif($trip->source == 'schedule')
-                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->schedule->date))}}</strong>
-                        @endif
+                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->departure))}}</strong>
                     </div>
-                    @if(!empty($trip->reference_number))
-                        <div class="col-lg-4 text-center">
-                            <strong class="text-muted">REFERENCE NUMBER</strong>
+                    @if($trip->trip_type == 'round_trip')
+                        <div class="col-lg-3 text-center">
+                            <strong class="text-muted">RETURN DATE</strong>
                             <br>
-                            <strong class="text-uppercase text-lg">{{$trip->reference_number}}</strong>
+                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->return))}}</strong>
                         </div>
                     @endif
+                    <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                        <strong class="text-muted">TYPE</strong>
+                        <br>
+                        <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip->trip_type)}}</strong>
+                    </div>
+                        
                 </div>
             </div>
             <div class="card-footer text-right">
@@ -142,25 +140,19 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- <a href="{{route('trip.reject', $trip->id)}}" class="btn btn-danger">
-                        <i class="fa fa-times-circle mr-1"></i>
-                        REJECT
-                    </a>
-                    <a href="{{route('trip.approve', $trip->id)}}" class="btn btn-success">
-                        <i class="fa fa-check mr-1"></i>
-                        APPROVE
-                    </a> --}}
                     
-                    <button class="btn btn-danger" type="button" form="approve_trip" id="btn-reject">
-                        <i class="fa fa-times-circle mr-1"></i>
-                        REJECT
-                    </button>
+                    @if($trip->status == 'submitted')
+                        <button class="btn btn-warning" type="button" form="approve_trip" id="btn-for-revision">
+                            <i class="fa fa-times-circle mr-1"></i>
+                            FOR REVISION
+                        </button>
 
-                    <button class="btn btn-success" type="button" form="approve_trip" id="btn-approve">
-                        <i class="fa fa-check-circle mr-1"></i>
-                        APPROVE
-                    </button>
+                        <button class="btn btn-primary" type="button" form="approve_trip" id="btn-approve">
+                            <i class="fa fa-check-circle mr-1"></i>
+                            APPROVE
+                        </button>
+                    @endif
+
                 @endcan
             </div>
         </div>
@@ -227,9 +219,9 @@
 @section('js')
 <script>
     $(function() {
-        $('body').on('click', '#btn-reject', function(e) {
+        $('body').on('click', '#btn-for-revision', function(e) {
             e.preventDefault();
-            var status = 'rejected';
+            var status = 'for revision';
             $('body').find('#status').val(status);
             $('#'+$(this).attr('form')).submit();
         });
