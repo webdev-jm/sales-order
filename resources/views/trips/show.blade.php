@@ -26,14 +26,8 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Trip Details</h1>
-        @if(empty($trip->status))
-            <button type="button" class="btn btn-secondary">FOR APPROVAL</button>
-        @elseif($trip->status == 'approved')
-            <button type="button" class="btn btn-success">APPROVED</button>
-        @elseif($trip->status == 'rejected')
-        <button type="button" class="btn btn-danger">REJECTED</button>
-        @endif
+        <h1>TRIP DETAILS</h1>
+        <button type="button" class="btn bg-{{$status_arr[$trip->status]}}">{{strtoupper($trip->status)}}</button>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('trip.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>BACK</a>
@@ -43,7 +37,8 @@
 
 @section('content')
 <div class="row">
-    <div class="col-lg-6">
+
+    <div class="col-lg-7">
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">TRIP DETAILS</h3>
@@ -139,26 +134,97 @@
                                 <textarea class="form-control" name="remarks" form="approve_trip"></textarea>
                             </div>
                         </div>
+
                     </div>
-                    
-                    @if($trip->status == 'submitted')
-                        <button class="btn btn-warning" type="button" form="approve_trip" id="btn-for-revision">
+
+                    {{-- for immediate supervisor --}}
+                    @if($trip->source != 'trip-add' && $trip->status == 'submitted')
+                        @if(!empty($supervisor_ids) && in_array(auth()->user()->id, $supervisor_ids))
+                            <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="for revision">
+                                <i class="fa fa-times-circle mr-1"></i>
+                                FOR REVISION
+                            </button>
+
+                            <button class="btn btn-primary" type="button" form="approve_trip" id="btn-approval" data-status="approved by imm. superior">
+                                <i class="fa fa-check-circle mr-1"></i>
+                                APPROVE BY IMM. SUPERIOR
+                            </button>
+                        @endif
+                    @endif
+
+                    {{-- for admin --}}
+                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved'))
+                        @if(!empty($admin) && $admin->id == auth()->user()->id)
+                            <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="returned">
+                                <i class="fa fa-times-circle mr-1"></i>
+                                RETURN
+                            </button>
+
+                            <button class="btn btn-primary" type="button" form="approve_trip" id="btn-approval" data-status="for approval">
+                                <i class="fa fa-check-circle mr-1"></i>
+                                FOR APPROVAL
+                            </button>
+                        @endif
+                    @endif
+
+                    {{-- for finance approver --}}
+                    @if($trip->status == 'for approval' && auth()->user()->can('trip finance approver'))
+                        <button class="btn bg-orange" type="button" form="approve_trip" id="btn-approval" data-status="rejected by finance">
                             <i class="fa fa-times-circle mr-1"></i>
-                            FOR REVISION
+                            REJECT
                         </button>
 
-                        <button class="btn btn-primary" type="button" form="approve_trip" id="btn-approve">
+                        <button class="btn btn-primary" type="button" form="approve_trip" id="btn-approval" data-status="approved by finance">
                             <i class="fa fa-check-circle mr-1"></i>
                             APPROVE
                         </button>
                     @endif
-
+                    
                 @endcan
             </div>
         </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-5">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">ATTACHMENTS</h3>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>ATTACHMENT</label>
+                            <input type="file" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>TITLE</label>
+                            <input type="text" class="form-control" placeholder="Title">
+                        </div>
+                    </div>
+
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label>DESCRIPTION</label>
+                            <textarea class="form-control" placeholder="Description"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="card-footer text-right">
+                <button class="btn btn-primary">
+
+                </button>
+            </div>
+        </div>
+
         <div class="card card-primary card-outline">
             <div class="card-header">
                 <h3 class="card-title">APPROVALS</h3>
@@ -219,16 +285,9 @@
 @section('js')
 <script>
     $(function() {
-        $('body').on('click', '#btn-for-revision', function(e) {
+        $('body').on('click', '#btn-approval', function(e) {
             e.preventDefault();
-            var status = 'for revision';
-            $('body').find('#status').val(status);
-            $('#'+$(this).attr('form')).submit();
-        });
-
-        $('body').on('click', '#btn-approve', function(e) {
-            e.preventDefault();
-            var status = 'approved';
+            var status = $(this).data('status');
             $('body').find('#status').val(status);
             $('#'+$(this).attr('form')).submit();
         });
