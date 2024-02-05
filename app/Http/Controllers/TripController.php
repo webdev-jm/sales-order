@@ -12,8 +12,10 @@ use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\UserBranchSchedule;
 use App\Models\Department;
+use App\Models\DepartmentStructure;
 
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\TripReturned;
 use App\Notifications\TripApproved;
 use App\Notifications\TripRejected;
 
@@ -169,11 +171,6 @@ class TripController extends Controller
     }
 
     public function show($id) {
-        $status_arr = [
-            'submitted' => 'info',
-            'approved' => 'success',
-            'rejected' => 'danger',
-        ];
 
         $trip = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')->findOrFail($id);
 
@@ -194,11 +191,38 @@ class TripController extends Controller
             $approval_data[$data->date] = $approvals;
         }
 
+        $user = $trip->user;
+        $department = $user->department;
+        $supervisor_ids = array();
+        $admin = NULL;
+        if(!empty($department)) {
+            // get admin
+            $admin = $department->department_admin;
+            // get supervisor
+            $structures = DepartmentStructure::where('department_id', $department->id)
+                ->where('user_id', $user->id)
+                ->get();
+                
+            foreach($structures as $structure) {
+                $reports_to_ids = explode(',', $structure);
+                $supervisors = DepartmentStructure::whereIn('id', $reports_to_ids)
+                    ->get();
+
+                foreach($supervisors as $visor) {
+                    if(!in_array($visor->user_id, $supervisor_ids)) {
+                        $supervisor_ids[] = $visor->user_id;
+                    }
+                }
+            }
+        }
+
         return view('trips.show')->with([
             'trip' => $trip,
             'approval_dates' => $approval_dates,
             'approvals' => $approval_data,
-            'status_arr' => $status_arr,
+            'status_arr' => $this->status_arr,
+            'supervisor_ids' => $supervisor_ids,
+            'admin' => $admin
         ]);
     }
 
@@ -226,49 +250,37 @@ class TripController extends Controller
             'remarks' => $request->remarks
         ]);
         $approval->save();
-
-        if($trip->source == 'activity-plan') {
-            if($request->status == 'approved') {
-                $detail = $trip->activity_plan_detail;
-                $activity_plan = $detail->activity_plan;
-                
-                // convert to schedules
-                $schedule = UserBranchSchedule::updateOrInsert([
-                    'user_id' => $activity_plan->user_id,
-                    'branch_id' => $detail->branch_id,
-                    'date' => $detail->date,
-                    'activity_plan_detail_trip_id' => $trip->id,
-                ], [
-                    'status' => NULL,
-                    'objective' => $detail->activity,
-                    'source' => 'activity-plan',
-                ]);
+        
+        // for revision
+        // approved by imm. superior
+        // returned
+        if($trip->status == 'returned') {
+            Notification::send($trip->user, new TripReturned($trip));
+        }
+        // for approval
+        if($trip->status == 'for approval') {
+            // get trip request finance approver
+            $permission = Permission::where('name', 'trip finance approve')->first();
+            $users_arr = $permission->users;
+            $users[] = $trip->user;
+            foreach($users_arr as $user) {
+                $users[] = $user;
             }
 
-            $user = $activity_plan->user;
-        } else {
-            $user = $trip->schedule->user;
+            foreach($users as $user) {
+                if($user->id != auth()->user()->id) {
+                    Notification::send($user, new TripForApproval($trip));
+                }
+            }
         }
+        // approved by finance
+        // rejected by finance
 
-        if($request->status == 'approved') {
-            // logs
-            activity('update')
-                ->performedOn($trip)
-                ->withProperties($changes_arr)
-                ->log(':causer.firstname :causer.lastname has approved trip [ :subject.trip_number ].');
-
-            // notifications
-            Notification::send($user, new TripApproved($trip));
-        } else {
-            // logs
-            activity('update')
-                ->performedOn($trip)
-                ->withProperties($changes_arr)
-                ->log(':causer.firstname :causer.lastname has rejected trip [ :subject.trip_number ].');
-
-            // notifications
-            Notification::send($user, new TripRejected($trip));
-        }
+        // logs
+        activity('update')
+            ->performedOn($trip)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated trip [ :subject.trip_number ].');
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been '.$request->status.'.'
