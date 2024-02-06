@@ -42,4 +42,8 @@ class ActivityPlanDetailTrip extends Model
     public function user() {
         return $this->belongsTo('App\Models\User');
     }
+
+    public function attachments() {
+        return $this->hasMany('App\Models\ActivityPlanDetailTripAttachment');
+    }
 }

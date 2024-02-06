@@ -56,7 +56,7 @@ class TripReturned extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Your trip ticket has been returned to you!')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line('Your trip request with code ['.$this->trip->trip_number.'], scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', has been returned by '.auth()->user()->fullName().'and is currently awaiting revision.')
+            ->line('Your trip request with code ['.$this->trip->trip_number.'], scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', has been returned by '.auth()->user()->fullName().' and is currently awaiting revision.')
             ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
@@ -75,7 +75,7 @@ class TripReturned extends Notification
             'module' => 'Trip',
             'status' => 'returned',
             'status_code' => 'secondary',
-            'message' => 'Your trip request with code ['.$this->trip->trip_number.'], scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', has been returned by '.auth()->user()->fullName().'and is currently awaiting revision.',
+            'message' => 'Your trip request with code ['.$this->trip->trip_number.'], scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)).', has been returned by '.auth()->user()->fullName().' and is currently awaiting revision.',
             'color' => 'secondary',
             'url' => url('/trip/'.$this->trip->id)
         ];

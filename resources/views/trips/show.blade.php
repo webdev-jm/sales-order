@@ -121,6 +121,26 @@
                     </div>
                         
                 </div>
+
+                @if(!empty($trip->attachments))
+                    <hr>
+                    <label>ATTACHMENTS</label>
+                    <div class="row">
+                        @foreach($trip->attachments as $attachment)
+                            <div class="col-lg-6">
+                                <div class="card card-primary card-outline">
+                                    <div class="card-header">
+                                        <h3 class="card-title">{{$attachment->title}}</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <a href="{{asset('storage/uploads/trip-attachments/'.$trip->id.'/'.$attachment->url)}}" target="_blank">{{$attachment->url}}</a>
+                                        <p class="mb-0">{{$attachment->description}}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
             <div class="card-footer text-right">
                 @if(auth()->user()->can('trip approve') && $trip->status != 'approved' && $trip->status != 'rejected')
@@ -186,44 +206,53 @@
     </div>
 
     <div class="col-lg-5">
-        <div class="card card-primary card-outline">
-            <div class="card-header">
-                <h3 class="card-title">ATTACHMENTS</h3>
-            </div>
-            <div class="card-body">
+        @if((($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior')) && auth()->user()->can('trip attachment'))
+            <div class="card card-primary card-outline">
+                <div class="card-header">
+                    <h3 class="card-title">ATTACHMENTS</h3>
+                </div>
+                <div class="card-body">
 
-                <div class="row">
+                    {!! Form::open(['method' => 'POST', 'route' => ['trip.attachment', $trip->id], 'enctype' => 'multipart/form-data', 'id' => 'trip_attach']) !!}
+                    {!! Form::close() !!}
 
-                    <div class="col-lg-12">
-                        <div class="form-group">
-                            <label>ATTACHMENT</label>
-                            <input type="file" class="form-control">
+                    <div class="row">
+
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                {!! Form::label('attachment_file', 'FILE') !!}
+                                {!! Form::file('attachment_file', ['class' => 'form-control'.($errors->has('attachment_file') ? ' is-invalid' : ''), 'accept' => '.pdf, .doc, .docx, .xls, .xlsx, image/*', 'form' => 'trip_attach']) !!}
+                                <p class="text-danger">{{$errors->first('trip_attach')}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-lg-12">
-                        <div class="form-group">
-                            <label>TITLE</label>
-                            <input type="text" class="form-control" placeholder="Title">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                {!! Form::label('title', 'TITLE') !!}
+                                {!! Form::text('title', '', ['class' => 'form-control'.($errors->has('title') ? ' is-invalid' : ''), 'placeholder' => 'Title', 'form' => 'trip_attach']) !!}
+                                <p class="text-danger">{{$errors->first('title')}}</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-lg-12">
-                        <div class="form-group">
-                            <label>DESCRIPTION</label>
-                            <textarea class="form-control" placeholder="Description"></textarea>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                {!! Form::label('description', 'DESCRIPTION') !!}
+                                {!! Form::textarea('description', '', ['class' => 'form-control'.($errors->has('description') ? ' is-invalid' : ''), 'placeholder' => 'Description', 'rows' => 3, 'form' => 'trip_attach']) !!}
+                                <p class="text-danger">{{$errors->first('description')}}</p>
+                            </div>
                         </div>
+
                     </div>
 
                 </div>
-
+                <div class="card-footer text-right">
+                    <button class="btn btn-primary" type="submit" form="trip_attach">
+                        <i class="fa fa-plus mr-1"></i>
+                        ADD ATTACHMENT
+                    </button>
+                </div>
             </div>
-            <div class="card-footer text-right">
-                <button class="btn btn-primary">
-
-                </button>
-            </div>
-        </div>
+        @endif
 
         <div class="card card-primary card-outline">
             <div class="card-header">
