@@ -7,18 +7,24 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+use App\Http\Traits\GlobalTrait;
+
 class TripApprovedSuperior extends Notification
 {
     use Queueable;
+    use GlobalTrait;
+
+    public $trip;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($trip)
     {
-        //
+        $this->afterCommit();
+        $this->trip = $trip;
     }
 
     /**
@@ -29,7 +35,13 @@ class TripApprovedSuperior extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        $setting = $this->getSettings();
+
+        if($setting->email_sending) {
+            return ['mail', 'database'];
+        } else {
+            return ['database'];
+        }
     }
 
     /**
@@ -41,9 +53,12 @@ class TripApprovedSuperior extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
+            ->subject('Trip request has been approved by immediate superior.')
+            ->greeting('Hello! '.$notifiable->fullName())
+            ->line('Trip request with code ['.$this->trip->trip_code.'] has been approved by '.auth()->user()->fullName().'.')
+            ->action('View Details', url('/trip/'.$this->trip->id))
+            ->line('Thank you for using our application!');
     }
 
     /**
@@ -55,7 +70,14 @@ class TripApprovedSuperior extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+            'id' => $this->trip->id,
+            'date' => $this->trip->departure,
+            'module' => 'Trip',
+            'status' => 'approved by imm. superior',
+            'status_code' => 'primary',
+            'message' => 'Trip request with code ['.$this->trip->trip_code.'] has been approved by '.auth()->user()->fullName().'.',
+            'color' => 'primary',
+            'url' => url('/trip/'.$this->trip->id)
         ];
     }
 }

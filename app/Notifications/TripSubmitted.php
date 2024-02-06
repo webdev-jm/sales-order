@@ -71,7 +71,7 @@ class TripSubmitted extends Notification
     {
         return [
             'id' => $this->trip->id,
-            'date' => $this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date,
+            'date' => $this->trip->departure,
             'module' => 'Trip',
             'status' => 'submitted',
             'status_code' => 'secondary',
