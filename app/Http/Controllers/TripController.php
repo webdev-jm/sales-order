@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\TripForRevision;
 use App\Notifications\TripApprovedSuperior;
 use App\Notifications\TripReturned;
+use App\Notifications\TripForApproval;
 use App\Notifications\TripApproved;
 use App\Notifications\TripRejected;
 
@@ -234,15 +235,22 @@ class TripController extends Controller
     public function submitApprove(Request $request, $id) {
         $request->validate([
             'status' => 'required',
+            'amount' => [
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->status == 'for approval' && empty($value)) {
+                        $fail('Amount is required when status is "for approval".');
+                    }
+                }
+            ]
         ]);
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
-
         $changes_arr['old'] = $trip->getOriginal();
-        
+
         // update status
         $trip->update([
-            'status' => $request->status
+            'status' => $request->status,
+            'amount' => $request->amount ?? $trip->amount,
         ]);
 
         $changes_arr['changes'] = $trip->getChanges();

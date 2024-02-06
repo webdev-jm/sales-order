@@ -122,7 +122,7 @@
                         
                 </div>
 
-                @if(!empty($trip->attachments))
+                @if(!empty($trip->attachments->count()))
                     <hr>
                     <label>ATTACHMENTS</label>
                     <div class="row">
@@ -143,7 +143,7 @@
                 @endif
             </div>
             <div class="card-footer text-right">
-                @if(auth()->user()->can('trip approve') && $trip->status != 'approved' && $trip->status != 'rejected')
+                @if($trip->status != 'returned' && $trip->status != 'for revision' && $trip->status != 'rejected by finance' && $trip->status != 'approved by finance')
                     {!! Form::open(['method' => 'POST', 'route' => ['trip.submit-approve', $trip->id], 'id' => 'approve_trip']) !!}
                         <input type="hidden" name="status" id="status" form="approve_trip">
                     {!! Form::close() !!}
@@ -173,8 +173,15 @@
                     @endif
 
                     {{-- for admin --}}
-                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved'))
+                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior'))
                         @if(!empty($admin) && $admin->id == auth()->user()->id)
+                            <div class="row">
+                                <div class="col-lg-6 text-left">
+                                    <label for="amount">AMOUNT</label>
+                                    <input type="number" class="form-control" placeholder="Amount" form="approve_trip">
+                                </div>
+                            </div>
+
                             <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="returned">
                                 <i class="fa fa-times-circle mr-1"></i>
                                 RETURN
@@ -199,8 +206,7 @@
                             APPROVE
                         </button>
                     @endif
-                    
-                @endcan
+                @endif
             </div>
         </div>
     </div>

@@ -93,7 +93,7 @@ class TripCreate extends Component
         // get user department admin for notfication
         $department = auth()->user()->department;
         if(!empty($department)) {
-            $admin = $department->department_head;
+            $admin = $department->department_admin;
             if(!empty($admin) && $admin->id != auth()->user()->id) {
                 Notification::send($admin, new TripSubmitted($trip));
             }
