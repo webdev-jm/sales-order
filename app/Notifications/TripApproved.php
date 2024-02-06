@@ -54,9 +54,9 @@ class TripApproved extends Notification
     {
         return (new MailMessage)
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
-            ->subject('Trip has been approved')
+            ->subject('Trip has been approved by finance')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line(auth()->user()->fullName().' has approved trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)))
+            ->line(auth()->user()->fullName().' has approved trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)))
             ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
@@ -71,11 +71,11 @@ class TripApproved extends Notification
     {
         return [
             'id' => $this->trip->id,
-            'date' => $this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date,
+            'date' => $this->trip->departure,
             'module' => 'Trip',
             'status' => 'approved',
             'status_code' => 'success',
-            'message' => auth()->user()->fullName().' has approved trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->source == 'activity-plan' ? $this->trip->activity_plan_detail->date : $this->trip->schedule->date)),
+            'message' => auth()->user()->fullName().' has approved trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)),
             'color' => 'success',
             'url' => url('/trip/'.$this->trip->id)
         ];

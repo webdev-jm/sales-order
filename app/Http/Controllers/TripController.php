@@ -15,6 +15,8 @@ use App\Models\Department;
 use App\Models\DepartmentStructure;
 
 use Illuminate\Support\Facades\Notification;
+use App\Notifications\TripForRevision;
+use App\Notifications\TripApprovedSuperior;
 use App\Notifications\TripReturned;
 use App\Notifications\TripApproved;
 use App\Notifications\TripRejected;
@@ -76,7 +78,7 @@ class TripController extends Controller
                     $users_ids[] = $user->id;
                 }
             }
-            $users_ids = array_unique($user_ids);
+            $users_ids = array_unique($users_ids);
 
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
                 ->where(function($query) use($users_ids) {
@@ -250,9 +252,43 @@ class TripController extends Controller
             'remarks' => $request->remarks
         ]);
         $approval->save();
+
+        $user = $trip->user;
+        $department = $user->department;
+        $supervisor_ids = array();
+        $admin = NULL;
+        if(!empty($department)) {
+            // get admin
+            $admin = $department->department_admin;
+            // get supervisor
+            $structures = DepartmentStructure::where('department_id', $department->id)
+                ->where('user_id', $user->id)
+                ->get();
+                
+            foreach($structures as $structure) {
+                $reports_to_ids = explode(',', $structure);
+                $supervisors = DepartmentStructure::whereIn('id', $reports_to_ids)
+                    ->get();
+
+                foreach($supervisors as $visor) {
+                    if(!in_array($visor->user_id, $supervisor_ids)) {
+                        $supervisor_ids[] = $visor->user_id;
+                    }
+                }
+            }
+        }
         
         // for revision
+        if($trip->status == 'for revision') {
+            Notification::send($user, new TripForRevision($trip));
+        }
         // approved by imm. superior
+        if($trip->status == 'approved by imm. superior') {
+            Notification::send($user, new TripApprovedSuperior($trip));
+            if(!empty($admin)) {
+                Notification::send($admin, new TripApprovedSuperior($trip));
+            }
+        }
         // returned
         if($trip->status == 'returned') {
             Notification::send($trip->user, new TripReturned($trip));
@@ -274,7 +310,33 @@ class TripController extends Controller
             }
         }
         // approved by finance
+        if($trip->status == 'approved by finance') {
+            Notification::send($user, new TripApproved($trip));
+            if(!empty($admin)) {
+                Notification::send($admin, new TripApproved($trip));
+            }
+            if(!empty($supervisor_ids)) {
+                foreach($supervisor_ids as $user_id) {
+                    $superior = User::findOrFail($user_id);
+                    if(!empty($superior)) {
+                        Notification::send($superior, new TripApproved($trip));
+                    }
+                }
+            }
+        }
         // rejected by finance
+        if($trip->status == 'rejected by finance') {
+            Notification::send($user, new TripRejected($trip));
+            if(!empty($admin)) {
+                Notification::send($admin, new TripRejected($trip));
+            }
+            if(!empty($supervisor_ids)) {
+                foreach($supervisor_ids as $user_id) {
+                    $superior = User::findOrFail($user_id);
+                    Notification::send($superior, new TripRejected($trip));
+                }
+            }
+        }
 
         // logs
         activity('update')
