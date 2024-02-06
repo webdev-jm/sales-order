@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripAttachment;
 use App\Models\UserBranchSchedule;
 use App\Models\Department;
 use App\Models\DepartmentStructure;
+
+use Spatie\Permission\Models\Permission;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TripReturned;
@@ -260,7 +263,7 @@ class TripController extends Controller
         // for approval
         if($trip->status == 'for approval') {
             // get trip request finance approver
-            $permission = Permission::where('name', 'trip finance approve')->first();
+            $permission = Permission::where('name', 'trip finance approver')->first();
             $users_arr = $permission->users;
             $users[] = $trip->user;
             foreach($users_arr as $user) {
@@ -390,6 +393,47 @@ class TripController extends Controller
 
         return view('trips.edit')->with([
             'trip' => $trip
+        ]);
+    }
+
+    public function attach(Request $request, $id) {
+        // validate form data
+        $request->validate([
+            'attachment_file' => [
+                'required',
+                'file',
+                'mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png,gif',
+            ],
+            'title' => [
+                'required',
+            ],
+            'description' => [
+                'max:1500'
+            ]
+        ]);
+        
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        // make directory if do not exist
+        $file = $request->file('attachment_file');
+        $filename = time().'-'.$file->getClientOriginalName();
+        $file->storeAs('uploads/trip-attachments/'.$trip->id, $filename, 'public');
+
+        $trip_attachment = new ActivityPlanDetailTripAttachment([
+            'activity_plan_detail_trip_id' => $trip->id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'url' => $filename
+        ]);
+        $trip_attachment->save();
+
+        // logs
+        activity('create')
+            ->performedOn($trip)
+            ->log(':causer.firstname :causer.lastname has added an attachment to trip :subject.trip_number');
+
+        return back()->with([
+            'message_success' => 'Attachment has been added.'
         ]);
     }
 }

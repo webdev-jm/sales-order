@@ -153,7 +153,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('trip/{id}/approve', [TripController::class, 'submitApprove'])->name('trip.submit-approve')->middleware('permission:trip approve');
         Route::get('trip/{id}/reject', [TripController::class, 'reject'])->name('trip.reject')->middleware('permission:trip approve');
 
-        
+        Route::post('trip/{id}/attach', [TripController::class, 'attach'])->name('trip.attachment')->middleware('permission:trip attachment');
     });
 
     Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');
