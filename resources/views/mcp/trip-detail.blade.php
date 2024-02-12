@@ -226,11 +226,13 @@
                             <br>
                             <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
                         </td>
-                        <td class="border-0 border-left">
-                            <span class="text-muted">RETURN</span>
-                            <br>
-                            <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
-                        </td>
+                        @if($trip->type == 'round_trip')
+                            <td class="border-0 border-left">
+                                <span class="text-muted">RETURN</span>
+                                <br>
+                                <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
+                            </td>
+                        @endif
                         <td class="border-0  border-left">
                             <span class="text-muted">PASSENGER/S</span>
                             <br>
