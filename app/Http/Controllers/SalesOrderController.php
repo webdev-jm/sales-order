@@ -179,7 +179,7 @@ class SalesOrderController extends Controller
         
         $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
-            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' days'));
+            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' weekdays'));
         }
 
         return view('sales-orders.create')->with([
@@ -257,7 +257,7 @@ class SalesOrderController extends Controller
 
         $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
-            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' days'));
+            $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' weekdays'));
         }
 
         return view('sales-orders.create')->with([
