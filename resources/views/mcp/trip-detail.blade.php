@@ -210,9 +210,9 @@
                             <strong>{{$trip->activity_plan_detail->branch->branch_code}} - {{$trip->activity_plan_detail->branch->branch_name}}</strong>
                         </td>
                         <td class="border-0 border-left w33">
-                            <span class="text-muted">DATE</span>
+                            <span class="text-muted">TRIP TYPE</span>
                             <br>
-                            <strong>{{date('m/d/Y', strtotime($trip->activity_plan_detail->date))}}</strong>
+                            <strong>{{strtoupper(str_replace('_', ' ', $trip->trip_type))}}</strong>
                         </td>
                     </tr>
                     <tr>
@@ -224,24 +224,37 @@
                         <td class="border-0">
                             <span class="text-muted">DEPARTURE</span>
                             <br>
-                            <strong>{{strtoupper($trip->departure)}}</strong>
+                            <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
                         </td>
-                        <td class="border-0 border-left">
-                            <span class="text-muted">ARRIVAL</span>
-                            <br>
-                            <strong>{{$trip->arrival}}</strong>
-                        </td>
-                        @if(!empty($trip->reference_number))
+                        @if($trip->type == 'round_trip')
                             <td class="border-0 border-left">
-                                <span class="text-muted">REFERENCE NUMBER</span>
+                                <span class="text-muted">RETURN</span>
                                 <br>
-                                <strong>{{$trip->reference_number}}</strong>
-                            </td>
-                        @else
-                            <td class="border-0">
-
+                                <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
                             </td>
                         @endif
+                        <td class="border-0  border-left">
+                            <span class="text-muted">PASSENGER/S</span>
+                            <br>
+                            <strong>{{$trip->passenger}}</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="border-0">
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="border-0">
+                            <span class="text-muted">FROM</span>
+                            <br>
+                            <strong>{{strtoupper($trip->from)}}</strong>
+                        </td>
+                        <td class="border-0 border-left">
+                            <span class="text-muted">TO</span>
+                            <br>
+                            <strong>{{$trip->to}}</strong>
+                        </td>
                     </tr>
                 </tbody>
             </table>
