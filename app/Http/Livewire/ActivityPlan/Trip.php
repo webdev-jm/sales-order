@@ -9,15 +9,47 @@ use App\Models\ActivityPlanDetailTrip;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
 
+use Carbon\Carbon;
+
 class Trip extends Component
 {
     public $year, $month, $date, $key;
     public $trip_number;
-    public $departure, $arrival, $reference_number, $transportation_type;
+    public $from, $to, $departure, $return, $passenger;
+    public $type;
+    public $form_error;
 
     protected $listeners = [
         'setTrip' => 'setTrip'
     ];
+
+    public function changeType($type) {
+        $this->type = $type;
+    }
+
+    public function switch() {
+        $from = $this->from;
+        $to = $this->to;
+        $this->from = $to;
+        $this->to = $from;
+    }
+
+    private function validateDate() {
+        if (!empty($this->departure)) {
+            $currentDate = Carbon::today();
+            $departureDate = Carbon::parse($this->departure);
+            if($departureDate->diffInDays($currentDate) < 14) {
+                // Show a note for the user
+                $this->form_error = 'The date provided should be at least two weeks in advance to facilitate ticket processing.';
+            } else {
+                $this->reset('form_error');
+            }
+        }
+    }
+
+    public function updatedDeparture() {
+        $this->validateDate();
+    }
 
     public function setTrip($year, $month, $date, $key) {
         $this->year = $year;
@@ -25,18 +57,24 @@ class Trip extends Component
         $this->date = $date;
         $this->key = $key;
 
-        $this->reset('departure', 'arrival', 'reference_number', 'trip_number', 'transportation_type');
+        $this->reset('type', 'from', 'to', 'departure', 'return', 'passenger', 'trip_number');
+
+        $this->type = 'one_way';
+        $this->passenger = 1;
+
         
         // check data from session
         $activity_plan_data = Session::get('activity_plan_data');
         if(!empty($activity_plan_data)) {
             if(isset($activity_plan_data[$this->year]['details'][$this->month][$this->date]['lines'][$this->key]['trip'])) {
                 $trip_data = $activity_plan_data[$this->year]['details'][$this->month][$this->date]['lines'][$this->key]['trip'];
+                $this->type = $trip_data['type'] ?? 'one_way';
                 $this->trip_number = $trip_data['trip_number'] ?? '';
+                $this->from = $trip_data['from'] ?? '';
+                $this->to = $trip_data['to'] ?? '';
                 $this->departure = $trip_data['departure'] ?? '';
-                $this->arrival = $trip_data['arrival'] ?? '';
-                $this->reference_number = $trip_data['reference_number'] ?? '';
-                $this->transportation_type = $trip_data['transportation_type'] ?? '';
+                $this->return = $trip_data['return'] ?? '';
+                $this->passenger = $trip_data['passenger'] ?? '';
             }
         }
 
@@ -67,23 +105,55 @@ class Trip extends Component
 
     public function updateSession() {
         $this->validate([
+            'from' => [
+                'required'
+            ],
+            'to' => [
+                'required'
+            ],
             'departure' => [
-                'required'
+                'required',
+                function ($attribute, $value, $fail) {
+                    $currentDate = Carbon::today();
+                    $departureDate = Carbon::parse($value);
+
+                    if($currentDate > $departureDate) {
+                        $fail('Ensure that the departure date is set after the current date.');
+                    }
+                }
             ],
-            'arrival' => [
-                'required'
+            'return' => [
+                function ($attribute, $value, $fail) {
+                    if ($this->type == 'round_trip' && empty($value)) {
+                        $fail('The return field is required for round trips.');
+                    }
+
+                    $currentDate = Carbon::today();
+                    $departureDate = Carbon::parse($this->departure);
+                    $returnDate = Carbon::parse($value);
+                    if($currentDate > $departureDate) {
+                        $fail('Ensure that the departure date is set after the current date.');
+                    }
+
+                    if(!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
+                        $fail('The return date must be on or before the departure date.');
+                    }
+                }
             ],
-            'transportation_type' => [
+            'passenger' => [
                 'required'
             ]
         ]);
 
         $trip_arr = [
+            'type' => $this->type,
             'trip_number' => $this->trip_number,
+            'from' => $this->from,
+            'to' => $this->to,
             'departure' => $this->departure,
-            'arrival' => $this->arrival,
-            'reference_number' => $this->reference_number ?? '',
-            'transportation_type' => $this->transportation_type ?? '',
+            'return' => $this->return ?? '',
+            'passenger' => $this->passenger,
+            'transportation_type' => 'AIR',
         ];
 
         $activity_plan_data = Session::get('activity_plan_data');

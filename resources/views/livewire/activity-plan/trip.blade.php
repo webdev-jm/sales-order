@@ -7,6 +7,15 @@
             </div>
         </div>
         <div class="modal-body">
+            @if(!empty($form_error))
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-warning">
+                            <b>NOTE:</b> {{$form_error}}
+                        </div>
+                    </div>
+                </div>
+            @enderror
 
             <div class="row">
                 <div class="col-12">
@@ -16,42 +25,67 @@
 
             <div class="row">
 
+                <div class="col-12 mb-2">
+                    <button class="btn {{$type == 'one_way' ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="changeType('one_way')">
+                        ONE WAY
+                    </button>
+                    <button class="btn {{$type == 'round_trip' ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="changeType('round_trip')">
+                        ROUND TRIP
+                    </button>
+                </div>
+
+                <div class="col-lg-12 row mb-2">
+                    <div class="col-4">
+                        <div class="input-group">
+                            <input type="number" class="form-control{{$errors->has('passenger') ? ' is-invalid' : ''}}" placeholder="Passenger/s" wire:model="passenger">
+                            <div class="input-group-append">
+                                <div class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-danger mb-0">{{$errors->first('passenger')}}</p>
+                    </div>
+                    <div class="col-2">
+                        <button id="switch" class="btn btn-info" wire:click="switch">
+                            <i class="fa fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="col-lg-6">
                     <div class="form-group">
-                        <label>Departure <i class="fa fa-plane-departure text-primary"></i></label>
-                        <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model.lazy="departure">
+                        <label>FROM <i class="fa fa-plane-departure text-primary"></i></label>
+                        <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="From" wire:model="from">
+                        <p class="text-danger">{{$errors->first('from')}}</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label>TO <i class="fa fa-plane-arrival text-primary"></i></label>
+                        <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="To" wire:model="to">
+                        <p class="text-danger">{{$errors->first('to')}}</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="form-group">
+                        <label for="departure">DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
+                        <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model="departure">
                         <p class="text-danger">{{$errors->first('departure')}}</p>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
-                    <div class="form-group">
-                        <label>Arrival <i class="fa fa-plane-arrival text-primary"></i></label>
-                        <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model.lazy="arrival">
-                        <p class="text-danger">{{$errors->first('arrival')}}</p>
+                @if($type == 'round_trip')
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="departure">RETURN<i class="fa fa-calendar-alt ml-1"></i></label>
+                            <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model="return">
+                            <p class="text-danger">{{$errors->first('return')}}</p>
+                        </div>
                     </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="form-group">
-                        <label>Transportation Type</label>
-                        <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model="transportation_type">
-                            <option value="" selected="selected">Select transportation type</option>
-                            @foreach($transportation_types as $type)
-                                <option value="{{$type}}">{{$type}}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-danger">{{$errors->first('transportation_type')}}</p>
-                    </div>
-                </div>
-
-                <div class="col-lg-6">
-                    <div class="form-group">
-                        <label>Reference Number</label>
-                        <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number" wire:model.lazy="reference_number">
-                        <p class="text-danger">{{$errors->first('reference_number')}}</p>
-                    </div>
-                </div>
+                @endif
 
             </div>
 
