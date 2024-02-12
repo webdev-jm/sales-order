@@ -202,17 +202,22 @@ class ActivityPlanController extends Controller
                                             ]);
                                             $activity_plan_detail->save();
         
-                                            // check there's trip data
+                                            // check if there's trip data
                                             if(isset($val['trip']) && !empty($val['trip'])) {
                                                 $trip_data = $val['trip'];
+
                                                 $activity_plan_detail_trip = new ActivityPlanDetailTrip([
                                                     'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                    'user_id' => auth()->user()->id,
                                                     'trip_number' => $trip_data['trip_number'],
+                                                    'from' => $trip_data['from'],
+                                                    'to' => $trip_data['to'],
                                                     'departure' => $trip_data['departure'],
-                                                    'arrival' => $trip_data['arrival'],
-                                                    'reference_number' => $trip_data['reference_number'] ?? '',
-                                                    'transportation_type' => $trip_data['transportation_type'],
+                                                    'return' => $trip_data['return'],
+                                                    'passenger' => $trip_data['passenger'],
+                                                    'trip_type' => $trip_data['type'],
                                                     'source' => 'activity-plan',
+                                                    'transportation_type' => $trip_data['transportation_type'],
                                                 ]);
                                                 $activity_plan_detail_trip->save();
 
@@ -405,10 +410,13 @@ class ActivityPlanController extends Controller
                 if(!empty($detail->trip)) {
                     $trip_data = $detail->trip;
                     $trip = [
+                        'type' => $trip_data->trip_type,
                         'trip_number' => $trip_data->trip_number,
+                        'from' => $trip_data->from,
+                        'to' => $trip_data->to,
                         'departure' => $trip_data->departure,
-                        'arrival' => $trip_data->arrival,
-                        'reference_number' => $trip_data->references_number,
+                        'return' => $trip_data->return,
+                        'passenger' => $trip_data->passenger,
                         'transportation_type' => $trip_data->transportation_type,
                     ];
                 }
@@ -584,20 +592,31 @@ class ActivityPlanController extends Controller
                                     // detail trip
                                     if(isset($val['trip']) && !empty($val['trip'])) {
                                         $trip_data = $val['trip'];
-                                        $trip = ActivityPlanDetailTrip::firstOrNew([
-                                            'activity_plan_detail_id' => $activity_plan_detail->id,
-                                        ],[
+                                        $trip = ActivityPlanDetailTrip::updateOrCreate([
+                                            'activity_plan_detail_id' => $activity_plan_detail->id
+                                        ], [
+                                            'user_id' => $activity_plan->user_id,
                                             'trip_number' => $trip_data['trip_number'],
+                                            'from' => $trip_data['from'],
+                                            'to' => $trip_data['to'],
                                             'departure' => $trip_data['departure'],
-                                            'arrival' => $trip_data['arrival'],
-                                            'reference_number' => $trip_data['reference_number'] ?? '',
+                                            'return' => $trip_data['return'],
+                                            'trip_type' => $trip_data['type'],
+                                            'passenger' => $trip_data['passenger'],
                                             'transportation_type' => $trip_data['transportation_type'],
                                             'source' => 'activity-plan',
+                                            'created_at' => now(),
+                                            'updated_at' => now(),
                                         ]);
+
                                         $trip->save();
 
                                         // add approvals
                                         if($request->status == 'submitted') {
+                                            $trip->update([
+                                                'status' => 'submitted'
+                                            ]);
+
                                             $approval = new ActivityPlanDetailTripApproval([
                                                 'user_id' => auth()->user()->id,
                                                 'activity_plan_detail_trip_id' => $trip->id,

@@ -62,80 +62,63 @@
                                     </h3>
                                 </div>
                             </div>
-
+            
                             <hr>
-
-                            <div class="timeline timeline-inverse">
-                                {{-- DEPARTURE --}}
-                                <div>
-                                    @if($detail->trip->transportation_type == 'AIR')
-                                        <i class="fas fa-plane-departure bg-info"></i>
-                                    @else
-                                        <i class="fas fa-car bg-info"></i>
-                                    @endif
             
-                                    <div class="timeline-item">
-                                        <h3 class="timeline-header border-0"><a href="#">DEPARTURE: </a> <strong class="text-uppercase">{{$detail->trip->departure}}</strong>
-                                        </h3>
-                                    </div>
+                            <div class="row">
+                                <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                    <h1 class="font-weight-bold w-100">{{$detail->trip->from}}</h1>
                                 </div>
-                                {{-- ARRIVAL --}}
-                                <div>
+                                <div class="col-lg-2 text-center align-middle">
                                     @if($detail->trip->transportation_type == 'AIR')
-                                        <i class="fas fa-plane-arrival bg-info"></i>
+                                    <h1 class="trip-icon">
+                                        <i class="fas fa-plane text-primary"></i>
+                                    </h1>
                                     @else
-                                        <i class="fas fa-car-side bg-info"></i>
+                                    <h1 class="trip-icon">
+                                        <i class="fas fa-car text-primary"></i>
+                                    </h1>
                                     @endif
-            
-                                    <div class="timeline-item">
-                                        <h3 class="timeline-header border-0"><a href="#">ARRIVAL: </a> <strong class="text-uppercase">{{$detail->trip->arrival}}</strong>
-                                        </h3>
-                                    </div>
+                                </div>
+                                <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                    <h1 class="font-weight-bold w-100">{{$detail->trip->to}}</h1>
                                 </div>
                             </div>
-
+            
                             <hr>
                             
                             <div class="row">
-                                <div class="col-lg-4 text-center">
+                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                     <strong class="text-muted">NAME</strong>
                                     <br>
-                                    <strong class="text-uppercase text-lg">{{$detail->activity_plan->user->fullName()}}</strong>
+                                    <strong class="text-uppercase text-lg">{{$detail->trip->user->fullName()}}</strong>
                                 </div>
-                                <div class="col-lg-4 text-center">
-                                    <strong class="text-muted">DATE</strong>
+                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                    <strong class="text-muted">DEPARTURE DATE</strong>
                                     <br>
-                                    <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->date))}}</strong>
+                                    <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->trip->departure))}}</strong>
                                 </div>
-                                @if(!empty($detail->trip->reference_number))
-                                    <div class="col-lg-4 text-center">
-                                        <strong class="text-muted">REFERENCE NUMBER</strong>
+                                @if($detail->trip->trip_type == 'round_trip')
+                                    <div class="col-lg-3 text-center">
+                                        <strong class="text-muted">RETURN DATE</strong>
                                         <br>
-                                        <strong class="text-uppercase text-lg">{{$detail->trip->reference_number}}</strong>
+                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->trip->return))}}</strong>
                                     </div>
                                 @endif
+                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                    <strong class="text-muted">TYPE</strong>
+                                    <br>
+                                    <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $detail->trip->trip_type)}}</strong>
+                                </div>
+                                    
                             </div>
                         </div>
                     </div>
-
-                    @if($detail->activity_plan->status == 'approved' && auth()->user()->can('trip approve') && empty($detail->trip->status))
-                        <div class="card mt-2">
-                            <div class="card-header">
-                                <h3 class="card-title">REMARKS</h3>
-                            </div>
-                            <div class="card-body p-0">
-                                <textarea class="form-control border-0" wire:model.lazy="remarks"></textarea>
-                            </div>
-                        </div>
-                    @endif
                 @endif
             @endif
 
         </div>
         <div class="modal-footer text-right">
-            @if(!empty($detail->trip) && $detail->trip->status != 'approved' && $detail->activity_plan->status == 'approved' && auth()->user()->can('trip approve'))
-                <button type="button" class="btn btn-success" wire:click.prevent="approve({{$detail->trip->id}})" wire:loading.attr="disabled">Approve</button>
-            @endif
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
     </div>
