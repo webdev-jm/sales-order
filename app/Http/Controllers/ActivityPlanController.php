@@ -218,6 +218,7 @@ class ActivityPlanController extends Controller
                                                     'trip_type' => $trip_data['type'],
                                                     'source' => 'activity-plan',
                                                     'transportation_type' => $trip_data['transportation_type'],
+                                                    'status' => $request->status == 'submitted'? 'submitted' : NULL,
                                                 ]);
                                                 $activity_plan_detail_trip->save();
 

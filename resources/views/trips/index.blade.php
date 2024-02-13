@@ -78,9 +78,11 @@
                         <td>{{$trip->departure}}</td>
                         <td>{{$trip->return ?? '-'}}</td>
                         <td>
-                            <span class="badge bg-{{$status_arr[$trip->status]}}">
-                                {{$trip->status}}
-                            </span>
+                            @if(!empty($trip->status))
+                                <span class="badge bg-{{$status_arr[$trip->status]}}">
+                                    {{$trip->status}}
+                                </span>
+                            @endif
                         </td>
                         <td class="text-right">
                             <a href="{{route('trip.show', $trip->id)}}" title="view" class=" btn btn-xs btn-primary mr-1">

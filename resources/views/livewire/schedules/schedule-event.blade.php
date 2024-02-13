@@ -22,21 +22,16 @@
                             <div class="card-header">
                                 <h3 class="card-title">
                                     TRIP DETAILS 
-                                    @if($schedule_data->trip->status == 'approved')
-                                        <span class="badge badge-success">APPROVED</span>
-                                    @elseif($schedule_data->trip->source == 'schedule' && empty($schedule_data->trip->status))
-                                        <span class="badge badge-secondary">FOR APPROVAL</span>
-                                    @endif
+                                    <span class="badge bg-{{$status_arr[$schedule_data->trip->status]}}">{{strtoupper($schedule_data->trip->status)}}</span>
                                 </h3>
                                 <div class="card-tools">
                                     @can('trip print')
-                                        @if($schedule_data->trip->status == 'approved')
-                                            <a href="{{route('trip.print', $schedule_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
-                                        @endif
+                                        <a href="{{route('trip.print', $schedule_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
                                     @endcan
                                 </div>
                             </div>
                             <div class="card-body">
+
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
                                         {!! DNS1D::getBarcodeSVG($schedule_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
@@ -59,12 +54,12 @@
                                         </h3>
                                     </div>
                                 </div>
-
+                
                                 <hr>
-
+                
                                 <div class="row">
                                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->departure}}</h1>
+                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->from}}</h1>
                                     </div>
                                     <div class="col-lg-2 text-center align-middle">
                                         @if($schedule_data->trip->transportation_type == 'AIR')
@@ -78,50 +73,36 @@
                                         @endif
                                     </div>
                                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->arrival}}</h1>
+                                        <h1 class="font-weight-bold w-100">{{$schedule_data->trip->to}}</h1>
                                     </div>
                                 </div>
-
+                
                                 <hr>
                                 
                                 <div class="row">
-                                    <div class="col-lg-4 text-center">
+                                    <div class="{{$schedule_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                         <strong class="text-muted">NAME</strong>
                                         <br>
-                                        <strong class="text-uppercase text-lg">{{$schedule_data->user->fullName()}}</strong>
+                                        <strong class="text-uppercase text-lg">{{$schedule_data->trip->user->fullName()}}</strong>
                                     </div>
-                                    <div class="col-lg-4 text-center">
-                                        <strong class="text-muted">DATE</strong>
+                                    <div class="{{$schedule_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">DEPARTURE DATE</strong>
                                         <br>
-                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($date))}}</strong>
+                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($schedule_data->trip->departure))}}</strong>
                                     </div>
-                                    @if($schedule_data->trip->status == 'approved')
-                                        @if(!empty($schedule_data->trip->reference_number) && $reference_number_edit == 0)
-                                            <div class="col-lg-4 text-center">
-                                                <strong class="text-muted">
-                                                    REFERENCE NUMBER
-                                                    @if($schedule_data->trip->transportation_type == 'AIR')
-                                                        <a href="#" class="ml-1" wire:click.prevent="editReference">
-                                                            <i class="fa fa-pen-alt text-success"></i>
-                                                        </a>
-                                                    @endif
-                                                </strong>
-                                                <br>
-                                                <strong class="text-uppercase text-lg">{{$schedule_data->trip->reference_number}}</strong>
-                                            </div>
-                                        @elseif(($schedule_data->trip->transportation_type == 'AIR' && $reference_number_edit == 1) || $schedule_data->trip->transportation_type == 'AIR' && empty($schedule_data->trip->reference_number))
-                                            <div class="col-lg-4 text-center">
-                                                <strong class="text-muted">
-                                                    REFERENCE NUMBER
-                                                    <a href="#" class="ml-1" wire:click.prevent="saveEditReference">
-                                                        <i class="fa fa-check text-primary"></i>
-                                                    </a>
-                                                </strong>
-                                                <br>
-                                                <input type="text" class="form-control" wire:model.lazy="trip_reference_number">
-                                            </div>
-                                        @endif
+                                    @if($schedule_data->trip->trip_type == 'round_trip')
+                                        <div class="col-lg-3 text-center">
+                                            <strong class="text-muted">RETURN DATE</strong>
+                                            <br>
+                                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($schedule_data->trip->return))}}</strong>
+                                        </div>
                                     @endif
+                                    <div class="{{$schedule_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">TYPE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $schedule_data->trip->trip_type)}}</strong>
+                                    </div>
+                                        
                                 </div>
                             </div>
                         </div>
@@ -308,12 +289,12 @@
                             {{-- <button class="btn btn-danger my-1" wire:click.prevent="setAction('delete-request')"><i class="fa fa-trash-alt mr-2"></i>Delete Request</button> --}}
                         @endcan
                         @if($schedule_data->user_id == auth()->user()->id)
-                            @if(empty($schedule_data->trip) && auth()->user()->can('trip create'))
+                            {{-- @if(empty($schedule_data->trip) && auth()->user()->can('trip create'))
                                 <button class="btn btn-primary" wire:click.prevent="setAction('add-trip')">
                                     <i class="fa fa-plane mr-1"></i>
                                     Add Trip
                                 </button>
-                            @endif
+                            @endif --}}
                             <button class="btn btn-info my-1" wire:click.prevent="setAction('sign-in')"><i class="fa fa-sign-in-alt mr-2"></i>Sign In</button>
                         @endif
                     </div>

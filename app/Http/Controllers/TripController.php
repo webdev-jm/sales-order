@@ -31,13 +31,13 @@ class TripController extends Controller
 
     public $setting;
     public $status_arr = [
-        'submitted'             => 'secondary',
-        'for revision'          => 'warning',
-        'approved'              => 'primary',
-        'returned'              => 'danger',
-        'for approval'          => 'info',
-        'approved by finance'   => 'success',
-        'rejected by finance'   => 'orange',
+        'submitted'                 => 'secondary',
+        'for revision'              => 'warning',
+        'approved by imm. superior' => 'primary',
+        'returned'                  => 'danger',
+        'for approval'              => 'info',
+        'approved by finance'       => 'success',
+        'rejected by finance'       => 'orange',
     ];
 
     public function __construct() {
@@ -48,7 +48,7 @@ class TripController extends Controller
         $date = trim($request->get('date'));
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
-
+        
         if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
                 ->when(!empty($date), function($query) use($date) {
@@ -82,6 +82,16 @@ class TripController extends Controller
                     $users_ids[] = $user->id;
                 }
             }
+            // get user subordiates
+            $subordinate_ids = auth()->user()->getSubordinateIds();
+            if(!empty($subordinate_ids)) {
+                foreach($subordinate_ids as $level => $ids) {
+                    foreach($ids as $id) {
+                        $users_ids[] = $id;
+                    }
+                }
+            }
+
             $users_ids = array_unique($users_ids);
 
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
@@ -307,8 +317,12 @@ class TripController extends Controller
         // for approval
         if($trip->status == 'for approval') {
             // get trip request finance approver
-            $permission = Permission::where('name', 'trip finance approver')->first();
-            $users_arr = $permission->users;
+            $users_arr = User::whereHas('roles', function ($query) {
+                $query->whereHas('permissions', function ($subQuery) {
+                    $subQuery->where('name', 'trip finance approver');
+                });
+            })->get();
+
             $users[] = $trip->user;
             foreach($users_arr as $user) {
                 $users[] = $user;

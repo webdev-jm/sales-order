@@ -27,7 +27,9 @@
 <div class="row">
     <div class="col-md-6">
         <h1>TRIP DETAILS</h1>
-        <button type="button" class="btn bg-{{$status_arr[$trip->status]}}">{{strtoupper($trip->status)}}</button>
+        @if(!empty($trip->status))
+            <button type="button" class="btn bg-{{$status_arr[$trip->status]}}">{{strtoupper($trip->status)}}</button>
+        @endif
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('trip.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>BACK</a>
@@ -212,7 +214,7 @@
     </div>
 
     <div class="col-lg-5">
-        @if((($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior')) && auth()->user()->can('trip attachment'))
+        @if((($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior')) && auth()->user()->can('trip attachment') && (!empty($admin) && $admin->id == auth()->user()->id))
             <div class="card card-primary card-outline">
                 <div class="card-header">
                     <h3 class="card-title">ATTACHMENTS</h3>
