@@ -41,6 +41,16 @@ class ScheduleEvent extends Component
     public $trip_reference_number, $reference_number_edit = 0;
     public $trip_number;
     public $departure, $arrival, $reference_number, $transportation_type;
+    
+    public $status_arr = [
+        'submitted'                 => 'secondary',
+        'for revision'              => 'warning',
+        'approved by imm. superior' => 'primary',
+        'returned'                  => 'danger',
+        'for approval'              => 'info',
+        'approved by finance'       => 'success',
+        'rejected by finance'       => 'orange',
+    ];
 
     protected $listeners = [
         'showEvents' => 'setDate'

@@ -56,7 +56,7 @@ class TripApprovedSuperior extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Trip request has been approved by immediate superior.')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line('Trip request with code ['.$this->trip->trip_code.'] has been approved by '.auth()->user()->fullName().'.')
+            ->line('Trip request with code ['.$this->trip->trip_number.'] has been approved by '.auth()->user()->fullName().'.')
             ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
@@ -75,7 +75,7 @@ class TripApprovedSuperior extends Notification
             'module' => 'Trip',
             'status' => 'approved by imm. superior',
             'status_code' => 'primary',
-            'message' => 'Trip request with code ['.$this->trip->trip_code.'] has been approved by '.auth()->user()->fullName().'.',
+            'message' => 'Trip request with code ['.$this->trip->trip_number.'] has been approved by '.auth()->user()->fullName().'.',
             'color' => 'primary',
             'url' => url('/trip/'.$this->trip->id)
         ];

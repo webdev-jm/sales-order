@@ -7,12 +7,15 @@ use Livewire\Component;
 use App\Models\ActivityPlan;
 use App\Models\ActivityPlanApproval;
 use App\Models\UserBranchSchedule;
+use App\Models\ActivityPlanDetailTripApproval;
 
 use Spatie\Permission\Models\Permission;
 
 use Illuminate\Support\Facades\Notification;
-use App\Notifications\ActivityPlanRejected;
 use App\Notifications\ActivityPlanApproved;
+use App\Notifications\ActivityPlanRejected;
+use App\Notifications\TripForRevision;
+use App\Notifications\TripApprovedSuperior;
 use App\Notifications\TripSubmitted;
 
 use App\Models\Reminders;
@@ -61,13 +64,34 @@ class Approval extends Component
         // notification
         $user = $this->activity_plan->user;
         if($status == 'rejected') {
+
+            $details = $this->activity_plan->details;
+            foreach($details as $detail) {
+                if(isset($detail->branch)) {
+                    if(!empty($detail->trip)) {
+                        $detail->trip->update([
+                            'status' => 'for revision'
+                        ]);
+
+                        // trip approval history
+                        $approval = new ActivityPlanDetailTripApproval([
+                            'user_id' => auth()->user()->id,
+                            'activity_plan_detail_trip_id' => $detail->trip->id,
+                            'status' => 'for revision',
+                        ]);
+                        $approval->save();
+
+                        if(!empty($detail->trip->user)) {
+                            Notification::send($detail->trip->user, new TripForRevision($detail->trip));
+                        }
+                    }
+                }
+            }
+
             if(!empty($user)) {
                 Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
             }
         } else if($status == 'approved') { // approved
-            if(!empty($user)) {
-                Notification::send($user, new ActivityPlanApproved($this->activity_plan, $approval));
-            }
 
             // convert to schedule
             $details = $this->activity_plan->details;
@@ -107,17 +131,32 @@ class Approval extends Component
                             'activity_plan_detail_trip_id' => $detail->trip->id
                         ]);
 
-                        // notify trip approver's
-                        $permission = Permission::where('name', 'trip approve')->first();
-                        $users = $permission->users;
-                        foreach($users as $user) {
-                            if($user->id != auth()->user()->id) {
-                                Notification::send($user, new TripSubmitted($detail->trip));
-                            }
+                        // update trip status
+                        $detail->trip->update([
+                            'status' => 'approved by imm. superior'
+                        ]);
+
+                        // trip approval history
+                        $approval = new ActivityPlanDetailTripApproval([
+                            'user_id' => auth()->user()->id,
+                            'activity_plan_detail_trip_id' => $detail->trip->id,
+                            'status' => 'approved by imm. superior',
+                        ]);
+                        $approval->save();
+
+                        // notify department admin
+                        $admin = $detail->trip->user->department->department_admin ?? NULL;
+                        Notification::send($detail->trip->user, new TripApprovedSuperior($detail->trip));
+                        if(!empty($admin)) {
+                            Notification::send($admin, new TripApprovedSuperior($detail->trip));
                         }
                     }
 
                 }
+            }
+
+            if(!empty($user)) {
+                Notification::send($user, new ActivityPlanApproved($this->activity_plan, $approval));
             }
         }
 

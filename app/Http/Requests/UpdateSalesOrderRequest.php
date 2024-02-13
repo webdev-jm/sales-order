@@ -62,14 +62,14 @@ class UpdateSalesOrderRequest extends FormRequest
                     
                     if (!empty($logged_account->account->po_process_date)) {
                         // Check if the ship date is at least 3 days from the order date
-                        $leadDate = Carbon::parse($this->order_date)->addDays($logged_account->account->po_process_date)->startOfDay();
+                        $leadDate = Carbon::parse($this->order_date)->addWeekDays($logged_account->account->po_process_date)->startOfDay();
                         $shipDate = Carbon::parse($value)->startOfDay();
                         
                         if($shipDate < $leadDate) {
                             $fail('The ship date must be at least '.$logged_account->account->po_process_date.' day/s from the order date.');
                         }
                     } else {
-                        $leadDate = Carbon::parse($this->order_date)->addDays(1)->startOfDay();
+                        $leadDate = Carbon::parse($this->order_date)->addWeekDays(1)->startOfDay();
                         $shipDate = Carbon::parse($value)->startOfDay();
 
                         if($shipDate < $leadDate) {
