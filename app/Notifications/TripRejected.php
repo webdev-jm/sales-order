@@ -56,7 +56,7 @@ class TripRejected extends Notification
             ->from('notify@bevi.com.ph', 'SMS - Sales Management System')
             ->subject('Trip has been rejected by finance')
             ->greeting('Hello! '.$notifiable->fullName())
-            ->line(auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->departure)))
+            ->line(auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)))
             ->action('View Details', url('/trip/'.$this->trip->id))
             ->line('Thank you for using our application!');
     }
@@ -66,7 +66,7 @@ class TripRejected extends Notification
      *
      * @param  mixed  $notifiable
      * @return array
-     */
+    */
     public function toArray($notifiable)
     {
         return [

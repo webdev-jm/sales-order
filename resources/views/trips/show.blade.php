@@ -160,7 +160,7 @@
                     </div>
 
                     {{-- for immediate supervisor --}}
-                    @if($trip->source != 'trip-add' && $trip->status == 'submitted')
+                    @if(($trip->source == 'activity-plan' || $department->name == 'sales') && $trip->status == 'submitted')
                         @if(!empty($supervisor_ids) && in_array(auth()->user()->id, $supervisor_ids))
                             <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="for revision">
                                 <i class="fa fa-times-circle mr-1"></i>

@@ -37,6 +37,9 @@
                     <li class="list-group-item">
                         <b>Channel Operation Executive</b> <a class="float-right">{{$user->coe ? 'YES' : 'NO'}}</a>
                     </li>
+                    <li class="list-group-item">
+                        <b>Department</b> <a class="float-right">{{$user->department->department_name ?? '-'}}</a>
+                    </li>
                 </ul>
             </div>
             

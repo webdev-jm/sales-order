@@ -925,20 +925,32 @@ class ActivityPlanController extends Controller
     }
 
     public function printTrip($id) {
+        $status_arr = [
+            'submitted'                 => 'secondary',
+            'for revision'              => 'warning',
+            'approved by imm. superior' => 'primary',
+            'returned'                  => 'orange',
+            'for approval'              => 'info',
+            'approved by finance'       => 'success',
+            'rejected by finance'       => 'danger',
+        ];
+
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         $bar_code = DNS1D::getBarcodeHTML($trip->trip_number, 'C39', 1.3, 25, 'black', false);
 
         $pdf = PDF::loadView('mcp.trip-detail', [
             'trip' => $trip,
-            'bar_code' => $bar_code
+            'bar_code' => $bar_code,
+            'status_arr' => $status_arr,
         ]);
 
         return $pdf->download('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
 
         // return view('mcp.trip-detail')->with([
         //     'trip' => $trip,
-        //     'bar_code' => $bar_code
+        //     'bar_code' => $bar_code,
+        //     'status_arr' => $status_arr,
         // ]);
     }
 }
