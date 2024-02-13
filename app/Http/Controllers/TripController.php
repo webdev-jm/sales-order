@@ -34,10 +34,10 @@ class TripController extends Controller
         'submitted'                 => 'secondary',
         'for revision'              => 'warning',
         'approved by imm. superior' => 'primary',
-        'returned'                  => 'danger',
+        'returned'                  => 'orange',
         'for approval'              => 'info',
         'approved by finance'       => 'success',
-        'rejected by finance'       => 'orange',
+        'rejected by finance'       => 'danger',
     ];
 
     public function __construct() {
@@ -232,13 +232,21 @@ class TripController extends Controller
             }
         }
 
+        // get user supervisors
+        $supervisors_arr = $user->getSupervisorIds();
+        if(!empty($supervisors_arr)) {
+                $supervisor_ids[] = $supervisors_arr['first'];
+        }
+        $supervisor_ids = array_unique($supervisor_ids);
+
         return view('trips.show')->with([
             'trip' => $trip,
             'approval_dates' => $approval_dates,
             'approvals' => $approval_data,
             'status_arr' => $this->status_arr,
             'supervisor_ids' => $supervisor_ids,
-            'admin' => $admin
+            'admin' => $admin,
+            'department' => $department,
         ]);
     }
 
