@@ -228,13 +228,15 @@
                     <td class="border-0 w33">
                         <span class="text-muted">NAME</span>
                         <br>
-                        <strong>{{strtoupper($trip->activity_plan_detail->activity_plan->user->fullName())}}</strong>
+                        <strong>{{strtoupper($trip->user->fullName())}}</strong>
                     </td>
+                    @if(!empty($trip->activity_plan_detail))
                     <td class="border-0 border-left w33">
                         <span class="text-muted">BRANCH</span>
                         <br>
                         <strong>{{$trip->activity_plan_detail->branch->branch_code}} - {{$trip->activity_plan_detail->branch->branch_name}}</strong>
                     </td>
+                    @endif
                     <td class="border-0 border-left w33">
                         <span class="text-muted">TRIP TYPE</span>
                         <br>
@@ -286,13 +288,14 @@
         </table>
 
         <hr>
+        @if(!empty($trip->activity_plan_detail))
+            <strong class="text-muted">OBJECTIVE</strong>
+            <p class="objective">
+                {{$trip->activity_plan_detail->activity ?? ''}}
+            </p>
 
-        <strong class="text-muted">OBJECTIVE</strong>
-        <p class="objective">
-            {{$trip->activity_plan_detail->activity}}
-        </p>
-
-        <hr>
+            <hr>
+        @endif
 
         <table class="table">
             <tbody>

@@ -155,6 +155,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\WeeklyActivityReport');
     }
 
+    public function trips() {
+        return $this->hasMany('App\Models\ActivityPlanDetailTrip');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')

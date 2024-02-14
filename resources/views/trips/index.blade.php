@@ -26,33 +26,38 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">List of Trips</h3>
-        <div class="card-tools">
-            <div class="row">
-                <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
-                    <div class="input-group input-group-sm">
-                        {!! Form::date('date', $date, ['class' => 'form-control', 'form' => 'search_form']) !!}
-                    </div>
-                </div>
-                @can('trip finance approver')
-                    <div class="col-md-3 my-2">
+        <div class="row">
+            <div class="col-lg-6">
+                <h3 class="card-title">List of Trips</h3>
+            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
                         <div class="input-group input-group-sm">
-                            {!! Form::select('user', [], $user, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
+                            {!! Form::date('date', $date, ['class' => 'form-control', 'form' => 'search_form']) !!}
                         </div>
                     </div>
-                @endcan
-                <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
-                    <div class="input-group input-group-sm">
-                        {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                    @can('trip finance approver')
+                        <div class="col-md-3 my-2">
+                            <div class="input-group input-group-sm">
+                                {!! Form::select('user', $users, $user, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
+                            </div>
+                        </div>
+                    @endcan
+                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
+                        <div class="input-group input-group-sm">
+                            {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                        </div>
                     </div>
-                </div>
-                <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
-                    <div class="input-group input-group-sm">
-                        {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
+                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
+                        <div class="input-group input-group-sm">
+                            {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        
     </div>
     <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap table-sm">

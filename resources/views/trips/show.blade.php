@@ -160,7 +160,7 @@
                     </div>
 
                     {{-- for immediate supervisor --}}
-                    @if(($trip->source == 'activity-plan' || $department->name == 'sales') && $trip->status == 'submitted')
+                    @if(($trip->source == 'activity-plan' || strtolower($department->department_name) == 'sales department') && $trip->status == 'submitted')
                         @if(!empty($supervisor_ids) && in_array(auth()->user()->id, $supervisor_ids))
                             <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="for revision">
                                 <i class="fa fa-times-circle mr-1"></i>
@@ -175,7 +175,7 @@
                     @endif
 
                     {{-- for admin --}}
-                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior'))
+                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior') || ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department'))
                         @if(!empty($admin) && $admin->id == auth()->user()->id)
                             <div class="row">
                                 <div class="col-lg-6 text-left">
@@ -214,7 +214,15 @@
     </div>
 
     <div class="col-lg-5">
-        @if((($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior')) && auth()->user()->can('trip attachment') && (!empty($admin) && $admin->id == auth()->user()->id))
+        @if(
+                (
+                    ($trip->source == 'trip-add' && $trip->status == 'submitted') ||
+                    ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior') ||
+                    ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department')
+                ) &&
+                auth()->user()->can('trip attachment') &&
+                (!empty($admin) && $admin->id == auth()->user()->id)
+            )
             <div class="card card-primary card-outline">
                 <div class="card-header">
                     <h3 class="card-title">ATTACHMENTS</h3>

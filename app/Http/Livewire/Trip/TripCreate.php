@@ -98,6 +98,10 @@ class TripCreate extends Component
                 Notification::send($admin, new TripSubmitted($trip));
             }
         }
+        // notify superior if in sales department
+        if(!empty($department) && strtolower($department->department_name) == 'sales department') {
+            // get superiors
+        }
 
         // systemlog
         activity('created')

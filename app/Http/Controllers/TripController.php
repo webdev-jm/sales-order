@@ -48,7 +48,7 @@ class TripController extends Controller
         $date = trim($request->get('date'));
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
-        
+        $users_arr = array();
         if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
                 ->when(!empty($date), function($query) use($date) {
@@ -69,6 +69,25 @@ class TripController extends Controller
                 })
                 ->paginate(10)->onEachSide(1)
                 ->appends(request()->query());
+
+            $users = User::whereHas('trips', function($query) use($date, $search) {
+                $query->when(!empty($date), function($qry) use($date) {
+                        $qry->where('departure', $date)
+                            ->orWhere('return', $date);
+                    })
+                    ->when(!empty($search), function($qry) use($search) {
+                        $qry->where('status', 'like', '%'.$search.'%')
+                            ->orWhere('trip_number', 'like', '%'.$search.'%')
+                            ->orWhere('from', 'like', '%'.$search.'%')
+                            ->orWhere('to', 'like', '%'.$search.'%');
+                    });
+            })
+            ->get();
+
+            foreach($users as $user) {
+                $users_arr[$user->id] = $user->fullName();
+            }
+
         } else { // users entry and user subordinate entries
             // get subordinates of the user.
 
@@ -108,6 +127,25 @@ class TripController extends Controller
                 })
                 ->paginate(10)->onEachSide(1)
                 ->appends(request()->query());
+
+            $users = User::whereHas('trips', function($query) use($date, $search) {
+                $query->when(!empty($date), function($qry) use($date) {
+                        $qry->where('departure', $date)
+                            ->orWhere('return', $date);
+                    })
+                    ->when(!empty($search), function($qry) use($search) {
+                        $qry->where('status', 'like', '%'.$search.'%')
+                            ->orWhere('trip_number', 'like', '%'.$search.'%')
+                            ->orWhere('from', 'like', '%'.$search.'%')
+                            ->orWhere('to', 'like', '%'.$search.'%');
+                    });
+            })
+            ->whereIn('id', $users_ids)
+            ->get();
+
+            foreach($users as $user) {
+                $users_arr[$user->id] = $user->fullName();
+            }
         }
 
         return view('trips.index')->with([
@@ -116,6 +154,7 @@ class TripController extends Controller
             'date' => $date,
             'trips' => $trips,
             'status_arr' => $this->status_arr,
+            'users' => $users_arr,
         ]);
     }
 
