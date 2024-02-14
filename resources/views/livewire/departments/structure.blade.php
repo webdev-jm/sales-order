@@ -165,10 +165,11 @@
                                                         <td>
                                                             @php
                                                                 if(!empty($structure->reports_to_ids)) {
-                                                                    $user_ids = explode(',', $structure->reports_to_ids);
+                                                                    $reports_to_ids = explode(',', $structure->reports_to_ids);
                                                                     $user_arr = array();
-                                                                    foreach($user_ids as $user_id) {
-                                                                        $user = \App\Models\User::find($user_id);
+                                                                    foreach($reports_to_ids as $structure_id) {
+                                                                        $structure = \App\Models\DepartmentStructure::find($structure_id);
+                                                                        $user = \App\Models\User::find($structure->user_id);
                                                                         if(!empty($user)) {
                                                                             $user_arr[] = $user;
                                                                         }
