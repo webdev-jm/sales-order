@@ -207,14 +207,6 @@ class ScheduleEvent extends Component
             ->log(':causer.firstname :causer.lastname added a new trip :subject.trip_number');
 
         // notification
-        // get all users with trip approve permission
-        $permission = Permission::where('name', 'trip approve')->first();
-        $users = $permission->users;
-        foreach($users as $user) {
-            if($user->id != auth()->user()->id) {
-                Notification::send($user, new TripSubmitted($trip));
-            }
-        }
 
         return redirect(request()->header('Referer'))->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been created.'

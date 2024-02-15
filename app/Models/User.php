@@ -159,6 +159,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\ActivityPlanDetailTrip');
     }
 
+    public function department_structures() {
+        return $this->hasMany('App\Models\DepartmentStructure');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')
@@ -271,6 +275,40 @@ class User extends Authenticatable
 
     public function getDepartmentSubordinates() {
         $department = $this->department;
+    }
+
+    public function getDepartmentSupervisorIds() {
+        $department_structures = $this->department_structures;
+
+        $supervisor_ids = [];
+    
+        // define the supervisor levels we want to fetch
+    
+        foreach($department_structures as $structure) {
+            if(!empty($structure->reports_to_ids)) {
+                $reports_to_arr = explode(',', $structure->reports_to_ids);
+                foreach($reports_to_arr as $reports_to_id) {
+                    // fetch the supervisor data with eager loading
+                    $supervisor = DepartmentStructure::where('id', $reports_to_id)
+                        ->first();
+                    if(!empty($supervisor)) {
+                        $supervisor_ids[] = $supervisor->user_id;
+                    } else {
+                        // break the loop if there are no more supervisors at this level
+                        break;
+                    }
+                }
+                
+            }
+        }
+    
+        // remove null values
+        $supervisor_ids = array_filter($supervisor_ids, function($value) {
+            return !is_null($value);
+        });
+
+        // remove duplicate id
+        return array_unique($supervisor_ids);
     }
     
 }
