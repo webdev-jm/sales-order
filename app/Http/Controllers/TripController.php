@@ -226,7 +226,6 @@ class TripController extends Controller
     }
 
     public function show($id) {
-
         $trip = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')->findOrFail($id);
 
         $approval_dates = ActivityPlanDetailTripApproval::select(DB::raw('DATE(created_at) as date'))

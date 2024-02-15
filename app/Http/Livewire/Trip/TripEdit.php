@@ -88,12 +88,25 @@ class TripEdit extends Component
         $approval->save();
 
         // notfications
-        // get user department admin for notfication
+        // get user department admin or superior for notfication
         $department = auth()->user()->department;
         if(!empty($department)) {
-            $admin = $department->department_head;
-            if(!empty($admin) && $admin->id != auth()->user()->id) {
-                Notification::send($admin, new TripSubmitted($this->trip));
+            // notify superior if in sales department
+            if(strtolower($department->department_name) == 'sales department') {
+                $superior_ids = $trip->user->getDepartmentSupervisorIds();
+                if(!empty($superior_ids)) {
+                    foreach($superior_ids as $user_id) {
+                        $superior = User::find($user_id);
+                        if(!empty($superior)) {
+                            Notification::send($superior, new TripSubmitted($trip));
+                        }
+                    }
+                }
+            } else { // if not in sales department notify admin
+                $admin = $department->department_admin;
+                if(!empty($admin) && $admin->id != auth()->user()->id) {
+                    Notification::send($admin, new TripSubmitted($trip));
+                }
             }
         }
 

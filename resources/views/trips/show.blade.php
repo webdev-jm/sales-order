@@ -144,7 +144,7 @@
                     </div>
                 @endif
             </div>
-            <div class="card-footer text-right">
+            <div class="card-footer text-right py-1">
                 @if($trip->status != 'returned' && $trip->status != 'for revision' && $trip->status != 'rejected by finance' && $trip->status != 'approved by finance')
                     {!! Form::open(['method' => 'POST', 'route' => ['trip.submit-approve', $trip->id], 'id' => 'approve_trip']) !!}
                         <input type="hidden" name="status" id="status" form="approve_trip">
