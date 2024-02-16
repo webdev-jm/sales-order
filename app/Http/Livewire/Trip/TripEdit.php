@@ -4,6 +4,7 @@ namespace App\Http\Livewire\Trip;
 
 use Livewire\Component;
 
+use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 

@@ -18,10 +18,65 @@ class Trip extends Component
     public $from, $to, $departure, $return, $passenger;
     public $type;
     public $form_error;
+    public $ticket_select;
+    public $trip_tickets;
+    public $ticket_selected;
 
     protected $listeners = [
         'setTrip' => 'setTrip'
     ];
+
+    public function pickTicket($id) {
+        $this->reset('ticket_select');
+        $this->ticket_selected = $this->trip_tickets->find($id);
+
+        $this->type = $this->ticket_selected->trip_type;
+        $this->trip_number = $this->ticket_selected->trip_number ?? '';
+        $this->from = $this->ticket_selected->from ?? '';
+        $this->to = $this->ticket_selected->to ?? '';
+        $this->departure = $this->ticket_selected->departure ?? '';
+        $this->return = $this->ticket_selected->return ?? '';
+        $this->passenger = $this->ticket_selected->passenger ?? '';
+    }
+
+    public function cancelSelect() {
+        $this->reset(['ticket_select', 'from', 'to', 'departure', 'return', 'ticket_selected', 'trip_number']);
+        $this->type = 'one_way';
+        $this->passenger = 1;
+        $this->generateTripNumber();
+        $this->getTickets();
+    }
+
+    public function selectTicket() {
+        $this->ticket_select = true;
+        $this->getTickets();
+    }
+
+    public function getTickets() {
+        // get all selected tickets
+        $trip_numbers = array();
+        $activity_plan_data = Session::get('activity_plan_data');
+        if(!empty($activity_plan_data)) {
+            if(isset($activity_plan_data[$this->year]['details'][$this->month])) {
+                foreach($activity_plan_data[$this->year]['details'][$this->month] as $date => $data) {
+                    if(!empty($data['lines'])) {
+                        foreach($data['lines'] as $line_data) {
+                            if(isset($line_data['trip']['trip_number']) && !empty($val['deleted']) && $val['deleted'] == false) {
+                                $trip_numbers[] = $line_data['trip']['trip_number'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->trip_tickets = ActivityPlanDetailTrip::where('user_id', auth()->user()->id)
+            ->whereNull('activity_plan_detail_id')
+            ->when(!empty($trip_numbers), function($query) use($trip_numbers) {
+                $query->whereNotIn('trip_number', $trip_numbers);
+            })
+            ->get();
+    }
 
     public function changeType($type) {
         $this->type = $type;
@@ -57,7 +112,7 @@ class Trip extends Component
         $this->date = $date;
         $this->key = $key;
 
-        $this->reset('type', 'from', 'to', 'departure', 'return', 'passenger', 'trip_number');
+        $this->reset('type', 'from', 'to', 'departure', 'return', 'passenger', 'trip_number', 'ticket_select', 'trip_tickets');
 
         $this->type = 'one_way';
         $this->passenger = 1;
@@ -146,6 +201,7 @@ class Trip extends Component
         ]);
 
         $trip_arr = [
+            'selected_trip' => $this->ticket_selected ?? '',
             'type' => $this->type,
             'trip_number' => $this->trip_number,
             'from' => $this->from,
@@ -175,6 +231,8 @@ class Trip extends Component
         }
 
         $this->emit('saveTrip', $this->year, $this->month, $this->date, $this->key, $trip_arr);
+
+        $this->reset(['ticket_selected', 'ticket_select']);
     }
 
     public function render()

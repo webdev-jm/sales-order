@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\ActivityPlanDetail;
+use App\Models\ActivityPlanDetailTrip;
 
 use Illuminate\Support\Facades\Session;
 
@@ -189,6 +190,19 @@ class Detail2 extends Component
     public function removeLine($date, $key) {
         if(!empty($this->month_days[$this->month][$date]['lines'][$key]['id'])) {
             $this->month_days[$this->month][$date]['lines'][$key]['deleted'] = true;
+
+            $val = $this->month_days[$this->month][$date]['lines'][$key];
+
+            if(isset($val['trip']) && !empty($val['trip'])) {
+                $trip_data = $val['trip'];
+                // remove 
+                if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
+                    $activity_plan_trip = ActivityPlanDetailTrip::find($trip_data['selected_trip']);
+                    $activity_plan_trip->update([
+                        'activity_plan_detail_id' => NULL,
+                    ]);
+                }
+            }
         } else {
             unset($this->month_days[$this->month][$date]['lines'][$key]);
         }
