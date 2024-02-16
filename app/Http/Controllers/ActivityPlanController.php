@@ -259,7 +259,6 @@ class ActivityPlanController extends Controller
                     throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
             }
-
             
             if($request->status == 'submitted') {
 
@@ -614,8 +613,8 @@ class ActivityPlanController extends Controller
                                         $trip_data = $val['trip'];
 
                                         if(!empty($trip_data['selected_trip'])) {
-                                            $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
-                                            $activity_plan_trip->update([
+                                            $trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                            $trip->update([
                                                 'activity_plan_detail_id' => $activity_plan_detail->id,
                                             ]);
                                         } else {
