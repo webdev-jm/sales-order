@@ -206,22 +206,29 @@ class ActivityPlanController extends Controller
                                             if(isset($val['trip']) && !empty($val['trip'])) {
                                                 $trip_data = $val['trip'];
 
-                                                $activity_plan_detail_trip = new ActivityPlanDetailTrip([
-                                                    'activity_plan_detail_id' => $activity_plan_detail->id,
-                                                    'user_id' => auth()->user()->id,
-                                                    'trip_number' => $trip_data['trip_number'],
-                                                    'from' => $trip_data['from'],
-                                                    'to' => $trip_data['to'],
-                                                    'departure' => $trip_data['departure'],
-                                                    'return' => $trip_data['return'],
-                                                    'passenger' => $trip_data['passenger'],
-                                                    'trip_type' => $trip_data['type'],
-                                                    'source' => 'activity-plan',
-                                                    'transportation_type' => $trip_data['transportation_type'],
-                                                    'status' => $request->status == 'submitted'? 'submitted' : NULL,
-                                                ]);
-                                                $activity_plan_detail_trip->save();
-
+                                                if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
+                                                    $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                                    $activity_plan_trip->update([
+                                                        'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                    ]);
+                                                } else {
+                                                    $activity_plan_detail_trip = new ActivityPlanDetailTrip([
+                                                        'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                        'user_id' => auth()->user()->id,
+                                                        'trip_number' => $trip_data['trip_number'],
+                                                        'from' => $trip_data['from'],
+                                                        'to' => $trip_data['to'],
+                                                        'departure' => $trip_data['departure'],
+                                                        'return' => $trip_data['return'],
+                                                        'passenger' => $trip_data['passenger'],
+                                                        'trip_type' => $trip_data['type'],
+                                                        'source' => 'activity-plan',
+                                                        'transportation_type' => $trip_data['transportation_type'],
+                                                        'status' => $request->status == 'submitted'? 'submitted' : NULL,
+                                                    ]);
+                                                    $activity_plan_detail_trip->save();
+                                                }
+                                                
                                                 // add approvals
                                                 if($request->status == 'submitted') {
                                                     $approval = new ActivityPlanDetailTripApproval([
@@ -411,6 +418,7 @@ class ActivityPlanController extends Controller
                 if(!empty($detail->trip)) {
                     $trip_data = $detail->trip;
                     $trip = [
+                        'selected_trip' => $trip_data->id,
                         'type' => $trip_data->trip_type,
                         'trip_number' => $trip_data->trip_number,
                         'from' => $trip_data->from,
@@ -550,6 +558,17 @@ class ActivityPlanController extends Controller
                                         // check if line is deleted
                                         if(!empty($val['deleted']) && $val['deleted'] == true && !empty($activity_plan_detail)) {
                                             $activity_plan_detail->delete();
+
+                                            if(isset($val['trip']) && !empty($val['trip'])) {
+                                                $trip_data = $val['trip'];
+                                                // remove 
+                                                if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
+                                                    $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                                    $activity_plan_trip->update([
+                                                        'activity_plan_detail_id' => NULL,
+                                                    ]);
+                                                }
+                                            }
                                         } else {
                                             if(!empty($activity_plan_detail)) {
                                                 $activity_plan_detail->update([
@@ -593,25 +612,33 @@ class ActivityPlanController extends Controller
                                     // detail trip
                                     if(isset($val['trip']) && !empty($val['trip'])) {
                                         $trip_data = $val['trip'];
-                                        $trip = ActivityPlanDetailTrip::updateOrCreate([
-                                            'activity_plan_detail_id' => $activity_plan_detail->id
-                                        ], [
-                                            'user_id' => $activity_plan->user_id,
-                                            'trip_number' => $trip_data['trip_number'],
-                                            'from' => $trip_data['from'],
-                                            'to' => $trip_data['to'],
-                                            'departure' => $trip_data['departure'],
-                                            'return' => $trip_data['return'],
-                                            'trip_type' => $trip_data['type'],
-                                            'passenger' => $trip_data['passenger'],
-                                            'transportation_type' => $trip_data['transportation_type'],
-                                            'source' => 'activity-plan',
-                                            'created_at' => now(),
-                                            'updated_at' => now(),
-                                        ]);
 
-                                        $trip->save();
-
+                                        if(!empty($trip_data['selected_trip'])) {
+                                            $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                            $activity_plan_trip->update([
+                                                'activity_plan_detail_id' => $activity_plan_detail->id,
+                                            ]);
+                                        } else {
+                                            $trip = ActivityPlanDetailTrip::updateOrCreate([
+                                                'activity_plan_detail_id' => $activity_plan_detail->id
+                                            ], [
+                                                'user_id' => $activity_plan->user_id,
+                                                'trip_number' => $trip_data['trip_number'],
+                                                'from' => $trip_data['from'],
+                                                'to' => $trip_data['to'],
+                                                'departure' => $trip_data['departure'],
+                                                'return' => $trip_data['return'],
+                                                'trip_type' => $trip_data['type'],
+                                                'passenger' => $trip_data['passenger'],
+                                                'transportation_type' => $trip_data['transportation_type'],
+                                                'source' => 'activity-plan',
+                                                'created_at' => now(),
+                                                'updated_at' => now(),
+                                            ]);
+    
+                                            $trip->save();
+                                        }
+                                        
                                         // add approvals
                                         if($request->status == 'submitted') {
                                             $trip->update([
