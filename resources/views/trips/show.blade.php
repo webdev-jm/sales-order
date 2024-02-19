@@ -97,6 +97,18 @@
                 </div>
 
                 <hr>
+
+                @if(!empty($trip->activity_plan_detail->activity) || !empty($trip->purpose))
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <strong class="text-muted">OBJECTIVE</strong>
+                            <br>
+                            <strong class="text-uppercase text-lg">{{$trip->activity_plan_detail->activity ?? $trip->purpose}}</strong>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                @endif
                 
                 <div class="row">
                     <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">

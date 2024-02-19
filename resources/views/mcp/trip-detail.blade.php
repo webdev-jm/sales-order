@@ -288,10 +288,10 @@
         </table>
 
         <hr>
-        @if(!empty($trip->activity_plan_detail))
+        @if(!empty($trip->activity_plan_detail) || !empty($trip->purpose))
             <strong class="text-muted">OBJECTIVE</strong>
             <p class="objective">
-                {{$trip->activity_plan_detail->activity ?? ''}}
+                {{$trip->activity_plan_detail->activity ?? $trip->purpose}}
             </p>
 
             <hr>
