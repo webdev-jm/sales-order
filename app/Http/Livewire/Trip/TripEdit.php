@@ -17,7 +17,7 @@ class TripEdit extends Component
 {
     public $type;
     public $trip;
-    public $from, $to, $departure, $return, $passenger;
+    public $from, $to, $departure, $return, $passenger, $purpose;
     public $form_errors;
     public $status_arr = [
         'submitted'             => 'secondary',
@@ -65,6 +65,12 @@ class TripEdit extends Component
                         $fail('The return date must be on or before the departure date.');
                     }
                 }
+            ],
+            'passenger' => [
+                'required'
+            ],
+            'purpose' => [
+                'required'
             ]
         ]);
 
@@ -76,6 +82,7 @@ class TripEdit extends Component
             'trip_type' => $this->type,
             'transportation_type' => 'AIR',
             'passenger' => $this->passenger,
+            'purpose' => $this->purpose,
             'status' => 'submitted',
         ]);
 
@@ -158,6 +165,7 @@ class TripEdit extends Component
         $this->return = $trip->return;
         $this->passenger = $trip->passenger;
         $this->type = $trip->trip_type;
+        $this->purpose = $trip->purpose;
     }
 
     public function render()

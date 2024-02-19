@@ -61,7 +61,7 @@ class Trip extends Component
                 foreach($activity_plan_data[$this->year]['details'][$this->month] as $date => $data) {
                     if(!empty($data['lines'])) {
                         foreach($data['lines'] as $line_data) {
-                            if(isset($line_data['trip']['trip_number']) && !empty($val['deleted']) && $val['deleted'] == false) {
+                            if(isset($line_data['trip']['trip_number']) && (empty($val['deleted']) || (!empty($val['deleted']) && $val['deleted'] == false))) {
                                 $trip_numbers[] = $line_data['trip']['trip_number'];
                             }
                         }
@@ -71,6 +71,7 @@ class Trip extends Component
         }
 
         $this->trip_tickets = ActivityPlanDetailTrip::where('user_id', auth()->user()->id)
+            ->where('departure', $this->date)
             ->whereNull('activity_plan_detail_id')
             ->when(!empty($trip_numbers), function($query) use($trip_numbers) {
                 $query->whereNotIn('trip_number', $trip_numbers);

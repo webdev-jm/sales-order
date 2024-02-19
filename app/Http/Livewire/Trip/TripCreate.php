@@ -17,7 +17,7 @@ class TripCreate extends Component
 {
     public $type;
     public $trip_number;
-    public $from, $to, $departure, $return, $passenger;
+    public $from, $to, $departure, $return, $passenger, $purpose;
     public $form_errors;
 
     public function submitTrip() {
@@ -59,6 +59,9 @@ class TripCreate extends Component
             ],
             'passenger' => [
                 'required'
+            ],
+            'purpose' => [
+                'required'
             ]
         ]);
 
@@ -76,6 +79,7 @@ class TripCreate extends Component
             'trip_type' => $this->type,
             'transportation_type' => 'AIR',
             'passenger' => $this->passenger,
+            'purpose' => $this->purpose,
             'status' => 'submitted',
             'source' => 'trip-add',
         ]);

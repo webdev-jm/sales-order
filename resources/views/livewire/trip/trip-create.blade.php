@@ -93,6 +93,14 @@
                                 </div>
                             @endif
 
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label for="purpose">OBJECTIVE</label>
+                                    <textarea rows="2" class="form-control{{$errors->has('purpose') ? ' is-invalid' : ''}}" wire:model="purpose"></textarea>
+                                    <p class="text-danger mb-0">{{$errors->first('purpose')}}</p>
+                                </div>
+                            </div>
+
                         </div>
                 
                     </div>
