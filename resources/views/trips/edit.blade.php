@@ -26,7 +26,7 @@
 
 @section('content')
 
-    @if(($trip->status == 'for revision' || $trip->status == 'returned') && auth()->user()->id == $trip->user_id)
+    @if(($trip->status == 'for revision' || $trip->status == 'returned' || $trip->status == 'draft') && auth()->user()->id == $trip->user_id)
         <livewire:trip.trip-edit :trip="$trip"/>
     @else
         <p>This trip cannot be edited! <a href="{{route('trip.index')}}" class="text-primary">Back to trip list</a></p>

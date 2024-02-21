@@ -43,13 +43,14 @@ class ScheduleEvent extends Component
     public $departure, $arrival, $reference_number, $transportation_type;
     
     public $status_arr = [
-        'submitted'                 => 'secondary',
+        'draft'                     => 'secondary',
+        'submitted'                 => 'indigo',
         'for revision'              => 'warning',
         'approved by imm. superior' => 'primary',
-        'returned'                  => 'danger',
+        'returned'                  => 'orange',
         'for approval'              => 'info',
         'approved by finance'       => 'success',
-        'rejected by finance'       => 'orange',
+        'rejected by finance'       => 'danger',
     ];
 
     protected $listeners = [

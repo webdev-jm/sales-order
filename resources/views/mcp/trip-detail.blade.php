@@ -297,6 +297,25 @@
             <hr>
         @endif
 
+        {{-- FLIGHT DETAILS --}}
+
+        <strong class="text-muted">AMOUNT</strong>
+        <p class="objective">
+            {{!empty($trip->amount) ? number_format($trip->amount, 2) : '-'}}
+        </p>
+
+        <hr>
+
+        @php
+            $approval = $trip->approvals()->where('status', 'for approval')->orderBy('created_at', 'ASC')->first();
+        @endphp
+        @if(!empty($approval))
+            <strong class="text-muted">REMARKS</strong>
+            <pre class="objective" style="font-family: 'Courier New', monospace;">{{$approval->remarks ?? '-'}}</pre>
+
+            <hr>
+        @endif
+
         <table class="table">
             <tbody>
                 <tr>

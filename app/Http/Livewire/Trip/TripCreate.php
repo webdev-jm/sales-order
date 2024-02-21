@@ -3,10 +3,12 @@
 namespace App\Http\Livewire\Trip;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripAttachment;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TripSubmitted;
@@ -15,10 +17,17 @@ use Carbon\Carbon;
 
 class TripCreate extends Component
 {
+    use WithFileUploads;
+
     public $type;
     public $trip_number;
-    public $from, $to, $departure, $return, $passenger, $purpose;
+    public $from, $to, $departure, $return, $passenger, $purpose, $attachment, $status;
     public $form_errors;
+
+    public function submitForm($status) {
+        $this->status = $status;
+        $this->submitTrip();
+    }
 
     public function submitTrip() {
         $this->validate([
@@ -62,6 +71,13 @@ class TripCreate extends Component
             ],
             'purpose' => [
                 'required'
+            ],
+            'attachment' => [
+                function($attribute, $value, $fail) {
+                    if(!empty($this->form_errors) && empty($value)) {
+                        $fail('Attachment is required when the departure date is less than two weeks away from the current date.');
+                    }
+                },
             ]
         ]);
 
@@ -80,39 +96,59 @@ class TripCreate extends Component
             'transportation_type' => 'AIR',
             'passenger' => $this->passenger,
             'purpose' => $this->purpose,
-            'status' => 'submitted',
+            'status' => $this->status,
             'source' => 'trip-add',
         ]);
         $trip->save();
 
-        // approval history
-        $approval = new ActivityPlanDetailTripApproval([
-            'user_id' => auth()->user()->id,
-            'activity_plan_detail_trip_id' => $trip->id,
-            'status' => 'submitted',
-            'remarks' => NULL,
-        ]);
-        $approval->save();
+        if($this->status == 'submitted') {
+            // approval history
+            $approval = new ActivityPlanDetailTripApproval([
+                'user_id' => auth()->user()->id,
+                'activity_plan_detail_trip_id' => $trip->id,
+                'status' => 'submitted',
+                'remarks' => NULL,
+            ]);
+            $approval->save();
+        }
+
+        // check if below 2 weeks
+        if(!empty($this->form_errors)) {
+            // save attachment
+            $file = $this->attachment;
+            $filename = time().'-'.$file->getClientOriginalName();
+            $file->storeAs('uploads/trip-attachments/'.$trip->id, $filename, 'public');
+    
+            $trip_attachment = new ActivityPlanDetailTripAttachment([
+                'activity_plan_detail_trip_id' => $trip->id,
+                'title' => 'TRIP ATTACHMENT',
+                'description' => '',
+                'url' => $filename
+            ]);
+            $trip_attachment->save();
+        }
 
         // notfications
-        // get user department admin or superior for notfication
-        $department = auth()->user()->department;
-        if(!empty($department)) {
-            // notify superior if in sales department
-            if(strtolower($department->department_name) == 'sales department') {
-                $superior_ids = $trip->user->getDepartmentSupervisorIds();
-                if(!empty($superior_ids)) {
-                    foreach($superior_ids as $user_id) {
-                        $superior = User::find($user_id);
-                        if(!empty($superior)) {
-                            Notification::send($superior, new TripSubmitted($trip));
+        if($this->status == 'submitted') {
+            // get user department admin or superior for notfication
+            $department = auth()->user()->department;
+            if(!empty($department)) {
+                // notify superior if in sales department
+                if(strtolower($department->department_name) == 'sales department') {
+                    $superior_ids = $trip->user->getDepartmentSupervisorIds();
+                    if(!empty($superior_ids)) {
+                        foreach($superior_ids as $user_id) {
+                            $superior = User::find($user_id);
+                            if(!empty($superior)) {
+                                Notification::send($superior, new TripSubmitted($trip));
+                            }
                         }
                     }
-                }
-            } else { // if not in sales department notify admin
-                $admin = $department->department_admin;
-                if(!empty($admin) && $admin->id != auth()->user()->id) {
-                    Notification::send($admin, new TripSubmitted($trip));
+                } else { // if not in sales department notify admin
+                    $admin = $department->department_admin;
+                    if(!empty($admin) && $admin->id != auth()->user()->id) {
+                        Notification::send($admin, new TripSubmitted($trip));
+                    }
                 }
             }
         }

@@ -28,7 +28,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <form wire:submit.prevent="submitTrip">
+            <form>
                 <div class="card card-primary shadow">
                     <div class="card-header">
                         <h3 class="card-title">TRIP</h3>
@@ -96,16 +96,30 @@
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="purpose">OBJECTIVE</label>
-                                    <textarea rows="2" class="form-control{{$errors->has('purpose') ? ' is-invalid' : ''}}" wire:model="purpose"></textarea>
+                                    <textarea rows="2" class="form-control{{$errors->has('purpose') ? ' is-invalid' : ''}}" wire:model="purpose" placeholder="Purpose"></textarea>
                                     <p class="text-danger mb-0">{{$errors->first('purpose')}}</p>
                                 </div>
                             </div>
+
+                            @if($form_errors)
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label for="attachment">ATTACHMENT</label>
+                                        <input type="file" class="form-control{{$errors->has('attachment') ? ' is-invalid' : ''}}" wire:model="attachment">
+                                        <p class="text-danger mb-0">{{$errors->first('attachment')}}</p>
+                                    </div>
+                                </div>
+                            @endif
 
                         </div>
                 
                     </div>
                     <div class="card-footer text-right">
-                        <button class="btn btn-primary">
+                        <button class="btn btn-secondary" wire:click.prevent="submitForm('draft')">
+                            <i class="fa fa-save mr-1"></i>
+                            Save as Draft
+                        </button>
+                        <button class="btn bg-indigo" wire:click.prevent="submitForm('submitted')">
                             <i class="fa fa-check mr-1"></i>
                             Submit for Approval
                         </button>

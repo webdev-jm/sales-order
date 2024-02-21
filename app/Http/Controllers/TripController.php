@@ -31,7 +31,8 @@ class TripController extends Controller
 
     public $setting;
     public $status_arr = [
-        'submitted'                 => 'secondary',
+        'draft'                     => 'secondary',
+        'submitted'                 => 'indigo',
         'for revision'              => 'warning',
         'approved by imm. superior' => 'primary',
         'returned'                  => 'orange',
@@ -521,9 +522,15 @@ class TripController extends Controller
     public function edit($id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
-        return view('trips.edit')->with([
-            'trip' => $trip
-        ]);
+        if($trip->status == 'for revision' || $trip->status == 'returned' || $trip->status == 'draft') {
+            return view('trips.edit')->with([
+                'trip' => $trip
+            ]);
+        } else {
+            return redirect()->route('trip.index')->with([
+                'message_error' => 'This trip with status '.$trip->status.' cannot be edited.'
+            ]);
+        }
     }
 
     public function attach(Request $request, $id) {
