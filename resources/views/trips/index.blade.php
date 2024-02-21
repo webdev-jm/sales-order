@@ -70,6 +70,7 @@
                     <th>Departure</th>
                     <th>Return</th>
                     <th>Status</th>
+                    <th>Type</th>
                     <th></th>
                 </tr>
             </thead>
@@ -89,12 +90,19 @@
                                 </span>
                             @endif
                         </td>
+                        <td>
+                            @if(empty($trip->activity_plan_detail_id))
+                                <span class="badge badge-info">{{$trip->source == 'trip-add' ? 'manual add' : 'activity plan'}} no mcp tagged</span>
+                            @else
+                                <span class="badge badge-success">{{$trip->source == 'trip-add' ? 'manual add' : 'activity plan'}} with mcp tagged</span>
+                            @endif
+                        </td>
                         <td class="text-right">
                             <a href="{{route('trip.show', $trip->id)}}" title="view" class=" btn btn-xs btn-primary mr-1">
                                 <i class="fa fa-eye"></i>
                             </a>
                             @can('trip edit')
-                                @if(($trip->status == 'for revision' || $trip->status == 'returned') && auth()->user()->id == $trip->user_id)
+                                @if(($trip->status == 'for revision' || $trip->status == 'returned' || $trip->status == 'draft') && auth()->user()->id == $trip->user_id)
                                     <a href="{{route('trip.edit', $trip->id)}}" class="btn btn-xs btn-success mr-1">
                                         <i class="fa fa-pen-alt"></i>
                                     </a>

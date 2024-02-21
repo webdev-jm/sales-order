@@ -155,6 +155,27 @@
                         @endforeach
                     </div>
                 @endif
+
+                @if(!empty($trip->amount))
+                    <hr>
+                    <div class="row">
+                        <div class="col-lg-3 text-center">
+                            <strong class="text-muted">AMOUNT</strong>
+                            <br>
+                            <strong class="text-uppercase text-lg">{{number_format($trip->amount, 2)}}</strong>
+                        </div>
+                        @php
+                            $approval = $trip->approvals()->where('status', 'for approval')->orderBy('created_at', 'ASC')->first();
+                        @endphp
+                        @if(!empty($approval))
+                        <div class="col-lg-9">
+                            <strong class="text-muted">REMARKS</strong>
+                            <br>
+                            <pre class="text-uppercase text-lg">{{$approval->remarks}}</pre>
+                        </div>
+                        @endif
+                    </div>
+                @endif
             </div>
             <div class="card-footer text-right py-1">
                 @if($trip->status != 'returned' && $trip->status != 'for revision' && $trip->status != 'rejected by finance' && $trip->status != 'approved by finance')
@@ -187,12 +208,16 @@
                     @endif
 
                     {{-- for admin --}}
-                    @if(($trip->source == 'trip-add' && $trip->status == 'submitted') || ($trip->source != 'trip-add' && $trip->status == 'approved by imm. superior') || ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department'))
+                    @if(
+                        ($trip->source == 'trip-add' && $trip->status == 'submitted') ||
+                        ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior') ||
+                        ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department')
+                    )
                         @if(!empty($admin) && $admin->id == auth()->user()->id)
                             <div class="row">
                                 <div class="col-lg-6 text-left">
                                     <label for="amount">AMOUNT</label>
-                                    <input type="number" class="form-control" placeholder="Amount" form="approve_trip">
+                                    <input type="number" class="form-control" placeholder="Amount" form="approve_trip" name="amount">
                                 </div>
                             </div>
 
@@ -313,7 +338,7 @@
                                     @if(!empty($approval->remarks))
                                         <div class="timeline-body">
                                             <label class="mb-0">REMARKS:</label>
-                                            <p class="mb-0 ml-2">{{$approval->remarks}}</p>
+                                            <pre class="mb-0 ml-2">{{$approval->remarks}}</pre>
                                         </div>
                                     @endif
                                 </div>
