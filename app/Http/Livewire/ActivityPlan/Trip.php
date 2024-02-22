@@ -72,6 +72,8 @@ class Trip extends Component
 
         $this->trip_tickets = ActivityPlanDetailTrip::where('user_id', auth()->user()->id)
             ->where('departure', $this->date)
+            ->where('status', '<>', 'draft')
+            ->where('status', '<>', 'cancelled')
             ->whereNull('activity_plan_detail_id')
             ->when(!empty($trip_numbers), function($query) use($trip_numbers) {
                 $query->whereNotIn('trip_number', $trip_numbers);

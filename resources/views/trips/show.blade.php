@@ -192,6 +192,16 @@
 
                     </div>
 
+                    {{-- cancel trip --}}
+                    @if(($trip->status != 'draft' && $trip->status != 'cancelled') &&
+                        ($trip->user->id == auth()->user()->id || (!empty($admin) && $admin->id == auth()->user()->id))
+                    )
+                        <button class="btn bg-maroon float-right ml-1" type="button" form="approve_trip" id="btn-approval" data-status="cancelled">
+                            <i class="fa fa-ban mr-1"></i>
+                            CANCEL TRIP
+                        </button>
+                    @endif
+
                     {{-- for immediate supervisor --}}
                     @if(($trip->source == 'activity-plan' || strtolower($department->department_name) == 'sales department') && $trip->status == 'submitted')
                         @if(!empty($supervisor_ids) && in_array(auth()->user()->id, $supervisor_ids))
