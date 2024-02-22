@@ -24,6 +24,7 @@ use App\Notifications\TripReturned;
 use App\Notifications\TripForApproval;
 use App\Notifications\TripApproved;
 use App\Notifications\TripRejected;
+use App\Notifications\TripCancelled;
 
 class TripController extends Controller
 {
@@ -39,6 +40,7 @@ class TripController extends Controller
         'for approval'              => 'info',
         'approved by finance'       => 'success',
         'rejected by finance'       => 'danger',
+        'cancelled'                 => 'maroon',
     ];
 
     public function __construct() {
@@ -406,6 +408,27 @@ class TripController extends Controller
                 foreach($supervisor_ids as $user_id) {
                     $superior = User::findOrFail($user_id);
                     Notification::send($superior, new TripRejected($trip));
+                }
+            }
+        }
+        // cancelled
+        if($trip->status == 'cancelled') {
+            // finance approvers
+            $users_arr = User::whereHas('roles', function ($query) {
+                $query->whereHas('permissions', function ($subQuery) {
+                    $subQuery->where('name', 'trip finance approver');
+                });
+            })->get();
+
+            $users[] = $trip->user;
+            $users[] = $admin;
+            foreach($users_arr as $user) {
+                $users[] = $user;
+            }
+
+            foreach($users as $user) {
+                if($user->id != auth()->user()->id) {
+                    Notification::send($user, new TripCancelled($trip));
                 }
             }
         }
