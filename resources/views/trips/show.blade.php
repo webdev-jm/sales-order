@@ -228,7 +228,8 @@
                             <div class="row">
                                 <div class="col-lg-6 text-left">
                                     <label for="amount">AMOUNT</label>
-                                    <input type="number" class="form-control" placeholder="Amount" form="approve_trip" name="amount">
+                                    <input type="number" class="form-control{{$errors->has('amount') ? ' is-invalid' : ''}}" placeholder="Amount" form="approve_trip" name="amount">
+                                    <p class="text-danger">{{$errors->first('amount')}}</p>
                                 </div>
                             </div>
 

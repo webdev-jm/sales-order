@@ -303,7 +303,7 @@ class TripController extends Controller
             ],
             'remarks' => [
                 function($attribute, $value, $fail) use($request) {
-                    if(($request->status == 'for approval' || $request->status == 'returned' || $request->status == 'for revision' || $request->status) == 'rejected by finance' && empty($value)) {
+                    if(($request->status == 'for approval' || $request->status == 'returned' || $request->status == 'for revision' || $request->status == 'rejected by finance' || $request->status == 'cancelled') && empty($value)) {
                         $fail('Remarks is required.');
                     }
                 }
@@ -311,6 +311,18 @@ class TripController extends Controller
         ]);
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        // check if there's attachment
+        if($request->status == 'for approval') {
+            $attachment_count = $trip->attachments()->where('title', '<>', 'TRIP ATTACHMENT')->count();
+            if(empty($attachment_count)) {
+                return back()->with([
+                    'message_error' => 'Before proceeding, kindly include the necessary attachment.'
+                ]);
+
+            }
+        }
+
         $changes_arr['old'] = $trip->getOriginal();
 
         // update status
