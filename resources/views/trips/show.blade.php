@@ -186,7 +186,8 @@
                         <div class="col-12">
                             <div class="form-group text-left">
                                 <label>REMARKS</label>
-                                <textarea class="form-control" name="remarks" form="approve_trip"></textarea>
+                                <textarea class="form-control{{$errors->has('remarks') ? ' is-invalid' : ''}}" name="remarks" form="approve_trip"></textarea>
+                                <p class="text-danger">{{$errors->first('remarks')}}</p>
                             </div>
                         </div>
 

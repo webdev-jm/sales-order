@@ -300,6 +300,13 @@ class TripController extends Controller
                         $fail('Amount is required when status is "for approval".');
                     }
                 }
+            ],
+            'remarks' => [
+                function($attribute, $value, $fail) use($request) {
+                    if(($request->status == 'for approval' || $request->status == 'returned' || $request->status == 'for revision' || $request->status) == 'rejected by finance' && empty($value)) {
+                        $fail('Remarks is required.');
+                    }
+                }
             ]
         ]);
 
