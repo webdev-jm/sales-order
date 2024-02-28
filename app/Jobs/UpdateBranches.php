@@ -46,8 +46,8 @@ class UpdateBranches implements ShouldQueue
      */
     public function handle()
     {
-        $db_sms = 'sales_order_entries';
-        $db_sto = 'stt_sales_local';
+        $db_sms = 'sms_db';
+        $db_sto = 'sto_db';
 
         DB::beginTransaction();
             
