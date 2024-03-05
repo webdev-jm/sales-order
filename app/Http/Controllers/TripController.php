@@ -114,6 +114,21 @@ class TripController extends Controller
                 }
             }
 
+            // get subordinates
+            $structures = DepartmentStructure::where('user_id', auth()->user()->id)
+                ->get();
+            if(!empty($structures)) {
+                foreach($structures as $structure) {
+                    $structure_sub = DepartmentStructure::whereRaw('FIND_IN_SET('.$structure->id.', reports_to_ids) > 0')
+                        ->get();
+                    if(!empty($structure_sub)) {
+                        foreach($structure_sub as $sub) {
+                            $users_ids[] = $sub->user_id;
+                        }
+                    }
+                }
+            }
+
             $users_ids = array_unique($users_ids);
 
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
@@ -261,7 +276,7 @@ class TripController extends Controller
                 ->get();
                 
             foreach($structures as $structure) {
-                $reports_to_ids = explode(',', $structure);
+                $reports_to_ids = explode(',', $structure->reports_to_ids);
                 $supervisors = DepartmentStructure::whereIn('id', $reports_to_ids)
                     ->get();
 
@@ -276,7 +291,7 @@ class TripController extends Controller
         // get user supervisors
         $supervisors_arr = $user->getSupervisorIds();
         if(!empty($supervisors_arr)) {
-                $supervisor_ids[] = $supervisors_arr['first'];
+            $supervisor_ids[] = $supervisors_arr['first'];
         }
         $supervisor_ids = array_unique($supervisor_ids);
 

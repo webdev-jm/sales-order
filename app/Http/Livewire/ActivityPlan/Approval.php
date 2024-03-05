@@ -69,17 +69,19 @@ class Approval extends Component
             foreach($details as $detail) {
                 if(isset($detail->branch)) {
                     if(!empty($detail->trip)) {
-                        $detail->trip->update([
-                            'status' => 'for revision'
-                        ]);
-
-                        // trip approval history
-                        $approval = new ActivityPlanDetailTripApproval([
-                            'user_id' => auth()->user()->id,
-                            'activity_plan_detail_trip_id' => $detail->trip->id,
-                            'status' => 'for revision',
-                        ]);
-                        $approval->save();
+                        if($detail->trip->status == 'submitted') {
+                            $detail->trip->update([
+                                'status' => 'for revision'
+                            ]);
+    
+                            // trip approval history
+                            $approval = new ActivityPlanDetailTripApproval([
+                                'user_id' => auth()->user()->id,
+                                'activity_plan_detail_trip_id' => $detail->trip->id,
+                                'status' => 'for revision',
+                            ]);
+                            $approval->save();
+                        }
 
                         if(!empty($detail->trip->user)) {
                             Notification::send($detail->trip->user, new TripForRevision($detail->trip));
@@ -131,18 +133,20 @@ class Approval extends Component
                             'activity_plan_detail_trip_id' => $detail->trip->id
                         ]);
 
-                        // update trip status
-                        $detail->trip->update([
-                            'status' => 'approved by imm. superior'
-                        ]);
-
-                        // trip approval history
-                        $approval = new ActivityPlanDetailTripApproval([
-                            'user_id' => auth()->user()->id,
-                            'activity_plan_detail_trip_id' => $detail->trip->id,
-                            'status' => 'approved by imm. superior',
-                        ]);
-                        $approval->save();
+                        if($detail->trip->status == 'submitted') {
+                            // update trip status
+                            $detail->trip->update([
+                                'status' => 'approved by imm. superior'
+                            ]);
+    
+                            // trip approval history
+                            $approval = new ActivityPlanDetailTripApproval([
+                                'user_id' => auth()->user()->id,
+                                'activity_plan_detail_trip_id' => $detail->trip->id,
+                                'status' => 'approved by imm. superior',
+                            ]);
+                            $approval->save();
+                        }
 
                         // notify department admin
                         $admin = $detail->trip->user->department->department_admin ?? NULL;

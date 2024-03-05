@@ -35,7 +35,7 @@ class UserBranchScheduleController extends Controller
     {
         // Set date range for schedules
         $date_from = date('Y-m', strtotime('last month')).'-01';
-        $date_to = date('Y-m-d', strtotime('first day of next month last day of next month'));
+        $date_to = date('Y-m-d', strtotime('last day of next month'));
 
         // Extract user and account IDs from the request
         $user_id = trim($request->get('user_id'));
@@ -387,16 +387,6 @@ class UserBranchScheduleController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreUserBranchScheduleRequest  $request
@@ -415,51 +405,6 @@ class UserBranchScheduleController extends Controller
         return back()->with([
             'message_success' => 'Schedule was created'
         ]);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\UserBranchSchedule  $userBranchSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function show(UserBranchSchedule $userBranchSchedule)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\UserBranchSchedule  $userBranchSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(UserBranchSchedule $userBranchSchedule)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateUserBranchScheduleRequest  $request
-     * @param  \App\Models\UserBranchSchedule  $userBranchSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateUserBranchScheduleRequest $request, UserBranchSchedule $userBranchSchedule)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\UserBranchSchedule  $userBranchSchedule
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(UserBranchSchedule $userBranchSchedule)
-    {
-        //
     }
 
     public function upload(Request $request) {

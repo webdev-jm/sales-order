@@ -204,7 +204,7 @@
                     @endif
 
                     {{-- for immediate supervisor --}}
-                    @if(($trip->source == 'activity-plan' || strtolower($department->department_name) == 'sales department') && $trip->status == 'submitted')
+                    @if(($trip->source == 'activity-plan' || (!empty($department) && strtolower($department->department_name) == 'sales department')) && $trip->status == 'submitted')
                         @if(!empty($supervisor_ids) && in_array(auth()->user()->id, $supervisor_ids))
                             <button class="btn btn-warning" type="button" form="approve_trip" id="btn-approval" data-status="for revision">
                                 <i class="fa fa-times-circle mr-1"></i>
@@ -222,7 +222,7 @@
                     @if(
                         ($trip->source == 'trip-add' && $trip->status == 'submitted') ||
                         ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior') ||
-                        ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department')
+                        ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && !empty($department) && strtolower($department->department_name) == 'sales department')
                     )
                         @if(!empty($admin) && $admin->id == auth()->user()->id)
                             <div class="row">
@@ -267,7 +267,7 @@
                 (
                     ($trip->source == 'trip-add' && $trip->status == 'submitted') ||
                     ($trip->source == 'activity-plan' && $trip->status == 'approved by imm. superior') ||
-                    ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && strtolower($department->department_name) == 'sales department')
+                    ($trip->source == 'trip-add' && $trip->status == 'approved by imm. superior' && !empty($department) && strtolower($department->department_name) == 'sales department')
                 ) &&
                 auth()->user()->can('trip attachment') &&
                 (!empty($admin) && $admin->id == auth()->user()->id)
