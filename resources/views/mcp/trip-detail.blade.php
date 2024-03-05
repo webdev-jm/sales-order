@@ -184,6 +184,10 @@
             background-color: #dc3545!important;
             color: white;
         }
+        .bg-indigo {
+            background-color: indigo!important;
+            color: white;
+        }
 
     </style>
 </head>
