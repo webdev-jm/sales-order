@@ -642,6 +642,10 @@ class ActivityPlanController extends Controller
                                         // add approvals
                                         if($request->status == 'submitted') {
 
+                                            $trip->update([
+                                                'status' => 'submitted'
+                                            ]);
+
                                             $approval = new ActivityPlanDetailTripApproval([
                                                 'user_id' => auth()->user()->id,
                                                 'activity_plan_detail_trip_id' => $trip->id,
