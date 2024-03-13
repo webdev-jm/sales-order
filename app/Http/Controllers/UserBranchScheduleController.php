@@ -162,8 +162,9 @@ class UserBranchScheduleController extends Controller
                             ->get();
 
                             foreach($deviations as $data) {
+
                                 $schedule_data[] = [
-                                    'title' => '['.$sched->branch->account->short_name.' - '.$data->user->fullName().'] - '.$data->reason_for_deviation,
+                                    'title' => '['.$data->user->fullName().' - deviation] - '.$data->reason_for_deviation,
                                     'start' => $data->date,
                                     'allDay' => true,
                                     'backgroundColor' => $deviation_color,
@@ -289,7 +290,7 @@ class UserBranchScheduleController extends Controller
 
                         foreach($deviations as $data) {
                             $schedule_data[] = [
-                                'title' => '['.$sched->branch->account->short_name.' - '.$data->user->fullName().'] - '.$data->reason_for_deviation,
+                                'title' => '['.$data->user->fullName().' - deviation] - '.$data->reason_for_deviation,
                                 'start' => $data->date,
                                 'allDay' => true,
                                 'backgroundColor' => $deviation_color,
