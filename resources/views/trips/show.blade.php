@@ -52,15 +52,16 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-6 text-center align-middle">
-                        {!! DNS1D::getBarcodeSVG($trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
-                        <br>
+                    <div class="col-lg-2 text-center">
+                        {!! DNS2D::getBarcodeHTML(route('trip.user', encrypt( $trip->user_id, 'user-id')), 'QRCODE', 3, 3) !!}
+                    </div>
+                    <div class="col-lg-5 text-center align-middle">
                         <strong class="text-muted">TRIP CODE</strong>
                         <br>
                         <h3 class="font-weight-bold">{{$trip->trip_number}}</h3>
                     </div>
-                    <div class="col-lg-6 text-center">
-                        <strong>TRANSPORTATION TYPE</strong>
+                    <div class="col-lg-5 text-center align-middle">
+                        <strong class="text-muted">TRANSPORTATION TYPE</strong>
                         <br>
                         <h3 class="font-weight-bold">
                             @if($trip->transportation_type == 'AIR')
@@ -72,6 +73,7 @@
                             {{$trip->transportation_type}}
                         </h3>
                     </div>
+                    
                 </div>
 
                 <hr>

@@ -63,6 +63,8 @@ Route::get('/test', function() {
 
 Auth::routes(['register' => false, 'reset' => false, 'verify' => false]);
 
+Route::get('trip-user/{id}', [TripController::class, 'trip_user'])->name('trip.user');
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
@@ -156,6 +158,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     Route::get('trip/{id}/pdf', [ActivityPlanController::class, 'printTrip'])->name('trip.print')->middleware('permission:trip print');
+    Route::get('trip-user/{id}/detail', [TripController::class, 'trip_user_detail'])->name('trip.user-trip');
 
     Route::group(['middleware' => ['permission:department access']], function() {
         Route::get('department', [DepartmentController::class, 'index'])->name('department.index');

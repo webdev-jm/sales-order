@@ -630,4 +630,32 @@ class TripController extends Controller
             'message_success' => 'Attachment has been added.'
         ]);
     }
+
+    public function trip_user($id) {
+        $id = decrypt($id, 'user-id');
+
+        $user = User::findOrFail($id);
+
+        $trips = ActivityPlanDetailTrip::where('user_id', $id)
+            ->paginate(10)->onEachSide(1)
+            ->appends(request()->query());
+        
+        return view('trips.user-page')->with([
+            'trips' => $trips,
+            'user' => $user,
+            'status_arr' => $this->status_arr,
+        ]);
+        
+    }
+
+    public function trip_user_detail($id) {
+        $id = decrypt($id, 'trip-id');
+
+        $trip = ActivityPlanDetailTrip::findOrFail($id);
+
+        return view('trips.user-trip-detail')->with([
+            'trip' => $trip,
+            'status_arr' => $this->status_arr,
+        ]);
+    }
 }

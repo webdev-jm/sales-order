@@ -31,6 +31,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ActivityPlanImport;
 
 use \Milon\Barcode\DNS1D;
+use \Milon\Barcode\DNS2D;
 
 class ActivityPlanController extends Controller
 {
@@ -965,8 +966,8 @@ class ActivityPlanController extends Controller
         ];
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
-
-        $bar_code = DNS1D::getBarcodeHTML($trip->trip_number, 'C39', 1.3, 25, 'black', false);
+        $bar_code = new DNS2D();
+        $bar_code = $bar_code->getBarcodeHTML(route('trip.user', encrypt($trip->user_id, 'user-id')), 'QRCODE', 2, 2);
 
         $pdf = PDF::loadView('mcp.trip-detail', [
             'trip' => $trip,

@@ -209,13 +209,19 @@
         <table class="table">
             <tbody>
                 <tr>
-                    <td class="border-0">
+                    <td class="border-0" rowspan="2">
                         {!! $bar_code !!}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="border-0 align-middle text-center">
+                        <span class="text-muted">TRIP CODE</span>
+                        <br>
                         <strong>
                             {{$trip->trip_number}}
                         </strong>
                     </td>
-                    <td class="border-0 align-top text-right">
+                    <td class="border-0 align-middle text-center">
                         <span class="text-muted">TRANSPORTATION TYPE</span>
                         <br>
                         <strong>{{strtoupper($trip->transportation_type)}}</strong>
@@ -262,7 +268,7 @@
                         <td class="border-0 border-left">
                             <span class="text-muted">RETURN</span>
                             <br>
-                            <strong>{{date('m/d/Y', strtotime($trip->departure))}}</strong>
+                            <strong>{{date('m/d/Y', strtotime($trip->return))}}</strong>
                         </td>
                     @endif
                     <td class="border-0  border-left">
