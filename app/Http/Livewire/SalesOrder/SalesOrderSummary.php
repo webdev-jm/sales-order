@@ -38,8 +38,6 @@ class SalesOrderSummary extends Component
         }
 
         $this->ship_to_address = $ship_to_address;
-        
-        // dd($this->order_data);
     }
 
     public function mount() {
