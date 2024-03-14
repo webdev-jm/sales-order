@@ -194,6 +194,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-summary">
+    <div class="modal-dialog modal-xl">
+        <livewire:sales-order.sales-order-summary/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -210,15 +216,31 @@
             var status = $(this).val();
             var status_val = 'draft';
             if(status == 'Finalize') {
-                if(confirm('Are you sure to finalize this sales order?')) {
-                    status_val = 'finalized';
-                    $('#status').val(status_val);
-                    $('#'+$(this).attr('form')).submit();
+                var data = {
+                    'control_number' : '{{$sales_order->control_number}}',
+                    'po_number' : $('#po_number').val(),
+                    'paf_number' : $('#paf_number').val(),
+                    'order_date' : $('#order_date').val(),
+                    'ship_date' : $('#ship_date').val(),
+                    'shipping_instruction' : $('#shipping_instruction').val(),
+                    'shipping_address_id' : $('#shipping_address_id').val()
                 }
+
+                Livewire.emit('setDataSummary', data);
+                $('#modal-summary').modal('show');
             } else {
                 status_val = 'draft';
                 $('#status').val(status_val);
                 $('#'+$(this).attr('form')).submit();
+            }
+        });
+
+        $('body').on('click', '#btn-finalize', function(e) {
+            e.preventDefault();
+            if(confirm('Are you sure to finalize this sales order?')) {
+                var status_val = 'finalized';
+                $('#status').val(status_val);
+                $('#update_sales_order').submit();
             }
         });
 
