@@ -51,10 +51,13 @@ class Structure extends Component
             ],
         ]);
 
-        $this->reports_to_ids = array_filter($this->reports_to_ids, function ($item) {
-            return $item !== 'NULL';
-        });
-        $user_ids = implode(',', $this->reports_to_ids);
+        $user_ids = NULL;
+        if(!empty($this->reports_to_ids)) {
+            $this->reports_to_ids = array_filter($this->reports_to_ids, function ($item) {
+                return $item !== 'NULL';
+            });
+            $user_ids = implode(',', $this->reports_to_ids);
+        }
 
         if($this->form_type == 'add') {
             $structure = new DepartmentStructure([

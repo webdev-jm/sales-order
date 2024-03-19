@@ -65,7 +65,7 @@
                 <div class="tab-pane fade {{$tab == 'structure' ? 'show active' : ''}}" id="tab-structure" role="tabpanel" aria-labelledby="tab-structure-tab">
 
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-12">
                             <figure class="highcharts-figure">
                                 <div id="container"></div>
                                 <p class="highcharts-description">
@@ -164,12 +164,12 @@
                                                         <td>{{$structure->designation}}</td>
                                                         <td>
                                                             @php
+                                                                $user_arr = array();
                                                                 if(!empty($structure->reports_to_ids)) {
                                                                     $reports_to_ids = explode(',', $structure->reports_to_ids);
-                                                                    $user_arr = array();
                                                                     foreach($reports_to_ids as $structure_id) {
-                                                                        $structure = \App\Models\DepartmentStructure::find($structure_id);
-                                                                        $user = \App\Models\User::find($structure->user_id);
+                                                                        $structure_report = \App\Models\DepartmentStructure::find($structure_id);
+                                                                        $user = \App\Models\User::find($structure_report->user_id);
                                                                         if(!empty($user)) {
                                                                             $user_arr[] = $user;
                                                                         }
@@ -221,7 +221,7 @@
         document.addEventListener('livewire:load', function() {
             Highcharts.chart('container', {
                 chart: {
-                    height: 600,
+                    height: 700,
                     inverted: true
                 },
     
@@ -270,7 +270,7 @@
                         color: 'white'
                     },
                     borderColor: 'white',
-                    nodeWidth: 65
+                    nodeWidth: 100
                 }],
                 tooltip: {
                     outside: true
@@ -286,7 +286,7 @@
             window.addEventListener('load-chart', e => {
                 Highcharts.chart('container', {
                     chart: {
-                        height: 600,
+                        height: 700,
                         inverted: true
                     },
         
@@ -335,7 +335,7 @@
                             color: 'white'
                         },
                         borderColor: 'white',
-                        nodeWidth: 65
+                        nodeWidth: 100
                     }],
                     tooltip: {
                         outside: true
