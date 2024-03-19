@@ -129,7 +129,7 @@
         </div>
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">CANCEL</button>
-            <button type="button" class="btn btn-primary" id="btn-finalize">FINALIZE</button>
+            <button type="button" class="btn btn-primary" id="btn-finalize">SUBMIT</button>
         </div>
     </div>
 </div>
