@@ -43,6 +43,18 @@ class TripController extends Controller
         'cancelled'                 => 'maroon',
     ];
 
+    public $status_responsible_arr = [
+        'draft'                     => 'Filer',
+        'submitted'                 => 'Immediate Superior',
+        'for revision'              => 'Filer',
+        'approved by imm. superior' => 'Admin',
+        'returned'                  => 'Filer',
+        'for approval'              => 'Finance',
+        'approved by finance'       => '-',
+        'rejected by finance'       => '-',
+        'cancelled'                 => '-',
+    ];
+
     public function __construct() {
         $this->setting = $this->getSettings();
     }
@@ -173,6 +185,7 @@ class TripController extends Controller
             'trips' => $trips,
             'status_arr' => $this->status_arr,
             'users' => $users_arr,
+            'status_responsible_arr' => $this->status_responsible_arr
         ]);
     }
 
@@ -240,6 +253,7 @@ class TripController extends Controller
             'user' => $user,
             'search' => $search,
             'date' => $date,
+            'status_responsible_arr' => $this->status_responsible_arr
         ]);
     }
 
