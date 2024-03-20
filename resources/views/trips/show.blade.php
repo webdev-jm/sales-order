@@ -384,6 +384,7 @@
         $('body').on('click', '#btn-approval', function(e) {
             e.preventDefault();
             var status = $(this).data('status');
+            $(this).prop('disabled', true);
             $('body').find('#status').val(status);
             $('#'+$(this).attr('form')).submit();
         });

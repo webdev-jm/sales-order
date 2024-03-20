@@ -70,6 +70,7 @@
                     <th>Departure</th>
                     <th>Return</th>
                     <th>Status</th>
+                    <th>Responsible</th>
                     <th>Type</th>
                     <th></th>
                 </tr>
@@ -88,6 +89,11 @@
                                 <span class="badge bg-{{$status_arr[$trip->status]}}">
                                     {{$trip->status}}
                                 </span>
+                            @endif
+                        </td>
+                        <td>
+                            @if(!empty($trip->status))
+                                <span>{{$status_responsible_arr[$trip->status]}}</span>
                             @endif
                         </td>
                         <td>
