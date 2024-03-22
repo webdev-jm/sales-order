@@ -75,7 +75,7 @@ class TripRejected extends Notification
             'module' => 'Trip',
             'status' => 'rejected',
             'status_code' => 'danger',
-            'message' => auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->departure)),
+            'message' => auth()->user()->fullName().' has rejected trip with the code ['.$this->trip->trip_number.'] scheduled for '.date('F j, Y' ,strtotime($this->trip->departure)),
             'color' => 'danger',
             'url' => url('/trip/'.$this->trip->id)
         ];
