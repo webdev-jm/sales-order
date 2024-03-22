@@ -145,8 +145,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => ['permission:trip access']], function() {
         Route::get('trip', [TripController::class, 'index'])->name('trip.index');
         Route::get('trip/create', [TripController::class, 'create'])->name('trip.create')->middleware('permission:trip create');
+        Route::get('trip/export', [TripController::class, 'export'])->name('trip.export');
         
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
+
         
         Route::get('trip/{id}/edit', [TripController::class, 'edit'])->name('trip.edit')->middleware('permission:trip edit');
 

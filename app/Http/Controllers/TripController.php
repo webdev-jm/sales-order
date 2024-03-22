@@ -26,6 +26,9 @@ use App\Notifications\TripApproved;
 use App\Notifications\TripRejected;
 use App\Notifications\TripCancelled;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TripExport;
+
 class TripController extends Controller
 {
     use GlobalTrait;
@@ -63,6 +66,19 @@ class TripController extends Controller
         $date = trim($request->get('date'));
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
+
+        $query_arr = array();
+        if(!empty($date)) {
+            $query_arr[] = 'date='.$date;
+        }
+        if(!empty($user)) {
+            $query_arr[] = 'user='.$user;
+        }
+        if(!empty($search)) {
+            $query_arr[] = 'search='.$search;
+        }
+        $query_string = implode('&', $query_arr);
+
         $users_arr = array();
         if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
@@ -79,7 +95,8 @@ class TripController extends Controller
                     $query->where(function($qry) use($search) {
                         $qry->where('from', 'like', '%'.$search.'%')
                             ->orWhere('to', 'like', '%'.$search.'%')
-                            ->orWhere('status', 'like', '%'.$search.'%');
+                            ->orWhere('status', 'like', '%'.$search.'%')
+                            ->orWhere('trip_number', 'like', '%'.$search.'%');
                     });
                 })
                 ->paginate(10)->onEachSide(1)
@@ -152,7 +169,8 @@ class TripController extends Controller
                     $query->where(function($qry) use($search) {
                         $qry->where('from', 'like', '%'.$search.'%')
                             ->orWhere('to', 'like', '%'.$search.'%')
-                            ->orWhere('status', 'like', '%'.$search.'%');
+                            ->orWhere('status', 'like', '%'.$search.'%')
+                            ->orWhere('trip_number', 'like', '%'.$search.'%');
                     });
                 })
                 ->paginate(10)->onEachSide(1)
@@ -185,7 +203,8 @@ class TripController extends Controller
             'trips' => $trips,
             'status_arr' => $this->status_arr,
             'users' => $users_arr,
-            'status_responsible_arr' => $this->status_responsible_arr
+            'status_responsible_arr' => $this->status_responsible_arr,
+            'query_string' => $query_string
         ]);
     }
 
@@ -676,5 +695,13 @@ class TripController extends Controller
             'trip' => $trip,
             'status_arr' => $this->status_arr,
         ]);
+    }
+
+    public function export(Request $request) {
+        $search = trim($request->get('search'));
+        $date = $request->get('date');
+        $user_id = $request->get('user');
+
+        return Excel::download(new TripExport($search, $date, $user_id), 'SMS Trip Request List'.time().'.xlsx');
     }
 }
