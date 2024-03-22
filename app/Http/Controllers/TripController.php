@@ -304,8 +304,13 @@ class TripController extends Controller
 
         // get user supervisors
         $supervisors_arr = $user->getSupervisorIds();
-        if(!empty($supervisors_arr)) {
-            $supervisor_ids[] = $supervisors_arr['first'];
+        if(!empty($supervisors_arr['first'])) {
+            foreach($supervisors_arr as $level => $id) {
+                if(!empty($id)) {
+                    $supervisor_ids[] = $id;
+                    break;
+                }
+            }
         }
         $supervisor_ids = array_unique($supervisor_ids);
 

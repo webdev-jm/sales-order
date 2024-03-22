@@ -48,17 +48,17 @@
 
             <hr class="my-1">
 
-            <div class="col-12 table-responsive">
+            <div class="col-12 table-responsive" style="max-height: 450px">
                 <table class="table table-bordered table-sm mb-0">
                     <thead>
-                        <tr class="text-center bg-gray">
-                            <th>#</th>
-                            <th class="align-middle p-0">STOCK CODE</th>
-                            <th class="align-middle p-0">DESCRIPTION</th>
-                            <th class="align-middle p-0">UNIT</th>
-                            <th class="align-middle p-0">QUANTITY</th>
-                            <th class="align-middle p-0">TOTAL</th>
-                            <th class="align-middle p-0">TOTAL LESS DISCOUNT</th>
+                        <tr class="text-center">
+                            <th class="bg-gray" style="position: sticky; top:-1px">#</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">STOCK CODE</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">DESCRIPTION</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">UNIT</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">QUANTITY</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">TOTAL</th>
+                            <th class="align-middle p-0 bg-gray" style="position: sticky; top:-1px">TOTAL LESS DISCOUNT</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,10 +94,10 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th colspan="4">TOTAL</th>
-                            <th class="text-right">{{number_format($order_data['total_quantity'] ?? 0)}}</th>
-                            <th class="text-right">{{number_format($order_data['total'] ?? 0, 2)}}</th>
-                            <th class="text-right">{{number_format($order_data['grand_total'] ?? 0, 2)}}</th>
+                            <th colspan="4" class="bg-white" style="position: sticky; bottom:-1px">TOTAL</th>
+                            <th class="text-right bg-white" style="position: sticky; bottom:-1px">{{number_format($order_data['total_quantity'] ?? 0)}}</th>
+                            <th class="text-right bg-white" style="position: sticky; bottom:-1px">{{number_format($order_data['total'] ?? 0, 2)}}</th>
+                            <th class="text-right bg-white" style="position: sticky; bottom:-1px">{{number_format($order_data['grand_total'] ?? 0, 2)}}</th>
                         </tr>
                     </tfoot>
                 </table>
