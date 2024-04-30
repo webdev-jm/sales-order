@@ -194,7 +194,7 @@ class Upload extends Component
             $ship_to_city = $this->account->ship_to_address1;
             $postal = $this->account->postal_code;
             if(!empty($data['shipping_address'])) {
-                $ship_to_name = $data['shipping_address']['ship_to_name'];
+                $ship_to_name = $data['shipping_address']['address_code'].' - '.$data['shipping_address']['ship_to_name'];
                 $ship_to_building = $data['shipping_address']['building'];
                 $ship_to_street = $data['shipping_address']['street'];
                 $ship_to_city = $data['shipping_address']['city'];

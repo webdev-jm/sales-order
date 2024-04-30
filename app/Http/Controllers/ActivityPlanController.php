@@ -225,7 +225,7 @@ class ActivityPlanController extends Controller
                                                         'trip_type' => $trip_data['type'],
                                                         'source' => 'activity-plan',
                                                         'transportation_type' => $trip_data['transportation_type'],
-                                                        'status' => $request->status == 'submitted'? 'submitted' : 'draft',
+                                                        'status' => $request->status == 'submitted' ? 'submitted' : 'draft',
                                                     ]);
                                                     $activity_plan_detail_trip->save();
                                                 }
@@ -524,7 +524,6 @@ class ActivityPlanController extends Controller
                                         $line_empty = 0;
                                     }
                                 }
-
                             }
                         }
 
@@ -552,12 +551,12 @@ class ActivityPlanController extends Controller
                                 foreach($details['lines'] as $val) {
                                     
                                     // check if already exist
-                                    if(isset($val['id'])) { // update
+                                    if(isset($val['id']) && !empty($val['id'])) { // update
                                         $activity_plan_detail = ActivityPlanDetail::find($val['id']);
 
                                         // check if line is deleted
                                         if(!empty($val['deleted']) && $val['deleted'] == true && !empty($activity_plan_detail)) {
-                                            $activity_plan_detail->delete();
+                                            $activity_plan_detail->forceDelete();
 
                                             if(isset($val['trip']) && !empty($val['trip'])) {
                                                 $trip_data = $val['trip'];
@@ -580,18 +579,6 @@ class ActivityPlanController extends Controller
                                                     'activity' => $val['purpose'],
                                                     'work_with' => $val['work_with'] ?? NULL,
                                                 ]);
-                                            } else {
-                                                $activity_plan_detail = new ActivityPlanDetail([
-                                                    'activity_plan_id' => $activity_plan->id,
-                                                    'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                                    'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                                    'day' => $details['day'],
-                                                    'date' => $date,
-                                                    'exact_location' => $val['location'],
-                                                    'activity' => $val['purpose'],
-                                                    'work_with' => $val['work_with'] ?? NULL,
-                                                ]);
-                                                $activity_plan_detail->save();
                                             }
                                         }
 
@@ -642,10 +629,17 @@ class ActivityPlanController extends Controller
                                         
                                         // add approvals
                                         if($request->status == 'submitted') {
-
-                                            $trip->update([
-                                                'status' => 'submitted'
-                                            ]);
+                                            $trip_status_arr = [
+                                                'approved by imm. superior',
+                                                'for approval',
+                                                'approved by finance',
+                                                'rejected by finance',
+                                            ];
+                                            if(!in_array($trip->status, $trip_status_arr)) {
+                                                $trip->update([
+                                                    'status' => 'submitted'
+                                                ]);
+                                            }
 
                                             $approval = new ActivityPlanDetailTripApproval([
                                                 'user_id' => auth()->user()->id,

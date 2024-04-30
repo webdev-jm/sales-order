@@ -36,7 +36,7 @@
             </div>
             <div class="col-lg-6">
                 <div class="row">
-                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
+                    <div class="col-md-3 my-2">
                         <div class="input-group input-group-sm">
                             {!! Form::date('date', $date, ['class' => 'form-control', 'form' => 'search_form']) !!}
                         </div>
@@ -46,12 +46,12 @@
                             {!! Form::select('user', $users, $user, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
                         </div>
                     </div>
-                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
+                    <div class="col-md-3 my-2">
                         <div class="input-group input-group-sm">
                             {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                         </div>
                     </div>
-                    <div class="{{auth()->user()->can('trip finance approver') ? 'col-md-3' : 'col-md-4'}} my-2">
+                    <div class="col-md-3 my-2">
                         <div class="input-group input-group-sm">
                             {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
                         </div>
@@ -95,7 +95,11 @@
                         </td>
                         <td>
                             @if(!empty($trip->status))
-                                <span>{{$status_responsible_arr[$trip->status]}}</span>
+                                @if($trip->status == 'submitted' && !empty($trip->user->department) && strtolower($trip->user->department->department_code) != 'sales')
+                                    <span>Admin</span>
+                                @else
+                                    <span>{{$status_responsible_arr[$trip->status]}}</span>
+                                @endif
                             @endif
                         </td>
                         <td>
