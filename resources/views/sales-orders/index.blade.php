@@ -80,7 +80,9 @@
                     <td>{{$sales_order->po_number}}</td>
                     <td>{{$sales_order->order_date}}</td>
                     <td>{{$sales_order->ship_date}}</td>
-                    <td>{{$sales_order->ship_to_name}}</td>
+                    <td>
+                        {{$sales_order->ship_to_name}}
+                    </td>
                     <td>
                         @if(isset($sales_order->upload_status))
                             <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>

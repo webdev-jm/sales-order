@@ -50,10 +50,10 @@ Activity Plan - Edit
             <div class="col-lg-4 col-md-6 text-right">
                 <div class="row">
                     <div class="col-lg-6">
-                        {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-block btn-submit mb-1', 'form' => 'update_mcp']) !!}
+                        {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-block btn-submit mb-1', 'form' => 'update_mcp', 'type' => 'button']) !!}
                     </div>
                     <div class="col-lg-6">
-                        {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-block btn-submit', 'form' => 'update_mcp']) !!}
+                        {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-block btn-submit', 'form' => 'update_mcp', 'type' => 'button']) !!}
                     </div>
                     {!! Form::hidden('status', $activity_plan->status, ['form' => 'update_mcp', 'id' => 'status']) !!}
                 </div>
@@ -97,6 +97,8 @@ Activity Plan - Edit
         // change status base on button clicked
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
+            $(this).prop('disabled', true);
+            
             var status = $(this).val();
             var status_val = '';
             if(status == 'Submit for Approval') {
