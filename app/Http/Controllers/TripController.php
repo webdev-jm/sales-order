@@ -66,6 +66,7 @@ class TripController extends Controller
         $date = trim($request->get('date'));
         $user = trim($request->get('user'));
         $search = trim($request->get('search'));
+        $company = trim($request->get('company'));
 
         $query_arr = array();
         if(!empty($date)) {
@@ -76,6 +77,9 @@ class TripController extends Controller
         }
         if(!empty($search)) {
             $query_arr[] = 'search='.$search;
+        }
+        if(!empty($company)) {
+            $query_arr[] = 'company='.$company;
         }
         $query_string = implode('&', $query_arr);
 
@@ -99,6 +103,19 @@ class TripController extends Controller
                             ->orWhere('trip_number', 'like', '%'.$search.'%');
                     });
                 })
+                ->when(!empty($company), function($query) use($company) {
+                    $group_codes = array();
+                    if($company == 'bevi') {
+                        $group_codes = ['CMD', 'NKA'];
+                    }
+                    if($company == 'beva') {
+                        $group_codes = ['RD'];
+                    }
+
+                    $query->whereHas('user', function($qry) use($group_codes) {
+                        $qry->whereIn('group_code', $group_codes);
+                    });
+                })
                 ->paginate(10)->onEachSide(1)
                 ->appends(request()->query());
 
@@ -113,6 +130,16 @@ class TripController extends Controller
                             ->orWhere('from', 'like', '%'.$search.'%')
                             ->orWhere('to', 'like', '%'.$search.'%');
                     });
+            })
+            ->when(!empty($company), function($query) use($company) {
+                $group_codes = array();
+                if($company == 'bevi') {
+                    $group_codes = ['CMD', 'NKA'];
+                }
+                if($company == 'beva') {
+                    $group_codes = ['RD'];
+                }
+                $query->whereIn('group_code', $group_codes);
             })
             ->get();
 
@@ -173,6 +200,19 @@ class TripController extends Controller
                             ->orWhere('trip_number', 'like', '%'.$search.'%');
                     });
                 })
+                ->when(!empty($company), function($query) use($company) {
+                    $group_codes = array();
+                    if($company == 'bevi') {
+                        $group_codes = ['CMD', 'NKA'];
+                    }
+                    if($company == 'beva') {
+                        $group_codes = ['RD'];
+                    }
+
+                    $query->whereHas('user', function($qry) use($group_codes) {
+                        $qry->whereIn('group_code', $group_codes);
+                    });
+                })
                 ->paginate(10)->onEachSide(1)
                 ->appends(request()->query());
 
@@ -188,6 +228,16 @@ class TripController extends Controller
                             ->orWhere('to', 'like', '%'.$search.'%');
                     });
             })
+            ->when(!empty($company), function($query) use($company) {
+                $group_codes = array();
+                if($company == 'bevi') {
+                    $group_codes = ['CMD', 'NKA'];
+                }
+                if($company == 'beva') {
+                    $group_codes = ['RD'];
+                }
+                $query->whereIn('group_code', $group_codes);
+            })
             ->whereIn('id', $users_ids)
             ->get();
 
@@ -200,6 +250,7 @@ class TripController extends Controller
             'user' => $user,
             'search' => $search,
             'date' => $date,
+            'company' => $company,
             'trips' => $trips,
             'status_arr' => $this->status_arr,
             'users' => $users_arr,
