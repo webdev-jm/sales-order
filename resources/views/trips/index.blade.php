@@ -31,12 +31,12 @@
 <div class="card">
     <div class="card-header">
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-3">
                 <h3 class="card-title">List of Trips</h3>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-9">
                 <div class="row">
-                    <div class="col-md-3 my-2">
+                    <div class="col-md-2 my-2">
                         <div class="input-group input-group-sm">
                             {!! Form::date('date', $date, ['class' => 'form-control', 'form' => 'search_form']) !!}
                         </div>
@@ -51,7 +51,12 @@
                             {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                         </div>
                     </div>
-                    <div class="col-md-3 my-2">
+                    <div class="col-md-2 my-2">
+                        <div class="input-group input-group-sm">
+                            {!! Form::select('company', ['bevi' => 'BEVI', 'beva' => 'BEVA'], $company, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
+                        </div>
+                    </div>
+                    <div class="col-md-2 my-2">
                         <div class="input-group input-group-sm">
                             {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
                         </div>

@@ -25,8 +25,8 @@ class SalesOrderSummary extends Component
             'ship_to_address2' => $this->account->ship_to_address2,
             'ship_to_address3' => $this->account->ship_to_address3,
         ];
-        if(empty($this->data['shipping_address_id'])) {
-            $address = ShipToAddress::where('account_id', $this->account->id)
+        if(!empty($this->data['shipping_address_id'])) {
+            $address = ShippingAddress::where('account_id', $this->account->id)
                 ->where('id', $data['shipping_address_id'])
                 ->first();
             $ship_to_address = [

@@ -273,6 +273,8 @@
                     'shipping_address_id' : $('#shipping_address_id').val()
                 }
 
+                console.log(data);
+
                 Livewire.emit('setDataSummary', data);
                 $('#modal-summary').modal('show');
             } else {
