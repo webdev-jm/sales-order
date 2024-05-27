@@ -29,12 +29,14 @@ class SalesOrderSummary extends Component
             $address = ShippingAddress::where('account_id', $this->account->id)
                 ->where('id', $data['shipping_address_id'])
                 ->first();
-            $ship_to_address = [
-                'ship_to_name' => $address->ship_to_name,
-                'ship_to_address1' => $address->building,
-                'ship_to_address2' => $address->street,
-                'ship_to_address3' => $address->city,
-            ];
+            if(!empty($address)) {
+                $ship_to_address = [
+                    'ship_to_name' => $address->ship_to_name,
+                    'ship_to_address1' => $address->building,
+                    'ship_to_address2' => $address->street,
+                    'ship_to_address3' => $address->city,
+                ];
+            }
         }
 
         $this->ship_to_address = $ship_to_address;

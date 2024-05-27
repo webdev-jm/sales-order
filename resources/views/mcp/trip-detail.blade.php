@@ -108,6 +108,12 @@
         .objective {
             margin-top: 5px;
             padding-left: 10px;
+            font-family: 'Courier New', monospace;
+            /*white-space: pre-wrap; /* CSS3 */
+            /*white-space: -moz-pre-wrap; /* Mozilla */
+            /*white-space: -pre-wrap; /* Opera 4-6 */
+            /*white-space: -o-pre-wrap; /* Opera 7 */
+            /*word-wrap: break-word; /* IE */
         }
 
         .w33 {
@@ -321,7 +327,7 @@
         @endphp
         @if(!empty($approval))
             <strong class="text-muted">REMARKS</strong>
-            <pre class="objective" style="font-family: 'Courier New', monospace;">{{$approval->remarks ?? '-'}}</pre>
+            <pre class="objective">{{$approval->remarks ? preg_replace('/[^\S\n]+/', ' ', $approval->remarks) : '-'}}</pre>
 
             <hr>
         @endif
