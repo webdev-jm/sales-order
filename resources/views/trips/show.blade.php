@@ -173,7 +173,8 @@
                         <div class="col-lg-9">
                             <strong class="text-muted">REMARKS</strong>
                             <br>
-                            <pre class="text-uppercase text-lg">{{$approval->remarks}}</pre>
+                            <pre class="text-uppercase text-lg">{{$approval->remarks ? preg_replace('/[^\S\n]+/', ' ', $approval->remarks) : '-'}}</pre>
+                            
                         </div>
                         @endif
                     </div>
@@ -352,7 +353,7 @@
                                     @if(!empty($approval->remarks))
                                         <div class="timeline-body">
                                             <label class="mb-0">REMARKS:</label>
-                                            <pre class="mb-0 ml-2">{{$approval->remarks}}</pre>
+                                            <pre class="mb-0 ml-2">{{$approval->remarks ? preg_replace('/[^\S\n]+/', ' ', $approval->remarks) : '-'}}</pre>
                                         </div>
                                     @endif
                                 </div>
