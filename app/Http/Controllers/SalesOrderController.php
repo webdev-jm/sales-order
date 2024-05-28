@@ -376,33 +376,100 @@ class SalesOrderController extends Controller
         } else {
             $curr_limit = $limit;
         }
+
+        // get CRISTALINO [CSP10001, CSP10002, CSP10003]
+        $cristalino_prod_ids = Product::whereIn('stock_code', ['CSP10001', 'CSP10002', 'CSP10003'])->get()->pluck('id')->toArray();
+        // get KS01046
+        $ks_1046 = Product::where('stock_code', 'KS01046')->first();
+
+        $cristalino_data = array();
+        $ks_1046_data = array();
         foreach($order_data['items'] as $product_id => $items) {
-            $num++;
+            
+            // separate Cristalino
+            if(in_array($product_id, $cristalino_prod_ids)) {
+                $cristalino_data[$product_id] = $items;
+            } else if($product_id == $ks_1046->id) { // separate KS01046
+                $ks_1046_data[$product_id] = $items;
+            } else {
+                $num++;
+                // divide by parts
+                if($num > $curr_limit) {
+                    $curr_limit += $limit;
+                    $part++;
+                }
 
-            // divide by parts
-            if($num > $curr_limit) {
-                $curr_limit += $limit;
-                $part++;
-            }
-
-            $sales_order_product = new SalesOrderProduct([
-                'sales_order_id' => $sales_order->id,
-                'product_id' => $product_id,
-                'part' => $part,
-                'total_quantity' => $items['product_quantity'],
-                'total_sales' => $items['product_total'],
-            ]);
-            $sales_order_product->save();
-
-            foreach($items['data'] as $uom => $data) {
-                $sales_order_product_uom = new SalesOrderProductUom([
-                    'sales_order_product_id' => $sales_order_product->id,
-                    'uom' => $uom,
-                    'quantity' => $data['quantity'],
-                    'uom_total' => $data['total'],
-                    'uom_total_less_disc' => $data['discounted']
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
                 ]);
-                $sales_order_product_uom->save();
+                $sales_order_product->save();
+    
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
+            }
+        }
+
+        // save cristalino in other as other parts
+        if(!empty($cristalino_data)) {
+            $part = $part + 1;
+            foreach($cristalino_data as $product_id => $items) {
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
+                ]);
+                $sales_order_product->save();
+    
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
+            }
+        }
+
+        // save KS01046
+        if(!empty($ks_1046_data)) {
+            $part = $part + 1;
+            foreach($ks_1046_data as $product_id => $items) {
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
+                ]);
+                $sales_order_product->save();
+    
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
             }
         }
 
@@ -578,34 +645,102 @@ class SalesOrderController extends Controller
             $curr_limit = $limit;
         }
 
+        // get CRISTALINO [CSP10001, CSP10002, CSP10003]
+        $cristalino_prod_ids = Product::whereIn('stock_code', ['CSP10001', 'CSP10002', 'CSP10003'])->get()->pluck('id')->toArray();
+        // get KS01046
+        $ks_1046 = Product::where('stock_code', 'KS01046')->first();
+
+        $cristalino_data = array();
+        $ks_1046_data = array();
+
         $sales_order->order_products()->forceDelete();
         foreach($order_data['items'] as $product_id => $items) {
-            $num++;
 
-            // divide by parts
-            if($num > $curr_limit) {
-                $curr_limit += $limit;
-                $part++;
-            }
+            // separate Cristalino
+            if(in_array($product_id, $cristalino_prod_ids)) {
+                $cristalino_data[$product_id] = $items;
+            } else if($product_id == $ks_1046->id) { // separate KS01046
+                $ks_1046_data[$product_id] = $items;
+            } else {
 
-            $sales_order_product = new SalesOrderProduct([
-                'sales_order_id' => $sales_order->id,
-                'product_id' => $product_id,
-                'part' => $part,
-                'total_quantity' => $items['product_quantity'],
-                'total_sales' => $items['product_total'],
-            ]);
-            $sales_order_product->save();
+                $num++;
+                // divide by parts
+                if($num > $curr_limit) {
+                    $curr_limit += $limit;
+                    $part++;
+                }
 
-            foreach($items['data'] as $uom => $data) {
-                $sales_order_product_uom = new SalesOrderProductUom([
-                    'sales_order_product_id' => $sales_order_product->id,
-                    'uom' => $uom,
-                    'quantity' => $data['quantity'],
-                    'uom_total' => $data['total'],
-                    'uom_total_less_disc' => $data['discounted']
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
                 ]);
-                $sales_order_product_uom->save();
+                $sales_order_product->save();
+
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
+            }
+        }
+
+        // save cristalino in other as other parts
+        if(!empty($cristalino_data)) {
+            $part = $part + 1;
+            foreach($cristalino_data as $product_id => $items) {
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
+                ]);
+                $sales_order_product->save();
+    
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
+            }
+        }
+
+        // save KS01046
+        if(!empty($ks_1046_data)) {
+            $part = $part + 1;
+            foreach($ks_1046_data as $product_id => $items) {
+                $sales_order_product = new SalesOrderProduct([
+                    'sales_order_id' => $sales_order->id,
+                    'product_id' => $product_id,
+                    'part' => $part,
+                    'total_quantity' => $items['product_quantity'],
+                    'total_sales' => $items['product_total'],
+                ]);
+                $sales_order_product->save();
+    
+                foreach($items['data'] as $uom => $data) {
+                    $sales_order_product_uom = new SalesOrderProductUom([
+                        'sales_order_product_id' => $sales_order_product->id,
+                        'uom' => $uom,
+                        'quantity' => $data['quantity'],
+                        'uom_total' => $data['total'],
+                        'uom_total_less_disc' => $data['discounted']
+                    ]);
+                    $sales_order_product_uom->save();
+                }
             }
         }
 
