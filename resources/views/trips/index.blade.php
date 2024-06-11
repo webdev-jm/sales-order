@@ -89,8 +89,8 @@
                         <td>{{$trip->user->fullName()}}</td>
                         <td class="text-uppercase">{{$trip->from}}</td>
                         <td class="text-uppercase">{{$trip->to}}</td>
-                        <td>{{$trip->departure}}</td>
-                        <td>{{$trip->return ?? '-'}}</td>
+                        <td>{{date('Y-m-d (D)', strtotime($trip->departure))}}</td>
+                        <td>{{!empty($trip->return) ? date('Y-m-d (D)', strtotime($trip->return)) : '-'}}</td>
                         <td>
                             @if(!empty($trip->status))
                                 <span class="badge bg-{{$status_arr[$trip->status]}}">

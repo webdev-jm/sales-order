@@ -816,6 +816,13 @@ class SalesOrderController extends Controller
                 if (is_int($ship_date)) {
                     // Convert the value to a date instance if it looks like a date.
                     $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
+                } else {
+                    $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
+                    if ($dateTime === false) {
+                        $ship_date = $ship_date;
+                    } else {
+                        $ship_date = $dateTime->format('Y-m-d');
+                    }
                 }
             }
             // SHIPPING INSTRUCTIONS
