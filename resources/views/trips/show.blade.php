@@ -121,13 +121,13 @@
                     <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                         <strong class="text-muted">DEPARTURE DATE</strong>
                         <br>
-                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->departure))}}</strong>
+                        <strong class="text-uppercase text-lg">{{date('m/d/Y (D)', strtotime($trip->departure))}}</strong>
                     </div>
                     @if($trip->trip_type == 'round_trip')
                         <div class="col-lg-3 text-center">
                             <strong class="text-muted">RETURN DATE</strong>
                             <br>
-                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip->return))}}</strong>
+                            <strong class="text-uppercase text-lg">{{date('m/d/Y (D)', strtotime($trip->return))}}</strong>
                         </div>
                     @endif
                     <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">

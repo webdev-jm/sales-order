@@ -98,6 +98,13 @@ class Upload extends Component
     
                     if(is_int($ship_date)) {
                         $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
+                    } else {
+                        $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
+                        if ($dateTime === false) {
+                            $ship_date = $ship_date;
+                        } else {
+                            $ship_date = $dateTime->format('Y-m-d');
+                        }
                     }
     
                     $data_arr[$po_number]['ship_to_address'] = $ship_to_address;
