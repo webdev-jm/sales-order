@@ -47,4 +47,8 @@ class ActivityPlanDetailTrip extends Model
     public function attachments() {
         return $this->hasMany('App\Models\ActivityPlanDetailTripAttachment');
     }
+
+    public function destinations() {
+        return $this->hasMany('App\Models\ActivityPlanDetailTripDestination');
+    }
 }

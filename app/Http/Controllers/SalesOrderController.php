@@ -111,8 +111,7 @@ class SalesOrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $logged_account = Session::get('logged_account');
         $search = trim($request->get('search'));
         if(isset($logged_account)) {
@@ -145,8 +144,7 @@ class SalesOrderController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
+    public function create() {
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
             return redirect()->route('home')->with([
@@ -273,8 +271,7 @@ class SalesOrderController extends Controller
      * @param  \App\Http\Requests\StoreSalesOrderRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreSalesOrderRequest $request)
-    {
+    public function store(StoreSalesOrderRequest $request) {
         // check
         $check = SalesOrder::where('control_number', $request->control_number)->first();
         if(!empty($check)) {
@@ -493,8 +490,7 @@ class SalesOrderController extends Controller
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
+    public function show($id) {
         $sales_order = SalesOrder::findOrFail($id);
         $parts = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
 
@@ -513,8 +509,7 @@ class SalesOrderController extends Controller
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
-    {
+    public function edit($id) {
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
             return redirect()->route('home')->with([
@@ -573,8 +568,7 @@ class SalesOrderController extends Controller
      * @param  \App\Models\SalesOrder  $salesOrder
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateSalesOrderRequest $request, $id)
-    {
+    public function update(UpdateSalesOrderRequest $request, $id) {
         $logged_account = Session::get('logged_account');
         $order_data = Session::get('order_data');
 
