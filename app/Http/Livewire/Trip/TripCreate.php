@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\ActivityPlanDetailTripAttachment;
+use App\Models\ActivityPlanDetailTripDestination;
 
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TripSubmitted;
@@ -23,6 +24,8 @@ class TripCreate extends Component
     public $trip_number;
     public $from, $to, $departure, $return, $passenger, $purpose, $attachment, $status;
     public $form_errors;
+    public $passenger_other, $from_other, $to_other, $departure_other, $return_other;
+    public $users;
 
     public function submitForm($status) {
         $this->status = $status;
@@ -40,29 +43,40 @@ class TripCreate extends Component
             'departure' => [
                 'required',
                 function ($attribute, $value, $fail) {
-                    $currentDate = Carbon::today();
-                    $departureDate = Carbon::parse($value);
-
-                    if($currentDate > $departureDate) {
-                        $fail('Ensure that the departure date is set after the current date.');
+                    try {
+                        $currentDate = Carbon::today();
+                        $departureDate = Carbon::parse($value);
+        
+                        if ($currentDate >= $departureDate) {
+                            $fail('The departure date must be after today.');
+                        }
+                    } catch (\Exception $e) {
+                        $fail('The departure date is not a valid date.');
                     }
-                }
+                },
             ],
             'return' => [
                 function ($attribute, $value, $fail) {
-                    if ($this->type == 'round_trip' && empty($value)) {
-                        $fail('The return field is required for round trips.');
-                    }
-
-                    $currentDate = Carbon::today();
-                    $departureDate = Carbon::parse($this->departure);
-                    $returnDate = Carbon::parse($value);
-                    if($currentDate > $departureDate) {
-                        $fail('Ensure that the departure date is set after the current date.');
-                    }
-
-                    if(!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
-                        $fail('The return date must be on or before the departure date.');
+                    try {
+                        if ($this->type == 'round_trip' && empty($value)) {
+                            $fail('The return field is required for round trips.');
+                        }
+        
+                        $currentDate = Carbon::today();
+                        $departureDate = Carbon::parse($this->departure);
+                        $returnDate = Carbon::parse($value);
+        
+                        if ($this->type == 'round_trip') {
+                            if ($currentDate > $departureDate) {
+                                $fail('The departure date must be after today.');
+                            }
+        
+                            if (!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
+                                $fail('The return date must be on or after the departure date.');
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        $fail('The return date is not a valid date.');
                     }
                 }
             ],
@@ -78,6 +92,67 @@ class TripCreate extends Component
                         $fail('Attachment is required when the departure date is less than two weeks away from the current date.');
                     }
                 },
+            ],
+            'passenger_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The Passenger Name field is required for additional passengers.');
+                    }
+                }
+            ],
+            'from_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The From field is required for additional passengers.');
+                    }
+                }
+            ],
+            'to_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The To field is required for additional passengers.');
+                    }
+                }
+            ],
+            'departure_other' => [
+                'required',
+                function ($attribute, $values, $fail) {
+                    try {
+                        $currentDate = Carbon::today();
+                        $departureDate = Carbon::parse($value);
+        
+                        if ($currentDate >= $departureDate) {
+                            $fail('The departure date must be after today.');
+                        }
+                    } catch (\Exception $e) {
+                        $fail('The departure date is not a valid date.');
+                    }
+                },
+            ],
+            'return_other' => [
+                function ($attribute, $value, $fail) {
+                    try {
+                        if ($this->type == 'round_trip' && empty($value)) {
+                            $fail('The return field is required for round trips.');
+                        }
+        
+                        $currentDate = Carbon::today();
+                        $departureDate = Carbon::parse($this->departure);
+                        $returnDate = Carbon::parse($value);
+        
+                        if ($this->type == 'round_trip') {
+                            if ($currentDate > $departureDate) {
+                                $fail('The departure date must be after today.');
+                            }
+        
+                            if (!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
+                                $fail('The return date must be on or after the departure date.');
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        $fail('The return date is not a valid date.');
+                    }
+                }
             ]
         ]);
 
@@ -100,6 +175,25 @@ class TripCreate extends Component
             'source' => 'trip-add',
         ]);
         $trip->save();
+
+        // trip other destinations
+        if($this->passenger >= 2) {
+            foreach($this->from_other as $key => $from) {
+                if(!empty($from) && !empty($this->to_other[$key]) && !empty($this->departure_other[$key]) && !empty($this->passenger_other[$key])) {
+                    if($this->type == 'round_trip' && !empty($this->return_other[$key])) {
+                        $destination = new ActivityPlanDetailTripDestination([
+                            'activity_plan_detail_trip_id' => $trip->id,
+                            'user_id' => $this->passenger_other[$key],
+                            'from' => $this->from_other[$key],
+                            'to' => $this->to_other[$key],
+                            'departure' => $this->departure_other[$key],
+                            'return' => $this->return[$key],
+                        ]);
+                        $destination->save();
+                    }
+                }
+            }
+        }
 
         if($this->status == 'submitted') {
             // approval history
@@ -213,6 +307,9 @@ class TripCreate extends Component
     public function mount() {
         $this->type = 'one_way';
         $this->passenger = 1;
+
+        $this->users = User::orderBy('firstname', 'ASC')
+            ->get();
     }
 
     public function render()

@@ -31,8 +31,8 @@ Trait SoProductPriceTrait {
                 ->first();
         }
 
-        $selling_price = $price_code->selling_price;
-        $price_basis = $price_code->price_basis;
+        $selling_price = $price_code->selling_price ?? 0;
+        $price_basis = $price_code->price_basis ?? NULL;
 
         // convert selling price to stock uom price
         if($price_basis == 'A') {

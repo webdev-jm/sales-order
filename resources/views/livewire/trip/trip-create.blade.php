@@ -116,27 +116,39 @@
                         @if($passenger >= 2)
                             @for($i = 2; $i <= $passenger; $i++)
                                 <div class="row">
-                                    <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label>PASSENGER<i class="fa fa-user ml-1"></i></label>
+                                            <select class="form-control" wire:model="passenger_other.{{$i}}">
+                                                <option value=""> - select - </option>
+                                                @foreach($users as $user)
+                                                    <option value="{{$user->id}}">{{$user->fullName()}}</option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-danger mb-0">{{$errors->first('passenger_name')}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
                                         <div class="form-group">
                                             <label>FROM<i class="fa fa-plane-departure ml-1"></i></label>
-                                            <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="from" wire:model="from_other.{{$i}}">
-                                            <p class="text-danger mb-0">{{$errors->first('from')}}</p>
+                                            <input type="text" class="form-control{{$errors->has('from_other') ? ' is-invalid' : ''}}" placeholder="from" wire:model="from_other.{{$i}}">
+                                            <p class="text-danger mb-0">{{$errors->first('from_other')}}</p>
                                         </div>
                                     </div>
 
-                                    <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
+                                    <div class="col-lg-3">
                                         <div class="form-group">
                                             <label>TO<i class="fa fa-plane-arrival ml-1"></i></label>
-                                            <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="to" wire:model="to_other.{{$i}}">
-                                            <p class="text-danger mb-0">{{$errors->first('to')}}</p>
+                                            <input type="text" class="form-control{{$errors->has('to_other') ? ' is-invalid' : ''}}" placeholder="to" wire:model="to_other.{{$i}}">
+                                            <p class="text-danger mb-0">{{$errors->first('to_other')}}</p>
                                         </div>
                                     </div>
 
-                                    <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
+                                    <div class="col-lg-3">
                                         <div class="form-group">
                                             <label>DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
-                                            <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model="departure_other.{{$i}}">
-                                            <p class="text-danger mb-0">{{$errors->first('departure')}}</p>
+                                            <input type="date" class="form-control{{$errors->has('departure_other') ? ' is-invalid' : ''}}" wire:model="departure_other.{{$i}}">
+                                            <p class="text-danger mb-0">{{$errors->first('departure_other')}}</p>
                                         </div>
                                     </div>
 
@@ -144,8 +156,8 @@
                                         <div class="col-lg-3">
                                             <div class="form-group">
                                                 <label>RETURN<i class="fa fa-calendar-alt ml-1"></i></label>
-                                                <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model="return_other.{{$i}}">
-                                                <p class="text-danger mb-0">{{$errors->first('return')}}</p>
+                                                <input type="date" class="form-control{{$errors->has('return_other') ? ' is-invalid' : ''}}" wire:model="return_other.{{$i}}">
+                                                <p class="text-danger mb-0">{{$errors->first('return_other')}}</p>
                                             </div>
                                         </div>
                                     @endif
