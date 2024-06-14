@@ -41,9 +41,10 @@
                 <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 DRAFT ALL
             </button>
-            {{-- <button class="btn btn-success" wire:click.prevent="saveAll('finalized')">
+            <button class="btn btn-success" wire:click.prevent="saveAll('finalized')" wire:loading.attr="disabled">
+                <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 FINALIZE ALL
-            </button> --}}
+            </button>
         </div>
 
         @foreach($so_data as $po_number => $data)
@@ -57,9 +58,10 @@
                                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Save as Draft
                                 </button>
-                                {{-- <button class="btn btn-success" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
+                                <button class="btn btn-success" wire:loading.attr="disabled" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
+                                    <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Finalize
-                                </button> --}}
+                                </button>
                             @endif
                         </div>
                     </div>
