@@ -63,7 +63,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('discount_1', 'Discount Percentage 1') !!}
-                    {!! Form::number('discount_1', $discount->discount_1, ['class' => 'form-control'.($errors->has('discount_1') ? ' is-invalid' : ''), 'form' => 'update_discount']) !!}
+                    {!! Form::number('discount_1', $discount->discount_1, ['class' => 'form-control'.($errors->has('discount_1') ? ' is-invalid' : ''), 'form' => 'update_discount', 'step' => '0.01']) !!}
                     <p class="text-danger">{{$errors->first('discount_1')}}</p>
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('discount_2', 'Discount Percentage 2') !!}
-                    {!! Form::number('discount_2', $discount->discount_2, ['class' => 'form-control'.($errors->has('discount_2') ? ' is-invalid' : ''), 'form' => 'update_discount']) !!}
+                    {!! Form::number('discount_2', $discount->discount_2, ['class' => 'form-control'.($errors->has('discount_2') ? ' is-invalid' : ''), 'form' => 'update_discount', 'step' => '0.01']) !!}
                     <p class="text-danger">{{$errors->first('discount_2')}}</p>
                 </div>
             </div>
@@ -79,7 +79,7 @@
             <div class="col-md-3">
                 <div class="form-group">
                     {!! Form::label('discount_3', 'Discount Percentage 3') !!}
-                    {!! Form::number('discount_3', $discount->discount_3, ['class' => 'form-control'.($errors->has('discount_3') ? ' is-invalid' : ''), 'form' => 'update_discount']) !!}
+                    {!! Form::number('discount_3', $discount->discount_3, ['class' => 'form-control'.($errors->has('discount_3') ? ' is-invalid' : ''), 'form' => 'update_discount', 'step' => '0.01']) !!}
                     <p class="text-danger">{{$errors->first('discount_3')}}</p>
                 </div>
             </div>

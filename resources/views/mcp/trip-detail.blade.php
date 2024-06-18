@@ -96,6 +96,9 @@
         .border-left {
             border-left: 1px solid gray !important;
         }
+        .border-bottom {
+            border-bottom: 1px solid gray !important;
+        }
         .align-top {
             vertical-align: top;
         }
@@ -269,8 +272,9 @@
                         <span class="text-muted">DEPARTURE</span>
                         <br>
                         <strong>{{date('m/d/Y (D)', strtotime($trip->departure))}}</strong>
+                        {{date('m/d/Y (D)', strtotime($trip->return))}}
                     </td>
-                    @if($trip->type == 'round_trip')
+                    @if($trip->trip_type == 'round_trip')
                         <td class="border-0 border-left">
                             <span class="text-muted">RETURN</span>
                             <br>
@@ -301,6 +305,54 @@
                     </td>
                 </tr>
             </tbody>
+            @if(!empty($trip->destinations()->count()))
+                @foreach($trip->destinations as $destination)
+                <tbody>
+                    <tr>
+                        <td colspan="3" class="border-0 border-bottom"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="border-0"></td>
+                    </tr>
+                    <tr>
+                        <td class="border-0 w33">
+                            <span class="text-muted">NAME</span>
+                            <br>
+                            <strong>{{strtoupper($destination->user->fullName())}}</strong>
+                        </td>
+                        <td  class="border-0 border-left">
+                            <span class="text-muted">DEPARTURE</span>
+                            <br>
+                            <strong>{{date('m/d/Y (D)', strtotime($destination->departure))}}</strong>
+                        </td>
+                        @if($trip->trip_type == 'round_trip')
+                            <td class="border-0 border-left">
+                                <span class="text-muted">RETURN</span>
+                                <br>
+                                <strong>{{date('m/d/Y (D)', strtotime($destination->return))}}</strong>
+                            </td>
+                        @endif
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="border-0">
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="border-0">
+                            <span class="text-muted">FROM</span>
+                            <br>
+                            <strong>{{strtoupper($destination->from)}}</strong>
+                        </td>
+                        <td class="border-0 border-left">
+                            <span class="text-muted">TO</span>
+                            <br>
+                            <strong>{{$destination->to}}</strong>
+                        </td>
+                    </tr>
+                </tbody>
+                @endforeach
+            @endif
         </table>
 
         <hr>
@@ -389,7 +441,7 @@
         </table>
 
         <div class="footer">
-            Rev.00
+            Rev.01
         </div>
 
     </div>

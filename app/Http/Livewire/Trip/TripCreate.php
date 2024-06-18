@@ -117,15 +117,17 @@ class TripCreate extends Component
             'departure_other' => [
                 'required',
                 function ($attribute, $values, $fail) {
-                    try {
-                        $currentDate = Carbon::today();
-                        $departureDate = Carbon::parse($value);
-        
-                        if ($currentDate >= $departureDate) {
-                            $fail('The departure date must be after today.');
+                    foreach($values as $value) {
+                        try {
+                            $currentDate = Carbon::today();
+                            $departureDate = Carbon::parse($value);
+            
+                            if ($currentDate >= $departureDate) {
+                                $fail('The departure date must be after today.');
+                            }
+                        } catch (\Exception $e) {
+                            $fail('The departure date is not a valid date.');
                         }
-                    } catch (\Exception $e) {
-                        $fail('The departure date is not a valid date.');
                     }
                 },
             ],
@@ -187,7 +189,17 @@ class TripCreate extends Component
                             'from' => $this->from_other[$key],
                             'to' => $this->to_other[$key],
                             'departure' => $this->departure_other[$key],
-                            'return' => $this->return[$key],
+                            'return' => $this->return_other[$key] ?? NULL,
+                        ]);
+                        $destination->save();
+                    } else {
+                        $destination = new ActivityPlanDetailTripDestination([
+                            'activity_plan_detail_trip_id' => $trip->id,
+                            'user_id' => $this->passenger_other[$key],
+                            'from' => $this->from_other[$key],
+                            'to' => $this->to_other[$key],
+                            'departure' => $this->departure_other[$key],
+                            'return' => $this->return_other[$key] ?? NULL,
                         ]);
                         $destination->save();
                     }

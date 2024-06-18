@@ -20,10 +20,10 @@ class CreateActivityPlanDetailTripDestinationsTable extends Migration
             $table->string('from');
             $table->string('to')->nullable();
             $table->date('departure');
-            $table->date('return');
+            $table->date('return')->nullable();
             $table->timestamps();
 
-            $table->foreign('activity_plan_detail_trip_id')
+            $table->foreign('activity_plan_detail_trip_id', 'trip_destination_trip_id_foreign')
                 ->references('id')->on('activity_plan_detail_trips')
                 ->onDelete('cascade');
 
