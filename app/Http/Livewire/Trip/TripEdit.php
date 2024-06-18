@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripDestination;
 
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -24,6 +25,9 @@ class TripEdit extends Component
     public $from, $to, $departure, $return, $passenger, $purpose, $attachment, $status;
     public $trip_attachment;
     public $form_errors;
+    public $passenger_other, $from_other, $to_other, $departure_other, $return_other;
+    public $users;
+
     public $status_arr = [
         'draft'                     => 'secondary',
         'submitted'                 => 'indigo',
@@ -90,6 +94,71 @@ class TripEdit extends Component
                         $fail('Attachment is required when the departure date is less than two weeks away from the current date.');
                     }
                 },
+            ],
+            'passenger_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The Passenger Name field is required for additional passengers.');
+                    }
+                }
+            ],
+            'from_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The From field is required for additional passengers.');
+                    }
+                }
+            ],
+            'to_other' => [
+                function($attribute, $value, $fail) {
+                    if ($this->passenger >= 2 && empty($value)) {
+                        $fail('The To field is required for additional passengers.');
+                    }
+                }
+            ],
+            'departure_other' => [
+                'required',
+                function ($attribute, $values, $fail) {
+                    foreach($values as $value) {
+                        try {
+                            $currentDate = Carbon::today();
+                            $departureDate = Carbon::parse($value);
+            
+                            if ($currentDate >= $departureDate) {
+                                $fail('The departure date must be after today.');
+                            }
+                        } catch (\Exception $e) {
+                            $fail('The departure date is not a valid date.');
+                        }
+                    }
+                },
+            ],
+            'return_other' => [
+                function ($attribute, $values, $fail) {
+                    foreach($values as $key => $value) {
+                        try {
+                            if ($this->type == 'round_trip' && empty($value)) {
+                                $fail('The return field is required for round trips.');
+                            }
+            
+                            $currentDate = Carbon::today();
+                            $departureDate = Carbon::parse($this->departure_other[$key]);
+                            $returnDate = Carbon::parse($value);
+            
+                            if ($this->type == 'round_trip') {
+                                if ($currentDate > $departureDate) {
+                                    $fail('The departure date must be after today.');
+                                }
+            
+                                if (!empty($this->departure_other[$key]) && !empty($value) && $departureDate > $returnDate) {
+                                    $fail('The return date must be on or after the departure date.');
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            $fail('The return date is not a valid date.');
+                        }
+                    }
+                }
             ]
         ]);
 
@@ -104,6 +173,35 @@ class TripEdit extends Component
             'purpose' => $this->purpose,
             'status' => $this->status,
         ]);
+
+        if($this->passenger >= 2) {
+            $this->trip->destinations()->forceDelete();
+            foreach($this->from_other as $key => $from) {
+                if(!empty($from) && !empty($this->to_other[$key]) && !empty($this->departure_other[$key]) && !empty($this->passenger_other[$key])) {
+                    if($this->type == 'round_trip' && !empty($this->return_other[$key])) {
+                        $destination = new ActivityPlanDetailTripDestination([
+                            'activity_plan_detail_trip_id' => $this->trip->id,
+                            'user_id' => $this->passenger_other[$key],
+                            'from' => $this->from_other[$key],
+                            'to' => $this->to_other[$key],
+                            'departure' => $this->departure_other[$key],
+                            'return' => $this->return_other[$key],
+                        ]);
+                        $destination->save();
+                    } else {
+                        $destination = new ActivityPlanDetailTripDestination([
+                            'activity_plan_detail_trip_id' => $this->trip->id,
+                            'user_id' => $this->passenger_other[$key],
+                            'from' => $this->from_other[$key],
+                            'to' => $this->to_other[$key],
+                            'departure' => $this->departure_other[$key],
+                            'return' => NULL,
+                        ]);
+                        $destination->save();
+                    }
+                }
+            }
+        }
 
         if($this->status == 'submitted') {
             // approval history
@@ -231,7 +329,21 @@ class TripEdit extends Component
 
         $this->trip_attachment = $this->trip->attachments()->where('title', 'TRIP ATTACHMENT')->first();
 
+        if(!empty($this->trip->destinations()->count())) {
+            foreach($this->trip->destinations as $key => $destination) {
+                $key += 2;
+                $this->passenger_other[$key] = $destination->user_id;
+                $this->from_other[$key] = $destination->from;
+                $this->to_other[$key] = $destination->to;
+                $this->departure_other[$key] = $destination->departure;
+                $this->return_other[$key] = $destination->return;
+            }
+        }
+
         $this->validateDate();
+
+        $this->users = User::orderBy('firstname', 'ASC')
+            ->get();
     }
 
     public function render()
