@@ -16,6 +16,7 @@ class CreateActivityPlanDetailTripDestinationsTable extends Migration
         Schema::create('activity_plan_detail_trip_destinations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('activity_plan_detail_trip_id')->nullable();
+            $table->unsignedBigInteger('activity_plan_detail_id')->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('from');
             $table->string('to')->nullable();
