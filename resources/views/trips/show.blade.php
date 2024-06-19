@@ -147,13 +147,13 @@
                             </div>
                             <div class="col-lg-2 text-center align-middle">
                                 @if($trip->transportation_type == 'AIR')
-                                <h3 class="trip-icon">
+                                <h4 class="trip-icon">
                                     <i class="fas fa-plane text-primary"></i>
-                                </h3>
+                                </h4>
                                 @else
-                                <h3 class="trip-icon">
+                                <h4 class="trip-icon">
                                     <i class="fas fa-car text-primary"></i>
-                                </h3>
+                                </h4>
                                 @endif
                             </div>
                             <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
@@ -164,24 +164,24 @@
                             <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                 <strong class="text-muted">NAME</strong>
                                 <br>
-                                <strong class="text-uppercase text-lg">{{$destination->user->fullName()}}</strong>
+                                <strong class="text-uppercase text-md">{{$destination->user->fullName()}}</strong>
                             </div>
                             <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                 <strong class="text-muted">DEPARTURE DATE</strong>
                                 <br>
-                                <strong class="text-uppercase text-lg">{{date('m/d/Y (D)', strtotime($destination->departure))}}</strong>
+                                <strong class="text-uppercase text-md">{{date('m/d/Y (D)', strtotime($destination->departure))}}</strong>
                             </div>
                             @if($trip->trip_type == 'round_trip')
                                 <div class="col-lg-3 text-center">
                                     <strong class="text-muted">RETURN DATE</strong>
                                     <br>
-                                    <strong class="text-uppercase text-lg">{{date('m/d/Y (D)', strtotime($destination->return))}}</strong>
+                                    <strong class="text-uppercase text-md">{{date('m/d/Y (D)', strtotime($destination->return))}}</strong>
                                 </div>
                             @endif
                             <div class="{{$trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                 <strong class="text-muted">TYPE</strong>
                                 <br>
-                                <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip->trip_type)}}</strong>
+                                <strong class="text-uppercase text-md">{{str_replace('_', ' ', $trip->trip_type)}}</strong>
                             </div>
                         </div>
                         <hr>
