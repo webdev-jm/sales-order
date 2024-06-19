@@ -11,7 +11,7 @@
                 </p>
 
                 <p class="text-uppercase">
-                    <b>Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude) }}
+                    <b>Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude) ?? 'Address cannot be processed.'}}
                 </p>
 
                 <div class="row" wire:loading>

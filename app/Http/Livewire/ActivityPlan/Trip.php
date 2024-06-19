@@ -5,6 +5,7 @@ namespace App\Http\Livewire\ActivityPlan;
 use Livewire\Component;
 
 use App\Models\ActivityPlanDetailTrip;
+use App\Models\ActivityPlanDetailTripDestination;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
@@ -70,6 +71,7 @@ class Trip extends Component
             }
         }
 
+        // get trip tickets
         $this->trip_tickets = ActivityPlanDetailTrip::where('user_id', auth()->user()->id)
             ->where('departure', $this->date)
             ->where('status', '<>', 'draft')
@@ -79,6 +81,18 @@ class Trip extends Component
                 $query->whereNotIn('trip_number', $trip_numbers);
             })
             ->get();
+
+        // get trip tickets as other passengers
+        $other_passengers_tickets = ActivityPlanDetailTripDestination::where('user_id', auth()->user()->id)
+            ->where('departure', $this->date)
+            ->whereHas('trip', function($query) use($trip_numbers) {
+                $query->whereNotIn('status', ['draft', 'cancelled'])
+                    ->when(!empty($trip_numbers), function($qry) use($trip_numbers) {
+                        $qry->whereNotIn('trip_number', $trip_numbers);
+                    });
+            })
+            ->get();
+        
     }
 
     public function changeType($type) {
@@ -119,7 +133,6 @@ class Trip extends Component
 
         $this->type = 'one_way';
         $this->passenger = 1;
-
         
         // check data from session
         $activity_plan_data = Session::get('activity_plan_data');
