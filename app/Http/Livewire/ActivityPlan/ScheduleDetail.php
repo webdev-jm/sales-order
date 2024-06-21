@@ -7,12 +7,15 @@ use Livewire\Component;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripDestination;
 use App\Models\UserBranchSchedule;
 
 class ScheduleDetail extends Component
 {
     public $detail;
     public $remarks;
+    public $trip_data;
+    public $source;
 
     protected $listeners = [
         'setDetail' => 'setDetail'
@@ -20,6 +23,16 @@ class ScheduleDetail extends Component
 
     public function setDetail($detail_id) {
         $this->detail = ActivityPlanDetail::find($detail_id);
+
+        if(!empty($this->detail->trip)) {
+            $this->trip_data = $this->detail->trip;
+            $this->source = 'trips';
+        } else {
+            $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $this->detail->id)
+                ->first();
+            $this->trip_data = $destination ?? NULL;
+            $this->source = 'other';
+        }
     }
 
     public function approve($trip_id) {

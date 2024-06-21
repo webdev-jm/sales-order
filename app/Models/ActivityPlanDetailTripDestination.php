@@ -13,6 +13,7 @@ class ActivityPlanDetailTripDestination extends Model
 
     protected $fillable = [
         'activity_plan_detail_trip_id',
+        'activity_plan_detail_id',
         'user_id',
         'from',
         'to',
@@ -21,7 +22,7 @@ class ActivityPlanDetailTripDestination extends Model
     ];
 
     public function trip() {
-        return $this->belongsTo('App\Models\ActivityPlanDetailTrip');
+        return $this->belongsTo('App\Models\ActivityPlanDetailTrip', 'activity_plan_detail_trip_id', 'id');
     }
 
     public function user() {

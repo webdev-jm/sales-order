@@ -21,6 +21,7 @@ class AppHelper
                 if ($response->successful()) {
                     $data = $response->json();
                     $address = $data['results'][0]['formatted'];
+                    // $address = $data['display_name'];
                 } else {
                     $address = 'Failed to retrieve address.';
                 }

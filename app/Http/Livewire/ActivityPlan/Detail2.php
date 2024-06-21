@@ -8,6 +8,7 @@ use App\Models\Account;
 use App\Models\Branch;
 use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanDetailTrip;
+use App\Models\ActivityPlanDetailTripDestination;
 
 use Illuminate\Support\Facades\Session;
 
@@ -197,10 +198,17 @@ class Detail2 extends Component
                 $trip_data = $val['trip'];
                 // remove 
                 if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
-                    $activity_plan_trip = ActivityPlanDetailTrip::find($trip_data['selected_trip']);
-                    $activity_plan_trip->update([
-                        'activity_plan_detail_id' => NULL,
-                    ]);
+                    if($trip_data['source'] == 'trips') {
+                        $activity_plan_trip = ActivityPlanDetailTrip::find($trip_data['selected_trip']);
+                        $activity_plan_trip->update([
+                            'activity_plan_detail_id' => NULL,
+                        ]);
+                    } else {
+                        $destination = ActivityPlanDetailTripDestination::where('id', $trip_data['selected_trip'])->first();
+                        $destination->update([
+                            'activity_plan_detail_id' => NULL
+                        ]);
+                    }
                 }
             }
         } else {
