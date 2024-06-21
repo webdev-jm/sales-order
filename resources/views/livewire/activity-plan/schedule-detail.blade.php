@@ -29,91 +29,178 @@
                     @endif
                 </ul>
 
-                @if(!empty($detail->trip))
-                    <div class="card card-primary card-outline mt-2">
-                        <div class="card-header">
-                            <h3 class="card-title">TRIP DETAILS</h3>
-                            <div class="card-tools">
-                                @can('trip print')
-                                    <a href="{{route('trip.print', $detail->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
-                                @endcan
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-6 text-center align-middle">
-                                    {!! DNS1D::getBarcodeSVG($detail->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
-                                    <br>
-                                    <strong class="text-muted">TRIP CODE</strong>
-                                    <br>
-                                    <h3 class="font-weight-bold">{{$detail->trip->trip_number}}</h3>
-                                </div>
-                                <div class="col-lg-6 text-center">
-                                    <strong>TRANSPORTATION TYPE</strong>
-                                    <br>
-                                    <h3 class="font-weight-bold">
-                                        @if($detail->trip->transportation_type == 'AIR')
-                                            <i class="fa fa-plane mr-1"></i>
-                                        @endif
-                                        @if($detail->trip->transportation_type == 'LAND')
-                                            <i class="fa fa-car mr-1"></i>
-                                        @endif
-                                        {{$detail->trip->transportation_type}}
-                                    </h3>
+                @if(!empty($trip_data))
+                    @if($source == 'trips')
+                        <div class="card card-primary card-outline mt-2">
+                            <div class="card-header">
+                                <h3 class="card-title">TRIP DETAILS</h3>
+                                <div class="card-tools">
+                                    @can('trip print')
+                                        <a href="{{route('trip.print', $trip_data->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                    @endcan
                                 </div>
                             </div>
-            
-                            <hr>
-            
-                            <div class="row">
-                                <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                                    <h1 class="font-weight-bold w-100">{{$detail->trip->from}}</h1>
-                                </div>
-                                <div class="col-lg-2 text-center align-middle">
-                                    @if($detail->trip->transportation_type == 'AIR')
-                                    <h1 class="trip-icon">
-                                        <i class="fas fa-plane text-primary"></i>
-                                    </h1>
-                                    @else
-                                    <h1 class="trip-icon">
-                                        <i class="fas fa-car text-primary"></i>
-                                    </h1>
-                                    @endif
-                                </div>
-                                <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
-                                    <h1 class="font-weight-bold w-100">{{$detail->trip->to}}</h1>
-                                </div>
-                            </div>
-            
-                            <hr>
-                            
-                            <div class="row">
-                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
-                                    <strong class="text-muted">NAME</strong>
-                                    <br>
-                                    <strong class="text-uppercase text-lg">{{$detail->trip->user->fullName()}}</strong>
-                                </div>
-                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
-                                    <strong class="text-muted">DEPARTURE DATE</strong>
-                                    <br>
-                                    <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->trip->departure))}}</strong>
-                                </div>
-                                @if($detail->trip->trip_type == 'round_trip')
-                                    <div class="col-lg-3 text-center">
-                                        <strong class="text-muted">RETURN DATE</strong>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6 text-center align-middle">
+                                        {!! DNS1D::getBarcodeSVG($trip_data->trip_number, 'C39', 1.5, 50, 'black', false); !!}
                                         <br>
-                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($detail->trip->return))}}</strong>
+                                        <strong class="text-muted">TRIP CODE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$trip_data->trip_number}}</h3>
                                     </div>
-                                @endif
-                                <div class="{{$detail->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
-                                    <strong class="text-muted">TYPE</strong>
-                                    <br>
-                                    <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $detail->trip->trip_type)}}</strong>
+                                    <div class="col-lg-6 text-center">
+                                        <strong>TRANSPORTATION TYPE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">
+                                            @if($trip_data->transportation_type == 'AIR')
+                                                <i class="fa fa-plane mr-1"></i>
+                                            @endif
+                                            @if($trip_data->transportation_type == 'LAND')
+                                                <i class="fa fa-car mr-1"></i>
+                                            @endif
+                                            {{$trip_data->transportation_type}}
+                                        </h3>
+                                    </div>
+                                </div> 
+                
+                                <hr>
+                
+                                <div class="row">
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$trip_data->from}}</h1>
+                                    </div>
+                                    <div class="col-lg-2 text-center align-middle">
+                                        @if($trip_data->transportation_type == 'AIR')
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-plane text-primary"></i>
+                                        </h1>
+                                        @else
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-car text-primary"></i>
+                                        </h1>
+                                        @endif
+                                    </div>
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$trip_data->to}}</h1>
+                                    </div>
                                 </div>
-                                    
+                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="{{$trip_data->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">NAME</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{$trip_data->user->fullName()}}</strong>
+                                    </div>
+                                    <div class="{{$trip_data->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">DEPARTURE DATE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip_data->departure))}}</strong>
+                                    </div>
+                                    @if($trip_data->trip_type == 'round_trip')
+                                        <div class="col-lg-3 text-center">
+                                            <strong class="text-muted">RETURN DATE</strong>
+                                            <br>
+                                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip_data->return))}}</strong>
+                                        </div>
+                                    @endif
+                                    <div class="{{$trip_data->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">TYPE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip_data->trip_type)}}</strong>
+                                    </div>
+                                        
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="card card-primary card-outline mt-2">
+                            <div class="card-header">
+                                <h3 class="card-title">TRIP DETAILS</h3>
+                                <div class="card-tools">
+                                    @can('trip print')
+                                        <a href="{{route('trip.print', $trip_data->trip->id)}}" class="btn btn-danger btn-sm"><i class="fa fa-file-pdf mr-1"></i>DOWNLOAD</a>
+                                    @endcan
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-6 text-center align-middle">
+                                        {!! DNS1D::getBarcodeSVG($trip_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        <br>
+                                        <strong class="text-muted">TRIP CODE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">{{$trip_data->trip->trip_number}}</h3>
+                                    </div>
+                                    <div class="col-lg-6 text-center">
+                                        <strong>TRANSPORTATION TYPE</strong>
+                                        <br>
+                                        <h3 class="font-weight-bold">
+                                            @if($trip_data->trip->transportation_type == 'AIR')
+                                                <i class="fa fa-plane mr-1"></i>
+                                            @endif
+                                            @if($trip_data->trip->transportation_type == 'LAND')
+                                                <i class="fa fa-car mr-1"></i>
+                                            @endif
+                                            {{$trip_data->trip->transportation_type}}
+                                        </h3>
+                                    </div>
+                                </div> 
+                
+                                <hr>
+                
+                                <div class="row">
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$trip_data->from}}</h1>
+                                    </div>
+                                    <div class="col-lg-2 text-center align-middle">
+                                        @if($trip_data->trip->transportation_type == 'AIR')
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-plane text-primary"></i>
+                                        </h1>
+                                        @else
+                                        <h1 class="trip-icon">
+                                            <i class="fas fa-car text-primary"></i>
+                                        </h1>
+                                        @endif
+                                    </div>
+                                    <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
+                                        <h1 class="font-weight-bold w-100">{{$trip_data->to}}</h1>
+                                    </div>
+                                </div>
+                
+                                <hr>
+                                
+                                <div class="row">
+                                    <div class="{{$trip_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">NAME</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{$trip_data->user->fullName()}}</strong>
+                                    </div>
+                                    <div class="{{$trip_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">DEPARTURE DATE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip_data->departure))}}</strong>
+                                    </div>
+                                    @if($trip_data->trip->trip_type == 'round_trip')
+                                        <div class="col-lg-3 text-center">
+                                            <strong class="text-muted">RETURN DATE</strong>
+                                            <br>
+                                            <strong class="text-uppercase text-lg">{{date('m/d/Y', strtotime($trip_data->return))}}</strong>
+                                        </div>
+                                    @endif
+                                    <div class="{{$trip_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
+                                        <strong class="text-muted">TYPE</strong>
+                                        <br>
+                                        <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip_data->trip->trip_type)}}</strong>
+                                    </div>
+                                        
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 @endif
             @endif
 

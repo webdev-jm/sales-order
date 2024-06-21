@@ -10,6 +10,7 @@ use App\Models\ActivityPlanDetail;
 use App\Models\ActivityPlanApproval;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripDestination;
 use App\Models\OrganizationStructure;
 use App\Http\Requests\StoreActivityPlanRequest;
 use App\Http\Requests\UpdateActivityPlanRequest;
@@ -208,10 +209,17 @@ class ActivityPlanController extends Controller
                                                 $trip_data = $val['trip'];
 
                                                 if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
-                                                    $activity_plan_detail_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
-                                                    $activity_plan_detail_trip->update([
-                                                        'activity_plan_detail_id' => $activity_plan_detail->id,
-                                                    ]);
+                                                    if($trip_data['source'] == 'trips') {
+                                                        $activity_plan_detail_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                                        $activity_plan_detail_trip->update([
+                                                            'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                        ]);
+                                                    } else {
+                                                        $destination = ActivityPlanDetailTripDestination::where('id', $trip_data['selected_trip'])->first();
+                                                        $destination->update([
+                                                            'activity_plan_detail_id' => $activity_plan_detail->id
+                                                        ]);
+                                                    }
                                                 } else {
                                                     $activity_plan_detail_trip = new ActivityPlanDetailTrip([
                                                         'activity_plan_detail_id' => $activity_plan_detail->id,
@@ -339,6 +347,20 @@ class ActivityPlanController extends Controller
                     if(!empty($detail->trip->status) && $detail->trip->status == 'approved') {
                         $bg_color = '#1CA40C';
                     }
+                } else {
+                    $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)
+                        ->first();
+                    if(!empty($destination)) {
+                        $trip_data = $destination->trip;
+                        $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title; 
+                        $bg_color = '#0CA1A4';
+                        
+                        // check if approved
+                        if(!empty($trip_data) && $trip_data->status == 'approved') {
+                            $bg_color = '#1CA40C';
+                        }
+                    }
+
                 }
 
                 $schedule_data[] = [
@@ -347,11 +369,11 @@ class ActivityPlanController extends Controller
                     'allDay' => true,
                     'backgroundColor' => $bg_color,
                     'borderColor' => '#024d4d',
-                    'id' => $detail->id
+                    'id' => $detail->id,
                 ];
             }
         }
-
+ 
         $position = [];
         $organizations = $activity_plan->user->organizations;
         if(!empty($organizations)) {
@@ -427,7 +449,28 @@ class ActivityPlanController extends Controller
                         'return' => $trip_data->return,
                         'passenger' => $trip_data->passenger,
                         'transportation_type' => $trip_data->transportation_type,
+                        'source' => 'trips'
                     ];
+                } else {
+                    $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)
+                        ->where('departure', $detail->date)
+                        ->first();
+                    
+                    if(!empty($destination)) {
+                        $trip = [
+                            'selected_trip' => $destination->id,
+                            'type' => $destination->trip->trip_type,
+                            'trip_number' => $destination->trip->trip_number,
+                            'from' => $destination->from,
+                            'to' => $destination->to,
+                            'departure' => $destination->departure,
+                            'return' => $destination->return,
+                            'passenger' => $destination->trip->passenger,
+                            'transportation_type' => $destination->trip->transportation_type,
+                            'source' => 'other'
+                        ];
+                    }
+
                 }
 
                 $details[$detail->date]['day'] = $detail->day;
@@ -562,10 +605,17 @@ class ActivityPlanController extends Controller
                                                 $trip_data = $val['trip'];
                                                 // remove 
                                                 if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
-                                                    $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
-                                                    $activity_plan_trip->update([
-                                                        'activity_plan_detail_id' => NULL,
-                                                    ]);
+                                                    if($trip_data['source'] == 'trips') {
+                                                        $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                                        $activity_plan_trip->update([
+                                                            'activity_plan_detail_id' => NULL,
+                                                        ]);
+                                                    } else {
+                                                        $destination = ActivityPlanDetailTripDestination::where('id', $trip_data['selected_trip'])->first();
+                                                        $destination->update([
+                                                            'activity_plan_detail_id' => NULL
+                                                        ]);
+                                                    }
                                                 }
                                             }
                                         } else {
@@ -601,10 +651,17 @@ class ActivityPlanController extends Controller
                                         $trip_data = $val['trip'];
 
                                         if(!empty($trip_data['selected_trip'])) {
-                                            $trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
-                                            $trip->update([
-                                                'activity_plan_detail_id' => $activity_plan_detail->id,
-                                            ]);
+                                            if($trip_data['source'] == 'trips') {
+                                                $trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
+                                                $trip->update([
+                                                    'activity_plan_detail_id' => $activity_plan_detail->id,
+                                                ]);
+                                            } else {
+                                                $destination = ActivityPlanDetailTripDestination::where('id', $trip_data['selected_trip'])->first();
+                                                $destination->update([
+                                                    'activity_plan_detail_id' => $activity_plan_detail->id
+                                                ]);
+                                            }
                                         } else {
                                             $trip = ActivityPlanDetailTrip::updateOrCreate([
                                                 'activity_plan_detail_id' => $activity_plan_detail->id

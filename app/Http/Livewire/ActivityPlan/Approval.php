@@ -8,6 +8,7 @@ use App\Models\ActivityPlan;
 use App\Models\ActivityPlanApproval;
 use App\Models\UserBranchSchedule;
 use App\Models\ActivityPlanDetailTripApproval;
+use App\Models\ActivityPlanDetailTripDestination;
 
 use Spatie\Permission\Models\Permission;
 
@@ -85,6 +86,13 @@ class Approval extends Component
 
                         if(!empty($detail->trip->user)) {
                             Notification::send($detail->trip->user, new TripForRevision($detail->trip));
+                        }
+                    } else {
+                        $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)->first();
+                        if($destination->trip->status == 'submitted') {
+                            $destination->trip->update([
+                                'status' => 'for revision'
+                            ]);
                         }
                     }
                 }

@@ -49,6 +49,6 @@ class ActivityPlanDetailTrip extends Model
     }
 
     public function destinations() {
-        return $this->hasMany('App\Models\ActivityPlanDetailTripDestination');
+        return $this->hasMany('App\Models\ActivityPlanDetailTripDestination', 'activity_plan_detail_trip_id', 'id');
     }
 }

@@ -120,7 +120,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(!empty($trip_tickets))
+                                @if(!empty($trip_tickets->count()))
                                     @foreach($trip_tickets as $trip_ticket)
                                     <tr>
                                         <td>
@@ -143,11 +143,35 @@
                                     </tr>
                                     @endforeach
                                 @else
-                                <tr>
-                                    <td colspan="5" class="text-center">
-                                        - no data available -
-                                    </td>
-                                </tr>
+                                    @if(!empty($other_passengers_tickets))
+                                        @foreach($other_passengers_tickets as $ticket)
+                                            <tr>
+                                                <td>
+                                                    <a href="#" wire:click.prevent="pickOtherTicket({{$ticket->id}})">
+                                                        {{$ticket->trip->trip_number}}
+                                                    </a>
+                                                </td>
+                                                <td class="text-center">
+                                                    {{$ticket->from}}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{$ticket->to}}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{$ticket->departure}}
+                                                </td>
+                                                <td class="text-center">
+                                                    {{$ticket->return ?? '-'}}
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                - no data available -
+                                            </td>
+                                        </tr>
+                                    @endif
                                 @endif
                             </tbody>
                         </table>
