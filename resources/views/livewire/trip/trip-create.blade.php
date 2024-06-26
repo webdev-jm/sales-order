@@ -173,13 +173,17 @@
                 
                     </div>
                     <div class="card-footer text-right">
-                        <button class="btn btn-secondary" wire:click.prevent="submitForm('draft')">
+                        <button class="btn btn-secondary" wire:click.prevent="submitForm('draft')" wire:loading.remove>
                             <i class="fa fa-save mr-1"></i>
                             Save as Draft
                         </button>
-                        <button class="btn bg-indigo" wire:click.prevent="submitForm('submitted')">
+                        <button class="btn bg-indigo" wire:click.prevent="submitForm('submitted')" wire:loading.remove>
                             <i class="fa fa-check mr-1"></i>
                             Submit for Approval
+                        </button>
+                        <button wire:loading class="btn btn-primary" disabled>
+                            <i class="fa fa-spinner fa-spin mr-1"></i>
+                            SAVING
                         </button>
                     </div>
                 </div>

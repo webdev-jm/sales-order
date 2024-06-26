@@ -135,27 +135,29 @@ class TripEdit extends Component
             ],
             'return_other' => [
                 function ($attribute, $values, $fail) {
-                    foreach($values as $key => $value) {
-                        try {
-                            if ($this->type == 'round_trip' && empty($value)) {
-                                $fail('The return field is required for round trips.');
-                            }
-            
-                            $currentDate = Carbon::today();
-                            $departureDate = Carbon::parse($this->departure_other[$key]);
-                            $returnDate = Carbon::parse($value);
-            
-                            if ($this->type == 'round_trip') {
-                                if ($currentDate > $departureDate) {
-                                    $fail('The departure date must be after today.');
+                    if($this->type == 'round_trip') {
+                        foreach($values as $key => $value) {
+                            try {
+                                if (empty($value)) {
+                                    $fail('The return field is required for round trips.');
                                 }
-            
-                                if (!empty($this->departure_other[$key]) && !empty($value) && $departureDate > $returnDate) {
-                                    $fail('The return date must be on or after the departure date.');
+                
+                                $currentDate = Carbon::today();
+                                $departureDate = Carbon::parse($this->departure_other[$key]);
+                                $returnDate = Carbon::parse($value);
+                
+                                if ($this->type == 'round_trip') {
+                                    if ($currentDate > $departureDate) {
+                                        $fail('The departure date must be after today.');
+                                    }
+                
+                                    if (!empty($this->departure_other[$key]) && !empty($value) && $departureDate > $returnDate) {
+                                        $fail('The return date must be on or after the departure date.');
+                                    }
                                 }
+                            } catch (\Exception $e) {
+                                $fail('The return date is not a valid date.');
                             }
-                        } catch (\Exception $e) {
-                            $fail('The return date is not a valid date.');
                         }
                     }
                 }
