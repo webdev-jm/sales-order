@@ -633,17 +633,28 @@ class ActivityPlanController extends Controller
                                         }
 
                                     } else { // insert
-                                        $activity_plan_detail = new ActivityPlanDetail([
-                                            'activity_plan_id' => $activity_plan->id,
-                                            'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                            'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                            'day' => $details['day'],
-                                            'date' => $date,
-                                            'exact_location' => $val['location'],
-                                            'activity' => $val['purpose'],
-                                            'work_with' => $val['work_with'] ?? NULL,
-                                        ]);
-                                        $activity_plan_detail->save();
+                                        // check if exists
+                                        $activity_plan_detail = ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
+                                            ->where('date', $date)
+                                            ->where('branch_id', $val['branch_id'])
+                                            ->where('user_id', $val['user_id'])
+                                            ->first();
+
+                                        if(empty($activity_plan_detail)) {
+
+                                            $activity_plan_detail = new ActivityPlanDetail([
+                                                'activity_plan_id' => $activity_plan->id,
+                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                'day' => $details['day'],
+                                                'date' => $date,
+                                                'exact_location' => $val['location'],
+                                                'activity' => $val['purpose'],
+                                                'work_with' => $val['work_with'] ?? NULL,
+                                            ]);
+                                            $activity_plan_detail->save();
+                                        }
+                                        
                                     }
 
                                     // detail trip

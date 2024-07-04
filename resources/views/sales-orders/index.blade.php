@@ -14,8 +14,15 @@
     </div>
     <div class="col-md-6 text-right">
         @if(empty($cut_off))
+            <a href="{{route('purchase-order.index')}}" class="btn btn-info">
+                <i class="fa fa-list mr-1"></i>
+                PURCHASE ORDERS
+            </a>
             @can('sales order create')
-            <a href="{{route('sales-order.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Sales Order</a>
+                <a href="{{route('sales-order.create')}}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-1"></i>
+                    ADD SALES ORDER
+                </a>
             @endcan
 
             <a href="{{route('sales-order-multiple.index')}}" class="btn btn-success">

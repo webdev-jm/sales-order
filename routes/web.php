@@ -41,6 +41,7 @@ use App\Http\Controllers\SalesDashboardController;
 use App\Http\Controllers\TripController;
 use App\Http\Controllers\SalesOrderMultipleController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\PurchaseOrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +114,12 @@ Route::group(['middleware' => 'auth'], function () {
 
         // MULTIPLE UPLOADS
         Route::get('sales-order-multiple', [SalesOrderMultipleController::class, 'index'])->name('sales-order-multiple.index');
+    });
+
+    // PURCHASE ORDERS
+    Route::group(['middleware' => 'permission:purchase order access'], function() {
+        Route::get('purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase-order.index');
+        Route::get('purchase-order/{id}', [PurchaseOrderController::class, 'show'])->name('purchase-order.show');
     });
 
     // SCHEDULE

@@ -26,6 +26,9 @@ class PermissionSeeder extends Seeder
                 'sales order edit'          => 'access to edit sales order',
                 'sales order delete'        => 'access to delete sales order',
             ],
+            'Purchase Order' => [
+                'purchase order access'     => 'access to purchase order list',
+            ],
             'Schedule' => [
                 'schedule access'                   => 'access to schedule module',
                 'schedule create'                   => 'access to create schedule',
