@@ -95,6 +95,32 @@ return [
             ],
         ],
 
+        'sto_online_db' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_3', '127.0.0.1'),
+            'port' => env('DB_PORT_3', '3306'),
+            'database' => env('DB_DATABASE_3', 'forge'),
+            'username' => env('DB_USERNAME_3', 'forge'),
+            'password' => env('DB_PASSWORD_3', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8',
+            'collation' => 'utf8_general_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => 'InnoDB',
+            'options' => [
+                PDO::ATTR_PERSISTENT => true,
+                PDO::ATTR_TIMEOUT => 5,
+            ],
+            'pool' => [
+                'min_connections' => 1,
+                'max_connections' => 10,
+                'max_idle_time' => 30,
+            ],
+        ],
+
         'bevi_db' => [
             'driver' => 'sqlsrv',
             'host' => env('DB_HOST_BEVI', 'localhost'),

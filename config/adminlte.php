@@ -318,6 +318,13 @@ return [
             'active'    => ['dashboard*']
         ],
         [
+            'text'      => 'Purchase Orders',
+            'url'       => '/purchase-order',
+            'icon'      => 'fas fa-fw fa-shopping-cart',
+            'can'       => 'purchase order access',
+            'active'    => ['purchase-order*']
+        ],
+        [
             'text'      => 'Sales Orders',
             'url'       => '/sales-order',
             'icon'      => 'fas fa-fw fa-cart-plus',
