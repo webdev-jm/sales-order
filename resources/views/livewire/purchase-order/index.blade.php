@@ -3,11 +3,11 @@
         <div class="card-header">
             <h3 class="card-title">List of Puchase Orders</h3>
             <div class="card-tools">
-                <button class="btn btn-default btn-sm">
+                <button class="btn btn-default btn-sm" disabled>
                     <i class="fa fa-filter mr-1"></i>
                     FILTER
                 </button>
-                <button class="btn btn-primary btn-sm">
+                <button class="btn btn-primary btn-sm" wire:click.prevent="createSO" {{empty($selected) ? 'disabled' : ''}} wire:loading.attr="disabled" wire:target="createSO">
                     <i class="fa fa-file-import mr-1"></i>
                     CREATE SO
                 </button>

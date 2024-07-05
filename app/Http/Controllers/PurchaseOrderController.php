@@ -13,6 +13,7 @@ class PurchaseOrderController extends Controller
 {
     public function index(Request $request) {
         $search = $request->get('search');
+        Session::forget('selectedPO');
         $logged_account = Session::get('logged_account');
         if(isset($logged_account)) {
 
@@ -41,6 +42,27 @@ class PurchaseOrderController extends Controller
             return view('purchase-orders.show')->with([
                 'purchase_order' => $purchase_order,
             ]);
+        } else {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order'
+            ]);
+        }
+    }
+
+    public function create(Request $request) {
+        $logged_account = Session::get('logged_account');
+        if(isset($logged_account)) {
+            $selectedPO = Session::get('selectedPO');
+            if(!empty($selectedPO)) {
+
+                return view('purchase-orders.create')->with([
+                    'selectedPO' => $selectedPO,
+                ]);
+            } else {
+                return redirect()->route('purchase-orders.index')->with([
+                    'message_error' => 'please select purchase order to continue creating SO.'
+                ]);
+            }
         } else {
             return redirect()->route('home')->with([
                 'message_error' => 'please sign in to account before creating sales order'
