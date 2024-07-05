@@ -7,17 +7,58 @@ use Livewire\WithPagination;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
+use App\Models\Product;
 
 use Illuminate\Support\Facades\Session;
+
+use App\Http\Traits\SoProductPriceTrait;
 
 class Index extends Component
 {
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
+    use SoProductPriceTrait;
+
     public $logged_account;
     public $selected;
     public $checkedAll = 0;
+
+    public function createSO() {
+        if(!empty($this->selected)) {
+            foreach($this->selected as $po_id => $po_data) {
+                // get details
+                $details = PurchaseOrderDetail::where('purchase_order_id', $po_id)->get();
+                // process details
+                $detail_data = array();
+                foreach($details as $detail) {
+                    // get product
+                    $product = array();
+                    $price_data = array();
+                    if(!empty($detail->product_id)) {
+                        $product = Product::find($detail->product_id);
+                        $price_data = $this->getProductPrice($product, $this->logged_account->account, $detail->unit_of_measure, $detail->quantity);
+                    }
+
+                    $detail_data[] = [
+                        'product_id' => !empty($detail->product_id) ? $detail->product_id : null,
+                        'sku_code' => $product->stock_code ?? 'product not found',
+                        'sku_code_other' => $detail->sku_code,
+                        'product_name' => ($product->description  ?? '').' '.($product->size ?? ''),
+                        'quantity' => $detail->quantity,
+                        'unit_of_measure' => $detail->unit_of_measure,
+                        'total' => $price_data['total'] ?? 0,
+                        'total_less_discount' => $price_data['discounted'] ?? 0,
+                    ];
+                }
+                $this->selected[$po_id]['products'] = $detail_data;
+            }
+
+            Session::put('selectedPO', $this->selected);
+
+            return redirect()->route('purchase-order.create');
+        }
+    }
 
     public function checkAll() {
         if($this->checkedAll == 0) {

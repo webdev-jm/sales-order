@@ -8,6 +8,19 @@ use App\Models\PriceCode;
 Trait SoProductPriceTrait {
     
     public function getProductPrice($product, $account, $uom, $quantity) {
+        // uom conversion
+        switch($uom) {
+            case 'CASE':
+                $uom = 'CS';
+                break;
+            case 'CAS':
+                $uom = 'CS';
+                break;
+            case 'PIECES':
+                $uom = 'PCS';
+                break;
+        }
+
         $line_discount = Discount::where('discount_code', $account->line_discount_code)
             ->where('company_id', $account->company_id)
             ->first();
