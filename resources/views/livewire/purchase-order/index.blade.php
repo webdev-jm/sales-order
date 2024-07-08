@@ -22,7 +22,7 @@
                         </th>
                         <th>PO Number</th>
                         <th>Status</th>
-                        <th>Order Date</th>
+                        <th>Approved Date</th>
                         <th>Ship Date</th>
                         <th>Shipping Instruction</th>
                         <th>Ship To Name</th>
@@ -48,7 +48,16 @@
                                     <u>{{$order->po_number}}</u>
                                 </a>
                             </td>
-                            <td>-</td>
+                            <td>
+                                @if(!empty($order->status))
+                                    @php
+                                        $so = \App\Models\SalesOrder::where('control_number', $order->status)->first();
+                                    @endphp
+                                    <a href="{{route('sales-order.show', $so->id)}}">
+                                        {{$order->status}}
+                                    </a>
+                                @endif
+                            </td>
                             <td>{{$order->order_date}}</td>
                             <td>{{$order->ship_date}}</td>
                             <td>{{$order->shipping_instruction}}</td>

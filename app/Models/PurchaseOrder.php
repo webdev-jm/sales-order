@@ -14,6 +14,9 @@ class PurchaseOrder extends Model
     use HasFactory;
 
     protected $table = 'purchase_orders';
+    protected $fillable = [
+        'status'
+    ];
 
     public function getConnectionName() {
         $loggedAccount = Session::get('logged_account');

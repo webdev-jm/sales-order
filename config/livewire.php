@@ -106,6 +106,8 @@ return [
             'jpg', 'jpeg', 'mpga', 'webp', 'wma',
         ],
         'max_upload_time' => 5, // Max duration (in minutes) before an upload gets invalidated.
+        'max_file_size' => null, // size in KB
+        'max_files' => 20, // Number of files allowed to be uploaded at once
     ],
 
     /*
