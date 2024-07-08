@@ -40,12 +40,14 @@
                         </h4>
                     </div>
                     <div class="col-6 text-right">
+                        @if(empty($order['control_number']))
                         <button class="btn btn-secondary btn-sm" wire:click.prevent="saveSO('draft', {{$po_id}})" wire:loading.attr="disabled">
                             SAVE AS DRAFT
                         </button>
                         <button class="btn btn-success btn-sm" wire:click.prevent="saveSO('finalized', {{$po_id}})" wire:loading.attr="disabled">
                             FINALIZE
                         </button>
+                        @endif
                     </div>
                 </div>
                 
@@ -85,7 +87,7 @@
                     
                     <div class="col-sm-4 invoice-col">
                         <b>Po Value:</b> {{number_format($po_value[$po_id]['total_net'], 2)}}<br>
-                        <b>Order Date:</b> {{date('Y-m-d')}}<br>
+                        <b>Approved Date:</b> {{$order['order_date']}}<br>
                         <b>Ship Date:</b> {{$order['ship_date']}}<br>
                         <b>Discount:</b> {{$logged_account->account->discount->description ?? ''}}<br>
                         <b>Account:</b> [{{$logged_account->account->account_code}}] {{$logged_account->account->short_name}}

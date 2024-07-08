@@ -13,6 +13,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
 use App\Models\Product;
+use App\Models\PurchaseOrder;
 
 use App\Http\Traits\GlobalTrait;
 
@@ -269,6 +270,12 @@ class Create extends Component
             ]);
 
             $this->selectedPO[$po_id]['control_number'] = $sales_order->control_number;
+
+            // update po status
+            $po = PurchaseOrder::find($po_id);
+            $po->update([
+                'status' => $sales_order->control_number
+            ]);
     
             // logs
             activity('create')

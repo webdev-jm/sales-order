@@ -8,8 +8,10 @@ use Livewire\WithPagination;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Product;
+use App\Models\AccountProductReference;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 use App\Http\Traits\SoProductPriceTrait;
 
@@ -38,6 +40,19 @@ class Index extends Component
                     if(!empty($detail->product_id)) {
                         $product = Product::find($detail->product_id);
                         $price_data = $this->getProductPrice($product, $this->logged_account->account, $detail->unit_of_measure, $detail->quantity);
+                    } else {
+                        $account_product = AccountProductReference::where('account_id', $this->logged_account->account_id)
+                            ->where(function($query) use($detail) {
+                                $query->where('account_reference', $detail->sku_code)
+                                    ->orWhere('account_reference', $detail->sku_code_other)
+                                    ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $detail->sku_code)
+                                    ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $detail->sku_code_other);
+                            })
+                            ->first();
+                        if(!empty($account_product)) {
+                            $product = $account_product->product;
+                            $price_data = $this->getProductPrice($product, $this->logged_account->account, $detail->unit_of_measure, $detail->quantity);
+                        }
                     }
 
                     $detail_data[] = [
