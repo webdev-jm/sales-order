@@ -22,7 +22,7 @@ class OrganizationStructureController extends Controller
             'NKAG',
             'RDG',
             'TMG',
-            'TEST',
+            'PRIVATE LABEL',
         ];
 
         $type = trim($request->get('type')) ?: 'NKAG';
