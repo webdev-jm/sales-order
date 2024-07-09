@@ -156,10 +156,10 @@
 
     <div class="card card-outline card-primary">
         <div class="card-body text-right py-1 px-1">
-            <button class="btn btn-secondary btn-sm">
+            <button class="btn btn-warning btn-sm" wire:click.prevent="saveAll('draft')" wire:loading.attr="disabled">
                 DRAFT ALL
             </button>
-            <button class="btn btn-success btn-sm">
+            <button class="btn btn-info btn-sm" wire:click.prevent="saveAll('finalized')" wire:loading.attr="disabled">
                 FINALIZE ALL
             </button>
         </div>

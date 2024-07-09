@@ -25,6 +25,27 @@ class Index extends Component
     public $logged_account;
     public $selected;
     public $checkedAll = 0;
+    public $showFilter = false;
+    public $filters;
+    public $setFilters;
+
+    public function applyFilter() {
+        $this->setFilters = $this->filters;
+        $this->resetPage('po-page');
+    }
+
+    public function clearFilter() {
+        $this->reset('filters', 'selected', 'setFilters');
+        $this->resetPage('po-page');
+    }
+
+    public function showFilter() {
+        if($this->showFilter) {
+            $this->showFilter = false;
+        } else {
+            $this->showFilter = true;
+        }
+    }
 
     public function createSO() {
         if(!empty($this->selected)) {
@@ -106,8 +127,31 @@ class Index extends Component
     public function render()
     {
         $purchase_orders = PurchaseOrder::orderBy('order_date', 'DESC')
+            ->when(!empty($this->setFilters), function($query) {
+                $query->where(function($qry) {
+                    $qry->when(!empty($this->setFilters['status']), function($q) {
+                        if($this->setFilters['status'] == 'NULL') {
+                            $q->whereNull('status');
+                        } else if($this->setFilters['status'] == 'NOT NULL') {
+                            $q->whereNotNull('status');
+                        }
+                    })
+                    ->when(!empty($this->setFilters['approved_date_from']), function($q) {
+                        $q->where('order_date', '>=', $this->setFilters['approved_date_from']);
+                    })
+                    ->when(!empty($this->setFilters['approved_date_to']), function($q) {
+                        $q->where('order_date', '<=', $this->setFilters['approved_date_to']);
+                    })
+                    ->when(!empty($this->setFilters['ship_date_from']), function($q) {
+                        $q->where('ship_date', '>=', $this->setFilters['ship_date_from']);
+                    })
+                    ->when(!empty($this->setFilters['ship_date_to']), function($q) {
+                        $q->where('ship_date', '<=', $this->setFilters['ship_date_to']);;
+                    });
+                });
+            })
             ->where('sms_account_id', $this->logged_account->account_id)
-            ->paginate(10)->onEachSide(1);
+            ->paginate(10, ['*'], 'po-page')->onEachSide(1);
         
         return view('livewire.purchase-order.index')->with([
             'purchase_orders' => $purchase_orders
