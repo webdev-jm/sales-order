@@ -9,6 +9,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
 use App\Models\Product;
 use App\Models\AccountProductReference;
+use App\Models\ShippingAddress;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,13 @@ class Index extends Component
             foreach($this->selected as $po_id => $po_data) {
                 // get details
                 $details = PurchaseOrderDetail::where('purchase_order_id', $po_id)->get();
+                // check shipping address
+                $shipping_address = ShippingAddress::where('account_id', $this->logged_account->account_id)
+                    ->where(DB::raw('LOWER(REPLACE(ship_to_name, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                    ->first();
+                if(!empty($shipping_address)) {
+                    $this->selected[$po_id]['selected_address'] = $shipping_address;
+                }
                 // process details
                 $detail_data = array();
                 foreach($details as $detail) {
@@ -87,6 +95,9 @@ class Index extends Component
                         'total_less_discount' => $price_data['discounted'] ?? 0,
                     ];
                 }
+
+                
+
                 $this->selected[$po_id]['products'] = $detail_data;
             }
 

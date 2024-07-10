@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderDetail;
@@ -17,16 +18,28 @@ class PurchaseOrderController extends Controller
         $logged_account = Session::get('logged_account');
         if(isset($logged_account)) {
 
-            $date = time();
-
-            // check if theres cut-off today
-            $cut_off = SalesOrderCutOff::where('start_date', '<=', $date)
-                ->where('end_date', '>=', $date)
+            $stoAccount = DB::connection('sto_online_db')
+                ->table('accounts')
+                ->where('sms_account_id', $logged_account->account_id)
                 ->first();
 
-            return view('purchase-orders.index')->with([
-                'cut_off' => $cut_off,
-            ]);
+            if(!empty($stoAccount)) {
+                $date = time();
+    
+                // check if theres cut-off today
+                $cut_off = SalesOrderCutOff::where('start_date', '<=', $date)
+                    ->where('end_date', '>=', $date)
+                    ->first();
+    
+                return view('purchase-orders.index')->with([
+                    'cut_off' => $cut_off,
+                ]);
+            } else {
+                return redirect()->route('home')->with([
+                    'message_error' => 'no available data'
+                ]);
+            }
+
         } else {
             return redirect()->route('home')->with([
                 'message_error' => 'please sign in to account before creating sales order'
