@@ -114,48 +114,51 @@ class TripCreate extends Component
                     }
                 }
             ],
-            'departure_other' => [
-                'required',
-                function ($attribute, $values, $fail) {
-                    foreach($values as $value) {
-                        try {
-                            $currentDate = Carbon::today();
-                            $departureDate = Carbon::parse($value);
+            // 'departure_other' => [
+            //     function ($attribute, $values, $fail) {
+            //         if ($this->passenger >= 2 && empty($value)) {
+            //             foreach($values as $value) {
+            //                 try {
+            //                     $currentDate = Carbon::today();
+            //                     $departureDate = Carbon::parse($value);
+                
+            //                     if ($currentDate >= $departureDate) {
+            //                         $fail('The departure date must be after today.');
+            //                     }
+            //                 } catch (\Exception $e) {
+            //                     $fail('The departure date is not a valid date.');
+            //                 }
+            //             }
+            //         }
+            //     },
+            // ],
+            // 'return_other' => [
+            //     function ($attribute, $value, $fail) {
+            //         if ($this->passenger >= 2 && empty($value)) {
+            //             try {
+            //                 if ($this->type == 'round_trip' && empty($value)) {
+            //                     $fail('The return field is required for round trips.');
+            //                 }
             
-                            if ($currentDate >= $departureDate) {
-                                $fail('The departure date must be after today.');
-                            }
-                        } catch (\Exception $e) {
-                            $fail('The departure date is not a valid date.');
-                        }
-                    }
-                },
-            ],
-            'return_other' => [
-                function ($attribute, $value, $fail) {
-                    try {
-                        if ($this->type == 'round_trip' && empty($value)) {
-                            $fail('The return field is required for round trips.');
-                        }
-        
-                        $currentDate = Carbon::today();
-                        $departureDate = Carbon::parse($this->departure);
-                        $returnDate = Carbon::parse($value);
-        
-                        if ($this->type == 'round_trip') {
-                            if ($currentDate > $departureDate) {
-                                $fail('The departure date must be after today.');
-                            }
-        
-                            if (!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
-                                $fail('The return date must be on or after the departure date.');
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        $fail('The return date is not a valid date.');
-                    }
-                }
-            ]
+            //                 $currentDate = Carbon::today();
+            //                 $departureDate = Carbon::parse($this->departure);
+            //                 $returnDate = Carbon::parse($value);
+            
+            //                 if ($this->type == 'round_trip') {
+            //                     if ($currentDate > $departureDate) {
+            //                         $fail('The departure date must be after today.');
+            //                     }
+            
+            //                     if (!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
+            //                         $fail('The return date must be on or after the departure date.');
+            //                     }
+            //                 }
+            //             } catch (\Exception $e) {
+            //                 $fail('The return date is not a valid date.');
+            //             }
+            //         }
+            //     }
+            // ]
         ]);
 
         $trip_number = $this->generateTripNumber();
