@@ -191,6 +191,17 @@ class Upload extends Component
             }
         }
 
+        $uom_err = 0;
+        foreach($data['lines'] as $item) {
+            if(empty($item['uom'])) {
+                $uom_err = 1;
+            }
+        }
+
+        if($uom_err) {
+            $err['uom'] = 'UOM is required for all items';
+        }
+
         if(empty($err)) {
             // create sales order
             $control_number = $this->generateControlNumber();
