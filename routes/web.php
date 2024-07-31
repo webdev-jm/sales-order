@@ -317,7 +317,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:ship address mapping access'], function() {
         Route::get('ship-address-mapping', [ShipAddressMappingController::class, 'index'])->name('ship-address-mapping.index');
         Route::get('ship-address-mapping/create', [ShipAddressMappingController::class, 'create'])->name('ship-address-mapping.create')->middleware('permission:ship address mapping create');
-        Route::post('ship-address-mapping', [ShipAddressMappingController::class, 'store'])->name('ship-address-mapping.store')->middleware('permission:ship address mapping create');
+
+        Route::get('ship-address-mapping/{id}/edit', [ShipAddressMappingController::class, 'edit'])->name('ship-address-mapping.edit');
     });
 
     // SHIPPING ADDRESS

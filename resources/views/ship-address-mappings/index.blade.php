@@ -63,7 +63,18 @@
                         <td>{{$mapping->reference1 ?? '-'}}</td>
                         <td>{{$mapping->reference2 ?? '-'}}</td>
                         <td>{{$mapping->reference3 ?? '-'}}</td>
-                        <td></td>
+                        <td class="text-right">
+                            @can('ship address mapping edit')
+                                <a href="{{route('ship-address-mapping.edit', encrypt($mapping->id))}}" title="edit">
+                                    <i class="fas fa-edit text-success mx-1"></i>
+                                </a>
+                            @endcan
+                            @can('ship address mapping delete')
+                                <a href="#" title="delete">
+                                    <i class="fas fa-trash-alt text-danger mx-1"></i>
+                                </a>
+                            @endcan
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

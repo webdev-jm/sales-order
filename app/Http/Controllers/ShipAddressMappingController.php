@@ -23,7 +23,14 @@ class ShipAddressMappingController extends Controller
         return view('ship-address-mappings.create');
     }
 
-    public function store() {
-        
+    public function edit($id) {
+        $id = decrypt($id);
+
+        $ship_address_mapping = AccountShipAddressMapping::findOrFail($id);
+
+        return view('ship-address-mappings.edit')->with([
+            'ship_address_mapping' => $ship_address_mapping
+        ]);
     }
+
 }
