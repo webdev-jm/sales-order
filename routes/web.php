@@ -42,6 +42,7 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\SalesOrderMultipleController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\ShipAddressMappingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('account/ajax',[AccountController::class, 'ajax'])->name('account.ajax');
     Route::post('product/ajax', [ProductController::class, 'ajax'])->name('product.ajax');
     Route::post('branch/ajax', [BranchController::class, 'ajax'])->name('branch.ajax');
+    Route::post('shipping-address/ajax', [ShippingAddressController::class, 'ajax'])->name('shipping-address.ajax');
 
     Route::get('user/get-ajax/{id}', [UserController::class, 'getAjax'])->name('user.getAjax');
     Route::get('account/get-ajax/{id}', [AccountController::class, 'getAjax'])->name('account.getAjax');
@@ -309,6 +311,13 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('reference-account/{id}/edit', [AccountProductReferenceController::class, 'edit'])->name('account-reference.edit')->middleware('permission:account reference edit');
         Route::post('reference-account/{id}', [AccountProductReferenceController::class, 'update'])->name('account-reference.update')->middleware('permission:account reference edit');
+    });
+
+    // SHIP ADDRESS MAPPING
+    Route::group(['middleware' => 'permission:ship address mapping access'], function() {
+        Route::get('ship-address-mapping', [ShipAddressMappingController::class, 'index'])->name('ship-address-mapping.index');
+        Route::get('ship-address-mapping/create', [ShipAddressMappingController::class, 'create'])->name('ship-address-mapping.create')->middleware('permission:ship address mapping create');
+        Route::post('ship-address-mapping', [ShipAddressMappingController::class, 'store'])->name('ship-address-mapping.store')->middleware('permission:ship address mapping create');
     });
 
     // SHIPPING ADDRESS

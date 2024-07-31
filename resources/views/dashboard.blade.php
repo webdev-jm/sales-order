@@ -45,7 +45,54 @@
     <div class="col-lg-6">
         <livewire:dashboard.reminder-list />
     </div>
+    
 </div>
+
+{{-- <div class="row">
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                GLOW+
+            </div>
+            <div class="card-body p-2">
+                {!! DNS2D::getBarcodeSVG('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20QR-DESKTOP-GLOW+.jpg', 'QRCODE', 10, 10, 'black') !!}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                SLIM+
+            </div>
+            <div class="card-body p-2">
+                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-SLIM+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                SLEEP+
+            </div>
+            <div class="card-body p-2">
+                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-SLEEP+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                RENEW+
+            </div>
+            <div class="card-body p-2">
+                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-RENEW+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
+            </div>
+        </div>
+    </div>
+</div> --}}
 
 @can('system logs')
 <div class="card">

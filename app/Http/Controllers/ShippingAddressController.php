@@ -176,4 +176,11 @@ class ShippingAddressController extends Controller
             'message_success' => 'Shipping Addresses has been uploaded.'
         ]);
     }
+
+    public function ajax(Request $request) {
+        $search = $request->search;
+        $account_id = $request->account_id;
+        $response = ShippingAddress::ShippingAddressAjax($search, $account_id);
+        return response()->json($response);
+    }
 }

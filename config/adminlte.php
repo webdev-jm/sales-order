@@ -511,6 +511,13 @@ return [
             'active'    => ['reference-account*']
         ],
         [
+            'text'      => 'Ship Address Mapping',
+            'url'       => '/ship-address-mapping',
+            'icon'      => 'fas fa-fw fa-map-signs',
+            'can'       => 'ship address mapping access',
+            'active'    => ['ship-address-mapping*']
+        ],
+        [
             'text'      => 'Branches',
             'url'       => '/branch',
             'icon'      => 'fas fa-fw fa-code-branch',

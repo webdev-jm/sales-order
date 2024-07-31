@@ -48,4 +48,23 @@ class ShippingAddress extends Model
 
         return $shipping_addresses;
     }
+
+    public function scopeShippingAddressAjax($query, $search, $account_id) {
+        $shipping_addresses = $query->select('id', 'address_code', 'ship_to_name')
+            ->when(!empty(trim($search)), function($qry) use($search) {
+                $qry->where('address_code', 'like', '%'.$search.'%')
+                    ->orWhere('ship_to_name', 'like', '%'.$search.'%');
+            })
+            ->limit(5)->get();
+
+        $response = [];
+        foreach($shipping_addresses as $ship_address) {
+            $response[] = [
+                'id' => $ship_address->id,
+                'text' => '['.$ship_address->address_code.'] '.$ship_address->ship_to_name
+            ];
+        }
+
+        return $response;
+    }
 }
