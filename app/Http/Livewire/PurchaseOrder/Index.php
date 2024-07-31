@@ -10,6 +10,7 @@ use App\Models\PurchaseOrderDetail;
 use App\Models\Product;
 use App\Models\AccountProductReference;
 use App\Models\ShippingAddress;
+use App\Models\AccountShipAddressMapping;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,17 @@ class Index extends Component
                     ->first();
                 if(!empty($shipping_address)) {
                     $this->selected[$po_id]['selected_address'] = $shipping_address;
+                } else {
+                    $ship_mapping = AccountShipAddressMapping::where('account_id', $this->logged_account->account_id)
+                        ->where(function($qry) use($po_data) {
+                            $qry->where(DB::raw('LOWER(REPLACE(reference1, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                                ->orWhere(DB::raw('LOWER(REPLACE(reference2, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                                ->orWhere(DB::raw('LOWER(REPLACE(reference3, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])));
+                        })
+                        ->first();
+                    if(!empty($ship_mapping)) {
+                        $this->selected[$po_id]['selected_address'] = $ship_mapping->shipping_address;
+                    }
                 }
                 // process details
                 $detail_data = array();
