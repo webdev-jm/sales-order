@@ -55,7 +55,10 @@ class Index extends Component
                 $details = PurchaseOrderDetail::where('purchase_order_id', $po_id)->get();
                 // check shipping address
                 $shipping_address = ShippingAddress::where('account_id', $this->logged_account->account_id)
-                    ->where(DB::raw('LOWER(REPLACE(ship_to_name, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                    ->where(function($query) use($po_data) {
+                        $query->where(DB::raw('LOWER(REPLACE(ship_to_name, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                            ->orWhere(DB::raw('LOWER(REPLACE(building, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])));
+                    })
                     ->first();
                 if(!empty($shipping_address)) {
                     $this->selected[$po_id]['selected_address'] = $shipping_address;

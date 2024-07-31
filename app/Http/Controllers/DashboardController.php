@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 
+// use Milon\Barcode\DNS2D;
+
 class DashboardController extends Controller
 {
     /**
@@ -15,6 +17,17 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // $d = new DNS2D();
+
+        // // Generate the barcode SVG content
+        // $barcodeSVG = $d->getBarcodeSVG('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-RENEW+%20(1).jpg', 'QRCODE', 10, 10, 'black');
+
+        // // Define the path where the SVG file will be saved
+        // $filePath = 'barcode-renew.svg';
+
+        // // Save the SVG content to a file
+        // file_put_contents($filePath, $barcodeSVG);
+
         if(auth()->user()->can('system logs')) {
             
             $year = date('Y');

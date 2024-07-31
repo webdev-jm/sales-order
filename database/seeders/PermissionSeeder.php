@@ -243,6 +243,12 @@ class PermissionSeeder extends Seeder
                 'department edit'   => 'Access to edit department details',
                 'department delete' => 'Access to delete department',
             ],
+            'Ship Address Mapping' => [
+                'ship address mapping access'   => 'access to ship address mapping',
+                'ship address mapping create'   => 'access to create ship address mapping',
+                'ship address mapping edit'     => 'access to edit ship address mapping',
+                'ship address mapping delete'   => 'access to delete ship address mapping',
+            ]
         ];
 
         foreach($permissions_arr as $module => $permissions) {
