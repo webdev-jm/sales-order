@@ -125,6 +125,7 @@ class Index extends Component
     public function checkAll() {
         if($this->checkedAll == 0) {
             $purchase_orders = PurchaseOrder::where('sms_account_id', $this->logged_account->account_id)
+                ->whereNull('status')
                 ->get();
             foreach($purchase_orders as $order) {
                 $this->selected[$order->id] = $order;
