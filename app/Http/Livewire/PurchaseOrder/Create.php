@@ -153,6 +153,9 @@ class Create extends Component
                         case 'PC': 
                             $uom = 'PCS';
                             break;
+                        default:
+                            $uom = 'CS';
+                            break;
                     }
     
                     // separate cristalino

@@ -58,7 +58,9 @@ class Index extends Component
                 $shipping_address = ShippingAddress::where('account_id', $this->logged_account->account_id)
                     ->where(function($query) use($po_data) {
                         $query->where(DB::raw('LOWER(REPLACE(ship_to_name, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
-                            ->orWhere(DB::raw('LOWER(REPLACE(building, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])));
+                            ->orWhere(DB::raw('LOWER(REPLACE(building, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                            ->orWhere(DB::raw('LOWER(REPLACE(address_code, " ", ""))'), strtolower(str_replace(' ', '', $po_data['ship_to_name'])))
+                            ->orWhere(DB::raw('CAST(address_code AS UNSIGNED)'), $po_data['ship_to_name']);
                     })
                     ->first();
                 if(!empty($shipping_address)) {
@@ -110,9 +112,7 @@ class Index extends Component
                         'total_less_discount' => $price_data['discounted'] ?? 0,
                     ];
                 }
-
                 
-
                 $this->selected[$po_id]['products'] = $detail_data;
             }
 
