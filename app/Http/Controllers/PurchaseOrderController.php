@@ -54,6 +54,7 @@ class PurchaseOrderController extends Controller
 
             return view('purchase-orders.show')->with([
                 'purchase_order' => $purchase_order,
+                'logged_account' => $logged_account
             ]);
         } else {
             return redirect()->route('home')->with([
