@@ -20,7 +20,7 @@ class CreateProductsTable extends Migration
             $table->string('size')->nullable();
             $table->decimal('weight', 10,6)->nullable();
             $table->decimal('volume', 10,6)->nullable();
-            $table->integer('pallet', 20)->nullable();
+            $table->integer('pallet')->nullable();
             $table->string('category')->nullable();
             $table->string('product_class');
             $table->string('brand');

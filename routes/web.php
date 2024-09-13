@@ -43,6 +43,7 @@ use App\Http\Controllers\SalesOrderMultipleController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ShipAddressMappingController;
+use App\Http\Controllers\PafController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,13 @@ Route::group(['middleware' => 'auth'], function () {
     // SALES DASHBOARD
     Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
 
+    // PAF
+    Route::group(['middleware' => 'permission:paf access'], function() {
+        Route::get('paf', [PafController::class, 'index'])->name('paf.index');
+        Route::get('paf/create', [PafController::class, 'create'])->name('paf.create')->middleware('permission:paf create');
+        Route::post('paf', [PafController::class, 'store'])->name('paf.store')->middleware('permission:paf edit');
+    });
+    
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
         Route::get('sales-order', [SalesOrderController::class, 'index'])->name('sales-order.index');

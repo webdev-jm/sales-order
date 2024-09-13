@@ -89,7 +89,7 @@ class Approval extends Component
                         }
                     } else {
                         $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)->first();
-                        if($destination->trip->status == 'submitted') {
+                        if(!empty($destination) && $destination->trip->status == 'submitted') {
                             $destination->trip->update([
                                 'status' => 'for revision'
                             ]);

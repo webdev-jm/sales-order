@@ -22,5 +22,8 @@ class DatabaseSeeder extends Seeder
         $this->call([SettingSeeder::class]);
 
         $this->call([AccountSeeder::class]);
+
+        $this->call([PafSupportTypeSeeder::class]);
+        $this->call([PafExpenseTypeSeeder::class]);
     }
 }

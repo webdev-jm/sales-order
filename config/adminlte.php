@@ -353,18 +353,25 @@ return [
             'active'    => ['mcp*']
         ],
         [
-            'text'      => 'Weekly Activity Report',
-            'url'       => '/war',
-            'icon'      => 'fas fa-fw fa-calendar-week',
-            'can'       => 'war access',
-            'active'    => ['war*']
-        ],
-        [
             'text'      => 'Trips',
             'url'       => '/trip',
             'icon'      => 'fas fa-fw fa-plane',
             'can'       => 'trip access',
             'active'    => ['trip*']
+        ],
+        [
+            'text'      => 'PAF',
+            'url'       => '/paf',
+            'icon'      => 'fas fa-fw fa-list',
+            'can'       => 'paf access',
+            'active'    => ['paf*']
+        ],
+        [
+            'text'      => 'Weekly Activity Report',
+            'url'       => '/war',
+            'icon'      => 'fas fa-fw fa-calendar-week',
+            'can'       => 'war access',
+            'active'    => ['war*']
         ],
         [
             'text'      => 'Reports',

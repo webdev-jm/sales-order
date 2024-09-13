@@ -16,8 +16,8 @@ class CreateSalesOrderCutOffsTable extends Migration
         Schema::create('sales_order_cut_offs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->integer('start_date', 20);
-            $table->integer('end_date', 20);
+            $table->integer('start_date');
+            $table->integer('end_date');
             $table->text('message');
             $table->timestamps();
 
