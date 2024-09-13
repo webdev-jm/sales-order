@@ -15,14 +15,15 @@ class CreatePafDetailsTable extends Migration
     {
         Schema::create('paf_details', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('paf_id')->nullable();
             $table->string('PAFNo');
             $table->string('sku_code');
             $table->string('sku_description');
             $table->string('brand');
             $table->timestamps();
 
-            $table->foreign('PAFNo')
-                ->references('PAFNo')->on('pafs')
+            $table->foreign('paf_id')
+                ->references('id')->on('pafs')
                 ->onDelete('cascade');
 
             $table->softDeletes();

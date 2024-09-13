@@ -6,33 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Paf extends Model
+class PafApproval extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
     protected $fillable = [
-        'account_id',
+        'paf_id',
         'user_id',
-        'paf_number',
-        'title',
-        'expense_type',
-        'support_type',
-        'start_date',
-        'end_data',
-        'concept',
         'status',
+        'remarks',
     ];
 
-    public function account() {
-        return $this->belongsTo('App\Models\Account');
+    public function paf() {
+        return $this->belongsTo('App\Models\Paf');
     }
 
     public function user() {
         return $this->belongsTo('App\Models\User');
-    }
-
-    public function approvals() {
-        return $this->hasMany('App\Models\PafApproval');
     }
 }

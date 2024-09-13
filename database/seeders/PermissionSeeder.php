@@ -248,7 +248,13 @@ class PermissionSeeder extends Seeder
                 'ship address mapping create'   => 'access to create ship address mapping',
                 'ship address mapping edit'     => 'access to edit ship address mapping',
                 'ship address mapping delete'   => 'access to delete ship address mapping',
-            ]
+            ],
+            'Paf' => [
+                'paf access'    => 'access to paf module',
+                'paf create'    => 'access to create paf',
+                'paf edit'      => 'access to edit paf',
+                'paf delete'    => 'access to delete paf',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {

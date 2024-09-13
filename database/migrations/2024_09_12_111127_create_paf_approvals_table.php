@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePafsTable extends Migration
+class CreatePafApprovalsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,12 @@ class CreatePafsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pafs', function (Blueprint $table) {
+        Schema::create('paf_approvals', function (Blueprint $table) {
             $table->id();
-            $table->string('PAFNo')->unique();
-            $table->string('account_code');
-            $table->string('account_name');
-            $table->string('title');
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->string('support_type');
+            $table->unsignedBigInteger('paf_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('status');
+            $table->text('remarks')->nullable();
             $table->timestamps();
 
             $table->softDeletes();
@@ -35,6 +32,6 @@ class CreatePafsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pafs');
+        Schema::dropIfExists('paf_approvals');
     }
 }

@@ -59,7 +59,7 @@
                     <tr>
                         <td>{{$mapping->account->account_code}}</td>
                         <td>{{$mapping->account->short_name}}</td>
-                        <td>[{{$mapping->shipping_address->address_code}}] {{$mapping->shipping_address->ship_to_name}} - {{$mapping->shipping_address->building}}</td>
+                        <td>[{{$mapping->shipping_address->address_code ?? '-'}}] {{$mapping->shipping_address->ship_to_name ?? '-'}} - {{$mapping->shipping_address->building ?? '-'}}</td>
                         <td>{{$mapping->reference1 ?? '-'}}</td>
                         <td>{{$mapping->reference2 ?? '-'}}</td>
                         <td>{{$mapping->reference3 ?? '-'}}</td>
@@ -81,6 +81,7 @@
         </table>
     </div>
     <div class="card-footer">
+        {{$ship_address_mappings->links()}}
     </div>
 </div>
 
