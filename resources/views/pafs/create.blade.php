@@ -22,12 +22,7 @@
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-lg-12">
-        <livewire:paf.create/>
-    </div>
-</div>
-
+    <livewire:paf.create/>
 @endsection
 
 @section('js')
