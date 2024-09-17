@@ -14,12 +14,12 @@ class Paf extends Model
     protected $fillable = [
         'account_id',
         'user_id',
+        'paf_expense_type_id',
+        'paf_support_type_id',
         'paf_number',
         'title',
-        'expense_type',
-        'support_type',
         'start_date',
-        'end_data',
+        'end_date',
         'concept',
         'status',
     ];
