@@ -92,9 +92,17 @@
                     </td>
                     <td>
                         @if(isset($sales_order->upload_status))
-                            <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                            @if($sales_order->status == 'cancelled')
+                                <span class="badge badge-danger">{{$sales_order->status}}</span>
+                            @else
+                                <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                            @endif
                         @else
-                            <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                            @if($sales_order->status == 'cancelled')
+                                <span class="badge badge-danger">{{$sales_order->status}}</span>
+                            @else
+                                <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                            @endif
                         @endif
                     </td>
                     <td>
