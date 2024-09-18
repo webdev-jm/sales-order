@@ -19,8 +19,8 @@ class AccountSeeder extends Seeder
     {
         Account::factory()->count(20)->create([
             'invoice_term_id' => InvoiceTerm::inRandomOrder()->limit(1)->pluck('id')[0],
-            'company_id' => Company::inRandomOrder()->limit(1)->pluck('id')[0],
-            'discount_id' => Discount::inRandomOrder()->limit(1)->pluck('id')[0],
+            'company_id' => rand(1,2),
+            'discount_id' => NULL,
         ]);
     }
 }

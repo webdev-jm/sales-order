@@ -25,5 +25,6 @@ class DatabaseSeeder extends Seeder
 
         $this->call([PafSupportTypeSeeder::class]);
         $this->call([PafExpenseTypeSeeder::class]);
+        $this->call([PafActivitySeeder::class]);
     }
 }
