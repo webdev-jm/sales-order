@@ -10,4 +10,17 @@ class PafDetail extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $fillable = [
+        'paf_id',
+        'paf_activity_id',
+        'product_id',
+        'branch_id',
+        'amount',
+        'expense',
+        'quantity',
+        'srp',
+        'percentage',
+        'status',
+    ];
 }

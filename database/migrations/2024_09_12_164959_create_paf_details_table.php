@@ -16,14 +16,31 @@ class CreatePafDetailsTable extends Migration
         Schema::create('paf_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('paf_id')->nullable();
-            $table->string('PAFNo');
-            $table->string('sku_code');
-            $table->string('sku_description');
-            $table->string('brand');
+            $table->unsignedBigInteger('paf_activity_id')->nullable();
+            $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->decimal('amount', 10, 2);
+            $table->decimal('expense', 10, 2);
+            $table->integer('quantity');
+            $table->decimal('srp', 10, 2);
+            $table->decimal('percentage', 10, 2);
+            $table->string('status');
             $table->timestamps();
 
             $table->foreign('paf_id')
                 ->references('id')->on('pafs')
+                ->onDelete('cascade');
+
+            $table->foreign('paf_activity_id')
+                ->references('id')->on('paf_activities')
+                ->onDelete('cascade');
+
+            $table->foreign('product_id')
+                ->references('id')->on('products')
+                ->onDelete('cascade');
+
+            $table->foreign('branch_id')
+                ->references('id')->on('branches')
                 ->onDelete('cascade');
 
             $table->softDeletes();
