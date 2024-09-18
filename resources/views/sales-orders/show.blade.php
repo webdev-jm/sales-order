@@ -158,7 +158,7 @@
     @if(auth()->user()->can('sales order create') && ($sales_order->status == 'for optimization' || $sales_order->status == 'finalized') && !empty(\Illuminate\Support\Facades\Session::get('logged_account')))
     <div class="row">
         <div class="col-12 text-right">
-            <a href="{{route('sales-order.resubmit', $sales_order->id)}}" class="btn btn-warning">Resubmit Sales Order</a>
+            <a href="{{route('sales-order.resubmit', $sales_order->id)}}" class="btn btn-warning" id="btn-resubmit">Resubmit Sales Order</a>
         </div>
     </div>
     @endif
@@ -169,7 +169,15 @@
 
 @section('js')
 <script>
-
+    $(function() {
+        $('body').on('click', '#btn-resubmit', function(e) {
+            e.preventDefault();
+            if(confirm('This sales order will be cancelled. Do you wish to continue?')) {
+                var redirectUrl = $(this).attr('href');  // Get the href attribute from the clicked anchor tag
+                window.location.href = redirectUrl;  // Redirect to the route
+            }
+        });
+    });
 </script>
 @endsection
 

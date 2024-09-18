@@ -213,6 +213,10 @@ class SalesOrderController extends Controller
         }
 
         $sales_order = SalesOrder::findOrFail($id);
+        // change status to cancelled
+        $sales_order->update([
+            'status' => 'cancelled'
+        ]);
 
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
@@ -250,6 +254,8 @@ class SalesOrderController extends Controller
         $order_data['total'] = $sales_order->total_sales;
         $order_data['grand_total'] = $sales_order->grand_total;
         $order_data['po_value'] = '';
+
+        session()->put('po_number', $sales_order->po_number);
 
         Session::put('order_data', $order_data);
 

@@ -41,7 +41,10 @@ class StoreSalesOrderRequest extends FormRequest
                 'required',
                 // 'alpha_dash',
                 'regex:/^[a-zA-Z0-9\s\-]+$/',
-                Rule::unique((new SalesOrder)->getTable()),
+                Rule::unique((new SalesOrder)->getTable())
+                    ->where(function($query) {
+                        $query->where('status', '!=', 'cancelled');
+                    }),
                 Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id),
                 'max:30'
             ],
