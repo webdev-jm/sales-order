@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ActivityPlanImport;
+use App\Exports\SalesOrderExport;
 
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
@@ -114,6 +115,8 @@ class SalesOrderController extends Controller
     public function index(Request $request) {
         $logged_account = Session::get('logged_account');
         $search = trim($request->get('search'));
+        $date_from = trim($request->get('date_from'));
+        $date_to = trim($request->get('date_to'));
         if(isset($logged_account)) {
 
             Session::forget('order_data');
@@ -125,10 +128,35 @@ class SalesOrderController extends Controller
                 ->where('end_date', '>=', $date)
                 ->first();
 
-            $sales_orders = SalesOrder::SalesOrderSearch($search, $logged_account,$this->setting->data_per_page);
+            // $sales_orders = SalesOrder::SalesOrderSearch($search, $logged_account,$this->setting->data_per_page);
+            $sales_orders = SalesOrder::orderBy('id', 'DESC')
+                ->whereHas('account_login', function($qry) use($logged_account) {
+                    $qry->where('account_id', $logged_account->account_id);
+                })
+                ->when(!empty($search), function($query) use($search) {
+                    $query->where(function($qry) use($search) {
+                        $qry->where('control_number', 'like', '%'.$search.'%')
+                            ->orWhere('po_number', 'like', '%'.$search.'%')
+                            ->orWhere('order_date', 'like', '%'.$search.'%')
+                            ->orWhere('ship_date', 'like', '%'.$search.'%')
+                            ->orWhere('ship_to_name', 'like', '%'.$search.'%')
+                            ->orWhere('status', 'like', '%'.$search.'%');
+                    });
+                })
+                ->when(!empty($date_from), function($qry) use($date_from) {
+                    $qry->where('order_date', '>=', $date_from);
+                })
+                ->when(!empty($date_to), function($qry) use($date_to) {
+                    $qry->where('order_date', '<=', $date_to);
+                })
+                ->paginate($this->setting->data_per_page)->onEachSide(1)
+                ->appends(request()->query());
+
             return view('sales-orders.index')->with([
                 'sales_orders' => $sales_orders,
                 'search' => $search,
+                'date_from' => $date_from,
+                'date_to' => $date_to,
                 'cut_off' => $cut_off,
             ]);
         } else {
@@ -1327,5 +1355,16 @@ class SalesOrderController extends Controller
         }
 
         return $price_code;
+    }
+
+    public function export(Request $request) {
+        $logged_account = Session::get('logged_account');
+        $date_from = trim($request->get('date_from'));
+        $date_to = trim($request->get('date_to'));
+        $search = trim($request->get('search'));
+
+        $account = $logged_account->account;
+
+        return Excel::download(new SalesOrderExport($account, $date_from, $date_to, $search), 'sales-orders-'.time().'.xlsx');
     }
 }

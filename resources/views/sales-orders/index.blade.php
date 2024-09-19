@@ -51,18 +51,54 @@
 {!! Form::open(['method' => 'GET', 'route' => ['sales-order.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
+<div class="card card-primary card-outline">
+    <div class="card-header">
+        <h3 class="card-title">FILTER</h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-2">
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <label for="search" class="mb-0">SEARCH</label>
+                    {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <label for="from" class="mb-0">FROM</label>
+                    <input type="date" class="form-control" name="date_from" form="search_form" value="{{$date_from}}">
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="form-group">
+                    <label for="from" class="mb-0">TO</label>
+                    <input type="date" class="form-control" name="date_to" form="search_form" value="{{$date_to}}">
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="card-footer text-right">
+        <button type="submit" class="btn btn-default btn-sm" form="search_form">
+            <i class="fa fa-filter mr-1"></i>
+            FILTER
+        </button>
+        <a href="{{route('sales-order.export')}}?date_from={{$date_from}}&date_to={{$date_to}}&search={{$search}}" class="btn btn-success btn-sm">
+            <i class="fa fa-file-excel mr-1"></i>
+            EXPORT
+        </a>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">List of Sales Orders</h3>
         <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
-                {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
-                <div class="input-group-append">
-                    <button type="submit" class="btn btn-default" form="search_form">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
     <div class="card-body table-responsive p-0">

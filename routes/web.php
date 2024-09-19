@@ -106,6 +106,7 @@ Route::group(['middleware' => 'auth'], function () {
     
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
+        
         Route::get('sales-order', [SalesOrderController::class, 'index'])->name('sales-order.index');
         Route::get('sales-order/create', [SalesOrderController::class, 'create'])->name('sales-order.create')->middleware('permission:sales order create');
         Route::post('sales-order-store', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
@@ -124,6 +125,9 @@ Route::group(['middleware' => 'auth'], function () {
 
         // MULTIPLE UPLOADS
         Route::get('sales-order-multiple', [SalesOrderMultipleController::class, 'index'])->name('sales-order-multiple.index');
+
+        // EXPORT
+        Route::get('sales-order-export', [SalesOrderController::class, 'export'])->name('sales-order.export');
     });
 
     // PURCHASE ORDERS
