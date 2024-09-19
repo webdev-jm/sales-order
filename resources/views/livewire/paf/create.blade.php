@@ -122,30 +122,91 @@
                             <div class="form-group">
                                 <label for="">ACTIVITY TYPE</label>
                                 <select class="form-control form-control-sm">
-                                    <option value=""></option>
+                                    <option value="">- select activity type -</option>
+                                    @foreach($activities as $activity)
+                                        <option value="{{$activity->id}}">
+                                            {{!empty($activity->activity) ? $activity->activity : $activity->components}}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
+                        <div class="col-lg-12 mb-2">
+                            <button class="btn btn-info btn-sm" id="btn-add-detail">
+                                <i class="fa fa-plus fa-sm mr-1">ADD LINE</i>
+                            </button>
+                        </div>
+
                         <div class="col-lg-12">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-sm table-hover">
                                     <thead>
-                                        <tr>
-                                            <th>STOCK CODE</th>
+                                        <tr class="text-center">
+                                            <th>PRODUCT</th>
+                                            <th>BRANCH</th>
+                                            <th>QUANTITY</th>
+                                            <th>SRP</th>
+                                            <th>PERCENTAGE</th>
+                                            <th>AMOUNT</th>
+                                            <th>EXPENSE</th>
                                             <th></th>
                                         </tr>
                                     </thead>
+                                    <tbody>
+                                        @foreach($details as $key => $detail)
+                                            <tr>
+                                                <td class="p-0">
+                                                    <input type="text" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.product_id">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="text" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.branch_id">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.quantity">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.srp">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.percentage">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.amount">
+                                                </td>
+                                                <td class="p-0">
+                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.expense">
+                                                </td>
+                                                <td class="p-0 text-center">
+                                                    <button class="btn btn-xs btn-danger">
+                                                        <i class="fa fa-trash-alt fa-sm"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
+
+                        
                     </div>
 
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('livewire:load', function() {
+            $('body').on('click', '#btn-add-detail', function(e) {
+                e.preventDefault();
+                Livewire.emit('pafAddDetail');
+                $('#modal-summary').modal('show');
+            });
+        });
+    </script>
     
 </div>

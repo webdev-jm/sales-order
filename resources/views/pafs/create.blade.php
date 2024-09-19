@@ -23,12 +23,18 @@
 
 @section('content')
     <livewire:paf.create/>
+
+    <div class="modal fade" id="modal-summary">
+        <div class="modal-dialog modal-lg">
+            <livewire:paf.detail/>
+        </div>
+    </div>
 @endsection
 
 @section('js')
 <script>
     $(function() {
-    }); 
+    });
 </script>
 @endsection
 
