@@ -44,6 +44,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ShipAddressMappingController;
 use App\Http\Controllers\PafController;
+use App\Http\Controllers\BrandController;
 
 /*
 |--------------------------------------------------------------------------
@@ -149,6 +150,16 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('schedule/{id}/deviation-print', [UserBranchScheduleController::class, 'printDeviationForm'])->name('schedule.deviation-print');
 
         Route::get('schedule/deviations', [UserBranchScheduleController::class, 'deviations'])->name('schedule.deviations');
+    });
+
+    // BRANDS
+    Route::group(['middleware' => 'permission:brand access'], function() {
+        Route::get('brand', [BrandController::class, 'index'])->name('brand.index');
+        Route::get('brand/create', [BrandController::class, 'create'])->name('brand.create')->middleware('permission:brand create');
+        Route::post('brand', [BrandController::class, 'store'])->name('brand.store')->middleware('permission:brand create');
+        Route::get('brand/{id}', [BranchController::class, 'show'])->name('brand.show');
+        Route::get('brand/{id}/edit', [BrandController::class, 'edit'])->name('brand.edit')->middleware('permission:brand edit');
+        Route::post('brand/{id}', [BrandController::class, 'update'])->name('brand.update')->middleware('permission:brand edit');
     });
 
     // REPORTS
