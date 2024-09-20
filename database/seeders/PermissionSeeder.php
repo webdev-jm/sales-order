@@ -255,6 +255,12 @@ class PermissionSeeder extends Seeder
                 'paf edit'      => 'access to edit paf',
                 'paf delete'    => 'access to delete paf',
             ],
+            'Brand' => [
+                'brand access'  => 'access to brand module',
+                'brand create'  => 'access to create brand',
+                'brand edit'    => 'access to edit brand',
+                'brand delete'  => 'access to delete brand', 
+            ]
         ];
 
         foreach($permissions_arr as $module => $permissions) {

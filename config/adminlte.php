@@ -490,6 +490,13 @@ return [
             'active'    => ['invoice-term*']
         ],
         [
+           'text'      => 'Brands',
+            'url'       => '/brand',
+            'icon'      => 'fas fa-fw fa-copyright',
+            'can'       => 'brand access',
+            'active'    => ['brand*']
+        ],
+        [
             'text'      => 'Products',
             'url'       => '/product',
             'icon'      => 'fas fa-fw fa-box',
