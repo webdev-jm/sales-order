@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Company;
 use App\Models\PriceCode;
+use App\Models\Brand;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\Http\Request;
@@ -57,8 +58,15 @@ class ProductController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
+        $brands = Brand::orderBy('brand', 'ASC')->get();
+        $brands_arr = [];
+        foreach($brands as $brand) {
+            $brands_arr[$brand->id] = $brand->brand;
+        }
+
         return view('products.create')->with([
-            'companies' => $companies_arr
+            'companies' => $companies_arr,
+            'brands_arr' => $brands_arr
         ]);
     }
 
@@ -74,6 +82,7 @@ class ProductController extends Controller
         $special_product = $request->special_product ?? false;
 
         $product = new Product([
+            'brand_id' => $request->brand_id,
             'stock_code' => $request->stock_code,
             'description' => $request->description,
             'size' => $request->size,
@@ -123,8 +132,16 @@ class ProductController extends Controller
     public function edit($id)
     {
         $product = Product::findOrFail($id);
+
+        $brands = Brand::orderBy('brand', 'ASC')->get();
+        $brands_arr = [];
+        foreach($brands as $brand) {
+            $brands_arr[$brand->id] = $brand->brand;
+        }
+
         return view('products.edit')->with([
-            'product' => $product
+            'product' => $product,
+            'brands_arr' => $brands_arr
         ]);
     }
 
@@ -146,6 +163,7 @@ class ProductController extends Controller
         $special_product = $request->special_product ?? false;
 
         $product->update([
+            'brand_id' => $request->brand_id,
             'stock_code' => $request->stock_code,
             'description' => $request->description,
             'size' => $request->size,

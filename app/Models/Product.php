@@ -13,6 +13,7 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'brand_id',
         'stock_code',
         'description',
         'size',
@@ -46,6 +47,10 @@ class Product extends Model
 
     public function sales_order_product() {
         return $this->hasMany('App\Models\SalesOrderProduct');
+    }
+
+    public function brand() {
+        return $this->belongsTo('App\Models\Brand');
     }
 
     public function scopeProductSearch($query, $search, $limit) {

@@ -25,7 +25,7 @@ class Create extends Component
 
     public $days = 30;
 
-    public $account_id, $support_type_id, $expense_type_id;
+    public $account_id, $support_type_id, $expense_type_id, $activity_id;
     public $title, $program_start, $program_end;
     public $details = [];
 
@@ -70,6 +70,24 @@ class Create extends Component
             'concept' => ''
         ]);
         $paf->save();
+
+        if(!empty($this->details)) {
+            foreach($this->details as $val) {
+                $paf_detail = new PafDetail([
+                    'paf_id' => $paf->id,
+                    'paf_activity_id' => $this->activity_id,
+                    'product_id' => $val['product_id'],
+                    'branch_id' => $val['branch_id'],
+                    'amount' => $val['amount'],
+                    'expense' => $val['expense'],
+                    'quantity' => $val['quantity'],
+                    'srp' => $val['srp'],
+                    'percentage' => $val['percentage'],
+                    'status' => NULL,
+                ]);
+                $paf_detail->save();
+            }
+        }
     }
 
     private function generatePafNumber($type) {
@@ -159,7 +177,7 @@ class Create extends Component
         $this->expense_types = PafExpenseType::all();
 
         $paf_data = Session::get('paf_data');
-        $this->details = $paf_data['details'];
+        $this->details = $paf_data['details'] ?? [];
     }
 
     public function render()

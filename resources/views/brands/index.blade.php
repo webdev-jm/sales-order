@@ -13,7 +13,10 @@
         <h1>Brands</h1>
     </div>
     <div class="col-md-6 text-right">
-        
+        <a href="{{route('brand.create')}}" class="btn btn-primary">
+            <i class="fa fa-plus mr-1"></i>
+            ADD BRAND
+        </a>
     </div>
 </div>
 @endsection
@@ -49,8 +52,11 @@
                     <tr>
                         <td>{{$brand->brand}}</td>
                         <td class="text-right">
-                            @can('branch edit')
-                                <a href="{{route('branch.edit', $brand->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                            <a href="{{route('brand.show', $brand->id)}}" title="View details">
+                                <i class="fa fa-eye text-primary mx-1"></i>
+                            </a>
+                            @can('brand edit')
+                                <a href="{{route('brand.edit', $brand->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                             @endcan
                             @can('brand delete')
                                 <a href="#" title="delete" class="btn-delete" data-id="{{$brand->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
@@ -80,7 +86,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Branch', id);
+            Livewire.emit('setDeleteModel', 'Brand', id);
             $('#modal-delete').modal('show');
         });
     });

@@ -25,6 +25,7 @@ use App\Models\CostCenter;
 use App\Models\ActivityPlan;
 use App\Models\District;
 use App\Models\OrganizationStructure;
+use App\Models\Brand;
 
 class ConfirmDelete extends Component
 {
@@ -165,6 +166,11 @@ class ConfirmDelete extends Component
                 $this->model = OrganizationStructure::findOrFail($model_id);
                 $this->name = 'Org structure '.$this->model->job_title->job_title;
                 $this->route = '/organizational-structure?type='.$this->model->type;
+                break;
+            case 'Brand':
+                $this->model = Brand::findOrFail($model_id);
+                $this->name = 'Brand '.$this->model->brand;
+                $this->route = '/brand';
                 break;
         }
     }
