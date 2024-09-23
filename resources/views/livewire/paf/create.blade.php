@@ -22,7 +22,7 @@
                         
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body pb-1">
         
                     <div class="row">
         
@@ -76,8 +76,6 @@
                     </div>
         
                 </div>
-                <div class="card-footer">
-                </div>
             </div>
         </div>
         {{-- PROGRAM DURATION --}}
@@ -86,7 +84,7 @@
                 <div class="card-header">
                     <h3 class="card-title">PROGRAM DURATION</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body pb-1">
 
                     <div class="row">
                         <div class="col-lg-6">
@@ -115,13 +113,13 @@
                 <div class="card-header">
                     <h3 class="card-title">COST COMPONENT</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body pb-1">
 
                     <div class="row">
                         <div class="col-lg-3">
                             <div class="form-group">
                                 <label for="">ACTIVITY TYPE</label>
-                                <select class="form-control form-control-sm">
+                                <select class="form-control form-control-sm" wire:model="activity_id">
                                     <option value="">- select activity type -</option>
                                     @foreach($activities as $activity)
                                         <option value="{{$activity->id}}">

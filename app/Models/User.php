@@ -163,6 +163,10 @@ class User extends Authenticatable
         return $this->hasMany('App\Models\DepartmentStructure');
     }
 
+    public function brands() {
+        return $this->belongsToMany('App\Models\Brand');
+    }
+
     public function scopeUserSearch($query, $search, $limit) {
         if($search != '') {
             $users = $query->orderBy('id', 'DESC')

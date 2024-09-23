@@ -15,6 +15,7 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('brand_id')->unsigned();
             $table->string('stock_code');
             $table->string('description');
             $table->string('size')->nullable();
@@ -36,6 +37,10 @@ class CreateProductsTable extends Migration
             $table->boolean('special_product')->default(false);
             $table->string('bar_code')->nullable();
             $table->timestamps();
+
+            $table->foreign('brand_id')
+                ->references('id')->on('brands')
+                ->onDelete('cascade');
 
             $table->softDeletes();
         });

@@ -108,6 +108,14 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('brand_id', 'Brand Tagging') !!}
+                    {!! Form::select('brand_id', $brands_arr, $product->brand_id, ['class' => 'form-control'.($errors->has('brand_id') ? ' is-invalid' : ''), 'form' => 'update_product']) !!}
+                    <p class="text-danger">{{$errors->first('brand_id')}}</p>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">

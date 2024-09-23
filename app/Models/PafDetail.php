@@ -23,4 +23,8 @@ class PafDetail extends Model
         'percentage',
         'status',
     ];
+
+    public function paf() {
+        return $this->belongsTo('App\Models\Paf');
+    }
 }

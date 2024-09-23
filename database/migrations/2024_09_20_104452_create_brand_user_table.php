@@ -13,17 +13,9 @@ class CreateBrandUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('brand_users', function (Blueprint $table) {
+        Schema::create('brand_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('brand_id')->nullable();
-
-            $table->foreign('user_id')  
-                ->references('id')->on('users')
-                -onDelete('cascade');
-                
-            $table->foreign('brand_id')
-                ->references('id')->on('brands')
-                ->onDelete('cascade');
         });
     }
 
@@ -34,6 +26,6 @@ class CreateBrandUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('brand_users');
+        Schema::dropIfExists('brand_user');
     }
 }

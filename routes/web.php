@@ -157,7 +157,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('brand', [BrandController::class, 'index'])->name('brand.index');
         Route::get('brand/create', [BrandController::class, 'create'])->name('brand.create')->middleware('permission:brand create');
         Route::post('brand', [BrandController::class, 'store'])->name('brand.store')->middleware('permission:brand create');
-        Route::get('brand/{id}', [BranchController::class, 'show'])->name('brand.show');
+        
+        Route::get('brand/{id}', [BrandController::class, 'show'])->name('brand.show');
+
         Route::get('brand/{id}/edit', [BrandController::class, 'edit'])->name('brand.edit')->middleware('permission:brand edit');
         Route::post('brand/{id}', [BrandController::class, 'update'])->name('brand.update')->middleware('permission:brand edit');
     });
