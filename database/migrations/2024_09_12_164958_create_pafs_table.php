@@ -19,6 +19,7 @@ class CreatePafsTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('paf_expense_type_id')->nullable();
             $table->unsignedBigInteger('paf_support_type_id')->nullable();
+            $table->unsignedBigInteger('paf_activity_id')->nullable();
             $table->string('paf_number')->unique();
             $table->string('title');
             $table->date('start_date');
@@ -33,6 +34,10 @@ class CreatePafsTable extends Migration
 
             $table->foreign('user_id')
                 ->references('id')->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('paf_activity_id')
+                ->references('id')->on('paf_activities')
                 ->onDelete('cascade');
 
             $table->softDeletes();

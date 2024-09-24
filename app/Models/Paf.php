@@ -16,6 +16,7 @@ class Paf extends Model
         'user_id',
         'paf_expense_type_id',
         'paf_support_type_id',
+        'paf_activity_id',
         'paf_number',
         'title',
         'start_date',
@@ -30,6 +31,18 @@ class Paf extends Model
 
     public function user() {
         return $this->belongsTo('App\Models\User');
+    }
+
+    public function expense_type() {
+        return $this->belongsTo('App\Models\PafExpenseType');
+    }
+
+    public function support_type() {
+        return $this->belongsTo('App\Models\PafSupportType');
+    }
+
+    public function activity() {
+        return $this->belongsTo('App\Models\PafActivity');
     }
 
     public function approvals() {

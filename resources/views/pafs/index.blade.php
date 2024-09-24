@@ -37,9 +37,26 @@
             <thead>
                 <tr>
                     <th>PAF NUMBER</th>
+                    <th>USER</th>
+                    <th>EXPENSE TYPE</th>
+                    <th>SUPPORT TYPE</th>
+                    <th>START DATE</th>
+                    <th>END DATE</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
+                @foreach($pafs as $paf)
+                    <tr>
+                        <td>{{$paf->paf_number}}</td>
+                        <td>{{$paf->user->fullName()}}</td>
+                        <td>{{$paf->expense_type->expense ?? ''}}</td>
+                        <td>{{$paf->support_type->support ?? ''}}</td>
+                        <td>{{$paf->start_date}}</td>
+                        <td>{{$paf->end_date}}</td>
+                        <td></td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

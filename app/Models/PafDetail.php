@@ -13,7 +13,6 @@ class PafDetail extends Model
 
     protected $fillable = [
         'paf_id',
-        'paf_activity_id',
         'product_id',
         'branch_id',
         'amount',
