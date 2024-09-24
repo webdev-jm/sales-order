@@ -42,7 +42,10 @@ class Create extends Component
                 'required',
             ],
             'expense_type_id' => [
-                'required'
+                'required',
+            ],
+            'activity_id' => [
+                'required',
             ],
             'title' => [
                 'required',
@@ -55,13 +58,14 @@ class Create extends Component
             ],
         ]);
 
-        $type = checkPafType($this->program_start);
+        $type = $this->checkPafType($this->program_start);
 
         $paf = new Paf([
             'account_id' => $this->account_id,
             'user_id' => auth()->user()->id,
             'paf_expense_type_id' => $this->expense_type_id,
             'paf_support_type_id' => $this->support_type_id,
+            'paf_activity_id' => $this->activity_id,
             'paf_number' => $this->generatePafNumber($type),
             'title' => $this->title,
             'start_date' => $this->program_start,
@@ -73,19 +77,20 @@ class Create extends Component
 
         if(!empty($this->details)) {
             foreach($this->details as $val) {
-                $paf_detail = new PafDetail([
-                    'paf_id' => $paf->id,
-                    'paf_activity_id' => $this->activity_id,
-                    'product_id' => $val['product_id'],
-                    'branch_id' => $val['branch_id'],
-                    'amount' => $val['amount'],
-                    'expense' => $val['expense'],
-                    'quantity' => $val['quantity'],
-                    'srp' => $val['srp'],
-                    'percentage' => $val['percentage'],
-                    'status' => NULL,
-                ]);
-                $paf_detail->save();
+                if(!empty($val['product_id']) && !empty($val['quantity'])) {
+                    $paf_detail = new PafDetail([
+                        'paf_id' => $paf->id,
+                        'product_id' => $val['product_id'],
+                        'branch_id' => $val['branch_id'],
+                        'amount' => $val['amount'],
+                        'expense' => $val['expense'],
+                        'quantity' => $val['quantity'],
+                        'srp' => $val['srp'],
+                        'percentage' => $val['percentage'],
+                        'status' => NULL,
+                    ]);
+                    $paf_detail->save();
+                }
             }
         }
     }

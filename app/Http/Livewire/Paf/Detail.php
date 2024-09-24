@@ -37,7 +37,7 @@ class Detail extends Component
             ],
             'detail.expense' => [
                 'required'
-            ]
+            ],
         ]);
         
         $this->paf_data['details'][] = $this->detail;

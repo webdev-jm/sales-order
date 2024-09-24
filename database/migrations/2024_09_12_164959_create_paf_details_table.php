@@ -16,7 +16,6 @@ class CreatePafDetailsTable extends Migration
         Schema::create('paf_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('paf_id')->nullable();
-            $table->unsignedBigInteger('paf_activity_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->decimal('amount', 10, 2);
@@ -24,15 +23,11 @@ class CreatePafDetailsTable extends Migration
             $table->integer('quantity');
             $table->decimal('srp', 10, 2);
             $table->decimal('percentage', 10, 2);
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestamps();
 
             $table->foreign('paf_id')
                 ->references('id')->on('pafs')
-                ->onDelete('cascade');
-
-            $table->foreign('paf_activity_id')
-                ->references('id')->on('paf_activities')
                 ->onDelete('cascade');
 
             $table->foreign('product_id')

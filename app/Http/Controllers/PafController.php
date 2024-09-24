@@ -14,7 +14,12 @@ class PafController extends Controller
      */
     public function index()
     {
-        return view('pafs.index');
+        $pafs = Paf::orderBy('created_at', 'DESC')
+            ->paginate(10)->onEachSide(1);
+
+        return view('pafs.index')->with([
+            'pafs' => $pafs
+        ]);
     }
 
     /**
