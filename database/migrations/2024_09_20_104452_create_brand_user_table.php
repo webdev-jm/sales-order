@@ -16,6 +16,16 @@ class CreateBrandUsersTable extends Migration
         Schema::create('brand_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('brand_id')->nullable();
+
+            $table->primary(['user_id', 'brand_id']);
+
+            $table->foreign('user_id')
+                ->references('id')->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('brand_id')
+                ->references('id')->on('brands')
+                ->onDelete('cascade');
         });
     }
 

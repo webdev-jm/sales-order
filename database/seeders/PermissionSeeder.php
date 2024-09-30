@@ -260,6 +260,12 @@ class PermissionSeeder extends Seeder
                 'brand create'  => 'access to create brand',
                 'brand edit'    => 'access to edit brand',
                 'brand delete'  => 'access to delete brand', 
+            ],
+            'Pre Plan' => [
+                'pre plan access'   => 'access to pre plan module',
+                'pre plan create'   => 'access to create pre plan',
+                'pre plan edit'     => 'access to edit pre plan',
+                'pre plan delete'   => 'access to delete pre plan',
             ]
         ];
 
