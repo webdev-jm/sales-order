@@ -45,6 +45,7 @@ use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ShipAddressMappingController;
 use App\Http\Controllers\PafController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\PafPrePlanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -103,6 +104,18 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('paf', [PafController::class, 'index'])->name('paf.index');
         Route::get('paf/create', [PafController::class, 'create'])->name('paf.create')->middleware('permission:paf create');
         Route::post('paf', [PafController::class, 'store'])->name('paf.store')->middleware('permission:paf edit');
+    });
+
+    // PRE PLAN
+    Route::group(['middleware' => 'permission:pre plan access'], function() {
+        Route::get('pre-plan', [PafPrePlanController::class, 'index'])->name('pre-plan.index');
+        Route::get('pre-plan/create', [PafPrePlanController::class, 'create'])->name('pre-plan.create')->middleware('permission:pre plan create');
+        Route::post('pre-plan', [PafPrePlanController::class, 'store'])->name('pre-plan.store')->middleware('permission:pre plan create');
+
+        Route::get('pre-plan/{id}', [PafPrePlanController::class, 'show'])->name('pre-plan.show');
+
+        Route::get('pre-plan/{id}/edit', [PafPrePlanController::class, 'edit'])->name('pre-plan.edit')->permission('permission:pre plan edit');
+        Route::post('pre-plan/{id}', [PafPrePlanController::class, 'update'])->name('pre-plan.update')->permission('permission:pre plan edit');
     });
     
     // SALES ORDER
