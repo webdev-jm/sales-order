@@ -29,6 +29,12 @@
             <livewire:paf.detail/>
         </div>
     </div>
+
+    <div class="modal fade" id="modal-pre-plan">
+        <div class="modal-dialog modal-xl">
+            <livewire:paf.pre-plan />
+        </div>
+    </div>
 @endsection
 
 @section('js')

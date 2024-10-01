@@ -163,12 +163,12 @@ class Create extends Component
         foreach($paf_data['details'] as $detail) {
             $product;
             if(!empty($detail['product_id'])) {
-                $product = $this->products->where('id', $detail['product_id'])->first();
+                $product = collect($this->products)->where('id', $detail['product_id'])->first();
                 $paf_data['details']['product'] = $product;
             }
             $branch;
             if(!empty($detail['branch_id'])) {
-                $branch = $this->branches->where('id', $detail['branch_id'])->first();
+                $branch = collect($this->products)->where('id', $detail['branch_id'])->first();
                 $paf_data['details']['branch'] = $product;
             }
         }

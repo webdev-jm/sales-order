@@ -5,7 +5,7 @@
                 <i class="fa fa-save fa-sm mr-1"></i>
                 SAVE
             </button>
-            <button class="btn btn-info btn-sm">
+            <button class="btn btn-info btn-sm" id="btn-view-pre-plan">
                 <i class="fa fa-list fa-sm mr-1"></i>
                 VIEW PRE-PLAN
             </button>
@@ -156,26 +156,26 @@
                                     <tbody>
                                         @foreach($details as $key => $detail)
                                             <tr>
-                                                <td class="p-0">
-                                                    <input type="text" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.product_id">
+                                                <td class="p-0 pl-2">
+                                                    {{$detail['product']}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="text" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.branch_id">
+                                                <td class="p-0 pl-2">
+                                                    {{$detail['branch']}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.quantity">
+                                                <td class="p-0 pr-2 text-right">
+                                                    {{number_format(empty($detail['quantity']) ? 0 : $detail['quantity'], 2)}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.srp">
+                                                <td class="p-0 pr-2 text-right">
+                                                    {{number_format(empty($detail['srp']) ? 0 : $detail['srp'], 2)}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.percentage">
+                                                <td class="p-0 pr-2 text-right">
+                                                    {{number_format(empty($detail['percentage']) ? 0 : $detail['percentage'], 2)}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.amount">
+                                                <td class="p-0 pr-2 text-right">
+                                                    {{number_format(empty($detail['amount']) ? 0 : $detail['amount'], 2)}}
                                                 </td>
-                                                <td class="p-0">
-                                                    <input type="number" class="form-control form-control-sm border-0 text-right" wire:model="details.{{$key}}.expense">
+                                                <td class="p-0 pr-2 text-right">
+                                                    {{number_format(empty($detail['expense']) ? 0 : $detail['expense'], 2)}}
                                                 </td>
                                                 <td class="p-0 text-center">
                                                     <button class="btn btn-xs btn-danger">
@@ -203,6 +203,11 @@
                 e.preventDefault();
                 Livewire.emit('pafAddDetail');
                 $('#modal-summary').modal('show');
+            });
+
+            $('body').on('click', '#btn-view-pre-plan', function(e) {
+                e.preventDefault();
+                $('#modal-pre-plan').modal('show');
             });
         });
     </script>
