@@ -18,6 +18,7 @@ class CreatePafPrePlansTable extends Migration
             $table->unsignedBigInteger('paf_id')->nullable();
             $table->unsignedBigInteger('account_id')->nullable();
             $table->unsignedBigInteger('paf_support_type_id')->nullable();
+            $table->unsignedBigInteger('paf_activity_id')->nullable();
             $table->string('pre_plan_number');
             $table->integer('year');
             $table->date('start_date');
@@ -36,6 +37,10 @@ class CreatePafPrePlansTable extends Migration
 
             $table->foreign('paf_support_type_id')
                 ->references('id')->on('paf_support_types')
+                ->onDelete('cascade');
+
+            $table->foreign('paf_activity_id')
+                ->references('id')->on('paf_activities')
                 ->onDelete('cascade');
 
             $table->softDeletes();

@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\PafPrePlan;
 use App\Models\PafPrePlanDetail;
 use App\Models\PafSupportType;
+use App\Models\PafActivity;
 use App\Models\Account;
 use App\Models\Product;
 
@@ -77,6 +78,14 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
         $support_type = PafSupportType::where('support', $support_type)
             ->first();
 
+        // activity type
+        $activity = NULL;
+        if(!empty($account)) {
+            $activity = PafActivity::where('company_id', $account->company_id)
+                ->where('components', $components)
+                ->first();
+        }
+
         // check if no error
         if($err == 0) {
             // check duplicate
@@ -85,6 +94,7 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
                 $pre_plan = new PafPrePlan([
                     'account_id' => $account->id,
                     'paf_support_type_id' => $support_type->id ?? NULL,
+                    'paf_activity_id' => $activity->id ?? NULL,
                     'pre_plan_number' => $pre_plan_number,
                     'year' => $year,
                     'start_date' => $this->transformDate($start_date),
@@ -93,6 +103,12 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
                     'concept' => $concept
                 ]);
                 $pre_plan->save();
+            }
+
+            if(!empty($activity)) {
+                $pre_plan->update([
+                    'paf_activity_id' => $activity->id
+                ]);
             }
 
             return new PafPrePlanDetail([

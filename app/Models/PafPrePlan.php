@@ -15,6 +15,7 @@ class PafPrePlan extends Model
         'paf_id',
         'account_id',
         'paf_support_type_id',
+        'paf_activity_id',
         'pre_plan_number',
         'year',
         'start_date',
@@ -32,6 +33,6 @@ class PafPrePlan extends Model
     }
 
     public function support_type() {
-        return $this->belongsTo('App\Models\PafSupportType');
+        return $this->belongsTo('App\Models\PafSupportType', 'paf_support_type_id', 'id');
     }
 }
