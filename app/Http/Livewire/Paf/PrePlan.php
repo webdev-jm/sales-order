@@ -27,7 +27,7 @@ class PrePlan extends Component
         
         $header = [
             'account' => $this->selected->account,
-            'support_type' => $this->selected->support_type->support ?? NULL,
+            'support_type' => $this->selected->support_type ?? NULL,
             'expense_type' => PafExpenseType::where('expense', 'BUDGETED')->first(),
             'title' => $this->selected->title,
             'start_date' => $this->selected->start_date,
@@ -39,6 +39,7 @@ class PrePlan extends Component
         foreach($this->selected->pre_plan_details as $detail) {
             $product = $detail->product;
             $details[] = [
+                'type' => $detail->type,
                 'quantity' => $detail->quantity,
                 'srp' => '',
                 'percentage' => '',

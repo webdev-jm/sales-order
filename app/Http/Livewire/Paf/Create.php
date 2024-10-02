@@ -176,6 +176,14 @@ class Create extends Component
         $this->details = $paf_data['details'];
     }
 
+    public function removeLine($key) {
+        unset($this->details[$key]);
+
+        $paf_data = Session::get('paf_data');
+        $paf_data['details'] = $this->details;
+        Session::put('paf_data', $paf_data);
+    }
+
     public function mount() {
         $this->accounts = auth()->user()->accounts;
         $this->support_types = PafSupportType::all();
@@ -183,6 +191,16 @@ class Create extends Component
 
         $paf_data = Session::get('paf_data');
         $this->details = $paf_data['details'] ?? [];
+        if(!empty($paf_data['header'])) {
+            $header = $paf_data['header'];
+            $this->account_id = $header['account']['id'];
+            $this->support_type_id = $header['support_type']['id'] ?? NULL;
+            $this->expense_type_id = $header['expense_type']['id'] ?? NULL;
+            $this->activity_id = $header['activity']['id'] ?? NULL;
+            $this->title = $header['title'];
+            $this->program_start = $header['start_date'];
+            $this->program_end = $header['end_date'];
+        }
     }
 
     public function render()

@@ -143,6 +143,7 @@
                                 <table class="table table-bordered table-sm table-hover">
                                     <thead>
                                         <tr class="text-center">
+                                            <th>TYPE</th>
                                             <th>PRODUCT</th>
                                             <th>BRANCH</th>
                                             <th>QUANTITY</th>
@@ -156,6 +157,9 @@
                                     <tbody>
                                         @foreach($details as $key => $detail)
                                             <tr>
+                                                <td class="p-0 pl-2">
+                                                    {{$detail['type']}}
+                                                </td>
                                                 <td class="p-0 pl-2">
                                                     {{$detail['product']}}
                                                 </td>
@@ -178,7 +182,7 @@
                                                     {{number_format(empty($detail['expense']) ? 0 : $detail['expense'], 2)}}
                                                 </td>
                                                 <td class="p-0 text-center">
-                                                    <button class="btn btn-xs btn-danger">
+                                                    <button class="btn btn-xs btn-danger" wire:click.prevent="removeLine({{$key}})">
                                                         <i class="fa fa-trash-alt fa-sm"></i>
                                                     </button>
                                                 </td>
