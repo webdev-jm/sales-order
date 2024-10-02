@@ -26,11 +26,12 @@ class Create extends Component
     public $days = 30;
 
     public $account_id, $support_type_id, $expense_type_id, $activity_id;
-    public $title, $program_start, $program_end;
+    public $title, $program_start, $program_end, $pre_plan_number;
     public $details = [];
 
     protected $listeners = [
-        'setDetail' => 'setDetail'
+        'setDetail' => 'setDetail',
+        'setPrePlan' => 'setPrePlan'
     ];
 
     public function save() {
@@ -81,18 +82,21 @@ class Create extends Component
                     $paf_detail = new PafDetail([
                         'paf_id' => $paf->id,
                         'product_id' => $val['product_id'],
-                        'branch_id' => $val['branch_id'],
-                        'amount' => $val['amount'],
-                        'expense' => $val['expense'],
-                        'quantity' => $val['quantity'],
-                        'srp' => $val['srp'],
-                        'percentage' => $val['percentage'],
+                        'branch_id' => $val['branch_id'] ?? NULL,
+                        'branch' => $val['branch'],
+                        'amount' => empty($val['amount']) ? 0 : $val['amount'],
+                        'expense' => empty($val['expense']) ? 0 : $val['expense'],
+                        'quantity' => empty($val['quantity']) ? 0 : $val['quantity'],
+                        'srp' => empty($val['srp']) ? 0 : $val['srp'],
+                        'percentage' => empty($val['percentage']) ? 0 : $val['percentage'],
                         'status' => NULL,
                     ]);
                     $paf_detail->save();
                 }
             }
         }
+
+        return redirect()->route('paf.index');
     }
 
     private function generatePafNumber($type) {
@@ -176,6 +180,26 @@ class Create extends Component
         $this->details = $paf_data['details'];
     }
 
+    public function setPrePlan() {
+        $paf_data = Session::get('paf_data');
+        $this->details = $paf_data['details'] ?? [];
+        if(!empty($paf_data['header'])) {
+            $header = $paf_data['header'];
+            $this->account_id = $header['account']['id'];
+            $this->support_type_id = $header['support_type']['id'] ?? NULL;
+            $this->expense_type_id = $header['expense_type']['id'] ?? NULL;
+            $this->activity_id = $header['activity']['id'] ?? NULL;
+            $this->title = $header['title'];
+            $this->program_start = $header['start_date'];
+            $this->program_end = $header['end_date'];
+            $this->pre_plan_number = $header['pre_plan_number'];
+
+            $account = $this->accounts->where('id', $this->account_id)->first();
+            $this->activities = PafActivity::where('company_id', $account->company_id)->get();
+        }
+
+    }
+
     public function removeLine($key) {
         unset($this->details[$key]);
 
@@ -200,6 +224,9 @@ class Create extends Component
             $this->title = $header['title'];
             $this->program_start = $header['start_date'];
             $this->program_end = $header['end_date'];
+
+            $account = $this->accounts->where('id', $this->account_id)->first();
+            $this->activities = PafActivity::where('company_id', $account->company_id)->get();
         }
     }
 

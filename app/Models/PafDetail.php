@@ -15,6 +15,7 @@ class PafDetail extends Model
         'paf_id',
         'product_id',
         'branch_id',
+        'branch',
         'amount',
         'expense',
         'quantity',

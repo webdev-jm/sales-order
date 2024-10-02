@@ -40,6 +40,7 @@
                     <th>USER</th>
                     <th>EXPENSE TYPE</th>
                     <th>SUPPORT TYPE</th>
+                    <th>TITLE</th>
                     <th>START DATE</th>
                     <th>END DATE</th>
                     <th></th>
@@ -52,6 +53,7 @@
                         <td>{{$paf->user->fullName()}}</td>
                         <td>{{$paf->expense_type->expense ?? ''}}</td>
                         <td>{{$paf->support_type->support ?? ''}}</td>
+                        <td>{{$paf->title}}</td>
                         <td>{{$paf->start_date}}</td>
                         <td>{{$paf->end_date}}</td>
                         <td></td>

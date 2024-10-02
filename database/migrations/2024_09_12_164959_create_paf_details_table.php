@@ -18,6 +18,7 @@ class CreatePafDetailsTable extends Migration
             $table->unsignedBigInteger('paf_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
+            $table->string('branch')->nullable();
             $table->decimal('amount', 10, 2);
             $table->decimal('expense', 10, 2);
             $table->integer('quantity');
