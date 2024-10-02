@@ -46,5 +46,13 @@
             <button type="button" class="btn btn-primary" wire:click.prevent="selectPrePlan">SELECT</button>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('livewire:load', function () {
+            Livewire.on('closeModalPrePlan', () => {
+                $('#modal-pre-plan').modal('hide'); // Replace with your actual modal ID or closing method
+            });
+        });
+    </script>
 </div>
  

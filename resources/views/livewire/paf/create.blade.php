@@ -12,6 +12,15 @@
         </div>
     </div>
 
+    @if(!empty($pre_plan_number))
+        <h3 class="mr-2">
+            PRE PLAN NUMBER:
+            <button class="btn btn-primary btn-lg mb-2 py-1 d-inline">
+                {{$pre_plan_number}}
+            </button>
+        </h3>
+    @endif
+
     <div class="row">
         {{-- PROGRAM INFO --}}
         <div class="col-lg-7">
@@ -167,7 +176,7 @@
                                                     {{$detail['branch']}}
                                                 </td>
                                                 <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['quantity']) ? 0 : $detail['quantity'], 2)}}
+                                                    {{number_format(empty($detail['quantity']) ? 0 : $detail['quantity'])}}
                                                 </td>
                                                 <td class="p-0 pr-2 text-right">
                                                     {{number_format(empty($detail['srp']) ? 0 : $detail['srp'], 2)}}

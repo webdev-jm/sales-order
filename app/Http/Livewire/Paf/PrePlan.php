@@ -26,13 +26,14 @@ class PrePlan extends Component
         $paf_data = Session::get('paf_data');
         
         $header = [
+            'pre_plan_number' => $this->selected->pre_plan_number,
             'account' => $this->selected->account,
             'support_type' => $this->selected->support_type ?? NULL,
             'expense_type' => PafExpenseType::where('expense', 'BUDGETED')->first(),
             'title' => $this->selected->title,
             'start_date' => $this->selected->start_date,
             'end_date' => $this->selected->end_date,
-            'activity' => PafActivity::where('components', $this->selected->components)->first() ?? NULL,
+            'activity' => $this->selected->activity ?? NULL,
         ];
 
         $details = [];
@@ -55,6 +56,9 @@ class PrePlan extends Component
         $paf_data['details'] = $details;
 
         Session::put('paf_data', $paf_data);
+
+        $this->emit('setPrePlan');
+        $this->emit('closeModalPrePlan');
     }
     
     public function render()

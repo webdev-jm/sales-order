@@ -13,7 +13,7 @@
         <h1>ADD PAF</h1>
     </div>
     <div class="col-md-6 text-right">
-        <a href="" class="btn btn-default">
+        <a href="{{route('paf.index')}}" class="btn btn-default">
             <i class="fa fa-arrow-left mr-1"></i>
             BACK
         </a>

@@ -35,6 +35,14 @@ class CreatePafsTable extends Migration
             $table->foreign('user_id')
                 ->references('id')->on('users')
                 ->onDelete('cascade');
+            
+            $table->foreign('paf_expense_type_id')
+                ->references('id')->on('paf_expense_types')
+                ->onDelete('cascade');
+
+            $table->foreign('paf_support_type_id')
+                ->references('id')->on('paf_support_types')
+                ->onDelete('cascade');
 
             $table->foreign('paf_activity_id')
                 ->references('id')->on('paf_activities')

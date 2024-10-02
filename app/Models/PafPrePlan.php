@@ -35,4 +35,8 @@ class PafPrePlan extends Model
     public function support_type() {
         return $this->belongsTo('App\Models\PafSupportType', 'paf_support_type_id', 'id');
     }
+
+    public function activity() {
+        return $this->belongsTo('App\Models\PafActivity', 'paf_activity_id', 'id');
+    }
 }
