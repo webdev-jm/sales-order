@@ -25,6 +25,13 @@
 
 <div class="row">
 
+    <div class="col-12 mb-1">
+        <button class="btn btn-primary btn-sm">
+            <i class="fa fa-check"></i>
+            APPROVE
+        </button>
+    </div>
+
     <div class="col-lg-4">
         <div class="card card-danger card-outline">
             <div class="card-header">
