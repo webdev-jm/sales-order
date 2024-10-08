@@ -383,20 +383,20 @@ class ActivityPlanController extends Controller
         }
 
         // get user subordinates
-        $subordinate_ids = [];
-        $ids = auth()->user()->getSubordinateIds();
-        foreach($ids as $level => $id_arr) {
-            foreach($id_arr as $id) {
-                $subordinate_ids[] = $id;
-            }
-        }
+        // $subordinate_ids = [];
+        // $ids = auth()->user()->getSubordinateIds();
+        // foreach($ids as $level => $id_arr) {
+        //     foreach($id_arr as $id) {
+        //         $subordinate_ids[] = $id;
+        //     }
+        // }
 
         return view('mcp.show')->with([
             'position' => $position,
             'activity_plan' => $activity_plan,
             'schedule_data' => $schedule_data,
             'status_arr' => $this->status_arr,
-            'subordinate_ids' => $subordinate_ids
+            // 'subordinate_ids' => $subordinate_ids
         ]);
     }
 

@@ -84,7 +84,7 @@
         </h3>
         <div class="card-tools">
             @if($activity_plan->status == 'submitted' && (
-                in_array($activity_plan->user_id, $subordinate_ids) ||
+                $activity_plan->user->getImmediateSuperiorId() == auth()->user()->id ||
                 auth()->user()->hasRole('superadmin') ||
                 auth()->user()->hasRole('admin') || 
                 auth()->user()->can('mcp approval')
