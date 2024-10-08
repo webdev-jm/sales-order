@@ -43,6 +43,7 @@
                     <th>TITLE</th>
                     <th>START DATE</th>
                     <th>END DATE</th>
+                    <th>STATUS</th>
                     <th></th>
                 </tr>
             </thead>
@@ -56,7 +57,14 @@
                         <td>{{$paf->title}}</td>
                         <td>{{$paf->start_date}}</td>
                         <td>{{$paf->end_date}}</td>
-                        <td></td>
+                        <td>
+                            <span class="badge badge-{{$status_arr[$paf->status]}}">{{$paf->status}}</span>
+                        </td>
+                        <td class="p-0 text-center align-middle">
+                            <a href="{{route('paf.show', $paf->id)}}" title="details">
+                                <i class="fa fa-eye text-primary"></i>
+                            </a>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

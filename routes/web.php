@@ -103,7 +103,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:paf access'], function() {
         Route::get('paf', [PafController::class, 'index'])->name('paf.index');
         Route::get('paf/create', [PafController::class, 'create'])->name('paf.create')->middleware('permission:paf create');
-        Route::post('paf', [PafController::class, 'store'])->name('paf.store')->middleware('permission:paf edit');
+
+        Route::get('paf/{id}', [PafController::class, 'show'])->name('paf.show');
     });
 
     // PRE PLAN

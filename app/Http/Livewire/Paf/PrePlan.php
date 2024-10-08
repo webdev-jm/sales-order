@@ -64,6 +64,7 @@ class PrePlan extends Component
     public function render()
     {
         $pre_plans = PafPrePlan::orderBy('pre_plan_number', 'DESC')
+            ->whereNull('paf_id')
             ->paginate(15, ['*'], 'pre-plan-page')
             ->onEachSide(1);
 

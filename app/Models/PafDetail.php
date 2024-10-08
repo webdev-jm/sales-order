@@ -27,4 +27,8 @@ class PafDetail extends Model
     public function paf() {
         return $this->belongsTo('App\Models\Paf');
     }
+
+    public function product() {
+        return $this->belongsTo('App\Models\Product');
+    }
 }

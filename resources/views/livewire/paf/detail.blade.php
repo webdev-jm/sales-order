@@ -21,12 +21,8 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label class="mb-0">BRANCH</label>
-                            <select class="form-control form-control-sm{{$errors->has('detail.branch_id') ? ' is-invalid' : ''}}" wire:model="detail.branch_id">
-                                @foreach($paf_data['branches'] as $branch)
-                                    <option value="{{$branch['id']}}">{{$branch['branch_code']}} - {{$branch['branch_name']}}</option>
-                                @endforeach
-                            </select>
-                            <small class="text-danger">{{$errors->first('detail.branch_id')}}</small>
+                            <input type="text" class="form-control form-control-sm{{$errors->has('detail.branch') ? ' is-invalid' : ''}}" wire:model="detail.branch">
+                            <small class="text-danger">{{$errors->first('detail.branch')}}</small>
                         </div>
                     </div>
                 
@@ -35,6 +31,18 @@
                 <hr>
 
                 <div class="row">
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="type" class="mb-0">TYPE</label>
+                            <select id="type" class="form-control form-control-sm{{$errors->has('type') ? ' is-invalid' : ''}}" wire:model="detail.type">
+                                <option value="">- SELECT TYPE -</option>
+                                <option value="SELL IN">SELL IN</option>
+                                <option value="EXPENSE">EXPENSE</option>
+                            </select>
+                            <small class="text-danger">{{$errors->first('detail.type')}}</small>
+                        </div>
+                    </div>
 
                     <div class="col-lg-4">
                         <div class="form-group">

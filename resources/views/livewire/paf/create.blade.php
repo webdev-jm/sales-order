@@ -1,9 +1,15 @@
 <div>
     <div class="row mb-2">
         <div class="col-lg-6">
-            <button class="btn btn-primary btn-sm" wire:click.prevent="save">
-                <i class="fa fa-save fa-sm mr-1"></i>
-                SAVE
+            <button class="btn btn-secondary btn-sm" wire:click.prevent="savePaf('draft')" wire:loading.attr="disabled" wire:target="savePaf">
+                <i class="fa fa-save fa-sm mr-1" wire:loading.remove wire:target="savePaf"></i>
+                <i class="fa fa-spinner fa-spin fa-sm mr-1" wire:loading wire:target="savePaf"></i>
+                SAVE AS DRAFT
+            </button>
+            <button class="btn btn-primary btn-sm" wire:click.prevent="savePaf('submitted')" wire:loading.attr="disabled" wire:target="savePaf">
+                <i class="fa fa-save fa-sm mr-1" wire:loading.remove wire:target="savePaf"></i>
+                <i class="fa fa-spinner fa-spin fa-sm mr-1" wire:loading wire:target="savePaf"></i>
+                SUBMIT
             </button>
             <button class="btn btn-info btn-sm" id="btn-view-pre-plan">
                 <i class="fa fa-list fa-sm mr-1"></i>
@@ -165,37 +171,39 @@
                                     </thead>
                                     <tbody>
                                         @foreach($details as $key => $detail)
-                                            <tr>
-                                                <td class="p-0 pl-2">
-                                                    {{$detail['type']}}
-                                                </td>
-                                                <td class="p-0 pl-2">
-                                                    {{$detail['product']}}
-                                                </td>
-                                                <td class="p-0 pl-2">
-                                                    {{$detail['branch']}}
-                                                </td>
-                                                <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['quantity']) ? 0 : $detail['quantity'])}}
-                                                </td>
-                                                <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['srp']) ? 0 : $detail['srp'], 2)}}
-                                                </td>
-                                                <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['percentage']) ? 0 : $detail['percentage'], 2)}}
-                                                </td>
-                                                <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['amount']) ? 0 : $detail['amount'], 2)}}
-                                                </td>
-                                                <td class="p-0 pr-2 text-right">
-                                                    {{number_format(empty($detail['expense']) ? 0 : $detail['expense'], 2)}}
-                                                </td>
-                                                <td class="p-0 text-center">
-                                                    <button class="btn btn-xs btn-danger" wire:click.prevent="removeLine({{$key}})">
-                                                        <i class="fa fa-trash-alt fa-sm"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            @if(!empty($detail['product']))
+                                                <tr>
+                                                    <td class="p-0 pl-2">
+                                                        {{$detail['type']}}
+                                                    </td>
+                                                    <td class="p-0 pl-2">
+                                                        {{$detail['product']}}
+                                                    </td>
+                                                    <td class="p-0 pl-2">
+                                                        {{$detail['branch']}}
+                                                    </td>
+                                                    <td class="p-0 pr-2 text-right">
+                                                        {{number_format(empty($detail['quantity']) ? 0 : $detail['quantity'])}}
+                                                    </td>
+                                                    <td class="p-0 pr-2 text-right">
+                                                        {{number_format(empty($detail['srp']) ? 0 : $detail['srp'], 2)}}
+                                                    </td>
+                                                    <td class="p-0 pr-2 text-right">
+                                                        {{number_format(empty($detail['percentage']) ? 0 : $detail['percentage'], 2)}}
+                                                    </td>
+                                                    <td class="p-0 pr-2 text-right">
+                                                        {{number_format(empty($detail['amount']) ? 0 : $detail['amount'], 2)}}
+                                                    </td>
+                                                    <td class="p-0 pr-2 text-right">
+                                                        {{number_format(empty($detail['expense']) ? 0 : $detail['expense'], 2)}}
+                                                    </td>
+                                                    <td class="p-0 text-center">
+                                                        <button class="btn btn-xs btn-danger" wire:click.prevent="removeLine({{$key}})">
+                                                            <i class="fa fa-trash-alt fa-sm"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>
