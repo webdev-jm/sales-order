@@ -9,6 +9,8 @@ use App\Models\PafExpenseType;
 use App\Models\Paf;
 use App\Models\PafDetail;
 use App\Models\PafActivity;
+use App\Models\PafPrePlan;
+use App\Models\PafApproval;
 use App\Models\Product;
 
 use Carbon\Carbon;
@@ -34,7 +36,7 @@ class Create extends Component
         'setPrePlan' => 'setPrePlan'
     ];
 
-    public function save() {
+    public function savePaf($status) {
         $this->validate([
             'account_id' => [
                 'required',
@@ -43,9 +45,6 @@ class Create extends Component
                 'required',
             ],
             'expense_type_id' => [
-                'required',
-            ],
-            'activity_id' => [
                 'required',
             ],
             'title' => [
@@ -66,12 +65,12 @@ class Create extends Component
             'user_id' => auth()->user()->id,
             'paf_expense_type_id' => $this->expense_type_id,
             'paf_support_type_id' => $this->support_type_id,
-            'paf_activity_id' => $this->activity_id,
+            'paf_activity_id' => $this->activity_id ?? NULL,
             'paf_number' => $this->generatePafNumber($type),
             'title' => $this->title,
             'start_date' => $this->program_start,
             'end_date' => $this->program_end,
-            'status' => 'draft',
+            'status' => $status,
             'concept' => ''
         ]);
         $paf->save();
@@ -96,6 +95,31 @@ class Create extends Component
             }
         }
 
+        // update pre plan
+        if(!empty($this->pre_plan_number)) {
+            $pre_plan = PafPrePlan::where('pre_plan_number', $this->pre_plan_number)
+                ->first();
+
+            if(!empty($pre_plan)) {
+                $pre_plan->update([
+                    'paf_id' => $paf->id
+                ]);
+            }
+        }
+
+        if($status == 'submitted') {
+            // record approvals
+            $approval = new PafApproval([
+                'paf_id' => $paf->id,
+                'user_id' => auth()->user()->id,
+                'status' => $status,
+                'remarks' => NULL
+            ]);
+            $approval->save();
+        }
+
+        session()->flash('message_success', 'PAF '.$paf->paf_number.' has been created.');
+        
         return redirect()->route('paf.index');
     }
 
@@ -107,13 +131,14 @@ class Create extends Component
  
          do {
              // Get the last code from the Equipment model
-             $last_paf = Paf::orderBy('paf_number', 'desc')->first();
+             $last_paf = Paf::orderBy('created_at', 'desc')->first();
  
              if ($last_paf) {
-                 // Extract the numeric part and increment it
-                 $lastNumber = (int) str_replace($prefix, '', $last_paf->paf_number);
-                 $newNumber = $lastNumber + 1;
-                 $code = $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+                // Extract the numeric part and increment it
+                $number_arr = explode('-', $last_paf->paf_number);
+                $lastNumber = (int)end($number_arr);
+                $newNumber = $lastNumber + 1;
+                $code = $prefix . str_pad($newNumber, 5, '0', STR_PAD_LEFT);
              }
  
              // Check if the new code already exists

@@ -34,18 +34,22 @@ class Paf extends Model
     }
 
     public function expense_type() {
-        return $this->belongsTo('App\Models\PafExpenseType');
+        return $this->belongsTo('App\Models\PafExpenseType', 'paf_expense_type_id', 'id');
     }
 
     public function support_type() {
-        return $this->belongsTo('App\Models\PafSupportType');
+        return $this->belongsTo('App\Models\PafSupportType', 'paf_support_type_id', 'id');
     }
 
     public function activity() {
-        return $this->belongsTo('App\Models\PafActivity');
+        return $this->belongsTo('App\Models\PafActivity', 'paf_activity_id', 'id');
     }
 
     public function approvals() {
         return $this->hasMany('App\Models\PafApproval');
+    }
+
+    public function paf_details() {
+        return $this->hasMany('App\Models\PafDetail');
     }
 }

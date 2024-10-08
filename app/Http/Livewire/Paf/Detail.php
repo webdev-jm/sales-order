@@ -23,6 +23,9 @@ class Detail extends Component
             'detail.product_id' => [
                 'required'
             ],
+            'detail.type' => [
+                'required',
+            ],
             'detail.quantity' => [
                 'required',
             ],
@@ -39,9 +42,14 @@ class Detail extends Component
                 'required'
             ],
         ]);
+
+        $product = $this->paf_data['products'][$this->detail['product_id']];
+        $this->detail['product'] = $product['stock_code'].'- '.$product['description'].' '.$product['size'];
         
         $this->paf_data['details'][] = $this->detail;
         Session::put('paf_data', $this->paf_data);
+
+        $this->reset('detail');
 
         $this->emit('setDetail');
         $this->emit('closeModal');

@@ -4,9 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Paf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class PafController extends Controller
 {
+    public $status_arr = [
+        'draft' => 'secondary',
+        'submitted' => 'warning',
+        'approved'  => 'info',
+        'approved by brand' => 'primary',
+        'cancelled' => 'danger',
+        'completed' => 'success',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -14,11 +24,14 @@ class PafController extends Controller
      */
     public function index()
     {
+        Session::forget('paf_data');
+
         $pafs = Paf::orderBy('created_at', 'DESC')
             ->paginate(10)->onEachSide(1);
 
         return view('pafs.index')->with([
-            'pafs' => $pafs
+            'pafs' => $pafs,
+            'status_arr' => $this->status_arr
         ]);
     }
 
@@ -49,9 +62,16 @@ class PafController extends Controller
      * @param  \App\Models\Paf  $paf
      * @return \Illuminate\Http\Response
      */
-    public function show(Paf $paf)
+    public function show($id)
     {
-        //
+        $paf = Paf::findOrFail($id);
+        $paf_detail = $paf->paf_details()
+            ->paginate(10);
+
+        return view('pafs.show')->with([
+            'paf' => $paf,
+            'paf_detail' => $paf_detail
+        ]);
     }
 
     /**
