@@ -53,6 +53,10 @@ class Product extends Model
         return $this->belongsTo('App\Models\Brand');
     }
 
+    public function paf_details() {
+        return $this->hasMany('App\Models\PafDetail');
+    }
+
     public function scopeProductSearch($query, $search, $limit) {
         if($search != '') {
             $products = $query->orderBy('id', 'DESC')
