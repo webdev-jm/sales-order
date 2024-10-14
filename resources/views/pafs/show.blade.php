@@ -35,7 +35,7 @@
                 APPROVE
             </button>
         @endif
-        <button class="btn btn-secondary btn-sm">
+        <button class="btn btn-secondary btn-sm" id="btn-history">
             <i class="fa fa-clock mr-1"></i>
             HISTORY
         </button>
@@ -158,6 +158,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-history">
+    <div class="modal-dialog modal-lg">
+        <livewire:paf.history/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -167,6 +173,12 @@
             e.preventDefault();
             Livewire.emit('setPaf', 'approved', {{$paf->id}});
             $('#modal-approval').modal('show');
+        });
+
+        $('#btn-history').on('click', function(e) {
+            e.preventDefault();
+            Livewire.emit('setPafHistory', {{$paf->id}});
+            $('#modal-history').modal('show');
         });
     });
 </script>
