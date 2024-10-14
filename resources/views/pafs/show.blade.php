@@ -10,7 +10,11 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>PAF</h1>
+        <h1>PAF
+            <button class="btn btn-xs btn-{{$status_arr[$paf->status]}}">
+                {{$paf->status}}
+            </button>
+        </h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('paf.index')}}" class="btn btn-default">
@@ -24,11 +28,16 @@
 @section('content')
 
 <div class="row">
-
-    <div class="col-12 mb-1">
-        <button class="btn btn-primary btn-sm">
-            <i class="fa fa-check"></i>
-            APPROVE
+    <div class="col-lg-12 mb-1">
+        @if($paf->status == 'submitted' && ((!empty($paf->user->getImmediateSuperiorId()) && $paf->user->getImmediateSuperiorId() == auth()->user()->id) || auth()->user()->hasRole('superadmin')))
+            <button class="btn btn-primary btn-sm" id="btn-approve">
+                <i class="fa fa-check"></i>
+                APPROVE
+            </button>
+        @endif
+        <button class="btn btn-secondary btn-sm">
+            <i class="fa fa-clock mr-1"></i>
+            HISTORY
         </button>
     </div>
 
@@ -143,13 +152,22 @@
 
 </div>
 
-
+<div class="modal fade" id="modal-approval">
+    <div class="modal-dialog modal-lg">
+        <livewire:paf.approval/>
+    </div>
+</div>
 
 @endsection
 
 @section('js')
 <script>
     $(function() {
+        $('#btn-approve').on('click', function(e) {
+            e.preventDefault();
+            Livewire.emit('setPaf', 'approved', {{$paf->id}});
+            $('#modal-approval').modal('show');
+        });
     });
 </script>
 @endsection

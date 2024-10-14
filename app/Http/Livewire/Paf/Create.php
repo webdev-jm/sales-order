@@ -12,6 +12,10 @@ use App\Models\PafActivity;
 use App\Models\PafPrePlan;
 use App\Models\PafApproval;
 use App\Models\Product;
+use App\Models\User;
+
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\PafSubmitted;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
@@ -116,6 +120,15 @@ class Create extends Component
                 'remarks' => NULL
             ]);
             $approval->save();
+
+            // notify immediate superior 
+            $superior_id = $paf->user->getImmediateSuperiorId();
+            if(!empty($superior_id)) {
+                $user = User::findOrFail($superior_id);
+                if(!empty($user)) {
+                    Notification::send($user, new PafSubmitted($paf));
+                }
+            }
         }
 
         session()->flash('message_success', 'PAF '.$paf->paf_number.' has been created.');

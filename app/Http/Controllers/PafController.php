@@ -70,7 +70,8 @@ class PafController extends Controller
 
         return view('pafs.show')->with([
             'paf' => $paf,
-            'paf_detail' => $paf_detail
+            'paf_detail' => $paf_detail,
+            'status_arr' => $this->status_arr
         ]);
     }
 
