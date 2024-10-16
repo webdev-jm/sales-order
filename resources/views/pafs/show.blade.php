@@ -11,7 +11,7 @@
 <div class="row">
     <div class="col-md-6">
         <h1>PAF
-            <button class="btn btn-xs btn-{{$status_arr[$paf->status]}}">
+            <button class="btn btn-sm btn-{{$status_arr[$paf->status]}} text-uppercase">
                 {{$paf->status}}
             </button>
         </h1>
@@ -40,6 +40,12 @@
             HISTORY
         </button>
     </div>
+
+    @if(!empty($paf->activity->brand_approval))
+        <div class="col-lg-12">
+            <livewire:paf.brand-approval :paf="$paf"/>
+        </div>
+    @endif
 
     <div class="col-lg-4">
         <div class="card card-danger card-outline">
@@ -89,6 +95,12 @@
                         <strong>END DATE</strong>
                         <span class="float-right">
                             {{$paf->end_date}}
+                        </span>
+                    </li>
+                    <li class="list-group-item py-1">
+                        <strong>ACTIVITY</strong>
+                        <span class="float-right">
+                            {{$paf->activity->activity ?? ''}}
                         </span>
                     </li>
                 </ul>
