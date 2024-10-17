@@ -105,6 +105,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('paf/create', [PafController::class, 'create'])->name('paf.create')->middleware('permission:paf create');
 
         Route::get('paf/{id}', [PafController::class, 'show'])->name('paf.show');
+
+        Route::get('paf/{id}/edit', [PafController::class, 'edit'])->name('paf.edit')->middleware('permission:paf edit');
     });
 
     // PRE PLAN

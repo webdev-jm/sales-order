@@ -60,10 +60,18 @@
                         <td>
                             <span class="badge badge-{{$status_arr[$paf->status]}}">{{$paf->status}}</span>
                         </td>
-                        <td class="p-0 text-center align-middle">
+                        <td class="text-right align-middle">
                             <a href="{{route('paf.show', $paf->id)}}" title="details">
-                                <i class="fa fa-eye text-primary"></i>
+                                <i class="fa fa-eye text-primary mx-1"></i>
                             </a>
+                            @can('paf edit')
+                                @if($paf->status == 'draft')
+                                    <a href="{{route('paf.edit', $paf->id)}}" title="edit">
+                                        <i class="fa fa-pen-alt text-success mx-1"></i>
+                                    </a>
+                                @endif
+                            @endcan
+                            
                         </td>
                     </tr>
                 @endforeach

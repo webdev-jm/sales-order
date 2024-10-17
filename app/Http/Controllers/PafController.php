@@ -81,9 +81,13 @@ class PafController extends Controller
      * @param  \App\Models\Paf  $paf
      * @return \Illuminate\Http\Response
      */
-    public function edit(Paf $paf)
+    public function edit($id)
     {
-        //
+        $paf = Paf::findOrFail($id);
+
+        return view('pafs.edit')->with([
+            'paf' => $paf
+        ]);
     }
 
     /**

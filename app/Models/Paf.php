@@ -52,4 +52,8 @@ class Paf extends Model
     public function paf_details() {
         return $this->hasMany('App\Models\PafDetail');
     }
+
+    public function pre_plan() {
+        return $this->hasOne('App\Models\PafPrePlan', 'paf_id', 'id');
+    }
 }
