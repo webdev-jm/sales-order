@@ -32,6 +32,7 @@
 @endsection
 
 @section('content')
+
 @if(!empty($logged_account))
 <div class="card">
     <div class="card-header">

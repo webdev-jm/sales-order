@@ -105,6 +105,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
     public function collection()
     {
         $header = [
+            'GROUP',
             'USERNAME',
             'USER',
             'DATE',
@@ -164,6 +165,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                             if(!empty($branch_logins->count())) {
                                 foreach($branch_logins as $login) {
                                     $data[] = [
+                                        $schedule->user->group_code,
                                         $schedule->user->email,
                                         $schedule->user->fullName(),
                                         $date,
@@ -182,6 +184,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                 
                             } else { // unvisited
                                 $data[] = [
+                                    $schedule->user->group_code,
                                     $schedule->user->email,
                                     $schedule->user->fullName(),
                                     $schedule->date,
@@ -209,6 +212,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                         
                         foreach($deviations_data as $login) {
                             $data[] = [
+                                $login->user->group_code,
                                 $login->user->email,
                                 $login->user->fullName(),
                                 date('Y-m-d', strtotime($login->time_in)),
