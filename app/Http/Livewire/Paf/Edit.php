@@ -5,11 +5,15 @@ namespace App\Http\Livewire\Paf;
 use Livewire\Component;
 
 use App\Models\Paf;
+USE App\Models\PafDetail;
 use App\Models\PafActivity;
 use App\Models\PafSupportType;
 use App\Models\PafExpenseType;
+use App\Models\Product;
 
 use Carbon\Carbon;
+
+use Illuminate\Support\Facades\Session;
 
 class Edit extends Component
 {
@@ -163,6 +167,14 @@ class Edit extends Component
 
         Session::put('paf_data', $paf_data);
     }
+
+    public function removeLine($key) {
+        unset($this->details[$key]);
+
+        $paf_data = Session::get('paf_data');
+        $paf_data['details'] = $this->details;
+        Session::put('paf_data', $paf_data);
+    }
     
     public function mount($paf) {
         $this->paf = $paf;
@@ -188,6 +200,7 @@ class Edit extends Component
                 'quantity' => $detail->quantity,
                 'srp' => $detail->srp,
                 'percentage' => $detail->percentage,
+                'type' => $detail->type,
                 'amount' => $detail->amount,
                 'expense' => $detail->expense,
                 'product_id' => $detail->product ?? NULl,
@@ -204,7 +217,7 @@ class Edit extends Component
         $this->program_start = $this->paf->start_date;
         $this->program_end = $this->paf->end_date;
 
-        $this->activities = PafActivity::where('company_id', $this->paf->account->company_id)->get();
+        $this->updatedAccountId();
     }
 
     public function render()

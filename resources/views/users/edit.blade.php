@@ -114,6 +114,10 @@
                         {!! Form::radio('group_code', 'CMD', $user->group_code == 'CMD', ['class' => 'custom-control-input', 'id' => 'cmd_check', 'form' => 'update_user']) !!}
                         {!! Form::label('cmd_check', 'CMD', ['class' => 'custom-control-label']) !!}
                     </div>
+                    <div class="custom-control custom-radio">
+                        {!! Form::radio('group_code', 'TOG', $user->group_code == 'TOG', ['class' => 'custom-control-input', 'id' => 'tog_check', 'form' => 'update_user']) !!}
+                        {!! Form::label('tog_check', 'TOG', ['class' => 'custom-control-label']) !!}
+                    </div>
                 </div>
             </div>
 

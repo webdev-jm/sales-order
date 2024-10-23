@@ -87,6 +87,7 @@ class Create extends Component
                         'product_id' => $val['product_id'],
                         'branch_id' => $val['branch_id'] ?? NULL,
                         'branch' => $val['branch'],
+                        'type' => $val['type'],
                         'amount' => empty($val['amount']) ? 0 : $val['amount'],
                         'expense' => empty($val['expense']) ? 0 : $val['expense'],
                         'quantity' => empty($val['quantity']) ? 0 : $val['quantity'],

@@ -108,7 +108,7 @@
                                     <div class="list-group position-absolute" wire:loading.remove>
                                         @if($branches->count() > 0)
                                             @foreach($branches as $branch)
-                                                <button class="list-group-item text-left" wire:click.prevent="selectBranch({{$key}}, {{$branch->id}}, '[{{$branch->account->account_name}}] {{$branch->branch_code}} {{$branch->branch_name}}')">
+                                                <button class="list-group-item text-left" wire:click.prevent="selectBranch({{$key}}, {{$branch->id}}, '[{{ addslashes($branch->account->account_name) }}] {{$branch->branch_code}} {{ addslashes($branch->branch_name) }}')">
                                                     [{{$branch->account->account_name}}] {{$branch->branch_code}} {{$branch->branch_name}}
                                                 </button>
                                             @endforeach
