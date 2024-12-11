@@ -15,7 +15,7 @@
         <h1>Sales Order Cut-offs</h1>
     </div>
     <div class="col-md-6 text-right">
-        @can('SO cut-off create')
+        @can('so cut-off create')
         <a href="{{route('cut-off.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Cut-off</a>
         @endcan
     </div>
@@ -44,10 +44,10 @@
                     <td>{{date('Y-m-d H:i:s a', $cut_off->end_date)}}</td>
                     <td>{{$cut_off->message}}</td>
                     <td class="text-right">
-                        @can('SO cut-off edit')
+                        @can('so cut-off edit')
                             <a href="{{route('cut-off.edit', $cut_off->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                         @endcan
-                        @can('SO cut-off delete')
+                        @can('so cut-off delete')
                             <a href="#" title="delete" class="btn-delete" data-id="{{$cut_off->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endcan
                     </td>

@@ -112,6 +112,7 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
             'TRIP TYPE',
             'PASSENGER',
             'PURPOSE',
+            'AMOUNT',
             'STATUS',
             'SOURCE',
             'CREATED AT',
@@ -212,6 +213,7 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
                 $trip->trip_type,
                 $trip->passenger,
                 $trip->purpose,
+                $trip->amount,
                 $trip->status,
                 $trip->source,
                 $trip->created_at
@@ -219,7 +221,7 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
         }
 
         return new Collection([
-            ['SMS - SALES MANAGEMENT SYSTEM'],
+            ['SMS - SALES MANAGEMENT SYSTEM'], 
             ['TRIP REQUEST LIST'],
             $header,
             $data

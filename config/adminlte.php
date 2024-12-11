@@ -64,7 +64,7 @@ return [
     */
 
     'logo' => 'SMS',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo_img' => 'images\sales-order-logo2.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -86,7 +86,7 @@ return [
     'auth_logo' => [
         'enabled' => false,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+            'path' => 'images\sales-order-logo2.png',
             'alt' => 'Sales Management System',
             'class' => '',
             'width' => 50,
@@ -109,7 +109,7 @@ return [
     'preloader' => [
         'enabled' => true,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+            'path' => 'images\sales-order-logo2.png',
             'alt' => 'SMS',
             'effect' => 'animation__shake',
             'width' => 60,
@@ -472,7 +472,7 @@ return [
             'text'      => 'SO Cut-offs',
             'url'       => '/cut-off',
             'icon'      => 'fas fa-fw fa-clock',
-            'can'       => 'SO cut-off access',
+            'can'       => 'so cut-off access',
             'active'    => ['cut-off*']
         ],
         [
@@ -642,7 +642,7 @@ return [
             'text'      => 'Settings',
             'url'       => '/setting',
             'icon'      => 'fas fa-fw fa-wrench',
-            'can'       => 'settings access',
+            'can'       => 'settings',
             'active'    => ['setting*']
         ],
         [

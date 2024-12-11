@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Paf;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 use App\Models\PafSupportType;
 use App\Models\PafExpenseType;
@@ -22,6 +23,8 @@ use Illuminate\Support\Facades\Session;
 
 class Create extends Component
 {
+    use WithFileUploads;
+
     public $accounts = [];
     public $support_types = [];
     public $expense_types = [];
@@ -34,6 +37,8 @@ class Create extends Component
     public $account_id, $support_type_id, $expense_type_id, $activity_id;
     public $title, $program_start, $program_end, $pre_plan_number;
     public $details = [];
+
+    public $attachments, $attachment_file, $attachment_title, $attachment_description;
 
     protected $listeners = [
         'setDetail' => 'setDetail',
@@ -245,6 +250,26 @@ class Create extends Component
         $paf_data = Session::get('paf_data');
         $paf_data['details'] = $this->details;
         Session::put('paf_data', $paf_data);
+    }
+
+    public function addAttachment() {
+        $this->validate([
+            'attachment_file' => [
+                'required'
+            ],
+            'attachment_title' => [
+                'required'
+            ],
+            'attachment_description' => [
+                'required'
+            ]
+        ]);
+
+        $this->attachments[] = [
+            'file' => $this->attachment_file,
+            'title' => $this->attachment_title,
+            'description' => $this->attachment_description
+        ];
     }
 
     public function mount() {

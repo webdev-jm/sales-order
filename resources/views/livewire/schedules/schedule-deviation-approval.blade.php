@@ -154,7 +154,7 @@
                                             <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
                                         </td>
                                         <td>{{$approval->remarks}}</td>
-                                        <td>{{$approval->created_at->diffForHumans()}}</td>
+                                        <td>{{date('Y-m-d H:i:s a', strtotime($approval->created_at))}}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

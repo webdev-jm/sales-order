@@ -35,6 +35,7 @@
             <livewire:paf.pre-plan />
         </div>
     </div>
+
 @endsection
 
 @section('js')
