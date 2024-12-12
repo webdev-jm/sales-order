@@ -255,7 +255,9 @@ class Create extends Component
     public function addAttachment() {
         $this->validate([
             'attachment_file' => [
-                'required'
+                'required',
+                'file',
+                'max:5120', // 5MB
             ],
             'attachment_title' => [
                 'required'
@@ -270,6 +272,12 @@ class Create extends Component
             'title' => $this->attachment_title,
             'description' => $this->attachment_description
         ];
+
+        $this->reset([
+            'attachment_file',
+            'attachment_title',
+            'attachment_description',
+        ]);
     }
 
     public function mount() {
