@@ -13,7 +13,7 @@ class UpdateSalesOrderCutOffRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('SO cut-off edit');
+        return auth()->user()->can('so cut-off edit');
     }
 
     /**

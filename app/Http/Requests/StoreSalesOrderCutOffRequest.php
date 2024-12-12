@@ -13,7 +13,7 @@ class StoreSalesOrderCutOffRequest extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('SO cut-off create');
+        return auth()->user()->can('so cut-off create');
     }
 
     /**

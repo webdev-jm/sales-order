@@ -63,7 +63,7 @@ return [
                 'description' => 'Shortcut Link 1 Description',
                 'url' => '/home',
                 'icons' => [
-                    "src" => "/images/icons/icon-72x72.png",
+                    "src" => "images\sales-order-logo1.png",
                     "purpose" => "any"
                 ]
             ],

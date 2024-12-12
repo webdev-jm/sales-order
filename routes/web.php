@@ -296,13 +296,13 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // SO Cut-offs
-    Route::group(['middleware' => 'permission:SO cut-off access'], function() {
+    Route::group(['middleware' => 'permission:so cut-off access'], function() {
         Route::get('cut-off', [SalesOrderCutOffController::class, 'index'])->name('cut-off.index');
-        Route::get('cut-off/create', [SalesOrderCutOffController::class, 'create'])->name('cut-off.create')->middleware('permission:SO cut-off create');
-        Route::post('cut-off', [SalesOrderCutOffController::class, 'store'])->name('cut-off.store')->middleware('permission:SO cut-off create');
+        Route::get('cut-off/create', [SalesOrderCutOffController::class, 'create'])->name('cut-off.create')->middleware('permission:so cut-off create');
+        Route::post('cut-off', [SalesOrderCutOffController::class, 'store'])->name('cut-off.store')->middleware('permission:so cut-off create');
 
-        Route::get('cut-off/{id}/edit', [SalesOrderCutOffController::class, 'edit'])->name('cut-off.edit')->middleware('permission:SO cut-off edit');
-        Route::post('cut-off/{id}', [SalesOrderCutOffController::class, 'update'])->name('cut-off.update')->middleware('permission:SO cut-off edit');
+        Route::get('cut-off/{id}/edit', [SalesOrderCutOffController::class, 'edit'])->name('cut-off.edit')->middleware('permission:so cut-off edit');
+        Route::post('cut-off/{id}', [SalesOrderCutOffController::class, 'update'])->name('cut-off.update')->middleware('permission:so cut-off edit');
     });
 
     // COMPANY
@@ -564,7 +564,7 @@ Route::group(['middleware' => 'auth'], function () {
     });
 
     // SETTINGS
-    Route::group(['middleware' => 'permission:settings access'], function() {
+    Route::group(['middleware' => 'permission:settings'], function() {
         Route::get('setting', [SettingController::class, 'index'])->name('setting.index');
         Route::post('setting/{id}', [SettingController::class, 'update'])->name('setting.update');
         Route::post('po-number/upload', [SettingController::class, 'upload'])->name('po-number.upload');

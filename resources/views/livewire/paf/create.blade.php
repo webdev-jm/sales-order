@@ -216,6 +216,97 @@
                 </div>
             </div>
         </div>
+        {{-- ATTACHMENTS --}}
+        <div class="col-lg-12">
+            <div class="card card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">ATTACHMENTS</h3>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <!-- ATTACHMENT LIST -->
+                        <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">ATTACHMENT LIST</h3>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table class="table table-bordered table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>FILE</th>
+                                                <th>TITLE</th>
+                                                <th>DESCRIPTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(!empty($attachments))
+                                                @foreach($attachments as $attachment)
+                                                    <tr>
+                                                        <td>
+                                                            <a href="{{ $attachment['file']->temporaryUrl() }}">
+                                                                <!-- <img src="{{ $attachment['file']->temporaryUrl() }}" class="mx-auto d-block" height="300px"> -->
+                                                            </a>
+                                                        </td>
+                                                        <th>{{$attachment['title']}}</th>
+                                                        <th>{{$attachment['description']}}</th>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ADD ATTACHMENT -->
+                         <div class="col-lg-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">ADD ATTACHMENT</h3>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                <label for="attachment_file">ATTACHMENT</label>
+                                                <input type="file" class="form-control{{$errors->has('attachment_file') ? ' is-invalid' : ''}}" wire:model="attachment_file">
+                                                <small class="text-danger">{{$errors->first('attachment_file')}}</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                <label for="">TITLE</label>
+                                                <input type="text" class="form-control{{$errors->has('attachment_title') ? ' is-invalid' : ''}}" wire:model="attachment_title">
+                                                <small class="text-danger">{{$errors->first('attachment_title')}}</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-12">
+                                            <div class="form-group">
+                                                <label for="">DESCRIPTION</label>
+                                                <textarea class="form-control{{$errors->has('attachment_description') ? ' is-invalid' : ''}}" wire:model="attachment_description"></textarea>
+                                                <small class="text-danger">{{$errors->first('attachment_description')}}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="card-footer text-right">
+                                    <button type="button" class="btn btn-primary" wire:click.prevent="addAttachment">
+                                        ADD ATTACHMENT
+                                    </button>
+                                </div>
+                            </div>
+                         </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
