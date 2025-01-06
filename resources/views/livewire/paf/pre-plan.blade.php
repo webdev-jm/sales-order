@@ -5,6 +5,15 @@
         </div>
         <div class="modal-body">
 
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label for="">SEARCH</label>
+                        <input type="text" class="form-control form-control-sm" placeholder="Search" wire:model="search">
+                    </div>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-bordered table-sm table-hover pb-0">
                     <thead>

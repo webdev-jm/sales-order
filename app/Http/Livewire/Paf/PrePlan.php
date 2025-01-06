@@ -17,6 +17,7 @@ class PrePlan extends Component
     protected $paginationTheme = 'bootstrap';
 
     public $selected = null;
+    public $search;
 
     public function select($pre_plan_id) {
         $this->selected = PafPrePlan::find($pre_plan_id);
@@ -65,6 +66,13 @@ class PrePlan extends Component
     {
         $pre_plans = PafPrePlan::orderBy('pre_plan_number', 'DESC')
             ->whereNull('paf_id')
+            ->when(!empty($this->search), function($query) {
+                $query->where(function($qry) {
+                    $qry->where('pre_plan_number', 'LIKE', '%'.$this->search.'%')
+                        ->orWhere('year', 'LIKE', '%'.$this->search.'%')
+                        ->orWhere('title', 'LIKE', '%'.$this->search.'%');
+                });
+            })
             ->paginate(15, ['*'], 'pre-plan-page')
             ->onEachSide(1);
 
