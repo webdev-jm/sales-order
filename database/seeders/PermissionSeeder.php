@@ -266,7 +266,13 @@ class PermissionSeeder extends Seeder
                 'pre plan create'   => 'access to create pre plan',
                 'pre plan edit'     => 'access to edit pre plan',
                 'pre plan delete'   => 'access to delete pre plan',
-            ]
+            ],
+            'Paf Activity' => [
+                'paf activity access'   => 'access to paf activity module',
+                'paf activity create'   => 'access to create paf activity',
+                'paf activity edit'     => 'access to edit paf activity',
+                'paf activity delete'   => 'access to delete paf activity',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {
