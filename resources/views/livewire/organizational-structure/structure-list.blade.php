@@ -22,7 +22,7 @@
                         <td>{{$structure->job_title->job_title}}</td>
                         {{-- user --}}
                         @if(!empty($structure->user_id))
-                            <td>{{$structure->user->fullName()}}</td>
+                            <td>{{$structure->user ? $structure->user->fullName() : '-'}}</td>
                         @else
                             <td>Vacant</td>
                         @endif

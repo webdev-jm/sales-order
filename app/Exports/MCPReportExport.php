@@ -119,6 +119,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             'TIME OUT',
             'STATUS',
             'SOURCE',
+            'ACTIVITIES',
         ];
 
         $data = [];
@@ -164,6 +165,24 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
 
                             if(!empty($branch_logins->count())) {
                                 foreach($branch_logins as $login) {
+
+                                    // get login activities
+                                    $activities = array();
+                                    if(!empty($login->operation_process_id)) {
+                                        $activities[] = $login->operation_process->operation_process;
+                                        $login_activities = $login->login_activities()
+                                            ->whereNotNull('activity_id')
+                                            ->get();
+                                        foreach($login_activities as $activity) {
+                                            $activities[] = $activity->activity->description . (!empty($activity->remarks) ? ': '.$activity->remarks : '');
+                                        }
+                                        
+                                    } else if(!empty($login->login_activities->count())) {
+                                        $activities[] = $login->login_activities()->first()->remarks;
+                                    }
+
+                                    $activity_str = implode('; ', $activities);
+
                                     $data[] = [
                                         $schedule->user->group_code,
                                         $schedule->user->email,
@@ -175,10 +194,11 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                         $login->latitude,
                                         $login->longitude,
                                         \App\Helpers\AppHelper::instance()->getAddress($login->latitude, $login->longitude),
-                                        $login->time_in,
-                                        $login->time_out,
+                                        !empty($login->time_in) ? date('H:i a', strtotime($login->time_in)) : '',
+                                        !empty($login->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
                                         'visited',
-                                        $schedule->source
+                                        $schedule->source,
+                                        $activity_str
                                     ];
                                 }
                                 
@@ -197,7 +217,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                     '',
                                     '',
                                     'not visited',
-                                    $schedule->source
+                                    $schedule->source,
+                                    ''
                                 ];
                             }
                         }
@@ -211,6 +232,23 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                             ->get();
                         
                         foreach($deviations_data as $login) {
+                            // get login activities
+                            $activities = array();
+                            if(!empty($login->operation_process_id)) {
+                                $activities[] = $login->operation_process->operation_process;
+                                $login_activities = $login->login_activities()
+                                    ->whereNotNull('activity_id')
+                                    ->get();
+                                foreach($login_activities as $activity) {
+                                    $activities[] = $activity->activity->description . (!empty($activity->remarks) ? ': '.$activity->remarks : '');
+                                }
+                                
+                            } else if(!empty($login->login_activities->count())) {
+                                $activities[] = $login->login_activities()->first()->remarks;
+                            }
+
+                            $activity_str = implode('; ', $activities);
+
                             $data[] = [
                                 $login->user->group_code,
                                 $login->user->email,
@@ -222,10 +260,11 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                 $login->latitude,
                                 $login->longitude,
                                 \App\Helpers\AppHelper::instance()->getAddress($login->latitude, $login->longitude),
-                                $login->time_in,
-                                $login->time_out,
+                                !empty($login->time_in) ? date('H:i a', strtotime($login->time_in)) : '',
+                                !empty($login->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
                                 'deviated',
                                 'unscheduled',
+                                $activity_str
                             ];
                         }
                     }

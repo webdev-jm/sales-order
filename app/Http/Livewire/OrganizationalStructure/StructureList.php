@@ -29,7 +29,7 @@ class StructureList extends Component
         foreach($structures as $structure) {
             if(!empty($structure->reports_to_id)) {
                 $structure_data = OrganizationStructure::findOrFail($structure->reports_to_id);
-                $reports_to_arr[$structure->id] = $structure_data->job_title->job_title.' - '.(!empty($structure_data->user_id) ? $structure_data->user->fullName() : 'Vacant');
+                $reports_to_arr[$structure->id] = $structure_data->job_title->job_title.' - '.(!empty($structure_data->user_id) && $structure_data->user ? $structure_data->user->fullName() : 'Vacant');
             } else {
                 $reports_to_arr[$structure->id] = '';
             }

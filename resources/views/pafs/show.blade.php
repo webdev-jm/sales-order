@@ -29,24 +29,28 @@
 
 <div class="row">
     <div class="col-lg-12 mb-1">
+        <!-- immediate superior approval -->
         @if($paf->status == 'submitted' && ((!empty($paf->user->getImmediateSuperiorId()) && $paf->user->getImmediateSuperiorId() == auth()->user()->id) || auth()->user()->hasRole('superadmin')))
             <button class="btn btn-primary btn-sm" id="btn-approve">
                 <i class="fa fa-check"></i>
                 APPROVE
             </button>
         @endif
+        <!-- approval history -->
         <button class="btn btn-secondary btn-sm" id="btn-history">
             <i class="fa fa-clock mr-1"></i>
             HISTORY
         </button>
     </div>
 
+    <!-- branch approval if enabled -->
     @if(!empty($paf->activity->brand_approval))
         <div class="col-lg-12">
             <livewire:paf.brand-approval :paf="$paf"/>
         </div>
     @endif
 
+    <!-- PAF Header details -->
     <div class="col-lg-4">
         <div class="card card-danger card-outline">
             <div class="card-header">
@@ -109,6 +113,7 @@
         </div>
     </div>
 
+    <!-- PAF product details -->
     <div class="col-lg-8">
         <div class="card card-danger card-outline">
             <div class="card-header">
@@ -164,12 +169,14 @@
 
 </div>
 
+<!-- approval modal -->
 <div class="modal fade" id="modal-approval">
     <div class="modal-dialog modal-lg">
         <livewire:paf.approval/>
     </div>
 </div>
 
+<!-- history modal -->
 <div class="modal fade" id="modal-history">
     <div class="modal-dialog modal-lg">
         <livewire:paf.history/>

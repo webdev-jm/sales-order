@@ -45,7 +45,7 @@
                                 @foreach($structures as $structure)
                                 <option value="{{$structure->id}}">{{$structure->job_title->job_title}} - 
                                 @if(!empty($structure->user_id))
-                                    {{$structure->user->fullName()}}
+                                    {{$structure->user ? $structure->user->fullName() : '-'}}
                                 @else
                                     Vacant
                                 @endif

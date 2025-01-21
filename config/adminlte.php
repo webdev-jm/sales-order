@@ -374,6 +374,13 @@ return [
             'active'    => ['pre-plan*']
         ],
         [
+            'text'      => 'PAF Activities',
+            'url'       => '/paf-activity',
+            'icon'      => 'fas fa-fw fa-balance-scale-right',
+            'can'       => 'paf activity access',
+            'active'    => ['paf-activity*']
+        ],
+        [
             'text'      => 'Weekly Activity Report',
             'url'       => '/war',
             'icon'      => 'fas fa-fw fa-calendar-week',
