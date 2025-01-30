@@ -119,7 +119,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             'TIME OUT',
             'STATUS',
             'SOURCE',
-            'ACTIVITIES',
+            'PLANNED ACTIVITIES',
+            'ACTUAL ACTIVITIES',
         ];
 
         $data = [];
@@ -198,7 +199,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                         !empty($login->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
                                         'visited',
                                         $schedule->source,
-                                        $activity_str
+                                        $schedule->objective,
+                                        $activity_str,
                                     ];
                                 }
                                 
@@ -218,7 +220,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                     '',
                                     'not visited',
                                     $schedule->source,
-                                    ''
+                                    $schedule->objective,
+                                    '',
                                 ];
                             }
                         }
@@ -264,7 +267,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
                                 !empty($login->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
                                 'deviated',
                                 'unscheduled',
-                                $activity_str
+                                '',
+                                $activity_str,
                             ];
                         }
                     }

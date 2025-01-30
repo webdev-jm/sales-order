@@ -41,6 +41,8 @@ class OrganizationStructureController extends Controller
         // Generate the chart data recursively starting from the root node
         $chart_data = $this->generateChartData($data_arr, 'head');
 
+        dd($chart_data);
+
         return view('organization-structures.index')->with([
             'type' => $type,
             'chart_data' => $chart_data[0] ?? [],
