@@ -80,7 +80,7 @@ class StoreSalesOrderRequest extends FormRequest
                 },
             ],
             'shipping_instruction' => [
-                'max:1000'
+                'max:50'
             ],
             'ship_to_name' => [
                 'required'

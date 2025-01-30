@@ -144,7 +144,7 @@
                     <td>
                         {{$sales_order->reference}}
                     </td>
-                    <td>{{$sales_order->account_login->user->fullName()}}</td>
+                    <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
                     <td class="text-right">
                         @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
                             @if($sales_order->status == 'draft')

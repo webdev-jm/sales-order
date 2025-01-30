@@ -19,14 +19,14 @@ class Department extends Model
     ];
 
     public function department_head() {
-        return $this->belongsTo('App\Models\User', 'department_head_id');
+        return $this->belongsTo('App\Models\User', 'department_head_id')->withTrashed();
     }
 
     public function department_admin() {
-        return $this->belongsTo('App\Models\User', 'department_admin_id');
+        return $this->belongsTo('App\Models\User', 'department_admin_id')->withTrashed();
     }
 
     public function users() {
-        return $this->hasMany('App\Models\User');
+        return $this->hasMany('App\Models\User')->withTrashed();
     }
 }

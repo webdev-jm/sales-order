@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Weekly Activity Reports
+    Weekly Productivity Reports
 @endsection
 
 @section('css')
@@ -13,11 +13,11 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>Weekly Activity Reports</h1>
+        <h1>Weekly Productivity Reports</h1>
     </div>
     <div class="col-lg-6 text-right">
         @can('war create')
-        <a href="{{route('war.create')}}" class="btn btn-primary"><i class="fa fa-plus mr-1"></i>Add Weekly Activity Report</a>
+        <a href="{{route('war.create')}}" class="btn btn-primary"><i class="fa fa-plus mr-1"></i>Add Weekly Productivity Reports</a>
         @endcan
     </div>
 </div>
@@ -29,7 +29,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Weekly Activity Reports</h3>
+        <h3 class="card-title">Weekly Productivity Reports</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
                 {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}

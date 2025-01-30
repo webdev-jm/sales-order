@@ -30,7 +30,7 @@ class Paf extends Model
     }
 
     public function user() {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function expense_type() {

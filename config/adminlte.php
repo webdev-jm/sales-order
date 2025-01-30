@@ -381,7 +381,7 @@ return [
             'active'    => ['paf-activity*']
         ],
         [
-            'text'      => 'Weekly Activity Report',
+            'text'      => 'Weekly Productivity Report',
             'url'       => '/war',
             'icon'      => 'fas fa-fw fa-calendar-week',
             'can'       => 'war access',

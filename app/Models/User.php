@@ -83,9 +83,12 @@ class User extends Authenticatable
     }
 
     public function fullName() {
-        $name = $this->firstname.' '.$this->lastname;
-        if(!empty($this->middlename)) {
-            $name = $this->firstname.' '.$this->middlename.' '.$this->lastname;
+        // Ensure soft deleted records are included
+        $user = $this->withTrashed()->find($this->id);
+
+        $name = $user->firstname.' '.$user->lastname;
+        if(!empty($user->middlename)) {
+            $name = $user->firstname.' '.$user->middlename.' '.$user->lastname;
         }
         
         return ucwords(strtolower($name));
