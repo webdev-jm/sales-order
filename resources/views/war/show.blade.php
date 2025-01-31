@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Weekly Activity Reports - Form
+    Weekly Productivity Reports - Form
 @endsection
 
 @section('css')
@@ -36,7 +36,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>Weekly Activity Reports / Details <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
+        <h1>Weekly Productivity Reports / Details <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
@@ -105,7 +105,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Weekly Activity Report Form</h3>
+        <h3 class="card-title">Weekly Productivity Report Form</h3>
     </div>
     <div class="card-body table-responsive p-0">
         <table class="table table-bordered table-sm report-table">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Weekly Activity Report</title>
+    <title>Weekly Productivity Report</title>
 
     <style>
         .text-center {
@@ -102,7 +102,7 @@
                 </th>
                 {{-- title --}}
                 <th class="text-center align-middle title" rowspan="2">
-                    WEEKLY ACTIVITY REPORT
+                    WEEKLY PRODUCTIVITY REPORT
                 </th>
                 {{-- date submitted --}}
                 <th class="bb-0">
@@ -164,8 +164,8 @@
                 <th class="text-center align-middle">DATE</th>
                 <th class="text-center align-middle">DAY</th>
                 <th class="text-center align-middle">AREA COVERED</th>
-                <th class="text-center align-middle">IN/OUT BASE</th>
-                <th class="text-center align-middle">ACTIVITIES/REMARKS</th>
+                <th class="text-center align-middle">BRANCHES</th>
+                <th class="text-center align-middle">ACTION POINTS</th>
             </tr>
         </thead>
         <tbody>
