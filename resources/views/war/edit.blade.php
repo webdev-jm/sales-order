@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Weekly Activity Reports - Form
+    Weekly Productivity Reports - Form
 @endsection
 
 @section('css')
@@ -32,7 +32,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>Weekly Activity Reports / Edit <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
+        <h1>Weekly Productivity Reports / Edit <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
@@ -57,184 +57,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Weekly Activity Report Form</h3>
+        <h3 class="card-title">Weekly Productivity Report Form</h3>
         <div class="card-tools">
             {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'update_war']) !!}
             {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-submit', 'form' => 'update_war']) !!}
         </div>
     </div>
     <div class="card-body table-responsive p-0">
-        <table class="table table-bordered table-sm">
-            <thead>
-                <tr>
-                    <th class="w200 text-center align-middle px-0">
-                        <img src="{{asset('/assets/images/bevi-logo.png')}}" alt="bevi logo">
-                    </th>
-                    <th class="text-center align-middle war-title" colspan="10">WEEKLY ACTIVITY REPORT</th>
-                    <th class="w300 align-top" colspan="3">
-                        DATE SUBMITTED: <br>
-                        <p class="text-center mb-0 mt-2">{{$weekly_activity_report->date_submitted}}</p>
-                    </th>
-                </tr>
-                {{-- space --}}
-                <tr>
-                    <th class="border-0" colspan="12"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {{-- header --}}
-                    <tr>
-                        <th class="war-label">NAME:</th>
-                        <td colspan="6" class="px-3">{{$weekly_activity_report->user->fullName()}}</td>
-    
-                        {{-- space --}}
-                        <td class="border-0" colspan="3"></td>
-    
-                        <th class="war-label">DATE:</th>
-                        <td class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::date('date_from', $weekly_activity_report->date_from, ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td>to</td>
-                        <td class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::date('date_to', $weekly_activity_report->date_to, ['class' => 'form-control border-0'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="war-label">AREA VISITED:</th>
-                        <td colspan="6" class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::select('area_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-    
-                        {{-- space --}}
-                        <td class="border-0" colspan="3"></td>
-    
-                        <th class="war-label">WEEK:</th>
-                        <td colspan="3" class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::number('week', $weekly_activity_report->week_number, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        {{-- <th class="war-label">AREA VISITED:</th>
-                        <td colspan="6" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::select('area_visited_id', $areas, $weekly_activity_report->area_id, ['class' => 'form-control border-0'.($errors->has('area_visited_id') ? ' is-invalid' : ''), 'form' => 'update_war']) !!}
-                            </div>
-                        </td> --}}
-    
-                        {{-- space --}}
-                        <td class="border-0" colspan="14"></td>
-                    </tr>
-                {{-- spacing --}}
-                    <tr>
-                        <th class="border-0" colspan="14"></th>
-                    </tr>
-                {{-- objectives --}}
-                    <tr>
-                        <th class="align-middle war-label" colspan="14">I. OBJECTIVE/S</th>
-                    </tr>
-                    <tr>
-                        <td class="p-0" colspan="14">
-                            {!! Form::textarea('objective', $weekly_activity_report->objectives()->first()->objective, ['class' => 'form-control border-0'.($errors->has('objective') ? ' is-invalid' : ''), 'form' => 'update_war', 'rows' => 5]) !!}
-                        </td>
-                    </tr>
-                {{-- areas --}}
-                    <tr>
-                        <th class="align-middle war-label pr-1" colspan="14">
-                            II. AREAS
-                            {{-- <button class="btn btn-primary btn-xs float-right btn-add-line"><i class="fa fa-plus mr-1"></i>Add Line</button> --}}
-                        </th>
-                    </tr>
-                    <tr class="text-center section-header">
-                        <th colspan="2">DATE</th>
-                        <th colspan="2">DAY</th>
-                        <th colspan="3">AREA COVERED</th>
-                        <th colspan="3">IN/OUT BASE</th>
-                        <th colspan="4">ACTIVITIES/REMARKS</th>
-                    </tr>
-                    @if(!empty($weekly_activity_report->areas))
-                        @foreach($weekly_activity_report->areas as $area)
-                        <tr class="line-row areas">
-                            <td colspan="2" class="p-0 align-middle">
-                                <div class="input-group input-group-sm">
-                                    {!! Form::date('area_date[]', $area->date, ['class' => 'form-control border-0 text-center area-date', 'form' => 'update_war']) !!}
-                                </div>
-                            </td>
-                            <td colspan="2" class="p-0 align-middle">
-                                <div class="input-group input-group-sm">
-                                    {!! Form::text('area_day[]', $area->day, ['class' => 'form-control border-0 text-center area-day', 'form' => 'update_war']) !!}
-                                </div>
-                            </td>
-                            <td colspan="3" class="p-0">
-                                <div class="input-group input-group-sm">
-                                    {!! Form::text('area_covered[]', $area->location, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                                </div>
-                            </td>
-                            <td colspan="3" class="p-0">
-                                <div class="input-group input-group-sm">
-                                    {!! Form::text('area_in_base[]', $area->in_base, ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                                </div>
-                            </td>
-                            <td colspan="4" class="p-0">
-                                <div class="input-group input-group-sm">
-                                    {!! Form::textarea('area_remarks[]', $area->remarks, ['class' => 'form-control border-0 text-center', 'form' => 'update_war', 'rows' => 1]) !!}
-                                    <span class="input-group-prepend align-middle">
-                                        <a href="" class="mx-1 btn-area-modal" data-date="{{$area->date}}"><i class="fa fa-info-circle text-info"></i></a>
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    @else
-                    <tr class="line-row areas">
-                        <td colspan="2" class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::date('area_date[]', date('Y-m-d'), ['class' => 'form-control border-0 text-center area-date', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="2" class="p-0 align-middle">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('area_day[]', '', ['class' => 'form-control border-0 text-center area-day', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="3" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('area_covered[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="3" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('area_in_base[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                            </div>
-                        </td>
-                        <td colspan="4" class="p-0">
-                            <div class="input-group input-group-sm">
-                                {!! Form::text('area_remarks[]', '', ['class' => 'form-control border-0 text-center', 'form' => 'update_war']) !!}
-                                <span class="input-group-prepend align-middle">
-                                    <a href="" class="px-2 btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
-                                </span>
-                            </div>
-                        </td>
-                    </tr>
-                    @endif
-                {{-- Highlights --}}
-                    <tr>
-                        <th class="align-middle war-label" colspan="14">III. Highlight(s) of week’s field visit (use 2nd page for more highlights when necessary):</th>
-                    </tr>
-                    <tr>
-                        <td class="p-0" colspan="14">
-                            {!! Form::textarea('highlights', $weekly_activity_report->highlights, ['class' => 'form-control border-0', 'form' => 'update_war', 'rows' => 5]) !!}
-                        </td>
-                    </tr>
-            </tbody>
-        </table>
+        <livewire:war.war-form :user_id="$weekly_activity_report->user_id" :war="$weekly_activity_report"/>
     </div>
 </div>
 

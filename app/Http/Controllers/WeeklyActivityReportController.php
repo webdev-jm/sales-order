@@ -69,7 +69,7 @@ class WeeklyActivityReportController extends Controller
     {
         // area options
         $areas = Area::orderBy('area_code', 'ASC')
-        ->get();
+            ->get();
 
         $areas_arr = [
             '' => ''

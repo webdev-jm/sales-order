@@ -13,6 +13,9 @@ class WarForm extends Component
 {
     public $areas, $user, $weekly_activity_report, $area_lines;
     public $date_from, $date_to;
+    public $area_id = NULL, $objectives, $highlights;
+    public $type = 'add_war';
+    public $war;
 
     public function changeDate() {
         $this->reset('area_lines');
@@ -28,30 +31,53 @@ class WarForm extends Component
 
             // get areas
             $branch_logins = BranchLogin::where('user_id', $this->user->id)
-            ->where('time_in', 'like', $start_date.'%')
-            ->get();
+                ->where('time_in', 'like', $start_date.'%')
+                ->get();
             
             $area_arr = [];
+            $branch_arr = [];
             foreach($branch_logins as $login) {
                 $area_arr[] = $login->branch->area->area_name ?? '';
+                $branch_arr[] = '['.($login->branch->branch_code ?? '') .'] ' . $login->branch->branch_name ?? '';
             }
+
+            $activities = '';
+            if(!empty($this->war)) {
+                $area = $this->war->areas()->where('date', $start_date)->first();
+                $activities = $area->remarks;
+            }
+
             // clean array
             $area_arr = array_unique(array_filter($area_arr));
+            $branch_arr = array_unique(array_filter($branch_arr));
 
             $this->area_lines[] = [
                 'date' => $start_date,
                 'day' => date('l', strtotime($start_date)),
                 'area' => implode(', ', $area_arr),
+                'branch' => implode(', ', $branch_arr),
+                'activities' => $activities
             ];
 
             $start_date = date('Y-m-d', strtotime($start_date.' + 1 days'));
         }
     }
 
-    public function mount($user_id) {
+    public function mount($user_id, $war) {
+        $this->war = $war;
+        if(!empty($war)) {
+            $this->date_from = $war->date_from;
+            $this->date_to = $war->date_to;
+            $this->area_id = $war->area_id;
+            $this->type = 'update_war';
+            $this->highlights = $war->highlights;
+            $objective = $war->objectives()->first();
+            $this->objectives = $objective->objective;
+        }
+
         // area options
         $areas = Area::orderBy('area_code', 'ASC')
-        ->get();
+            ->get();
 
         $areas_arr = [
             '' => ''
@@ -69,6 +95,8 @@ class WarForm extends Component
         }
 
         $this->user = User::find($user_id);
+
+        $this->changeDate();
     }
 
     public function render()

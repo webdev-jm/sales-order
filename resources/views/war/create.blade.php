@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Weekly Activity Reports - Form
+    Weekly Productivity Reports - Form
 @endsection
 
 @section('css')
@@ -32,7 +32,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-lg-6">
-        <h1>Weekly Activity Reports / Add</h1>
+        <h1>Weekly Productivity Reports / Add</h1>
     </div>
     <div class="col-lg-6 text-right">
         <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
@@ -57,14 +57,14 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Weekly Activity Report Form</h3>
+        <h3 class="card-title">Weekly Productivity Report Form</h3>
         <div class="card-tools">
             {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-submit', 'form' => 'add_war']) !!}
             {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-submit', 'form' => 'add_war']) !!}
         </div>
     </div>
     <div class="card-body table-responsive p-0">
-        <livewire:war.war-form :user_id="auth()->user()->id"/>
+        <livewire:war.war-form :user_id="auth()->user()->id" :war="$war = NULL"/>
     </div>
 </div>
 

@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 
 use App\Models\User;
 use App\Models\BranchLogin;
+use App\Models\UserBranchSchedule;
 
 class WarAreaDetail extends Component
 {
@@ -31,11 +32,16 @@ class WarAreaDetail extends Component
     public function render()
     {
         $branch_logins = BranchLogin::where('user_id', $this->user->id)
-        ->where('time_in', 'like', $this->date.'%')
-        ->paginate(1, ['*'], 'war-branch-logins');
+            ->where('time_in', 'like', $this->date.'%')
+            ->paginate(1, ['*'], 'war-branch-logins');
+
+        $schedules = UserBranchSchedule::where('user_id', $this->user->id)
+            ->where('date', $this->date)
+            ->paginate(5, ['*'], 'war-planned-activities');
 
         return view('livewire.war.war-area-detail')->with([
-            'branch_logins' => $branch_logins
+            'branch_logins' => $branch_logins,
+            'schedules' => $schedules,
         ]);
     }
 }
