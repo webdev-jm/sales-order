@@ -114,7 +114,7 @@
                     <th class="w200 text-center align-middle px-0">
                         <img src="{{asset('/assets/images/bevi-logo.png')}}" alt="bevi logo">
                     </th>
-                    <th class="text-center align-middle war-title" colspan="10">WEEKLY ACTIVITY REPORT</th>
+                    <th class="text-center align-middle war-title" colspan="10">WEEKLY PRODUCTIVITY REPORT</th>
                     <th class="w300 align-top" colspan="3">
                         DATE SUBMITTED: <br>
                         <p class="text-center mb-0 mt-2">{{$weekly_activity_report->date_submitted}}</p>
@@ -182,8 +182,8 @@
                         <th colspan="2">DATE</th>
                         <th colspan="2">DAY</th>
                         <th colspan="3">AREA COVERED</th>
-                        <th colspan="3">IN/OUT BASE</th>
-                        <th colspan="4">ACTIVITIES/REMARKS</th>
+                        <th colspan="3">BRANCHES</th>
+                        <th colspan="4">ACTION POINTS</th>
                     </tr>
                     @if(!empty($weekly_activity_report->areas))
                         @foreach($weekly_activity_report->areas as $area)
@@ -207,11 +207,11 @@
                         </tr>
                         @endforeach
                     @else
-                    <tr class="line-row areas">
-                        <td colspan="14" class="text-center">NO DATA</td>
-                    </tr>
+                        <tr class="line-row areas">
+                            <td colspan="14" class="text-center">NO DATA</td>
+                        </tr>
                     @endif
-                {{-- Highlights --}}
+                    {{-- Highlights --}}
                     <tr>
                         <th class="align-middle war-label" colspan="14">III. Highlight(s) of week’s field visit (use 2nd page for more highlights when necessary):</th>
                     </tr>
