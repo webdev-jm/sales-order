@@ -21,4 +21,8 @@ class WeeklyActivityReportArea extends Model
     public function weekly_activity_report() {
         return $this->belongsTo('App\Models\WeeklyActivityReport');
     }
+
+    public function war_branches() {
+        return $this->hasMany('App\Models\WeeklyActivityReportBranch');
+    }
 }

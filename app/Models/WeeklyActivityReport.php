@@ -16,6 +16,7 @@ class WeeklyActivityReport extends Model
         'date_to',
         'week_number',
         'date_submitted',
+        'objectives',
         'highlights',
         'status',
     ];
@@ -60,35 +61,30 @@ class WeeklyActivityReport extends Model
             }
         }
 
-        if($search != '') {
-            $weekly_activity_reports = $query->orderBy('id', 'DESC')
-            ->where(function($qry) use ($ids) {
-                $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $ids);
+        $weekly_activity_reports = $query->orderBy('id', 'DESC')
+            ->when(!auth()->user()->hasRole('superadmin'), function($query) {
+                $query->where(function($qry) use ($ids) {
+                    $qry->where('user_id', auth()->user()->id)
+                    ->orWhereIn('user_id', $ids);
+                });
             })
-            ->where(function($qry) use($search) {
-                $qry->whereHas('user', function($qry) use ($search) {
-                    $qry->where('firstname', 'like', '%'.$search.'%')
-                    ->orWhere('lastname', 'like', '%'.$search.'%');
-                })
-                ->orWhereHas('area', function($qry1) use($search) {
-                    $qry1->where('area_code', 'like', '%'.$search.'%')
-                    ->orWhere('area_name', 'like', '%'.$search.'%');
-                })
-                ->orWhere('date_submitted', 'like', '%'.$search.'%')
-                ->orWhere('date_from', 'like', '%'.$search.'%')
-                ->orWhere('date_to', 'like', '%'.$search.'%')
-                ->orWhere('status', 'like', '%'.$search.'%');
-            })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        } else {
-            $weekly_activity_reports = $query->orderBy('id', 'DESC')
-            ->where(function($qry) use ($ids) {
-                $qry->where('user_id', auth()->user()->id)
-                ->orWhereIn('user_id', $ids);
+            ->when(!empty($search), function($query) {
+                $query->where(function($qry) use($search) {
+                    $qry->whereHas('user', function($qry) use ($search) {
+                        $qry->where('firstname', 'like', '%'.$search.'%')
+                        ->orWhere('lastname', 'like', '%'.$search.'%');
+                    })
+                    ->orWhereHas('area', function($qry1) use($search) {
+                        $qry1->where('area_code', 'like', '%'.$search.'%')
+                        ->orWhere('area_name', 'like', '%'.$search.'%');
+                    })
+                    ->orWhere('date_submitted', 'like', '%'.$search.'%')
+                    ->orWhere('date_from', 'like', '%'.$search.'%')
+                    ->orWhere('date_to', 'like', '%'.$search.'%')
+                    ->orWhere('status', 'like', '%'.$search.'%');
+                });
             })
             ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        }
 
         return $weekly_activity_reports;
     }

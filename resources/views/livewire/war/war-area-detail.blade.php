@@ -13,7 +13,12 @@
                 <ul class="list-group">
                     @foreach($schedules as $schedule)
                         <li class="list-group-item">
-                            {{$schedule->objective}}
+                            <h4>{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</h4>
+                            <p>
+                                <b>OBJECTIVES:</b>
+                                {{$schedule->objective}}
+                            </p>
+                            
                         </li>
                     @endforeach
                 </ul>

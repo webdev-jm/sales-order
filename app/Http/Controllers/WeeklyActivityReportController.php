@@ -6,12 +6,14 @@ use App\Models\User;
 use App\Models\OrganizationStructure;
 use App\Models\Area;
 use App\Models\WeeklyActivityReport;
-use App\Models\WeeklyActivityReportActionPlan;
-use App\Models\WeeklyActivityReportActivity;
 use App\Models\WeeklyActivityReportArea;
-use App\Models\WeeklyActivityReportCollection;
+use App\Models\WeeklyActivityReportBranch;
 use App\Models\WeeklyActivityReportObjective;
 use App\Models\WeeklyActivityReportApproval;
+
+use App\Models\UserBranchSchedule;
+
+
 use App\Http\Requests\StoreWeeklyActivityReportRequest;
 use App\Http\Requests\UpdateWeeklyActivityReportRequest;
 
@@ -105,41 +107,40 @@ class WeeklyActivityReportController extends Controller
             'date_to' => $request->date_to,
             'week_number' => $request->week,
             'date_submitted' => $date_submitted,
+            'objectives' => $request->objective,
             'highlights' => $request->highlights,
             'status' => $request->status,
         ]);
         $war->save();
-
-        // objectives
-        $objective = new WeeklyActivityReportObjective([
-            'weekly_activity_report_id' => $war->id,
-            'objective' => $request->objective
-        ]);
-        $objective->save();
 
         // areas
         foreach($request->area_date as $key => $date) {
             $area = new WeeklyActivityReportArea([
                 'weekly_activity_report_id' => $war->id,
                 'date' => $date,
-                'day' => $request->area_day[$key],
-                'location' => $request->area_covered[$key],
-                'in_base' => $request->area_in_base[$key],
-                'remarks' => $request->area_remarks[$key]
+                'day' => $request->area_day[$date],
+                'location' => $request->area_covered[$date],
+                'remarks' => $request->area_remarks[$date]
             ]);
             $area->save();
+
+            if(!empty($request->action_points[$date])) {
+                foreach($request->action_points[$date] as $branch_id => $action_point) {
+                    $war_branch = new WeeklyActivityReportBranch([
+                        'weekly_activity_report_area_id' => $area->id,
+                        'branch_id' => $branch_id,
+                        'user_branch_schedule_id' => $request->user_branch_schedule_id[$date][$branch_id],
+                        'branch_login_id' => $request->branch_login_id[$date][$branch_id],
+                        'status' => $request->branch_status[$date][$branch_id],
+                        'action_points' => $action_point
+                    ]);
+                    $war_branch->save();
+                }
+            }
         }
 
         if($request->status == 'submitted') {
             // notifications
-            // $users = $war->user->getSupervisorIds();
-            // foreach($users as $user_id) {
-            //     $user = User::find($user_id);
-            //     if(!empty($user)) {
-            //         Notification::send($user, new WeeklyActivityReportSubmitted($war));
-            //     }
-            // }
-
             $supervisor_id = $war->user->getImmediateSuperiorId();
             if(!empty($supervisor_id)) {
                 $user = User::find($supervisor_id);
@@ -166,10 +167,17 @@ class WeeklyActivityReportController extends Controller
 
         $supervisor_ids = $weekly_activity_report->user->getSupervisorIds();
 
+        $area_status_arr = [
+            'VISITED' => 'success',
+            'NOT VISITED' => 'danger',
+            'DEVIATION' => 'warning',
+        ];
+
         return view('war.show')->with([
             'weekly_activity_report' => $weekly_activity_report,
             'status_arr' => $this->status_arr,
-            'supervisor_ids' => $supervisor_ids
+            'supervisor_ids' => $supervisor_ids,
+            'area_status_arr' => $area_status_arr
         ]);
     }
 
