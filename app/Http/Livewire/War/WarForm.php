@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Area;
 use App\Models\BranchLogin;
 use App\Models\WeeklyActivityReport;
+use App\Models\WeeklyActivityReportBranch;
 use App\Models\UserBranchSchedule;
 
 class WarForm extends Component
@@ -70,10 +71,13 @@ class WarForm extends Component
                 }
             }
 
+            $action_points_arr = [];
             $activities = '';
             if(!empty($this->war)) {
                 $area = $this->war->areas()->where('date', $start_date)->first();
                 $activities = $area->remarks;
+                $war_branches = $area->war_branches;
+                $action_points_arr[$start_date][] = $war_branches ?? NULL;
             }
 
             // clean array
@@ -86,7 +90,8 @@ class WarForm extends Component
                 'activities' => $activities,
                 'schedules' => $schedules_data,
                 'schedules_visited' => $schedules_visited,
-                'deviations' => $deviations
+                'deviations' => $deviations,
+                'action_points_arr' => $action_points_arr
             ];
 
             $start_date = date('Y-m-d', strtotime($start_date.' + 1 days'));
@@ -101,8 +106,7 @@ class WarForm extends Component
             $this->area_id = $war->area_id;
             $this->type = 'update_war';
             $this->highlights = $war->highlights;
-            $objective = $war->objectives()->first();
-            $this->objectives = $objective->objective;
+            $this->objectives = $war->objectives;
         }
 
         // area options

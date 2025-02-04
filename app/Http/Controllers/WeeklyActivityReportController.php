@@ -232,41 +232,41 @@ class WeeklyActivityReportController extends Controller
             'week_number' => $request->week,
             'date_submitted' => $date_submitted,
             'highlights' => $request->highlights,
+            'objevtives' => $request->objectives,
             'status' => $request->status
         ]);
 
-        // objectives
-        $weekly_activity_report->objectives()->delete();
-        $objective = new WeeklyActivityReportObjective([
-            'weekly_activity_report_id' => $weekly_activity_report->id,
-            'objective' => $request->objective
-        ]);
-        $objective->save();
-
         // areas
+        foreach($weekly_activity_report->areas as $area) {
+            $area->war_branches()->delete();
+        }
         $weekly_activity_report->areas()->delete();
         foreach($request->area_date as $key => $date) {
             $area = new WeeklyActivityReportArea([
                 'weekly_activity_report_id' => $weekly_activity_report->id,
                 'date' => $date,
-                'day' => $request->area_day[$key],
-                'location' => $request->area_covered[$key],
-                'in_base' => $request->area_in_base[$key],
-                'remarks' => $request->area_remarks[$key]
+                'day' => $request->area_day[$date],
+                'location' => $request->area_covered[$date],
+                'remarks' => $request->area_remarks[$date]
             ]);
             $area->save();
+
+            if(!empty($request->action_points[$date])) {
+                foreach($request->action_points[$date] as $branch_id => $action_point) {
+                    $war_branch = new WeeklyActivityReportBranch([
+                        'weekly_activity_report_area_id' => $area->id,
+                        'branch_id' => $branch_id,
+                        'user_branch_schedule_id' => $request->user_branch_schedule_id[$date][$branch_id],
+                        'branch_login_id' => $request->branch_login_id[$date][$branch_id],
+                        'status' => $request->branch_status[$date][$branch_id],
+                        'action_points' => $action_point
+                    ]);
+                    $war_branch->save();
+                }
+            }
         }
 
         if($request->status == 'submitted') {
-
-            // notifications
-            // $users = $weekly_activity_report->user->getSupervisorIds();
-            // foreach($users as $user_id) {
-            //     $user = User::find($user_id);
-            //     if(!empty($user)) {
-            //         Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
-            //     }
-            // }
 
             $supervisor_id = $weekly_activity_report->user->getImmediateSuperiorId();
             if(!empty($supervisor_id)) {
