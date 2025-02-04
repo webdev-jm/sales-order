@@ -52,7 +52,7 @@
                 <th class="war-label">WEEK:</th>
                 <td colspan="3" class="p-0 align-middle">
                     <div class="input-group input-group-sm">
-                        {!! Form::number('week', 0, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => $type]) !!}
+                        {!! Form::number('week', $war->week_number ?? 0, ['class' => 'form-control border-0'.($errors->has('week') ? ' is-invalid' : ''), 'form' => $type]) !!}
                     </div>
                 </td>
             </tr>
@@ -180,7 +180,13 @@
                                     </td>
                                     <td class="p-0">
                                         <div class="input-group input-group-sm">
-                                            <textarea name="action_points[{{$line['date']}}][{{$schedule['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}"></textarea>
+                                            @php
+                                                $action_point = collect($line['action_points_arr'][$line['date']])
+                                                    ->first()
+                                                    ->where('branch_id', $schedule['branch_id'])
+                                                    ->first();
+                                            @endphp
+                                            <textarea name="action_points[{{$line['date']}}][{{$schedule['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}">{{$action_point->action_points ?? ''}}</textarea>
                                         </div>
                                     </td>
                                 </tr>
@@ -211,7 +217,13 @@
                                     </td>
                                     <td class="p-0">
                                         <div class="input-group input-group-sm">
-                                            <textarea name="action_points[{{$line['date']}}][{{$deviation['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}"></textarea>
+                                            @php
+                                                $action_point = collect($line['action_points_arr'][$line['date']])
+                                                    ->first()
+                                                    ->where('branch_id', $deviation['branch_id'])
+                                                    ->first();
+                                            @endphp
+                                            <textarea name="action_points[{{$line['date']}}][{{$deviation['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}">{{$action_point->action_points ?? ''}}</textarea>
                                         </div>
                                     </td>
                                 </tr>
