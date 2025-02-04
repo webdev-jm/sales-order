@@ -21,6 +21,7 @@ class CreateWeeklyActivityReportsTable extends Migration
             $table->date('date_to');
             $table->integer('week_number');
             $table->date('date_submitted')->nullable();
+            $table->text('objectives')->nullable();
             $table->text('highlights')->nullable();
             $table->string('status');
             $table->timestamps();

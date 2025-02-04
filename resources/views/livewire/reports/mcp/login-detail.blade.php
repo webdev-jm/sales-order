@@ -7,7 +7,7 @@
             @if(!empty($branch_login))
                 <p class="text-uppercase">
                     <b>BRANCH:</b>
-                    {{$branch_login->branch->account->short_name.' - ['.$branch_login->branch->branch_code.'] '.$branch_login->branch->name}}
+                    {{$branch_login->branch->account->short_name.' - ['.$branch_login->branch->branch_code.'] '.$branch_login->branch->branch_name}}
                 </p>
 
                 <p class="text-uppercase">
@@ -82,7 +82,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-
                             {{-- ACCOUNT --}}
                             <strong>
                                 <i class="fas fa-building"></i>

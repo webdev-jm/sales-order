@@ -26,6 +26,14 @@
         background-color: black;
         color: white;
     }
+    .sub-line-row {
+        background-color:rgb(216, 215, 215);
+        color: black;
+        text-align: center;
+    }
+    .bg-editable {
+        background-color: rgb(242, 253, 255);
+    }
 </style>
 @endsection
 
@@ -73,9 +81,20 @@
         <livewire:war.war-area-detail :user_id="auth()->user()->id"/>
     </div>
 </div>
+
+<div class="modal fade" id="detail-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:reports.mcp.login-detail/>
+    </div>
+</div>
 @endsection
 
 @section('js')
+ <script>
+    window.addEventListener('showDetail', event => {
+        $('#detail-modal').modal('show');
+    });
+</script>
 <script>
     // get week number in month
     Date.prototype.getWeekOfMonth = function(exact) {
