@@ -232,7 +232,7 @@ class WeeklyActivityReportController extends Controller
             'week_number' => $request->week,
             'date_submitted' => $date_submitted,
             'highlights' => $request->highlights,
-            'objevtives' => $request->objectives,
+            'objectives' => $request->objective,
             'status' => $request->status
         ]);
 
@@ -300,8 +300,15 @@ class WeeklyActivityReportController extends Controller
     public function printPDF($id) {
         $weekly_activity_report = WeeklyActivityReport::findOrFail($id);
 
+        $area_status_arr = [
+            'VISITED' => 'success',
+            'NOT VISITED' => 'danger',
+            'DEVIATION' => 'warning',
+        ];
+
         $pdf = PDF::loadView('war.pdf', [
-            'weekly_activity_report' => $weekly_activity_report
+            'weekly_activity_report' => $weekly_activity_report,
+            'area_status_arr' => $area_status_arr
         ]);
 
         return $pdf->stream('weekly-activity-report-'.$weekly_activity_report->date.'-'.time().'.pdf');

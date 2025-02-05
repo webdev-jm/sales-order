@@ -75,9 +75,11 @@ class WarForm extends Component
             $activities = '';
             if(!empty($this->war)) {
                 $area = $this->war->areas()->where('date', $start_date)->first();
-                $activities = $area->remarks;
-                $war_branches = $area->war_branches;
-                $action_points_arr[$start_date][] = $war_branches ?? NULL;
+                if(!empty($area)) {
+                    $activities = $area->remarks ?? '';
+                    $war_branches = $area->war_branches;
+                    $action_points_arr[$start_date][] = $war_branches ?? NULL;
+                }
             }
 
             // clean array

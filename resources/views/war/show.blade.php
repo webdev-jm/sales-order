@@ -231,7 +231,7 @@
                                     <th>ACTION POINTS</th>
                                 </tr>
                                 @foreach($area->war_branches as $area_branch)
-                                <tr class="text-center">
+                                    <tr class="text-center">
                                         <td class="p-0 align-middle text-left pl-2">
                                             {{$area_branch->branch->account->short_name}} [{{$area_branch->branch->branch_code}}] {{$area_branch->branch->branch_name}}
                                         </td>
@@ -344,7 +344,8 @@
 
         $('body').on('click', '.btn-show-details', function(e) {
             e.preventDefault();
-            
+            var login_id = $(this).data('id');
+            Livewire.emit('showDetail', login_id);
             $('#detail-modal').modal('show');
         });
     });
