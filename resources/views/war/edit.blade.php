@@ -26,6 +26,9 @@
         background-color: black;
         color: white;
     }
+    .bg-editable {
+        background-color: rgb(242, 253, 255);
+    }
 </style>
 @endsection
 

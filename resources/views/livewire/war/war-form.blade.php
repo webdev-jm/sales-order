@@ -181,10 +181,13 @@
                                     <td class="p-0">
                                         <div class="input-group input-group-sm">
                                             @php
-                                                $action_point = collect($line['action_points_arr'][$line['date']])
-                                                    ->first()
-                                                    ->where('branch_id', $schedule['branch_id'])
-                                                    ->first();
+                                                $action_point = null;
+                                                if(!empty($line['action_points_arr'][$line['date']])) {
+                                                    $action_point = collect($line['action_points_arr'][$line['date']])
+                                                        ->first()
+                                                        ->where('branch_id', $schedule['branch_id'])
+                                                        ->first();
+                                                }
                                             @endphp
                                             <textarea name="action_points[{{$line['date']}}][{{$schedule['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}">{{$action_point->action_points ?? ''}}</textarea>
                                         </div>
@@ -218,10 +221,13 @@
                                     <td class="p-0">
                                         <div class="input-group input-group-sm">
                                             @php
-                                                $action_point = collect($line['action_points_arr'][$line['date']])
-                                                    ->first()
-                                                    ->where('branch_id', $deviation['branch_id'])
-                                                    ->first();
+                                                $action_point = NULL;
+                                                if(!empty($line['action_points_arr'][$line['date']])) {
+                                                    $action_point = collect($line['action_points_arr'][$line['date']])
+                                                        ->first()
+                                                        ->where('branch_id', $deviation['branch_id'])
+                                                        ->first();
+                                                }
                                             @endphp
                                             <textarea name="action_points[{{$line['date']}}][{{$deviation['branch_id']}}]" class="form-control border-0 bg-editable" form="{{$type}}">{{$action_point->action_points ?? ''}}</textarea>
                                         </div>

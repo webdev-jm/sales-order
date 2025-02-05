@@ -35,6 +35,12 @@
         .bg-warning {
             background-color: rgb(246, 246, 45);
         }
+        .bg-success {
+            background-color: rgb(45, 246, 55);
+        }
+        .bg-danger {
+            background-color: rgb(246, 85, 45);
+        }
         .text-uppercase {
             text-transform: uppercase;
         }
@@ -88,6 +94,13 @@
         }
         .table-sm td, th {
             padding: 0.3rem;
+        }
+
+        .table-sub-menu {
+            background-color:rgb(196, 222, 223);
+            color: black;
+            text-align: center;
+            vertical-align: middle;
         }
     </style>
 </head>
@@ -149,44 +162,114 @@
             </tr>
             <tr>
                 <td>
-                    {{$weekly_activity_report->objectives()->first()->objective}}
+                    {{$weekly_activity_report->objectives}}
                 </td>
             </tr>
         </thead>
     </table>
 
     <table class="table table-sm">
-        <thead>
-            <tr>
-                <th class="bg-gray" colspan="5">II. AREAS</th>
-            </tr>
-            <tr class="bg-dark">
-                <th class="text-center align-middle">DATE</th>
-                <th class="text-center align-middle">DAY</th>
-                <th class="text-center align-middle">AREA COVERED</th>
-                <th class="text-center align-middle">BRANCHES</th>
-                <th class="text-center align-middle">ACTION POINTS</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if(!empty($weekly_activity_report->areas))
-                @foreach($weekly_activity_report->areas as $area)
+        @if(!empty($weekly_activity_report->areas))
+            <thead>
+                <tr>
+                    <th class="bg-gray" colspan="5">II. AREAS</th>
+                </tr>
+            </thead>
+            @foreach($weekly_activity_report->areas as $area)
+                <thead>
+                    <tr class="bg-dark">
+                        <th class="text-center align-middle">DATE</th>
+                        <th class="text-center align-middle">DAY</th>
+                        <th class="text-center align-middle">AREA COVERED</th>
+                        <th class="text-center align-middle" colspan="2">REMARKS</th>
+                    </tr>
+                </thead>
+                <tbody>
                     <tr>
                         <td class="text-center align-middle">
                             {{$area->date}}
                         </td>
                         <td class="text-center align-middle">{{$area->day}}</td>
                         <td class="text-center align-middle">{{$area->location}}</td>
-                        <td class="text-center align-middle">{{$area->in_base}}</td>
-                        <td class="align-middle mw-300">{{$area->remarks}}</td>
+                        <td class="align-middle mw-30d0" colspan="2">{{$area->remarks}}</td>
                     </tr>
-                @endforeach
-            @else
-                <tr>
-                    <td colspan="5" class="text-center">NO DATA</td>
-                </tr>
-            @endif
-        </tbody>
+                </tbody>
+
+                @if(!empty($area->war_branches->count()))
+                    <thead>
+                        <tr class="table-sub-menu">
+                            <th class="align-middle text-center">BRANCHES</th>
+                            <th class="align-middle text-center">STATUS</th>
+                            <th class="align-middle text-center">PLOTTED ACTIVITIES</th>
+                            <th class="align-middle text-center">ACTUAL ACTIVITIES</th>
+                            <th class="align-middle text-center">ACTION POINTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($area->war_branches as $area_branch)
+                            <tr>
+                                <td class="p-0 align-middle text-left pl-2">
+                                    {{$area_branch->branch->account->short_name}} [{{$area_branch->branch->branch_code}}] {{$area_branch->branch->branch_name}}
+                                </td>
+                                <td class="p-0 align-middle text-center">
+                                    <span class="bg-{{$area_status_arr[$area_branch->status]}} px-1">
+                                        {{$area_branch->status}}
+                                    </span>
+                                </td>
+                                <td class="p-0 align-middle text-center">
+                                    @php
+                                        $schedule = \App\Models\UserBranchSchedule::find($area_branch->user_branch_schedule_id);
+                                    @endphp
+                                    @if(!empty($schedule))
+                                        {{$schedule->objective}}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-0 align-middle text-left">
+                                    @if(!empty($area_branch->branch_login))
+                                        @if(!empty($area_branch->branch_login->operation_process_id))
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <label>{{$area_branch->branch_login->operation_process->operation_process}}</label>
+                                                    @php
+                                                        $branch_activities = $area_branch->branch_login->login_activities()->whereNotNull('activity_id')->get()
+                                                    @endphp
+                                                    <ol>
+                                                        @foreach($branch_activities as $activity)
+                                                        <li>{{$activity->activity->description}}
+                                                            @if(!empty($activity->remarks))
+                                                                <ul>
+                                                                    <li><b>Remarks: </b>{{$activity->remarks}}</li>
+                                                                </ul>
+                                                            @endif
+                                                        </li>
+                                                        @endforeach
+                                                    </ol>
+                                                </div>
+                                            </div>
+                                        @elseif(!empty($area_branch->branch_login->login_activities()->count()))
+                                            <p>{{$area_branch->branch_login->login_activities()->first()->remarks}}</p>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="p-0 text-center align-middle">
+                                    {{$area_branch->action_points}}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                @endif
+            @endforeach
+        @else
+        <thead>
+            <tr>
+                <td colspan="5" class="text-center">NO DATA</td>
+            </tr>
+        </thead>
+        @endif
     </table>
 
     <table class="table table-sm">
