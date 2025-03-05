@@ -4,16 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
 
 class WeeklyActivityReport extends Model
 {
     use HasFactory;
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     protected $fillable = [
         'user_id',
         'area_id',
         'date_from',
         'date_to',
+        'accounts_visited',
         'week_number',
         'date_submitted',
         'objectives',
@@ -29,24 +40,8 @@ class WeeklyActivityReport extends Model
         return $this->belongsTo('App\Models\Area');
     }
 
-    public function objectives() {
-        return $this->hasMany('App\Models\WeeklyActivityReportObjective');
-    }
-
     public function areas() {
         return $this->hasMany('App\Models\WeeklyActivityReportArea');
-    }
-
-    public function collection() {
-        return $this->hasOne('App\Models\WeeklyActivityReportCollection');
-    }
-
-    public function action_plans() {
-        return $this->hasMany('App\Models\WeeklyActivityReportActionPlan');
-    }
-
-    public function activities() {
-        return $this->hasMany('App\Models\WeeklyActivityReportActivity');
     }
 
     public function approvals() {
@@ -62,13 +57,13 @@ class WeeklyActivityReport extends Model
         }
 
         $weekly_activity_reports = $query->orderBy('id', 'DESC')
-            ->when(!auth()->user()->hasRole('superadmin'), function($query) {
+            ->when(!auth()->user()->hasRole('superadmin') || !auth()->user()->hasPermissionTo('war approve'), function($query) use($ids) {
                 $query->where(function($qry) use ($ids) {
                     $qry->where('user_id', auth()->user()->id)
                     ->orWhereIn('user_id', $ids);
                 });
             })
-            ->when(!empty($search), function($query) {
+            ->when(!empty($search), function($query) use ($search) {
                 $query->where(function($qry) use($search) {
                     $qry->whereHas('user', function($qry) use ($search) {
                         $qry->where('firstname', 'like', '%'.$search.'%')

@@ -74,235 +74,77 @@ class SalesOrderProducts extends Component
     public function render()
     {
         $special_products = $this->account->products;
-
-        // check if account has product reference
         $references = $this->account->references;
-        if($references->count()) {
-            if($this->brand == 'ALL') {
-                if(!empty($special_products)) {
-                    $products = Product::where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%')
-                        ->orWhereHas('references', function($qry) {
-                            $qry->where('account_reference', 'like', '%'.$this->search.'%')
-                            ->orWhere('description', 'like', '%'.$this->search.'%');
-                        });
-                    })
-                    ->where(function($query) use ($special_products) {
-                        $query->whereHas('references', function($qry) {
-                            $qry->where('account_id', $this->account->id);
-                        })
-                        ->orWhereHas('price_codes', function($qry) {
-                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        })
-                        ->orWhere(function($qry) use ($special_products) {
-                            $qry->where('special_product', 1)
+        $hasReferences = $references->count() > 0;
+        
+        $query = Product::query();
+        
+        // Apply search filters
+        $query->where(function ($q) {
+            $q->where('stock_code', 'like', "%{$this->search}%")
+              ->orWhere('description', 'like', "%{$this->search}%")
+              ->orWhere('category', 'like', "%{$this->search}%")
+              ->orWhere('size', 'like', "%{$this->search}%")
+              ->orWhere('stock_uom', 'like', "%{$this->search}%")
+              ->orWhere('order_uom', 'like', "%{$this->search}%")
+              ->orWhere('other_uom', 'like', "%{$this->search}%")
+              ->orWhere('brand', 'like', "%{$this->search}%")
+              ->orWhereHas('references', function ($qry) {
+                  $qry->where('account_reference', 'like', "%{$this->search}%")
+                      ->orWhere('description', 'like', "%{$this->search}%");
+              });
+        });
+        
+        // Apply account-based filtering
+        if ($hasReferences) {
+            $query->where(function ($q) use ($special_products) {
+                $q->whereHas('references', function ($qry) {
+                    $qry->where('account_id', $this->account->id);
+                })->orWhereHas('price_codes', function ($qry) {
+                    $qry->where('company_id', $this->account->company_id)
+                        ->where('code', $this->account->price_code);
+                });
+                
+                if ($special_products->isNotEmpty()) {
+                    $q->orWhere(function ($qry) use ($special_products) {
+                        $qry->where('special_product', 1)
                             ->whereIn('id', $special_products->pluck('id'));
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
-                } else {
-
-                    $products = Product::where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%')
-                        ->orWhereHas('references', function($qry) {
-                            $qry->where('account_reference', 'like', '%'.$this->search.'%')
-                            ->orWhere('description', 'like', '%'.$this->search.'%');
-                        });
-                    })
-                    ->where(function($query) {
-                        $query->whereHas('references', function($qry) {
-                            $qry->where('account_id', $this->account->id);
-                        })
-                        ->orWhereHas('price_codes', function($qry) {
-                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
+                    });
                 }
-            } else {
-                if(!empty($special_products)) {
-                    $products = Product::where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%')
-                        ->orWhereHas('references', function($qry) {
-                            $qry->where('account_reference', 'like', '%'.$this->search.'%')
-                            ->orWhere('description', 'like', '%'.$this->search.'%');
-                        });
-                    })
-                    ->where(function($query) {
-                        $query->where('brand', $this->brand);
-                    })
-                    ->where(function($query) use ($special_products) {
-                        $query->whereHas('references', function($qry) {
-                            $qry->where('account_id', $this->account->id);
-                        })
-                        ->orWhereHas('price_codes', function($qry) {
-                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        })
-                        ->orWhere(function($qry) use ($special_products) {
-                            $qry->where('special_product', 1)
-                            ->whereIn('id', $special_products->pluck('id'));
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
-                } else {
-
-                    $products = Product::where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%')
-                        ->orWhereHas('references', function($qry) {
-                            $qry->where('account_reference', 'like', '%'.$this->search.'%')
-                            ->orWhere('description', 'like', '%'.$this->search.'%');
-                        });
-                    })
-                    ->where(function($query) {
-                        $query->where('brand', $this->brand);
-                    })
-                    ->where(function($query) {
-                        $query->whereHas('references', function($qry) {
-                            $qry->where('account_id', $this->account->id);
-                        })
-                        ->orWhereHas('price_codes', function($qry) {
-                            $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
-                }
-            }
-
-            $this->brands = Product::select('brand')->distinct()->orderBy('brand', 'ASC')
-            ->whereHas('references', function($query) {
-                $query->where('account_id', $this->account->id);
-            })
-            ->orWhereHas('price_codes', function($qry) {
-                $qry->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-            })
-            ->get('brand');
+            });
         } else {
-
-            if($this->brand == 'ALL') {
-    
-                if(!empty($special_products)) {
-                    $products = Product::whereHas('price_codes', function($query) {
-                        $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                    })
-                    ->where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%');
-                    })
-                    ->where(function($query) use ($special_products) {
-                        $query->where('special_product', 0)
-                        ->orWhere(function($qry) use ($special_products) {
-                            $qry->where('special_product', 1)
-                            ->WhereIn('id', $special_products->pluck('id'));
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
-                } else {
-                    $products = Product::whereHas('price_codes', function($query) {
-                        $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                    })
-                    ->where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('brand', 'like', '%'.$this->search.'%');
-                    })
-                    ->where('special_product', 0)
-                    ->paginate(10)->onEachSide(1);
-                }
-
+            $query->whereHas('price_codes', function ($q) {
+                $q->where('company_id', $this->account->company_id)
+                    ->where('code', $this->account->price_code);
+            });
+            
+            if ($special_products->isNotEmpty()) {
+                $query->where(function ($q) use ($special_products) {
+                    $q->where('special_product', 0)
+                      ->orWhere(function ($qry) use ($special_products) {
+                          $qry->where('special_product', 1)
+                              ->whereIn('id', $special_products->pluck('id'));
+                      });
+                });
             } else {
-    
-                if(!empty($special_products)) {
-                    $products = Product::whereHas('price_codes', function($query) {
-                        $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                    })
-                    ->where(function($query) {
-                        $query->where('brand', $this->brand);
-                    })
-                    ->where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%');
-                    })
-                    ->where(function($query) use ($special_products) {
-                        $query->where('special_product', 0)
-                        ->orWhere(function($qry) use ($special_products) {
-                            $qry->where('special_product', 1)
-                            ->WhereIn('id', $special_products->pluck('id'));
-                        });
-                    })
-                    ->paginate(10)->onEachSide(1);
-                } else {
-    
-                    $products = Product::whereHas('price_codes', function($query) {
-                        $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-                    })
-                    ->where(function($query) {
-                        $query->where('brand', $this->brand);
-                    })
-                    ->where(function($query) {
-                        $query->where('stock_code', 'like', '%'.$this->search.'%')
-                        ->orWhere('description', 'like', '%'.$this->search.'%')
-                        ->orWhere('category', 'like', '%'.$this->search.'%')
-                        ->orWhere('size', 'like', '%'.$this->search.'%')
-                        ->orWhere('stock_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('order_uom', 'like', '%'.$this->search.'%')
-                        ->orWhere('other_uom', 'like', '%'.$this->search.'%');
-                    })
-                    ->where('special_product', 0)
-                    ->paginate(10)->onEachSide(1);
-                }
+                $query->where('special_product', 0);
             }
-
-            $this->brands = Product::select('brand')->distinct()->orderBy('brand', 'ASC')
-            ->whereHas('price_codes', function($query) {
-                $query->where('company_id', $this->account->company_id)->where('code', $this->account->price_code);
-            })
-            ->get('brand');
-
         }
+        
+        // Apply brand filter
+        if ($this->brand !== 'ALL') {
+            $query->where('brand', $this->brand);
+        }
+        
+        // Pagination
+        $products = $query->paginate(10)->onEachSide(1);
+        
+        // Fetch brands
+        $this->brands = Product::select('brand')->distinct()->orderBy('brand', 'ASC')
+            ->whereHas('price_codes', function ($query) {
+                $query->where('company_id', $this->account->company_id)
+                      ->where('code', $this->account->price_code);
+            })->get('brand');
 
         return view('livewire.sales-order.sales-order-products')->with([
             'products' => $products,

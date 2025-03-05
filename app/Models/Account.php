@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Support\Facades\Session;
+
 class Account extends Model
 {
     use HasFactory;
@@ -30,6 +32,14 @@ class Account extends Model
         'sales_order_uom',
         'po_process_date',
     ];
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     public function discount() {
         return $this->belongsTo('App\Models\Discount');

@@ -60,6 +60,26 @@
             @enderror
         </div>
 
+        <div class="input-group mb-3">
+
+            <select name="type" class="form-control @error('type') is-invalid @enderror">
+                <option value="live" selected>LIVE SERVER</option>
+                <option value="test">TEST SERVER</option>
+            </select>
+
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-database {{ config('adminlte.classes_auth_icon', '') }}"></span>
+                </div>
+            </div>
+
+            @error('password')
+                <span class="invalid-feedback" role="alert">
+                    <strong>{{ $message }}</strong>
+                </span>
+            @enderror
+        </div>
+
         {{-- Login field --}}
         <div class="row">
             <div class="col-7">

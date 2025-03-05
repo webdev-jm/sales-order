@@ -17,7 +17,7 @@ class CreateBranchLoginActivitiesTable extends Migration
             $table->id();
             $table->unsignedBigInteger('branch_login_id')->nullable();
             $table->unsignedBigInteger('activity_id')->nullable();
-            $table->string('remarks')->nullable();
+            $table->text('remarks')->nullable();
             $table->timestamps();
 
             $table->foreign('branch_login_id')

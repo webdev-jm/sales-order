@@ -11,7 +11,7 @@
                 <thead>
                     <tr>
                         <th>User</th>
-                        <th>Area</th>
+                        <th>Account</th>
                         <th>Date</th>
                         <th>Date Submitted</th>
                         <th>Status</th>
@@ -22,7 +22,7 @@
                     @foreach($weekly_activity_reports as $weekly_activity_report)
                     <tr>
                         <td>{{$weekly_activity_report->user->fullName()}}</td>
-                        <td>[{{$weekly_activity_report->area->area_code}}] {{$weekly_activity_report->area->area_name}}</td>
+                        <td>[{{$weekly_activity_report->area->area_code ?? $weekly_activity_report->accounts_visited}}] {{$weekly_activity_report->area->area_name ?? ''}}</td>
                         <td>{{$weekly_activity_report->date_from}} to {{$weekly_activity_report->date_to}}</td>
                         <td>{{$weekly_activity_report->date_submitted}}</td>
                         <td class="text-center align-middle">

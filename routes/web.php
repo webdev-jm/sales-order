@@ -243,6 +243,8 @@ Route::group(['middleware' => 'auth'], function () {
     // Weekly Activity Plan / WAR
     Route::group(['middleware' => 'permission:war access'], function() {
         Route::get('war', [WeeklyActivityReportController::class, 'index'])->name('war.index');
+        Route::get('war-list/{id}', [WeeklyActivityReportController::class, 'list'])->name('war.list');
+
         Route::get('war/create', [WeeklyActivityReportController::class, 'create'])->name('war.create')->middleware('permission:war create');
         Route::post('war', [WeeklyActivityReportController::class, 'store'])->name('war.store')->middleware('permission:war create');
 
@@ -252,7 +254,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('war/{id}', [WeeklyActivityReportController::class, 'update'])->name('war.update')->middleware('permission:war edit');
 
         Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
-        Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval')->middleware('permission:war approve');
+        Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval');
+
     });
 
     // PRODUCTIVITY REPORT

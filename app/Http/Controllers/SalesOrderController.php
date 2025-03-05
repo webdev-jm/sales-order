@@ -411,7 +411,8 @@ class SalesOrderController extends Controller
         // get CRISTALINO [CSP10001, CSP10002, CSP10003]
         $cristalino_prod_ids = Product::whereIn('stock_code', ['CSP10001', 'CSP10002', 'CSP10003'])->get()->pluck('id')->toArray();
         // get KS01046
-        $ks_1046 = Product::where('stock_code', 'KS01046')->first();
+        $sku_restictions = ['KS01046', 'KS01047'];
+        $sku_ks_restrictions = Product::whereIn('stock_code', $sku_restictions)->get()->pluck('id')->toArray();
 
         $cristalino_data = array();
         $ks_1046_data = array();
@@ -420,7 +421,7 @@ class SalesOrderController extends Controller
             // separate Cristalino
             if(in_array($product_id, $cristalino_prod_ids)) {
                 $cristalino_data[$product_id] = $items;
-            } else if($product_id == $ks_1046->id) { // separate KS01046
+            } else if(in_array($product_id, $sku_ks_restrictions)) { // separate KS01046
                 $ks_1046_data[$product_id] = $items;
             } else {
                 $num++;
@@ -479,7 +480,7 @@ class SalesOrderController extends Controller
         }
 
         // save KS01046
-        if(!empty($ks_1046_data)) {
+        if(!empty($sku_ks_restrictions)) {
             $part = $part + 1;
             foreach($ks_1046_data as $product_id => $items) {
                 $sales_order_product = new SalesOrderProduct([

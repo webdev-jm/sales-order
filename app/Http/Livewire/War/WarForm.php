@@ -15,9 +15,19 @@ class WarForm extends Component
 {
     public $areas, $user, $weekly_activity_report, $area_lines;
     public $date_from, $date_to;
-    public $area_id = NULL, $objectives, $highlights;
+    public $accounts_visited, $highlights;
     public $type = 'add_war';
     public $war;
+    public $attachment_view;
+    public $accounts_arr = [];
+
+    public function showAttachments($model_id, $type) {
+        if(isset($this->attachment_view[$type][$model_id]) && $this->attachment_view[$type][$model_id] == 1) {
+            $this->attachment_view[$type][$model_id] = 0;
+        } else {
+            $this->attachment_view[$type][$model_id] = 1;
+        }
+    }
 
     public function showDetail($login_id) {
         $this->emit('showDetail', $login_id);
@@ -32,7 +42,7 @@ class WarForm extends Component
         $interval = $from->diff($to);
 
         $days = $interval->d;
-        
+
         $start_date = $this->date_from;
         for($i = 0; $i <= $days; $i++) {
 
@@ -56,6 +66,8 @@ class WarForm extends Component
                 if(empty($schedule->count())) {
                     $deviations[] = $login;
                 }
+
+                $this->accounts_arr[$login->branch->account_id] = $login->branch->account->short_name;
             }
 
             $schedules_data = [];
@@ -69,9 +81,12 @@ class WarForm extends Component
                     $schedules_data[] = $schedule;
                     $schedules_visited[$schedule->id] = null;
                 }
+
+                $this->accounts_arr[$schedule->branch->account->id] = $schedule->branch->account->short_name;
             }
 
             $action_points_arr = [];
+            $attachments_arr = [];
             $activities = '';
             if(!empty($this->war)) {
                 $area = $this->war->areas()->where('date', $start_date)->first();
@@ -79,6 +94,17 @@ class WarForm extends Component
                     $activities = $area->remarks ?? '';
                     $war_branches = $area->war_branches;
                     $action_points_arr[$start_date][] = $war_branches ?? NULL;
+
+                    if(empty($war_branches->count())) {
+
+                    }
+
+                    if(!empty($war_branches)) {
+                        foreach($war_branches as $war_branch) {
+                            $attachments = $war_branch->attachments;
+                            $attachments_arr[$start_date][$war_branch->branch_id][] = $attachments ?? NULL;
+                        }
+                    }
                 }
             }
 
@@ -93,7 +119,8 @@ class WarForm extends Component
                 'schedules' => $schedules_data,
                 'schedules_visited' => $schedules_visited,
                 'deviations' => $deviations,
-                'action_points_arr' => $action_points_arr
+                'action_points_arr' => $action_points_arr,
+                'attachments_arr' => $attachments_arr,
             ];
 
             $start_date = date('Y-m-d', strtotime($start_date.' + 1 days'));
@@ -105,10 +132,9 @@ class WarForm extends Component
         if(!empty($war)) {
             $this->date_from = $war->date_from;
             $this->date_to = $war->date_to;
-            $this->area_id = $war->area_id;
+            $this->accounts_visited = $war->accounts_visited;
             $this->type = 'update_war';
             $this->highlights = $war->highlights;
-            $this->objectives = $war->objectives;
         }
 
         // area options

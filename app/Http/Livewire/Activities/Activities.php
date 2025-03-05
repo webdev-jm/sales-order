@@ -11,7 +11,7 @@ class Activities extends Component
 {
     public $logged_branch, $branch, $operation_processes;
     public $operation_process_id, $activities;
-    public $activity_val, $remarks;
+    public $activity_val, $remarks, $action_points;
 
     public function selectOperationProcess() {
         if($this->operation_process_id != '') {
@@ -31,10 +31,13 @@ class Activities extends Component
     }
 
     public function saveActivity() {
+        
+
         $operation_process_id = $this->operation_process_id == '' ? null : $this->operation_process_id;
 
         $this->logged_branch->update([
-            'operation_process_id' => $operation_process_id
+            'operation_process_id' => $operation_process_id,
+            'action_points' => $this->action_points ?? '',
         ]);
 
         if(empty($operation_process)) {
@@ -44,13 +47,13 @@ class Activities extends Component
                 ->first();
             if(!empty($activity_check)) {
                 $activity_check->update([
-                    'remarks' => $this->remarks ?? ''
+                    'remarks' => $this->remarks ?? '',
                 ]);
             } else {
                 $branch_activity = new BranchLoginActivity([
                     'branch_login_id' => $this->logged_branch->id,
                     'activity_id' => NULL,
-                    'remarks' => $this->remarks ?? ''
+                    'remarks' => $this->remarks ?? '',
                 ]);
                 $branch_activity->save();
             }
@@ -89,7 +92,8 @@ class Activities extends Component
             // remove all
             $this->logged_branch->login_activities()->whereNotNull('activity_id')->delete();
         }
-        
+
+        $this->emit('setSignout');
     }
 
     public function mount($logged_branch) {
@@ -124,7 +128,9 @@ class Activities extends Component
         }
 
         $this->operation_processes = OperationProcess::where('company_id', $company->id)
-        ->get();
+            ->get();
+
+        $this->action_points = $logged_branch->action_points;
     }
 
     public function render()

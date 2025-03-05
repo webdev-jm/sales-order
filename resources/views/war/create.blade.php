@@ -43,13 +43,13 @@
         <h1>Weekly Productivity Reports / Add</h1>
     </div>
     <div class="col-lg-6 text-right">
-        <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
+        <a href="{{route('war.list', auth()->user()->id)}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
     </div>
 </div>
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'POST', 'route' => ['war.store'], 'id' => 'add_war', 'autocomplete' => 'off']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['war.store'], 'id' => 'add_war', 'autocomplete' => 'off', 'enctype' => 'multipart/form-data']) !!}
 {!! Form::hidden('status', 'draft', ['id' => 'status', 'form' => 'add_war']) !!}
 {!! Form::close() !!}
 
@@ -116,14 +116,12 @@
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
             var stat_string = $(this).val();
-            var status = 'draft';
-            if(stat_string == 'Save as Draft') {
-                status = 'draft';
-            } else {
-                status = 'submitted';
-            }
+            var status = (stat_string === 'Save as Draft') ? 'draft' : 'submitted';
             
             $('#status').val(status);
+
+            $('.btn-submit').prop('disabled', true);
+
             $('#'+$(this).attr('form')).submit();
         });
 

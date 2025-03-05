@@ -27,7 +27,7 @@ class UpdateWeeklyActivityReportRequest extends FormRequest
             'status' => [
                 'required'
             ],
-            'area_id' => [
+            'accounts_visited' => [
                 'required'
             ],
             'date_from' => [
@@ -38,9 +38,6 @@ class UpdateWeeklyActivityReportRequest extends FormRequest
             ],
             'week' => [
                 'required'
-            ],
-            'objective' => [
-                'required', 'max:1000'
             ],
             // areas
             'area_date.*' => [

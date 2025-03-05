@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Session;
 
 class Area extends Model
 {
@@ -13,6 +14,14 @@ class Area extends Model
         'area_code',
         'area_name'
     ];
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     public function branches() {
         return $this->hasMany('App\Models\Branch');

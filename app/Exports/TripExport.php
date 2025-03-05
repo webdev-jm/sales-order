@@ -116,6 +116,8 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
             'STATUS',
             'SOURCE',
             'CREATED AT',
+            'APPROVED BY IMM. SUPERIOR',
+            'APPROVED BY FINANCE'
         ];
 
         if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
@@ -203,6 +205,16 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
 
         $data = [];
         foreach($trips as $trip) {
+            $superior_approval = $trip->approvals()
+                ->orderBy('created_at', 'DESC')
+                ->where('status', 'approved by imm. superior')
+                ->first();
+
+            $finance_approval = $trip->approvals()  
+                ->orderBy('created_at', 'DESC')
+                ->where('status', 'approved by finance')
+                ->first();
+
             $data[] = [
                 $trip->trip_number,
                 $trip->user->fullName(),
@@ -216,7 +228,9 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
                 $trip->amount,
                 $trip->status,
                 $trip->source,
-                $trip->created_at
+                $trip->created_at,
+                $superior_approval->created_at ?? '',
+                $finance_approval->created_at ?? '',
             ];
         }
 

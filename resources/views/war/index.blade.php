@@ -46,43 +46,27 @@
             <thead>
                 <tr>
                     <th>User</th>
-                    <th>Area</th>
-                    <th>Date Submitted</th>
-                    <th>Date From</th>
-                    <th>Date To</th>
-                    <th>Status</th>
-                    <th>Created at</th>
+                    <th>Entries</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($weekly_activity_reports as $weekly_activity_report)
-                <tr>
-                    <td>{{$weekly_activity_report->user->fullName()}}</td>
-                    <td>{{'['.$weekly_activity_report->area->area_code.'] '.$weekly_activity_report->area->area_name}}</td>
-                    <td>{{$weekly_activity_report->date_submitted}}</td>
-                    <td>{{$weekly_activity_report->date_from}}</td>
-                    <td>{{$weekly_activity_report->date_to}}</td>
-                    <td>
-                        <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span>
-                    </td>
-                    <td>{{$weekly_activity_report->created_at->diffForHumans()}}</td>
-                    <td class="text-right">
-                        @if(auth()->user()->can('war edit') && ($weekly_activity_report->status == 'draft' || $weekly_activity_report->status == 'rejected'))
-                            <a href="{{route('war.edit', $weekly_activity_report->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
-                        @endif
-                        <a href="{{route('war.show', $weekly_activity_report->id)}}" title="view details"><i class="fa fa-eye text-primary"></i></a>
-                        @can('war delete')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$weekly_activity_report->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
-                        @endcan
-                    </td>
-                </tr>
+                @foreach($users as $user)
+                    <tr>
+                        <td>{{$user->fullName() ?? '-'}}</td>
+                        <td>{{$user->weekly_activity_reports()->count()}} entries</td>
+                        <td class="text-right">
+                            <a href="{{route('war.list', $user->id)}}" title="view details">
+                                <i class="fa fa-list text-primary"></i>
+                            </a>
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
     <div class="card-footer">
-        {{$weekly_activity_reports->links()}}
+        {{$users->links()}}
     </div>
 </div>
 @endsection

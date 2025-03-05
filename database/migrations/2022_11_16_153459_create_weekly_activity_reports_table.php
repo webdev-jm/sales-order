@@ -19,6 +19,7 @@ class CreateWeeklyActivityReportsTable extends Migration
             $table->unsignedBigInteger('area_id')->nullable();
             $table->date('date_from');
             $table->date('date_to');
+            $table->string('accounts_visited')->nullable();
             $table->integer('week_number');
             $table->date('date_submitted')->nullable();
             $table->text('objectives')->nullable();

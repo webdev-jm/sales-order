@@ -29,6 +29,11 @@
     .bg-editable {
         background-color: rgb(242, 253, 255);
     }
+    .sub-line-row {
+        background-color:rgb(216, 215, 215);
+        color: black;
+        text-align: center;
+    }
 </style>
 @endsection
 
@@ -38,13 +43,13 @@
         <h1>Weekly Productivity Reports / Edit <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span></h1>
     </div>
     <div class="col-lg-6 text-right">
-        <a href="{{route('war.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
+        <a href="{{route('war.list', $weekly_activity_report->user_id)}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
     </div>
 </div>
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'POST', 'route' => ['war.update', $weekly_activity_report->id], 'id' => 'update_war']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['war.update', $weekly_activity_report->id], 'id' => 'update_war', 'enctype' => 'multipart/form-data']) !!}
 {!! Form::hidden('status', $weekly_activity_report->status, ['id' => 'status', 'form' => 'update_war']) !!}
 {!! Form::close() !!}
 
@@ -76,9 +81,20 @@
         <livewire:war.war-area-detail :user_id="$weekly_activity_report->user_id"/>
     </div>
 </div>
+
+<div class="modal fade" id="detail-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:reports.mcp.login-detail/>
+    </div>
+</div>
 @endsection
 
 @section('js')
+<script>
+    window.addEventListener('showDetail', event => {
+        $('#detail-modal').modal('show');
+    });
+</script>
 <script>
     // get week number in month
     Date.prototype.getWeekOfMonth = function(exact) {
@@ -100,14 +116,12 @@
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
             var stat_string = $(this).val();
-            var status = 'draft';
-            if(stat_string == 'Save as Draft') {
-                status = 'draft';
-            } else {
-                status = 'submitted';
-            }
+            var status = (stat_string === 'Save as Draft') ? 'draft' : 'submitted';
             
             $('#status').val(status);
+
+            $('.btn-submit').prop('disabled', true);
+
             $('#'+$(this).attr('form')).submit();
         });
 

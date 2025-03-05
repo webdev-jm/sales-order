@@ -33,6 +33,12 @@
 
 @section('content')
 
+<div class="card">
+    <div class="card-body">
+    {!! DNS2D::getBarcodeSVG('https://www.instagram.com/kojiesansunprotect', 'QRCODE', 5, 5) !!}
+    </div>
+</div>
+
 @if(!empty($logged_account))
 <div class="card">
     <div class="card-header">

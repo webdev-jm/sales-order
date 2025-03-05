@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
 
 class ActivityPlan extends Model
 {
@@ -18,6 +19,14 @@ class ActivityPlan extends Model
         'objectives',
         'status'
     ];
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     public function reminders() {
         return $this->morphMany('\App\Models\Reminders', 'model');

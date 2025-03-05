@@ -524,6 +524,11 @@
                         </div>
                     </div>
                 @endif
+
+                <label class="mb-0">RESULTS</label>
+                <p class="ml-2">
+                    {{$branch_login->action_points}}
+                </p>
             @endif
         </div>
         <div class="modal-footer text-right">

@@ -18,6 +18,7 @@ class CreateBranchLoginsTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('branch_id')->nullable();
             $table->unsignedBigInteger('operation_process_id')->nullable();
+            $table->text('action_points')->nullable();
             $table->decimal('longitude', 10,7);
             $table->decimal('latitude', 10,7);
             $table->text('accuracy');

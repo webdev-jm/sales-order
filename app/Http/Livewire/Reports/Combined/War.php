@@ -54,7 +54,7 @@ class War extends Component
             'draft' => 'secondary',
             'submitted' => 'primary',
             'approved' => 'success',
-            'rejected' => 'danger'
+            'rejected' => 'danger',
         ];
 
         return view('livewire.reports.combined.war')->with([

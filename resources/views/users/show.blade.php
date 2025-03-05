@@ -31,7 +31,7 @@
                         alt="User profile picture">
                 </div> --}}
 
-                <h3 class="profile-username text-center">{{$user->fullName()}}</h3>
+                <h3 class="profile-username text-center">{{$user->fullName() ?? '-'}}</h3>
                 <p class="text-muted text-center">{{$user->email}}</p>
                 <p class="text-muted text-center">{{implode(', ', $user->getRoleNames()->toArray())}}</p>
 
@@ -65,7 +65,7 @@
                             </li>
                             @foreach($ids as $id)
                                 <li class="list-group-item py-1">
-                                    <a href="{{route('user.show', $id)}}" class="float-right">{{\App\Models\User::find($id)->fullName()}}</a>
+                                    <a href="{{route('user.show', $id)}}" class="float-right">{{\App\Models\User::withTrashed()->find($id)->fullName()}}</a>
                                 </li>
                             @endforeach
                         @endforeach

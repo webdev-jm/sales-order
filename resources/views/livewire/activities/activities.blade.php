@@ -14,50 +14,64 @@
     </div>
 
     @if(isset($activities))
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Activities</h3>
-        </div>
-        <div class="card-body table-responsive p-0">
-            <table class="table table-bordered table-sm">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Description</th>
-                        <th>Notes</th>
-                        <th>Remarks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($activities as $activity)
-                    <tr class="{{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'bg-light'}}">
-                        <td class="p-0 text-center align-middle">
-                            <div class="form-group m-0">
-                                <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model="activity_val.{{$activity->id}}.number" checked="{{$activity_val[$activity->id]['number'] ?? 'false'}}" wire:change="updateData">
-                                    <label class="custom-control-label" for="switch{{$activity->id}}"></label>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Activities</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Description</th>
+                            <th>Notes</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($activities as $activity)
+                        <tr class="{{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'bg-light'}}">
+                            <td class="p-0 text-center align-middle">
+                                <div class="form-group m-0">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model="activity_val.{{$activity->id}}.number" checked="{{$activity_val[$activity->id]['number'] ?? 'false'}}" wire:change="updateData">
+                                        <label class="custom-control-label" for="switch{{$activity->id}}"></label>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="align-middle">{{$activity->number}}. {{$activity->description}}</td>
-                        <td class="align-middle">{{$activity->remarks}}</td>
-                        <td class="p-0">
-                            <textarea class="form-control border-0" {{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'disabled'}} wire:model.lazy="activity_val.{{$activity->id}}.remarks" wire:change="updateData" wire:loading.attr="disabled"></textarea>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            </td>
+                            <td class="align-middle">{{$activity->number}}. {{$activity->description}}</td>
+                            <td class="align-middle">{{$activity->remarks}}</td>
+                            <td class="p-0">
+                                <textarea class="form-control border-0" {{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'disabled'}} wire:model.lazy="activity_val.{{$activity->id}}.remarks" wire:change="updateData" wire:loading.attr="disabled"></textarea>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     @else
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Action points</h3>
+            </div>
+            <div class="card-body p-0">
+                <textarea class="form-control" rows="3" wire:model.lazy="remarks" wire:change="updateData"></textarea>
+            </div>
+        </div>
+    @endif
+
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Remarks</h3>
+            <h3 class="card-title">
+                Results
+                @if($errors->has('action_points'))
+                    <span class="badge badge-danger">REQUIRED</span>
+                @endif
+            </h3>
         </div>
         <div class="card-body p-0">
-            <textarea class="form-control" rows="3" wire:model.lazy="remarks" wire:change="updateData"></textarea>
+            <textarea class="form-control{{$errors->has('action_points') ? ' is-invalid' : ''}}" rows="3" wire:model.lazy="action_points" wire:change="updateData"></textarea>
         </div>
     </div>
-    @endif
 </div>

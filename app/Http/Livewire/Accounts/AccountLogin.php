@@ -61,7 +61,7 @@ class AccountLogin extends Component
 
         return view('livewire.accounts.account-login')->with([
             'accounts' => $accounts,
-            'count_data' => $count_data
+            'count_data' => $count_data,
         ]);
     }
 }

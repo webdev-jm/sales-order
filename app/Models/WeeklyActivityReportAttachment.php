@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Illuminate\Support\Facades\Session;
 
-class PafPrePlanDetail extends Model
+class WeeklyActivityReportAttachment extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -21,26 +22,8 @@ class PafPrePlanDetail extends Model
     }
 
     protected $fillable = [
-        'paf_pre_plan_id',
-        'product_id',
-        'type',
-        'components',
-        'stock_code',
-        'description',
-        'price_code',
-        'brand',
-        'quantity',
-        'branch',
-        'GlCode',
-        'IO',
-        'amount',
+        'weekly_activity_report_branch_id',
+        'title',
+        'file',
     ];
-
-    public function paf_pre_plan() {
-        return $this->belongsTo('App\Models\PafPrePlan');
-    }
-
-    public function product() {
-        return $this->belongsTo('App\Models\Product');
-    }
 }

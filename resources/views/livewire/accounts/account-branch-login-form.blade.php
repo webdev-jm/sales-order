@@ -17,7 +17,7 @@
         <div class="modal-body text-left">
 
             @if(!empty($logged_branch->operation_process_id))
-            <h4>Activities</h4>
+            <h5>ACTUAL ACTIVITIES:</h5>
 
             <div class="row mb-3">
                 <div class="col-12">
@@ -36,9 +36,12 @@
                 </div>
             </div>
             @elseif(!empty($logged_branch->login_activities()->count()))
-            <h4>Remarks</h4>
-            <p>{{$logged_branch->login_activities()->first()->remarks}}</p>
+                <h5 class="mb-0">ACTUAL ACTIVITY:</h5>
+                <p class="ml-3">{{$logged_branch->login_activities()->first()->remarks}}</p>
             @endif
+
+            <h5 class="mb-0">ACTION POINTS:</h5>
+            <p class="ml-3">{{$logged_branch->action_points}}</p>
 
             <div class="row">
 

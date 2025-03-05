@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Session;
 
 class ActivityPlanDetail extends Model
 {
@@ -21,6 +22,14 @@ class ActivityPlanDetail extends Model
         'activity',
         'work_with',
     ];
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     public function activity_plan() {
         return $this->belongsTo('App\Models\ActivityPlan');

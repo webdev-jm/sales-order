@@ -5,15 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class BranchLogin extends Model
 {
     use HasFactory;
 
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
+
     protected $fillable = [
         'user_id',
         'branch_id',
         'operation_process_id',
+        'action_points',
         'longitude',
         'latitude',
         'accuracy',

@@ -13,11 +13,21 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use Illuminate\Support\Facades\Session;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
     use SoftDeletes;
+
+    /**
+     * Dynamically set the database connection based on the session.
+     */
+    public function getConnectionName()
+    {
+        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +46,7 @@ class User extends Authenticatable
         'last_activity',
         'status',
         'coe',
+        'db_type',
     ];
 
     /**
