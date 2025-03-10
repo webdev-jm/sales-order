@@ -29,6 +29,9 @@ class PermissionSeeder extends Seeder
             'Purchase Order' => [
                 'purchase order access'     => 'access to purchase order list',
             ],
+            'Invoice' => [
+                'invoice access'    => 'access to generating invoice data using po number.'
+            ],
             'Schedule' => [
                 'schedule access'                   => 'access to schedule module',
                 'schedule create'                   => 'access to create schedule',

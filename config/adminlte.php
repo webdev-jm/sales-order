@@ -339,6 +339,13 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
+            'text'      => 'Invoice',
+            'url'       => '/invoice',
+            'icon'      => 'fas fa-fw fa-list',
+            'can'       => 'invoice access',
+            'active'    => ['invoice']
+        ],
+        [
             'text'      => 'Schedules',
             'url'       => '/schedule',
             'icon'      => 'fas fa-fw fa-calendar-alt',
