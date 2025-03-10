@@ -376,11 +376,17 @@ class SalesOrderController extends Controller
 
         $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
 
+        // check account po prefix
+        $po_number = $request->po_number;
+        if(!empty($logged_account->account->po_prefix)) {
+            $po_number = $logged_account->account->po_prefix.''.$po_number;
+        }
+
         $sales_order = new SalesOrder([
             'account_login_id' => $logged_account->id,
             'shipping_address_id' => $shipping_address_id,
             'control_number' => $request->control_number,
-            'po_number' => $request->po_number,
+            'po_number' => $po_number,
             'paf_number' => $request->paf_number,
             'order_date' => $request->order_date,
             'ship_date' => $request->ship_date,
@@ -645,9 +651,15 @@ class SalesOrderController extends Controller
 
         $changes_arr['old'] = $sales_order->getOriginal();
 
+        // check account po prefix
+        $po_number = $request->po_number;
+        if(!empty($logged_account->account->po_prefix)) {
+            $po_number = $logged_account->account->po_prefix.''.$po_number;
+        }
+
         $sales_order->update([
             'shipping_address_id' => $shipping_address_id,
-            'po_number' => $request->po_number,
+            'po_number' => $po_number,
             'paf_number' => $request->paf_number,
             'ship_date' => $request->ship_date,
             'shipping_instruction' => $request->shipping_instruction,

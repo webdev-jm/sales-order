@@ -132,6 +132,14 @@
                     <p class="text-danger">{{$errors->first('po_process_date')}}</p>
                 </div>
             </div>
+
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('po_prefix', 'PO Prefix') !!}
+                    {!! Form::text('po_prefix', '', ['class' => 'form-control'.($errors->has('po_prefix') ? ' is-invalid' : ''), 'form' => 'add_account']) !!}
+                    <p class="text-danger">{{$errors->first('po_prefix')}}</p>
+                </div>
+            </div>
             
             <div class="col-md-3">
                 <div class="form-group">
