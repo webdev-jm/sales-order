@@ -31,6 +31,7 @@ class Account extends Model
         'on_hold',
         'sales_order_uom',
         'po_process_date',
+        'po_prefix',
     ];
 
     /**

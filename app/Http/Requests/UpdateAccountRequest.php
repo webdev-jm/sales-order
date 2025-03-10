@@ -67,6 +67,9 @@ class UpdateAccountRequest extends FormRequest
             ],
             'po_process_date' => [
                 'max:10'
+            ],
+            'po_prefix' => [
+                'max:255'
             ]
         ];
     }
