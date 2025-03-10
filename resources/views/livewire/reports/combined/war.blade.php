@@ -1,7 +1,7 @@
 <div>
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title mb-1">Weekly Activity Reports</h3>
+            <h3 class="card-title mb-1">Weekly Productivity Reports</h3>
             <div class="card-tools" wire:loading>
                 <i class="fa fa-spinner fa-spin fa-xs"></i>
             </div>

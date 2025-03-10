@@ -225,6 +225,23 @@
         .table-sm td, th {
             padding: 0.3rem;
         }
+
+        .bg-gray {
+            background-color: rgb(177, 179, 179);
+        }
+        .bg-dark {
+            background-color: rgb(18, 17, 17);
+            color: white;
+        }
+        .bg-warning {
+            background-color: rgb(246, 246, 45);
+        }
+        .bg-success {
+            background-color: rgb(45, 246, 55);
+        }
+        .bg-danger {
+            background-color: rgb(246, 85, 45);
+        }
     </style>
 </head>
 <body>
@@ -369,11 +386,15 @@
                 <tr>
                     {{-- logo --}}
                     <th class="text-center" rowspan="2">
-                        <img src="{{public_path('/assets/images/bevi-logo.png')}}" alt="logo" class="logo">
+                        @if($weekly_activity_report->user->group_code == 'RD')
+                            <img src="{{public_path('/assets/images/asia.jpg')}}" alt="logo" class="logo">
+                        @else
+                            <img src="{{public_path('/assets/images/logo.jpg')}}" alt="logo" class="logo">
+                        @endif
                     </th>
                     {{-- title --}}
                     <th class="text-center align-middle title" rowspan="2">
-                        WEEKLY ACTIVITY REPORT
+                        WEEKLY PRODUCTIVITY REPORT
                     </th>
                     {{-- date submitted --}}
                     <th class="bb-0">
@@ -396,14 +417,20 @@
 
                     <td class="border-0"></td>
 
-                    <th class="bg-gray">DATE</th>
+                    <th class="bg-gray">COVERED PERIOD</th>
                     <td>
                         {{$weekly_activity_report->date_from}} to {{$weekly_activity_report->date_to}}
                     </td>
                 </tr>
                 <tr>
-                    <th class="bg-gray">AREA</th>
-                    <td>[{{$weekly_activity_report->area->area_code}}] {{$weekly_activity_report->area->area_name}}</td>
+                    <th class="bg-gray">ACCOUNTS VISITED</th>
+                    <td>
+                        @if(!empty($weekly_activity_report->accounts_visited))
+                            {{$weekly_activity_report->accounts_visited ?? '-'}}
+                        @else
+                            {{$weekly_activity_report->area->area_name ?? '-'}}
+                        @endif
+                    </td>
 
                     <td class="border-0"></td>
 
@@ -412,58 +439,136 @@
                 </tr>
                 <tr>
                     <th class="bg-gray">AREA Visited</th>
-                    <td>[{{$weekly_activity_report->area->area_code}}] {{$weekly_activity_report->area->area_name}}</td>
+                    <td>
+                        @if(!empty($weekly_activity_report->area))
+                            [{{$weekly_activity_report->area->area_code}}] {{$weekly_activity_report->area->area_name}}
+                        @else
+                            {{$weekly_activity_report->accounts_visited}}
+                        @endif
+                    </td>
                     <td class="border-0" colspan="3"></td>
                 </tr>
             </thead>
         </table>
 
         <table class="table table-sm">
-            <thead>
-                <tr>
-                    <th class="bg-gray">I. OBJECTIVE/S</th>
-                </tr>
-                <tr>
-                    <td>
-                        {{$weekly_activity_report->objectives()->first()->objective}}
-                    </td>
-                </tr>
-            </thead>
-        </table>
-
-        <table class="table table-sm">
+        @if(!empty($weekly_activity_report->areas))
             <thead>
                 <tr>
                     <th class="bg-gray" colspan="5">II. AREAS</th>
                 </tr>
+            </thead>
+            @foreach($weekly_activity_report->areas as $area)
                 <tr class="bg-dark">
                     <th class="text-center align-middle">DATE</th>
                     <th class="text-center align-middle">DAY</th>
                     <th class="text-center align-middle">AREA COVERED</th>
-                    <th class="text-center align-middle">IN/OUT BASE</th>
-                    <th class="text-center align-middle">ACTIVITIES/REMARKS</th>
+                    <th class="text-center align-middle" colspan="2">REMARKS</th>
                 </tr>
-            </thead>
-            <tbody>
-                @if(!empty($weekly_activity_report->areas))
-                    @foreach($weekly_activity_report->areas as $area)
+                <tr>   
+                    <td class="text-center align-middle">
+                        {{$area->date}}
+                    </td>
+                    <td class="text-center align-middle">{{strtoupper($area->day)}}</td>
+                    <td class="text-center align-middle">{{$area->location}}</td>
+                    <td class="align-middle mw-30d0" colspan="2">{{$area->remarks}}</td>
+                </tr>
+
+                @if(!empty($area->war_branches->count()))
+                    <tr class="table-sub-menu">
+                        <th class="align-middle text-center">BRANCHES</th>
+                        <th class="align-middle text-center">STATUS</th>
+                        <th class="align-middle text-center">PLAN</th>
+                        <th class="align-middle text-center">ACTION POINTS</th>
+                        <th class="align-middle text-center">RESULTS</th>
+                    </tr>
+                    @foreach($area->war_branches as $area_branch)
+                        @php
+                            $schedule = NULL;
+                            if(!empty($area_branch->user_branch_schedule_id)) {
+                                $schedule = \App\Models\UserBranchSchedule::find($area_branch->user_branch_schedule_id);
+                            }
+
+                            if($area_branch->status == 'NOT VISITED') {
+                                $area_branch->branch_login_id = NULL;
+                            }
+                        @endphp
                         <tr>
-                            <td class="text-center align-middle">
-                                {{$area->date}}
+                            <td class="p-0 align-middle text-left pl-2">
+                                @if(!empty($schedule))
+                                    <span class="bg-{{$schedule->source == 'request' ? 'warning' : 'success'}}">
+                                        {{$schedule->source}}
+                                    </span>
+                                    <br>
+                                @endif
+                                {{$area_branch->branch->account->short_name}} [{{$area_branch->branch->branch_code}}] {{$area_branch->branch->branch_name}}
                             </td>
-                            <td class="text-center align-middle">{{$area->day}}</td>
-                            <td class="text-center align-middle">{{$area->location}}</td>
-                            <td class="text-center align-middle">{{$area->in_base}}</td>
-                            <td class="align-middle mw-300">{{$area->remarks}}</td>
+                            <td class="p-0 align-middle text-center">
+                                @if(!empty($area_branch->branch_login_id) && !empty($area_branch->user_branch_schedule_id))
+                                    <span class="bg-success px-1">
+                                        VISITED
+                                    </span>
+                                @elseif(empty($area_branch->branch_login_id) && !empty($area_branch->user_branch_schedule_id))
+                                    <span class="bg-danger px-1">
+                                        NOT VISITED
+                                    </span>
+                                @else
+                                    <span class="bg-warning px-1">
+                                        DEVIATION
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="p-0 align-middle text-center">
+                                @if(!empty($schedule))
+                                    {{$schedule->objective}}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="p-0 align-middle text-left">
+                                @if(!empty($area_branch->branch_login))
+                                    @if(!empty($area_branch->branch_login->operation_process_id))
+                                        <div class="row mb-3">
+                                            <div class="col-12">
+                                                <label>{{$area_branch->branch_login->operation_process->operation_process}}</label>
+                                                @php
+                                                    $branch_activities = $area_branch->branch_login->login_activities()->whereNotNull('activity_id')->get()
+                                                @endphp
+                                                <ol>
+                                                    @foreach($branch_activities as $activity)
+                                                    <li>{{$activity->activity->description}}
+                                                        @if(!empty($activity->remarks))
+                                                            <ul>
+                                                                <li><b>Remarks: </b>{{$activity->remarks}}</li>
+                                                            </ul>
+                                                        @endif
+                                                    </li>
+                                                    @endforeach
+                                                </ol>
+                                            </div>
+                                        </div>
+                                    @elseif(!empty($area_branch->branch_login->login_activities()->count()))
+                                        <p>{{$area_branch->branch_login->login_activities()->first()->remarks}}</p>
+                                    @endif
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td class="p-0 text-center align-middle">
+                                {{$area_branch->action_points}}
+                            </td>
                         </tr>
                     @endforeach
-                @else
-                    <tr>
-                        <td colspan="5" class="text-center">NO DATA</td>
-                    </tr>
                 @endif
-            </tbody>
-        </table>
+            @endforeach
+        @else
+            <thead>
+                <tr>
+                    <td colspan="5" class="text-center">NO DATA</td>
+                </tr>
+            </thead>
+        @endif
+    </table>
 
         <table class="table table-sm">
             <thead>
@@ -476,116 +581,6 @@
                     </td>
                 </tr>
             </thead>
-        </table>
-
-        <table class="table table-sm">
-            <thead>
-                <tr class="bg-dark">
-                    <th class="text-center">BEGINNING AR</th>
-                    <th class="text-center">DUE FOR COLLECTION</th>
-                    <th class="text-center">BEGINNING HANGING BALANCE</th>
-                    <th class="text-center">TARGET RECONCILIATIONS</th>
-                </tr>
-                <tr>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->beginning_ar)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->due_for_collection)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->beginning_hanging_balance)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->target_reconciliations)}}</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="bg-dark">
-                    <th class="text-center">WEEK TO DATE</th>
-                    <th class="text-center">MONTH TO DATE</th>
-                    <th class="text-center">MONTH TARGET</th>
-                    <th class="text-center">BALANCE TO SELL</th>
-                </tr>
-                <tr>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->week_to_date)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->month_to_date)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->month_target)}}</td>
-                    <td class="text-center">{{number_format($weekly_activity_report->collection->balance_to_sell)}}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="table table-sm">
-            <thead>
-                <tr>
-                    <th class="bg-gray" colspan="3">IV. SALES Action Plans (to achieve sales/collection targets/to accomplish a project):</th>
-                </tr>
-                <tr class="bg-dark">
-                    <th class="text-center">ACTION PLAN/S</th>
-                    <th class="text-center">TIMETABLE</th>
-                    <th class="text-center">PERSON/S RESPONSIBLE</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if(!empty($weekly_activity_report->action_plans))
-                    @foreach($weekly_activity_report->action_plans as $action_plan)
-                    <tr>
-                        <td>{{$action_plan->action_plan}}</td>
-                        <td class="text-center">{{$action_plan->time_table}}</td>
-                        <td class="text-center">{{$action_plan->person_responsible}}</td>
-                    </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td class="text-center" colspan="3">NO DATA</td>
-                    </tr>
-                @endif
-            </tbody>
-        </table>
-
-        <table class="table table-sm">
-            <thead>
-                <tr class="bg-dark">
-                    <th class="text-center">ACTIVITY</th>
-                    <th class="text-center">NO OF DAYS (WEEKLY)</th>
-                    <th class="text-center">NO OF DAYS (MTD)</th>
-                    <th class="text-center">AREA/REMARKS</th>
-                    <th class="text-center">NO OF DAYS (YTD)</th>
-                    <th class="text-center">% TO TOTAL WORKING DAYS</th>
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    $total_weekly = 0;
-                    $total_mtd = 0;
-                    $total_ytd = 0;
-                @endphp
-                @if(!empty($weekly_activity_report->activities))
-                    @foreach($weekly_activity_report->activities as $activity)
-                        @php
-                            $total_weekly += $activity->no_of_days_weekly;
-                            $total_mtd += $activity->no_of_days_mtd;
-                            $total_ytd += $activity->no_of_days_ytd;
-                        @endphp
-                        <tr>
-                            <td>{{$activity->activity}}</td>
-                            <td class="text-center">{{$activity->no_of_days_weekly}}</td>
-                            <td class="text-center">{{$activity->no_of_days_mtd}}</td>
-                            <td class="text-center">{{$activity->remarks}}</td>
-                            <td class="text-center">{{$activity->no_of_days_ytd}}</td>
-                            <td class="text-center">{{$activity->percent_to_total_working_days}}</td>
-                        </tr>
-                    @endforeach
-                @else
-                    <tr>
-                        <td colspan="6" class="text-center">NO DATA</td>
-                    </tr>
-                @endif
-            </tbody>
-            <tfoot>
-                <tr>
-                    <th class="text-center border-0">TOTAL</th>
-                    <th class="text-center bl-0 br-0">{{$total_weekly}}</th>
-                    <th class="text-center bl-0 br-0">{{$total_mtd}}</th>
-                    <td class="border-0"></td>
-                    <th class="text-center bl-0 br-0">{{$total_ytd}}</th>
-                    <td class="border-0"></td>
-                </tr>
-            </tfoot>
         </table>
 
         @php
