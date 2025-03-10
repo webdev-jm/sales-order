@@ -46,6 +46,7 @@ use App\Http\Controllers\ShipAddressMappingController;
 use App\Http\Controllers\PafController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\PafPrePlanController;
+use App\Http\Controllers\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -152,6 +153,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase-order.index');
         Route::get('purchase-order/create', [PurchaseOrderController::class, 'create'])->name('purchase-order.create');
         Route::get('purchase-order/{id}', [PurchaseOrderController::class, 'show'])->name('purchase-order.show');
+    });
+
+    // INVOICES
+    Route::group(['middleware' => 'permission:invoice access'], function() {
+        Route::get('invoice', [InvoiceController::class, 'index'])->name('invoice.index');
     });
 
     // SCHEDULE

@@ -33,38 +33,32 @@
 
 @section('content')
 
-<div class="card">
-    <div class="card-body">
-    {!! DNS2D::getBarcodeSVG('https://www.instagram.com/kojiesansunprotect', 'QRCODE', 5, 5) !!}
-    </div>
-</div>
-
-@if(!empty($logged_account))
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Activities</h3>
-    </div>
-    <div class="card-body">
-        <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
-    </div>
-</div>
-@elseif(!empty($logged_branch))
-    {{-- exempt bevi offices --}}
-    @if(auth()->user()->coe && $logged_branch->branch->account_id != 241)
-    <livewire:coe.form :logged_branch="$logged_branch"/>
-    @else
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Activities</h3>
-            </div>
-            <div class="card-body">
-                <livewire:activities.activities :logged_branch="$logged_branch"/>
-            </div>
+    @if(!empty($logged_account))
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Activities</h3>
         </div>
+        <div class="card-body">
+            <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
+        </div>
+    </div>
+    @elseif(!empty($logged_branch))
+        {{-- exempt bevi offices --}}
+        @if(auth()->user()->coe && $logged_branch->branch->account_id != 241)
+        <livewire:coe.form :logged_branch="$logged_branch"/>
+        @else
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Activities</h3>
+                </div>
+                <div class="card-body">
+                    <livewire:activities.activities :logged_branch="$logged_branch"/>
+                </div>
+            </div>
+        @endif
+    @else
+        <livewire:accounts.account-login/>
     @endif
-@else
-    <livewire:accounts.account-login/>
-@endif
 @endsection
 
 @section('bsStepper', true)

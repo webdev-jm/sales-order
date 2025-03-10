@@ -1152,25 +1152,25 @@ class SalesOrderController extends Controller
     }
 
     public function generateXml($sales_order) {
-        // $parts = $this->convertData($sales_order);
-        // foreach($parts as $key => $data) {
-        //     $part = $key + 1;
-        //     $xml = $this->arrayToXml($data);
+        $parts = $this->convertData($sales_order);
+        foreach($parts as $key => $data) {
+            $part = $key + 1;
+            $xml = $this->arrayToXml($data);
             
-        //     // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
-        //     Storage::disk('public')->put('sales-orders/'.$sales_order->po_number.'-'.$part.'.xml', $xml);
+            // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
+            Storage::disk('public')->put('sales-orders/'.$sales_order->po_number.'-'.$part.'.xml', $xml);
 
-        //     // change connection for each accounts
-        //     if($sales_order->account_login->account->company->name == 'BEVI') {
-        //         $ftp = Storage::disk('ftp_bevi');
-        //         $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
-        //     } else if($sales_order->account_login->account->company->name == 'BEVA') {
-        //         $ftp = Storage::disk('ftp_beva');
-        //         $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
-        //     }
-        // }
+            // change connection for each accounts
+            if($sales_order->account_login->account->company->name == 'BEVI') {
+                $ftp = Storage::disk('ftp_bevi');
+                $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
+            } else if($sales_order->account_login->account->company->name == 'BEVA') {
+                $ftp = Storage::disk('ftp_beva');
+                $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
+            }
+        }
 
-        // return $sales_order->po_number.'-'.$part.'.xml file created successfully.';
+        return $sales_order->po_number.'-'.$part.'.xml file created successfully.';
     }
 
     private function arrayToXml($data) {
