@@ -78,7 +78,7 @@
                         <th class="text-center align-middle">Quantity</th>
                         <th class="text-center align-middle">Total</th>
                         <th class="text-center align-middle">Line Discount</th>
-                        <th class="text-center align-middle">Total less discount</th>
+                        <th class="text-center align-middle">Total less line discount</th>
                     </tr>
                 </thead>
                 <tbody>

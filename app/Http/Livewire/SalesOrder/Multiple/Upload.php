@@ -80,6 +80,10 @@ class Upload extends Component
                     $discount = $account->discount;
     
                     $po_number = trim($row[0]);
+                    if(!empty($account->po_prefix)) {
+                        $po_number = $account->po_prefix.''.$po_number;
+                    }
+
                     $ship_date = $row[1];
                     $ship_to_address = trim($row[2]);
                     $sku_code = trim($row[3]);

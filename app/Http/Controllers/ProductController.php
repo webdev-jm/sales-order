@@ -98,7 +98,8 @@ class ProductController extends Controller
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
             'status' => $status,
-            'special_product' => $special_product
+            'special_product' => $special_product,
+            'warehouse' => $request->warehouse,
         ]);
         $product->save();
         
@@ -179,7 +180,8 @@ class ProductController extends Controller
             'order_uom_operator' => $request->order_uom_operator,
             'other_uom_operator' => $request->other_uom_operator,
             'status' => $status,
-            'special_product' => $special_product
+            'special_product' => $special_product,
+            'warehouse' => $request->warehouse,
         ]);
 
         $changes_arr['changes'] = $product->getChanges();

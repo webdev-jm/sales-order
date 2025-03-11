@@ -116,6 +116,14 @@
                 </div>
             </div>
 
+            <div class="col-md-3">
+                <div class="form-group">
+                    {!! Form::label('warehouse', 'Warehouse') !!}
+                    {!! Form::text('warehouse', '', ['class' => 'form-control'.($errors->has('warehouse') ? ' is-invalid' : ''), 'form' => 'add_product']) !!}
+                    <p class="text-danger">{{$errors->first('warehouse')}}</p>
+                </div>
+            </div>
+
         </div>
 
         <div class="row">

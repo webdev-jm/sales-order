@@ -76,6 +76,9 @@ class UpdateProductRequest extends FormRequest
             ],
             'special_product' => [
                 'max:2'
+            ],
+            'warehouse' => [
+                'max:255'
             ]
         ];
     }

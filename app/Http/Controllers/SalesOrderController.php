@@ -46,19 +46,9 @@ class SalesOrderController extends Controller
         $status = trim($request->get('status'));
         $order_date = trim($request->get('order-date'));
 
-        if($search != '' || $status != '' || $order_date != '') {
-            $query = SalesOrder::orderBy('control_number', 'DESC');
-            if($search != '') {
-                $query->where(function($qry) use ($search) {
-                    $qry->where('control_number', 'like', '%'.$search.'%')
-                    ->orWhere('po_number', 'like', '%'.$search.'%')
-                    ->orWhere('order_date', 'like', '%'.$search.'%')
-                    ->orWhere('ship_date', 'like', '%'.$search.'%')
-                    ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-                    ->orWhere('status', 'like', '%'.$search.'%')
-                    ->orWhere('reference', 'like', '%'.$search.'%');
-                })
-                ->orWhereHas('account_login', function($qry) use($search) {
+        $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
+            ->whereHas('account_login', function($query) use($search) {
+                $query->when(!empty($search), function($qry) use($search) {
                     $qry->whereHas('account', function($qry1) use($search) {
                         $qry1->where('account_code', 'like', '%'.$search.'%')
                         ->orWhere('short_name', 'like', '%'.$search.'%');
@@ -66,10 +56,24 @@ class SalesOrderController extends Controller
                         $qry1->where('firstname', 'like', '%'.$search.'%')
                         ->orWhere('lastname', 'like', '%'.$search.'%');
                     });
+                })
+                ->when(!auth()->user()->hasRole('superadmin'), function($query) {
+                    $user_account_ids = auth()->user()->accounts()->pluck('id')->toArray();
+                    $query->whereIn('account_id', $user_account_ids);
                 });
-            }
-
-            if($status != '') {
+            })
+            ->when(!empty($search), function($query) use($search) {
+                $query->where(function($qry) use ($search) {
+                    $qry->where('control_number', 'like', '%'.$search.'%')
+                        ->orWhere('po_number', 'like', '%'.$search.'%')
+                        ->orWhere('order_date', 'like', '%'.$search.'%')
+                        ->orWhere('ship_date', 'like', '%'.$search.'%')
+                        ->orWhere('ship_to_name', 'like', '%'.$search.'%')
+                        ->orWhere('status', 'like', '%'.$search.'%')
+                        ->orWhere('reference', 'like', '%'.$search.'%');
+                });
+            })
+            ->when(!empty($status), function($query) use($status) {
                 if($status == 'uploaded') {
                     $query->where('upload_status', 1);
                 } else if($status == 'upload_error') {
@@ -77,23 +81,11 @@ class SalesOrderController extends Controller
                 } else {
                     $query->where('status', $status)->whereNull('upload_status');
                 }
-            }
-
-            if($order_date != '') {
+            })
+            ->when(!empty($order_date), function($query) use($order_date) {
                 $query->where('order_date', $order_date);
-            }
-
-            $sales_orders = $query->paginate($this->setting->data_per_page)->onEachSide(1)->appends(request()->query());
-        } else {
-            $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
-            ->whereHas('account_login', function($qry) use($search) {
-                $qry->whereHas('account', function($qry1) use($search) {
-                });
             })
             ->paginate($this->setting->data_per_page)->onEachSide(1)->appends(request()->query());
-        }
-
-        // $sales_orders = SalesOrder::SalesOrderListSearch($search, $this->setting->data_per_page);
 
         return view('sales-orders.list')->with([
             'search' => $search,
@@ -452,7 +444,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -478,7 +471,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -504,7 +498,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -583,7 +578,7 @@ class SalesOrderController extends Controller
                     'quantity' => $uom->quantity,
                     'total' => $uom->uom_total,
                     'discount' => 0,
-                    'discounted' => $uom->uom_total_less_disc
+                    'discounted' => $uom->uom_total_less_disc,
                 ];
             }
             $order_data['items'][$order_product->product_id]['product_total'] = $order_product->total_sales;
@@ -726,7 +721,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -752,7 +748,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -778,7 +775,8 @@ class SalesOrderController extends Controller
                         'uom' => $uom,
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted']
+                        'uom_total_less_disc' => $data['discounted'],
+                        'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -798,7 +796,7 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         } else {
-            $this->generateXml($sales_order);
+            // $this->generateXml($sales_order);
 
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
@@ -1157,6 +1155,44 @@ class SalesOrderController extends Controller
         }
 
         return $quantity;
+    }
+
+    private function uomQuantityAllocation($quantity, $product_id, $uom) {
+        $data = [];
+
+        $product = Product::findOrFail($product_id);
+
+        // Identify which UOM is 'CS'
+        $cs_uom = null;
+        if ($product->stock_uom == 'CS') {
+            $cs_uom = 'stock_uom';
+        } elseif ($product->order_uom == 'CS') {
+            $cs_uom = 'order_uom';
+        } elseif ($product->other_uom == 'CS') {
+            $cs_uom = 'other_uom';
+        }
+
+        if($uom !== 'CS' && !empty($cs_uom)) {
+            $cs_quantity = $this->quantityConversion($quantity, $product->{$cs_uom.'_conversion'}, $product->{$cs_uom.'_operator'}, true);
+
+            // Extract decimal part if exists
+            $decimal_quantity = $cs_quantity - floor($cs_quantity);
+            if ($decimal_quantity > 0) {
+                $qty = $this->quantityConversion(
+                    $decimal_quantity, 
+                    $product->{$cs_uom . '_conversion'}, 
+                    $product->{$cs_uom . '_operator'}, 
+                    false
+                );
+                $data[$uom] = (int) floor($qty);
+            }
+
+            $data['CS'] = (int) floor($cs_quantity);
+        } else {
+            $data[$uom] = $quantity;
+        }
+
+        return $data;
     }
 
     private function isExcelDate(Cell $cell) {
