@@ -25,6 +25,7 @@ class SalesOrderProductUom extends Model
         'uom',
         'quantity',
         'uom_total',
-        'uom_total_less_disc'
+        'uom_total_less_disc',
+        'warehouse'
     ];
 }

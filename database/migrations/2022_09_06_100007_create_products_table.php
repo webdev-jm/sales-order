@@ -36,6 +36,7 @@ class CreateProductsTable extends Migration
             $table->string('status')->nullable();
             $table->boolean('special_product')->default(false);
             $table->string('bar_code')->nullable();
+            $table->string('warehouse')->nullable();
             $table->timestamps();
 
             $table->foreign('brand_id')

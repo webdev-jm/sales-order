@@ -20,6 +20,7 @@ class CreateSalesOrderProductUomsTable extends Migration
             $table->decimal('quantity', 10, 2);
             $table->decimal('uom_total', 10, 2);
             $table->decimal('uom_total_less_disc', 10, 2);
+            $table->string('warehouse')->nullable();
             $table->timestamps();
 
             $table->foreign('sales_order_product_id')

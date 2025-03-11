@@ -39,7 +39,8 @@ class Product extends Model
         'other_uom_operator',
         'status',
         'special_product',
-        'bar_code'
+        'bar_code',
+        'warehouse',
     ];
 
     public function price_codes() {
