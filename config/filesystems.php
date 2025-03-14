@@ -41,6 +41,10 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
+        'DFM' => [
+            'driver' => 'local',
+            'root' => storage_path('DFM'),
+        ],
 
         's3' => [
             'driver' => 's3',

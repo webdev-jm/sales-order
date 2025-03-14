@@ -506,9 +506,9 @@ class SalesOrderController extends Controller
             }
         }
 
-        // if($sales_order->status == 'finalized') {
-        //     $this->generateXml($sales_order);
-        // }
+        if($sales_order->status == 'finalized') {
+            $this->generateXml($sales_order);
+        }
 
         // logs
         activity('create')
@@ -796,7 +796,7 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         } else {
-            // $this->generateXml($sales_order);
+            $this->generateXml($sales_order);
 
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
@@ -1204,17 +1204,18 @@ class SalesOrderController extends Controller
         foreach($parts as $key => $data) {
             $part = $key + 1;
             $xml = $this->arrayToXml($data);
+
+            $filename = $sales_order->po_number.'-'.$part.'.xml';
             
-            // Save the XML to the storage disk (e.g., 'public', 'local', etc.)
-            Storage::disk('public')->put('sales-orders/'.$sales_order->po_number.'-'.$part.'.xml', $xml);
+            $ftp = Storage::disk('DFM');
 
             // change connection for each accounts
             if($sales_order->account_login->account->company->name == 'BEVI') {
-                $ftp = Storage::disk('ftp_bevi');
-                $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
+                // $ftp = Storage::disk('ftp_bevi');
+                $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
             } else if($sales_order->account_login->account->company->name == 'BEVA') {
-                $ftp = Storage::disk('ftp_beva');
-                $ftp->put($sales_order->po_number.'-'.$part.'.xml', $xml);
+                // $ftp = Storage::disk('ftp_beva');
+                $ftp->put('BEVA-test/Incoming/SalesOrder/'.$filename, $xml);
             }
         }
 
@@ -1281,7 +1282,7 @@ class SalesOrderController extends Controller
 
         $so_parts = array();
         foreach($parts as $part) {
-            $details = $details->where('part', $part);
+            $so_details = $details->where('part', $part);
 
             $trade_discounts = $this->getTradeDiscounts($company, $details, $customer);
 
@@ -1305,7 +1306,7 @@ class SalesOrderController extends Controller
             ];
 
             $num = 0;
-            foreach($details as $detail) {
+            foreach($so_details as $detail) {
                 foreach($detail->product_uoms as $uom) {
                     $num++;
 

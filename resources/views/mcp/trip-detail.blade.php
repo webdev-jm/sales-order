@@ -375,7 +375,7 @@
         <hr>
 
         @php
-            $approval = $trip->approvals()->where('status', 'for approval')->orderBy('created_at', 'ASC')->first();
+            $approval = $trip->approvals()->where('status', 'for approval')->orderBy('created_at', 'DESC')->first();
         @endphp
         @if(!empty($approval))
             <strong class="text-muted">REMARKS</strong>
