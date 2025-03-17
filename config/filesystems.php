@@ -60,9 +60,10 @@ return [
         'ftp_beva' => [
             'driver'   => 'ftp',
             'host'     => 'ftp.bevi.com.ph',
-            'username' => 'SMS_BEVA',
-            'password' => 'sms1234',
-            'port' => 1015,
+            'username' => 'smstest',
+            'password' => 'bevidfm1234',
+            'port' => 1017,
+            'transfer_mode' => 2,
          
             // Optional FTP Settings...
             // 'port'     => 21,
@@ -75,9 +76,11 @@ return [
         'ftp_bevi' => [
             'driver'   => 'ftp',
             'host'     => 'ftp.bevi.com.ph',
-            'username' => 'SMS_BEVI',
-            'password' => 'sms1234',
-            'port' => 1015,
+            'username' => 'smstest',
+            'password' => 'bevidfm1234',
+            'port' => 1017,
+            'transfer_mode' => 2,
+            'use_agent' => false,
          
             // Optional FTP Settings...
             // 'port'     => 21,
