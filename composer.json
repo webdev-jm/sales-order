@@ -17,6 +17,8 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
         "laravelcollective/html": "^6.3",
+        "league/flysystem": "^1.1",
+        "league/flysystem-sftp": "^1.1",
         "livewire/livewire": "^2.10",
         "maatwebsite/excel": "^3.1",
         "milon/barcode": "^10.0",

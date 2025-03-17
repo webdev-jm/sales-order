@@ -722,7 +722,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -1207,15 +1207,15 @@ class SalesOrderController extends Controller
 
             $filename = $sales_order->po_number.'-'.$part.'.xml';
             
-            $ftp = Storage::disk('DFM');
+            // $ftp = Storage::disk('DFM');
 
             // change connection for each accounts
             if($sales_order->account_login->account->company->name == 'BEVI') {
-                // $ftp = Storage::disk('ftp_bevi');
-                $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
+                $ftp = Storage::disk('ftp_bevi');
+                $ftp->put('BEVI/Incoming/SalesOrder/'.$filename, $xml);
             } else if($sales_order->account_login->account->company->name == 'BEVA') {
-                // $ftp = Storage::disk('ftp_beva');
-                $ftp->put('BEVA-test/Incoming/SalesOrder/'.$filename, $xml);
+                $ftp = Storage::disk('ftp_beva');
+                $ftp->put('BEVA/Incoming/SalesOrder/'.$filename, $xml);
             }
         }
 
@@ -1260,23 +1260,28 @@ class SalesOrderController extends Controller
 
     private function convertData($sales_order) {
 
-        $company = '';
-        // CHECK CUSTOMER
-        $customer = DB::connection('beva_db')
-            ->table('ArCustomer')
-            ->where('Customer', $sales_order->account_login->account->account_code)
-            ->first();
-        if(empty($customer)) {
-            $customer = DB::connection('bevi_db')
+        $company = $sales_order->account_login->account->company->name;
+
+        try {
+            // CHECK CUSTOMER
+            $customer = DB::connection('beva_db')
                 ->table('ArCustomer')
                 ->where('Customer', $sales_order->account_login->account->account_code)
                 ->first();
+            if(empty($customer)) {
+                $customer = DB::connection('bevi_db')
+                    ->table('ArCustomer')
+                    ->where('Customer', $sales_order->account_login->account->account_code)
+                    ->first();
 
-            $company = 'BEVI';
-        } else {
-            $company = 'BEVA';
+                $company = 'BEVI';
+            } else {
+                $company = 'BEVA';
+            }
+        } catch(\Exception $e) {
+            $customer = NULL;
         }
-
+        
         $details = $sales_order->order_products;
         $parts = array_unique($details->pluck('part')->toArray());
 
@@ -1284,7 +1289,7 @@ class SalesOrderController extends Controller
         foreach($parts as $part) {
             $so_details = $details->where('part', $part);
 
-            $trade_discounts = $this->getTradeDiscounts($company, $details, $customer);
+            $trade_discounts = $this->getTradeDiscounts($company, $details, $sales_order->account_login->account->account_code);
 
             $data = [
                 'Orders' => [
@@ -1295,9 +1300,9 @@ class SalesOrderController extends Controller
                         'ShippingInstrs'                => $sales_order->shipping_instruction ?? '',
                         'RequestedShipDate'             => $sales_order->ship_date ?? '',
                         'OrderComments'                 => $sales_order->control_number,
-                        'OrderDiscPercent1'             => $trade_discounts[0],
-                        'OrderDiscPercent2'             => $trade_discounts[0],
-                        'OrderDiscPercent3'             => $trade_discounts[0],
+                        'OrderDiscPercent1'             => $trade_discounts[0] ?? '',
+                        'OrderDiscPercent2'             => $trade_discounts[0] ?? '',
+                        'OrderDiscPercent3'             => $trade_discounts[0] ?? '',
                         'SalesOrderPromoQualityAction'  => 'W',
                         'SalesOrderPromoSelectAction'   => 'A',
                         'MultiShipCode'                 => $sales_order->shipping_address ?? '',
@@ -1314,7 +1319,7 @@ class SalesOrderController extends Controller
 
                     $data['Orders']['OrderDetails']['StockLine'][] = [
                         'CustomerPoLine'    => $num,
-                        'Warehouse'         => $customer->SalesWarehouse,
+                        'Warehouse'         => $customer->SalesWarehouse ?? '',
                         'StockCode'         => $detail->product->stock_code,
                         'OrderQty'          => $uom->quantity,
                         'OrderUom'          => $uom->uom,
@@ -1355,7 +1360,7 @@ class SalesOrderController extends Controller
             }
         } else {
             // get trade discount
-            if($customer->Customer == '1200008') {
+            if($customer == '1200008') {
                 $check = Product::where('product_class', 'DEF')
                     ->where('category', 'ALCOHOL')
                     ->whereIn('id', $details->pluck('product_id')->toArray())
@@ -1372,36 +1377,41 @@ class SalesOrderController extends Controller
 
     private function getPriceCode($company, $stock_code) {
         $price_code = '';
-        if($company == 'BEVA') {
-            $product = DB::connection('beva_db')
-                ->table('InvMaster')
-                ->where('StockCode', $stock_code)
-                ->first();
 
-            // get price code
-            if(!empty($product)) {
-                switch($product->ProductClass) {
-                    case 'BHW':
-                        $price_code = 'A';
-                        break;
-                    case 'CRS':
-                        $price_code = 'X';
-                        break;
+        try {
+            if($company == 'BEVA') {
+                $product = DB::connection('beva_db')
+                    ->table('InvMaster')
+                    ->where('StockCode', $stock_code)
+                    ->first();
+    
+                // get price code
+                if(!empty($product)) {
+                    switch($product->ProductClass) {
+                        case 'BHW':
+                            $price_code = 'A';
+                            break;
+                        case 'CRS':
+                            $price_code = 'X';
+                            break;
+                    }
+                }
+            } else { // BEVI
+                $product = DB::connection('bevi_db')
+                    ->table('InvMaster')
+                    ->where('StockCode', $stock_code)
+                    ->first();
+                // get price code
+                if(!empty($product)) {
+                    switch($product->AlternateKey1) {
+                        case 'PURIFIED WATER':
+                            $price_code = 'A';
+                            break;
+                    }
                 }
             }
-        } else { // BEVI
-            $product = DB::connection('bevi_db')
-                ->table('InvMaster')
-                ->where('StockCode', $stock_code)
-                ->first();
-            // get price code
-            if(!empty($product)) {
-                switch($product->AlternateKey1) {
-                    case 'PURIFIED WATER':
-                        $price_code = 'A';
-                        break;
-                }
-            }
+        } catch(\Exception $e) {
+
         }
 
         return $price_code;
