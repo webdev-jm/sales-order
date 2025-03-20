@@ -21,6 +21,14 @@ class InvoiceData extends Component
     public $logged_account;
     public $upload_file;
     public $po_data;
+    public $po_search;
+
+    public function searchPO() {
+        if(!empty($this->po_search)) {
+            $data[] = [$this->po_search];
+            $this->getData($data);
+        }
+    }
 
     public function DownloadData() {
         if(!empty($this->po_data)) {
