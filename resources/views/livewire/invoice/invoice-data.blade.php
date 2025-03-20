@@ -1,6 +1,26 @@
 <div>
     <div class="card">
         <div class="card-header">
+            <h3 class="card-title">PO SEARCH</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="po_number">PO NUMBER</label>
+                    <input type="text" class="form-control" wire:model="po_search" placeholder="Search po number">
+                </div>
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <button class="btn btn-primary btn-sm" wire:click.prevent="searchPO">
+                <i class="fa fa-search"></i>
+                SEARCH
+            </button>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
             <h3 class="card-title">Invoices</h3>
         </div>
         <div class="card-body">
@@ -19,7 +39,7 @@
                 UPLOAD
             </button>
         </div>
-    </div>
+    </div>    
 
     @if(!empty($po_data))
     <div class="card">
