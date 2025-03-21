@@ -26,6 +26,8 @@ use App\Exports\SalesOrderExport;
 
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
+use Illuminate\Support\Facades\Http;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -36,6 +38,8 @@ class SalesOrderController extends Controller
     use GlobalTrait;
 
     public $setting;
+
+    public $url_link = 'http://api.bevi.com.ph/refreshable/public/api';
 
     public function __construct() {
         $this->setting = $this->getSettings();
@@ -749,7 +753,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -1262,25 +1266,14 @@ class SalesOrderController extends Controller
 
         $company = $sales_order->account_login->account->company->name;
 
-        try {
-            // CHECK CUSTOMER
-            $customer = DB::connection('beva_db')
-                ->table('ArCustomer')
-                ->where('Customer', $sales_order->account_login->account->account_code)
-                ->first();
-            if(empty($customer)) {
-                $customer = DB::connection('bevi_db')
-                    ->table('ArCustomer')
-                    ->where('Customer', $sales_order->account_login->account->account_code)
-                    ->first();
+        $response = Http::withHeaders([
+                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                'account_code' => $sales_order->account_login->account->account_code,
+                'company' => $company
+            ])
+            ->get($this->url_link.'/so/ar_customer');
 
-                $company = 'BEVI';
-            } else {
-                $company = 'BEVA';
-            }
-        } catch(\Exception $e) {
-            $customer = NULL;
-        }
+        $customer = $response->json()['data'];
         
         $details = $sales_order->order_products;
         $parts = array_unique($details->pluck('part')->toArray());
@@ -1319,7 +1312,7 @@ class SalesOrderController extends Controller
 
                     $data['Orders']['OrderDetails']['StockLine'][] = [
                         'CustomerPoLine'    => $num,
-                        'Warehouse'         => $customer->SalesWarehouse ?? '',
+                        'Warehouse'         => $customer['warehouse'] ?? '',
                         'StockCode'         => $detail->product->stock_code,
                         'OrderQty'          => $uom->quantity,
                         'OrderUom'          => $uom->uom,
@@ -1379,15 +1372,18 @@ class SalesOrderController extends Controller
         $price_code = '';
 
         try {
-            if($company == 'BEVA') {
-                $product = DB::connection('beva_db')
-                    ->table('InvMaster')
-                    ->where('StockCode', $stock_code)
-                    ->first();
-    
-                // get price code
-                if(!empty($product)) {
-                    switch($product->ProductClass) {
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                'stock_code' => $stock_code,
+                'company' => $company
+            ])
+            ->get($this->url_link.'/so/inv_master');
+
+            $product = $response->json()['data'];
+            if(!empty($product)) {
+                if($company == 'BEVA') {
+                    switch($product['product_class']) {
                         case 'BHW':
                             $price_code = 'A';
                             break;
@@ -1395,21 +1391,15 @@ class SalesOrderController extends Controller
                             $price_code = 'X';
                             break;
                     }
-                }
-            } else { // BEVI
-                $product = DB::connection('bevi_db')
-                    ->table('InvMaster')
-                    ->where('StockCode', $stock_code)
-                    ->first();
-                // get price code
-                if(!empty($product)) {
-                    switch($product->AlternateKey1) {
+                } else if($company == 'BEVI') {
+                    switch($product['category']) {
                         case 'PURIFIED WATER':
                             $price_code = 'A';
                             break;
                     }
                 }
             }
+
         } catch(\Exception $e) {
 
         }
