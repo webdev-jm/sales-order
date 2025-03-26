@@ -47,6 +47,7 @@ use App\Http\Controllers\PafController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\PafPrePlanController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\RemittanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,6 +100,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // SALES DASHBOARD
     Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
+
+    // REMITTANCE
+    Route::get('remittance', [RemittanceController::class, 'index'])->name('remittance.index');
 
     // PAF
     Route::group(['middleware' => 'permission:paf access'], function() {
