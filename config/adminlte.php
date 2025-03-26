@@ -318,6 +318,12 @@ return [
             'active'    => ['dashboard*']
         ],
         [
+            'text'      => 'remittances',
+            'url'       => 'remittance',
+            'icon'      => 'fas fa-fw fa-chart-pie',
+            'active'    => ['remittance*']
+        ],
+        [
             'text'      => 'Purchase Orders',
             'url'       => '/purchase-order',
             'icon'      => 'fas fa-fw fa-shopping-cart',
