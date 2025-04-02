@@ -645,6 +645,12 @@ return [
             'active'    => ['organizational-structure*']
         ],
         [
+            'text'      => 'Upload Templates',
+            'url'       => '/upload-template',
+            'icon'      => 'fas fa-fw fa-sitemap',
+            'active'    => ['upload-template*']
+        ],
+        [
             'text'      => 'Roles',
             'url'       => '/role',
             'icon'      => 'fas fa-fw fa-user-tag',

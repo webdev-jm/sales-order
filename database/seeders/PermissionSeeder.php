@@ -276,6 +276,15 @@ class PermissionSeeder extends Seeder
                 'paf activity edit'     => 'access to edit paf activity',
                 'paf activity delete'   => 'access to delete paf activity',
             ],
+            'Remittances' => [
+                'remittance access' => 'access remittance module.' 
+            ],
+            'Upload Templates' => [
+                'upload template access'    => 'access to upload templates',
+                'upload template create'    => 'access to create upload templates',
+                'upload template edit'      => 'access to edit upload templates',
+                'upload template delete'    => 'access to delete upload templates',
+            ]
         ];
 
         foreach($permissions_arr as $module => $permissions) {
@@ -283,7 +292,7 @@ class PermissionSeeder extends Seeder
                 Permission::create([
                     'name' => $permission,
                     'module' => $module,
-                    'description' => $description
+                    'description' => $description,
                 ]);
             }
         }

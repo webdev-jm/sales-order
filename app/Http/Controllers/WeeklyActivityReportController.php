@@ -465,7 +465,7 @@ class WeeklyActivityReportController extends Controller
             ]);
         }
     }
-
+ 
     /**
      * Remove the specified resource from storage.
      *
