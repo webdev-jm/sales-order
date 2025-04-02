@@ -122,9 +122,13 @@ class AccountController extends Controller
      * @param  \App\Models\Account  $account
      * @return \Illuminate\Http\Response
      */
-    public function show(Account $account)
+    public function show($id)
     {
-        //
+        $account = Account::findOrFail(decrypt($id));
+
+        return view('accounts.show')->with([
+            'account' => $account
+        ]);
     }
 
     /**

@@ -43,20 +43,24 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Company</th>
                     <th>Account Code</th>
                     <th>Account Name</th>
                     <th>Short Name</th>
+                    <th>Company</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($accounts as $account)
                 <tr>
-                    <td>{{$account->company->name}}</td>
-                    <td>{{$account->account_code}}</td>
+                    <td>
+                        <a href="{{route('account.show', encrypt($account->id))}}">
+                            {{$account->account_code}}
+                        </a>
+                    </td>
                     <td>{{$account->account_name}}</td>
                     <td>{{$account->short_name}}</td>
+                    <td>{{$account->company->name}}</td>
                     <td class="text-right">
                         <a href="#" class="btn-product-modal" data-id="{{encrypt($account->id)}}"><i class="fas fa-box text-primary"></i></a>
                         @can('shipping address access')

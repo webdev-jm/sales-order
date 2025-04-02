@@ -48,6 +48,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\PafPrePlanController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\RemittanceController;
+use App\Http\Controllers\UploadTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -339,8 +340,6 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('discount/{id}/edit', [DiscountController::class, 'edit'])->name('discount.edit')->middleware('permission:discount edit');
         Route::post('discount/{id}', [DiscountController::class, 'update'])->name('discount.update')->middleware('permission:discount edit');
-
-        
     });
 
     // ACCOUNTS
@@ -349,6 +348,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('account/create', [AccountController::class, 'create'])->name('account.create')->middleware('permission:account create');
         Route::post('account', [AccountController::class, 'store'])->name('account.store')->middleware('permission:account create');
 
+        Route::get('account/{id}', [AccountController::class, 'show'])->name('account.show');
+        
         Route::post('account/upload', [AccountController::class, 'upload'])->name('account.upload')->middleware('permission:account create');
 
         Route::get('account/{id}/edit', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
@@ -564,6 +565,18 @@ Route::group(['middleware' => 'auth'], function () {
     // ORGANIZATION STRUCTURE
     Route::group(['middleware' => 'permission:organizational structure access'], function() {
         Route::get('organizational-structure', [OrganizationStructureController::class, 'index'])->name('organization-structure.index');
+    });
+
+    // UPLOAD TEMPLATE
+    Route::group(['middleware' => 'permission:upload template access'], function() {
+        Route::get('upload-template', [UploadTemplateController::class, 'index'])->name('upload-template.index');
+        Route::get('upload-template/create', [UploadTemplateController::class, 'create'])->name('upload-template.create')->middleware('permission:upload template create');
+        Route::post('upload-template', [UploadTemplateController::class, 'store'])->name('upload-template.store')->middleware('permission:upload template create');
+
+        Route::get('upload-template/{id}', [UploadTemplateController::class, 'show'])->name('upload-template.show');
+
+        Route::get('upload-template/{id}/edit', [UploadTemplateController::class, 'edit'])->name('upload-template.edit')->middleware('permission:upload template edit');
+        Route::post('upload-template/{id}', [UploadTemplateController::class, 'update'])->name('upload-template.update')->middleware('permission:upload template edit');
     });
 
     // ROLES
