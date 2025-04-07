@@ -19,19 +19,45 @@
 
 @section('content')
 <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Account details</h3>
             </div>
-            <div class="card-body">
+            <div class="card-body p-1">
+                <ul class="list-group">
+                    <li class="list-group-item py-2">
+                        <strong>ACCOUNT CODE:</strong>
+                        <span class="float-right">{{$account->account_code}}</span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <strong>SHORT NAME:</strong>
+                        <span class="float-right">{{$account->short_name}}</span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <strong>ACCOUNT NAME:</strong>
+                        <span class="float-right">{{$account->account_name}}</span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <strong>COMPANY:</strong>
+                        <span class="float-right">{{$account->company->name}}</span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <strong>PRICE CODE:</strong>
+                        <span class="float-right">{{$account->price_code}}</span>
+                    </li>
+                    <li class="list-group-item py-2">
+                        <strong>DISCOUNT:</strong>
+                        <span class="float-right">{{$account->discount->description ?? '-'}}</span>
+                    </li>
+                </ul>
             </div>
             <div class="card-footer">
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <livewire:accounts.templates.template-list :account="$account"/>
     </div>
 </div>
