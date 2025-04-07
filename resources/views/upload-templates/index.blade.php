@@ -41,19 +41,25 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th>Code</th>
                     <th>Name</th>
+                    <th></th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($upload_templates as $template)
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td class="text-right">
-                    </td>
-                </tr>
+                    <tr>
+                        <td>{{$template->name}}</td>
+                        <td></td>
+                        <td class="text-right">
+                            @can('upload template edit')
+                                <a href="{{route('upload-template.edit', $template->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                            @endcan
+                            @can('upload template delete')
+                                <a href="#" title="delete" class="btn-delete" data-id="{{$template->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                            @endcan
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

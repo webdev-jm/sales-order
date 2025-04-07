@@ -22,10 +22,12 @@ class UploadTemplate extends Model
     }
 
     protected $fillable = [
-        'name'
+        'name',
+        'breakpoint',
+        'breakpoint_col'
     ];
 
     public function template_fields() {
-        return $this->hasMany('App\Models\UploadTemplate');
+        return $this->hasMany('App\Models\UploadTemplateField');
     }
 }
