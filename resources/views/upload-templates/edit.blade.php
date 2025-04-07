@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Upload Template - Create
+    Upload Template - Edit
 @endsection
 
 @section('css')
@@ -10,7 +10,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Upload Template - Create</h1>
+        <h1>Upload Template - Edit</h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('upload-template.index')}}" class="btn btn-default">
@@ -21,7 +21,7 @@
 @endsection
 
 @section('content')
-    <livewire:upload-templates.form type="add" :upload_template="NULL"/>
+    <livewire:upload-templates.form type="edit" :upload_template="$upload_template"/>
 @endsection
 
 @section('js')

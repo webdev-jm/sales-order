@@ -16,6 +16,8 @@ class CreateUploadTemplatesTable extends Migration
         Schema::create('upload_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('breakpoint')->nullable();
+            $table->integer('breakpoint_col')->nullable();
             $table->timestamps();
 
             $table->softDeletes();

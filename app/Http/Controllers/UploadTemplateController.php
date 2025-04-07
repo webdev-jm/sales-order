@@ -40,8 +40,12 @@ class UploadTemplateController extends Controller
     public function show() {
     }
 
-    public function edit() {
-        
+    public function edit($id) {
+        $upload_template = UploadTemplate::findOrFail($id);
+
+        return view('upload-templates.edit')->with([
+            'upload_template' => $upload_template
+        ]);
     }
 
     public function update() {

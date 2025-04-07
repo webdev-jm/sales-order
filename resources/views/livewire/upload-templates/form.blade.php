@@ -33,7 +33,12 @@
 
             <div class="card card-success card-outline">
                 <div class="card-header">
-                    <h3 class="card-title">Template Fields</h3>
+                    <h3 class="card-title">
+                        Template Fields
+                        @if($errors->has('lines'))
+                            <span class="badge badge-danger">REQUIRED</span>
+                        @endif
+                    </h3>
                 </div>
                 <div class="card-body p-0 table-responsive">
                     <table class="table table-sm table-bordered">
@@ -61,7 +66,7 @@
                                         <input type="text" class="form-control border-0" wire:model="lines.{{$key}}.column_name">
                                     </td>
                                     <td class="p-0">
-                                        <input type="number" class="form-control border-0" wire:model="lines.{{$key}}.column_name">
+                                        <input type="number" class="form-control border-0" wire:model="lines.{{$key}}.column_number">
                                     </td>
                                     <td class="p-1 text-center align-middle">
                                         <button class="btn btn-danger btn-sm btn-block" wire:click.prevent="removeLine({{$key}})">
