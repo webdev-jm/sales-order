@@ -26,6 +26,8 @@ class AccountUploadTemplate extends Model
         'upload_template_id',
         'type',
         'start_row',
+        'breakpoint',
+        'breakpoint_col',
     ];
 
     public function account() {

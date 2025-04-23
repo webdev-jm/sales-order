@@ -83,6 +83,22 @@
                             <small class="text-danger">{{$errors->first('start_row')}}</small>
                         </div>
                     </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="breakpoint">Breakpoint (if multiple one in file)</label>
+                            <input type="text" class="form-control{{$errors->has('breakpoint') ? ' is-invalid' : ''}}" wire:model="breakpoint">
+                            <small class="text-danger">{{$errors->first('breakpoint')}}</small>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="breakpoint_col">Breakpoint Column</label>
+                            <input type="text" class="form-control{{$errors->has('breakpoint_col') ? ' is-invalid' : ''}}" wire:model="breakpoint_col">
+                            <small class="text-danger">{{$errors->first('breakpoint_col')}}</small>
+                        </div>
+                    </div>
                 </div>
 
                 @if(!empty($template_fields))
