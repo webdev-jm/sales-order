@@ -24,6 +24,7 @@ class TemplateList extends Component
     public $account_template;
 
     public $upload_template_id, $type, $start_row;
+    public $breakpoint, $breakpoint_col;
     public $account_template_fields = [];
 
     public function mount($account) {
@@ -44,6 +45,8 @@ class TemplateList extends Component
         $this->upload_template_id = $this->account_template->upload_template_id;
         $this->type = $this->account_template->type;
         $this->start_row = $this->account_template->start_row;
+        $this->breakpoint = $this->account_template->breakpoint;
+        $this->breakpoint_col = $this->account_template->breakpoint_col;
 
         $this->updatedUploadTemplateId();
 
@@ -83,6 +86,8 @@ class TemplateList extends Component
             'type' => ['required'],
             'start_row' => ['required'],
             'account_template_fields' => ['required'],
+            'breakpoint' => ['nullable', 'max:255'],
+            'breakpoint_col' => ['required_with:breakpoint', 'max:10'],
         ]);
 
         $template = $this->account_template ?? new AccountUploadTemplate([
@@ -93,6 +98,8 @@ class TemplateList extends Component
             'upload_template_id' => $this->upload_template_id,
             'type' => $this->type,
             'start_row' => $this->start_row,
+            'breakpoint' => $this->breakpoint,
+            'breakpoint_col' => $this->breakpoint_col,
         ])->save();
 
         // Handle field updates
@@ -103,7 +110,7 @@ class TemplateList extends Component
     }
 
     private function syncTemplateFields(AccountUploadTemplate $template) {
-        $template->account_template_fields()->delete(); // Just delete and recreate for simplicity
+        $template->account_template_fields()->forceDelete(); // Just delete and recreate for simplicity
 
         $number = 1;
         foreach ($this->account_template_fields as $upload_field_id => $val) {
@@ -124,6 +131,8 @@ class TemplateList extends Component
             'account_template_fields',
             'template_fields',
             'account_template',
+            'breakpoint',
+            'breakpoint_col',
         ]);
 
     }

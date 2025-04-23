@@ -19,6 +19,8 @@ class CreateAccountUploadTemplatesTable extends Migration
             $table->unsignedBigInteger('upload_template_id')->nullable();
             $table->string('type');
             $table->integer('start_row');
+            $table->string('breakpoint')->nullable();
+            $table->integer('breakpoint_col')->nullable();
             $table->timestamps();
 
             $table->foreign('account_id')
