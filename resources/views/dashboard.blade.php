@@ -24,6 +24,13 @@
 @endsection
 
 @section('content_header')
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">TESTING</h3>
+    </div>
+</div>
+
     <div class="row">
         <div class="col-lg-6">
             <h1>Dashboard</h1>
