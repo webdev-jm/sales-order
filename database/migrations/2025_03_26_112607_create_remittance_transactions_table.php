@@ -36,10 +36,6 @@ class CreateRemittanceTransactionsTable extends Migration
                 ->references('id')->on('remittance_reasons')
                 ->onDelete('cascade');
 
-            $table->foreign('invoice_id')
-                ->references('id')->on('invoices')
-                ->onDelete('cascade');
-
             $table->softDeletes();
         });
     }

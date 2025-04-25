@@ -133,7 +133,6 @@ class Upload extends Component
             } elseif($extension == 'xml') {
 
             }
-
             
         }
         
@@ -146,7 +145,7 @@ class Upload extends Component
         foreach($headers as $key => $header) {
             $assoc = [];
             foreach($header as $index => $val) {
-                if($index <= 2) {
+                if($index <= 3) {
                     for($i = 0; $i < count($val); $i += 2) {
                         $index_val = trim(str_replace(':', '', $val[$i]));
                         $value = isset($val[$i + 1]) ? trim($val[$i + 1]) : NULL;
@@ -157,6 +156,8 @@ class Upload extends Component
  
             $this->remittance_data[$key]['header'] = $assoc;
         }
+
+        dd($this->remittance_data);
 
         foreach($details as $key => $detail_arr) {
             $detail_data = [];
@@ -178,6 +179,10 @@ class Upload extends Component
 
             $this->remittance_data[$key]['details'] = $detail_data;
         }
+    }
+
+    public function saveRemittance() {
+
     }
 
 }
