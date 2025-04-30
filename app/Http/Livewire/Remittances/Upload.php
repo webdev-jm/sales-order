@@ -14,6 +14,9 @@ use Spatie\SimpleExcel\SimpleExcelReader;
 use App\Models\AccountUploadTemplate;
 use App\Models\UploadTemplate;
 
+use App\Helpers\AccountUploadHelper;
+
+
 class Upload extends Component
 {
     use WithFileUploads;
@@ -32,25 +35,12 @@ class Upload extends Component
     }
 
     public function mount() {
-        $this->upload_template = UploadTemplate::where('name', $this->template_name)
+        $upload_template = UploadTemplate::where('name', $this->template_name)
             ->first();
 
-        $this->account_template = AccountUploadTemplate::where('account_id', 285)
-            ->where('upload_template_id', $this->upload_template->id)
+        $this->account_template = AccountUploadTemplate::where('account_id', 9)
+            ->where('upload_template_id', $upload_template->id)
             ->first();
-
-            $this->account_template_fields = array();
-            if(!empty($this->account_template)) {
-                $this->account_template_fields = $this->account_template->account_template_fields->mapWithKeys(function($field) {
-                    return [
-                        $field->upload_template_field_id => [
-                            'number' => $field->number,
-                            'column_name' => $field->column_name,
-                            'column_number' => $field->column_number,
-                        ]
-                    ];
-                });
-            }
     }
 
     public function checkFile() {
@@ -139,46 +129,7 @@ class Upload extends Component
     }
 
     public function processData($remittance_data) {
-        $headers = $remittance_data['headers'];
-        $details = $remittance_data['details'];
-
-        foreach($headers as $key => $header) {
-            $assoc = [];
-            foreach($header as $index => $val) {
-                if($index <= 3) {
-                    for($i = 0; $i < count($val); $i += 2) {
-                        $index_val = trim(str_replace(':', '', $val[$i]));
-                        $value = isset($val[$i + 1]) ? trim($val[$i + 1]) : NULL;
-                        $assoc[$index_val] = $value;
-                    }
-                }
-            }
- 
-            $this->remittance_data[$key]['header'] = $assoc;
-        }
-
-        dd($this->remittance_data);
-
-        foreach($details as $key => $detail_arr) {
-            $detail_data = [];
-            foreach($detail_arr as $index => $detail) {
-                foreach($this->upload_template->template_fields as $template_field) {
-                    $column_name = $template_field->column_name;
-
-                    if($this->account_template->type == 'number') {
-                        $value = $detail[$this->account_template_fields[$template_field->id]['column_number']];
-                        $detail_data[$index][$column_name] = $value;
-                    } elseif($this->account_template->type == 'name') {
-                        $value = $detail[$this->account_template_fields[$template_field->id]['column_name']];
-                        $detail_data[$index][$column_name] = $value;
-                    }
-
-                }
-
-            }
-
-            $this->remittance_data[$key]['details'] = $detail_data;
-        }
+        $this->remittance_data = AccountUploadHelper::remittanceUploadData(9, $remittance_data);
     }
 
     public function saveRemittance() {
