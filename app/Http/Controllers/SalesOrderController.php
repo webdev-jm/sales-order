@@ -50,6 +50,8 @@ class SalesOrderController extends Controller
         $status = trim($request->get('status'));
         $order_date = trim($request->get('order-date'));
 
+        $this->checkSalesOrderStatus();
+
         $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
             ->whereHas('account_login', function($query) use($search) {
                 $query->when(!empty($search), function($qry) use($search) {
@@ -113,6 +115,9 @@ class SalesOrderController extends Controller
         $search = trim($request->get('search'));
         $date_from = trim($request->get('date_from'));
         $date_to = trim($request->get('date_to'));
+
+        $this->checkSalesOrderStatus();
+        
         if(isset($logged_account)) {
 
             Session::forget('order_data');
@@ -449,7 +454,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -476,7 +481,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -503,7 +508,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -780,7 +785,7 @@ class SalesOrderController extends Controller
                         'quantity' => $data['quantity'],
                         'uom_total' => $data['total'],
                         'uom_total_less_disc' => $data['discounted'],
-                        'warehouse' => $data['warehouse'],
+                        // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
                 }
@@ -1416,5 +1421,45 @@ class SalesOrderController extends Controller
         $account = $logged_account->account;
 
         return Excel::download(new SalesOrderExport($account, $date_from, $date_to, $search), 'sales-orders-'.time().'.xlsx');
+    }
+
+    public function checkSalesOrderStatus() {
+        $sales_orders = SalesOrder::where(function($query) {
+                $query->where('upload_status', '<>', 1)
+                    ->orWhereNull('upload_status');
+            })
+            ->where(function($query) {
+                $query->whereNull('reference')
+                    ->orWhere('reference', '');
+            })
+            ->get();
+
+        foreach($sales_orders as $sales_order) {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                'po_number' => $sales_order->po_number,
+                'company' => $sales_order->account_login->account->company->name
+            ])
+            ->get($this->url_link.'/so/sor_master');
+
+            if(!empty($response->json())) {
+                $so_data = $response->json()['data'];
+    
+                $so_arr = [];
+                foreach($so_data as $data) {
+                    $so_arr[] = ltrim($data['sales_order'], 0);
+                }
+                $reference = implode(', ', $so_arr);
+    
+                if(!empty($reference)) {
+                    $sales_order->update([
+                        'upload_status' => 1,
+                        'reference' => $reference ?? NULL
+                    ]);
+                }
+            }
+
+        }
+
     }
 }
