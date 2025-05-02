@@ -1,4 +1,4 @@
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/kojiesanadmin/public_html/sales-order-test.bevi.ph
+    - export DEPLOYPATH=/home/kojiesanadmin/public_html/sales-order.bevi.ph
     - rsync -av --exclude='.git' --exclude='.cpanel.yml' ./ $DEPLOYPATH

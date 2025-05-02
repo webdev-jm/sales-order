@@ -27,6 +27,12 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">REMITTANCE DETAILS</h3>
+                    <div class="card-tools">
+                        <button class="btn btn-success btn-sm">
+                            <i class="fa fa-save"></i>
+                            SAVE
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     
