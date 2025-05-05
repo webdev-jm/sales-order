@@ -1224,7 +1224,7 @@ class SalesOrderController extends Controller
                 $ftp->put('BEVI/Incoming/SalesOrder/'.$filename, $xml);
             } else if($sales_order->account_login->account->company->name == 'BEVA') {
                 $ftp = Storage::disk('ftp_beva');
-                $ftp->put('BEVA/Incoming/SalesOrder/'.$filename, $xml);
+                $ftp->put('BEVA/Incoming/SasOrder/'.$filename, $xml);
             }
         }
 
@@ -1424,14 +1424,12 @@ class SalesOrderController extends Controller
     }
 
     public function checkSalesOrderStatus() {
-        $sales_orders = SalesOrder::where(function($query) {
-                $query->where('upload_status', '<>', 1)
-                    ->orWhereNull('upload_status');
-            })
+        $sales_orders = SalesOrder::whereNull('upload_status')
             ->where(function($query) {
                 $query->whereNull('reference')
                     ->orWhere('reference', '');
             })
+            ->where('status', 'finalized')
             ->get();
 
         foreach($sales_orders as $sales_order) {

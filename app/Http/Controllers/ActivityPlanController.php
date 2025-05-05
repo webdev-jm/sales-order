@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+use Illuminate\Support\Facades\Log;
+
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ActivityPlanSubmitted;
 
@@ -295,7 +297,11 @@ class ActivityPlanController extends Controller
 
                 if(!empty($users)) {
                     foreach($users as $user) {
-                        Notification::send($user, new ActivityPlanSubmitted($activity_plan));
+                        try {
+                            Notification::send($user, new ActivityPlanSubmitted($activity_plan));
+                        } catch(\Exception $e) {
+                            Log::error("Bulk notification failed: " . $e->getMessage());
+                        }
                     }
                 }
 
@@ -774,7 +780,11 @@ class ActivityPlanController extends Controller
                     
                     if(!empty($users)) {
                         foreach($users as $user) {
-                            Notification::send($user, new ActivityPlanSubmitted($activity_plan));
+                            try {
+                                Notification::send($user, new ActivityPlanSubmitted($activity_plan));
+                            } catch(\Exception $e) {
+                                Log::error('Notification failed: '.$e->getMessage());
+                            }
                         }
                     }
 
