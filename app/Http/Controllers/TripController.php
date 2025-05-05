@@ -7,6 +7,8 @@ use App\Http\Traits\GlobalTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\Log;
+
 use App\Models\User;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
@@ -473,18 +475,30 @@ class TripController extends Controller
         
         // for revision
         if($trip->status == 'for revision') {
-            Notification::send($user, new TripForRevision($trip));
+            try {
+                Notification::send($user, new TripForRevision($trip));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
         // approved by imm. superior
         if($trip->status == 'approved by imm. superior') {
-            Notification::send($user, new TripApprovedSuperior($trip));
-            if(!empty($admin)) {
-                Notification::send($admin, new TripApprovedSuperior($trip));
+            try {
+                Notification::send($user, new TripApprovedSuperior($trip));
+                if(!empty($admin)) {
+                    Notification::send($admin, new TripApprovedSuperior($trip));
+                }
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
             }
         }
         // returned
         if($trip->status == 'returned') {
-            Notification::send($trip->user, new TripReturned($trip));
+            try {
+                Notification::send($trip->user, new TripReturned($trip));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
         // for approval
         if($trip->status == 'for approval') {
@@ -502,36 +516,49 @@ class TripController extends Controller
 
             foreach($users as $user) {
                 if($user->id != auth()->user()->id) {
-                    Notification::send($user, new TripForApproval($trip));
+                    try {
+                        Notification::send($user, new TripForApproval($trip));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
         }
         // approved by finance
         if($trip->status == 'approved by finance') {
-            Notification::send($user, new TripApproved($trip));
-            if(!empty($admin)) {
-                Notification::send($admin, new TripApproved($trip));
-            }
-            if(!empty($supervisor_ids)) {
-                foreach($supervisor_ids as $user_id) {
-                    $superior = User::findOrFail($user_id);
-                    if(!empty($superior)) {
-                        Notification::send($superior, new TripApproved($trip));
+            try {
+                Notification::send($user, new TripApproved($trip));
+                if(!empty($admin)) {
+                    Notification::send($admin, new TripApproved($trip));
+                }
+                if(!empty($supervisor_ids)) {
+                    foreach($supervisor_ids as $user_id) {
+                        $superior = User::findOrFail($user_id);
+                        if(!empty($superior)) {
+                            Notification::send($superior, new TripApproved($trip));
+                        }
                     }
                 }
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
             }
+            
         }
         // rejected by finance
         if($trip->status == 'rejected by finance') {
-            Notification::send($user, new TripRejected($trip));
-            if(!empty($admin)) {
-                Notification::send($admin, new TripRejected($trip));
-            }
-            if(!empty($supervisor_ids)) {
-                foreach($supervisor_ids as $user_id) {
-                    $superior = User::findOrFail($user_id);
-                    Notification::send($superior, new TripRejected($trip));
+            try {
+                Notification::send($user, new TripRejected($trip));
+                if(!empty($admin)) {
+                    Notification::send($admin, new TripRejected($trip));
                 }
+                if(!empty($supervisor_ids)) {
+                    foreach($supervisor_ids as $user_id) {
+                        $superior = User::findOrFail($user_id);
+                        Notification::send($superior, new TripRejected($trip));
+                    }
+                }
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
             }
         }
         // cancelled
@@ -551,7 +578,11 @@ class TripController extends Controller
 
             foreach($users as $user) {
                 if($user->id != auth()->user()->id) {
-                    Notification::send($user, new TripCancelled($trip));
+                    try {
+                        Notification::send($user, new TripCancelled($trip));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
         }
@@ -614,7 +645,12 @@ class TripController extends Controller
             ->log(':causer.firstname :causer.lastname has approved trip [ :subject.trip_number ].');
 
         // notifications
-        Notification::send($user, new TripApproved($trip));
+        try {
+            Notification::send($user, new TripApproved($trip));
+        } catch(\Exception $e) {
+            Log::error('Notification failed: '.$e->getMessage());
+        }
+        
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been approved.'
@@ -654,7 +690,11 @@ class TripController extends Controller
             ->log(':causer.firstname :causer.lastname has rejected trip [ :subject.trip_number ].');
 
         // notifications
-        Notification::send($user, new TripRejected($trip));
+        try {
+            Notification::send($user, new TripRejected($trip));
+        } catch(\Exception $e) {
+            Log::error('Notification failed: '.$e->getMessage());
+        }
         
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been rejected.'

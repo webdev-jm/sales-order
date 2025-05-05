@@ -30,6 +30,7 @@ use App\Notifications\WeeklyActivityReportApproved;
 use App\Notifications\WeeklyActivityReportRejected;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class WeeklyActivityReportController extends Controller
 {
@@ -239,7 +240,11 @@ class WeeklyActivityReportController extends Controller
             if(!empty($supervisor_id)) {
                 $user = User::find($supervisor_id);
                 if(!empty($user)) {
-                    Notification::send($user, new WeeklyActivityReportSubmitted($war));
+                    try {
+                        Notification::send($user, new WeeklyActivityReportSubmitted($war));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
 
@@ -443,7 +448,11 @@ class WeeklyActivityReportController extends Controller
             if(!empty($supervisor_id)) {
                 $user = User::find($supervisor_id);
                 if(!empty($user)) {
-                    Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
+                    try {
+                        Notification::send($user, new WeeklyActivityReportSubmitted($weekly_activity_report));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
 
@@ -530,11 +539,20 @@ class WeeklyActivityReportController extends Controller
 
         // notification
         if($request->status == 'approved') {
-            $user = $war->user;
-            Notification::send($user, new WeeklyActivityReportApproved($war));
+            try {
+                $user = $war->user;
+                Notification::send($user, new WeeklyActivityReportApproved($war));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
+            
         } else {
-            $user = $war->user;
-            Notification::send($user, new WeeklyActivityReportRejected($war));
+            try {
+                $user = $war->user;
+                Notification::send($user, new WeeklyActivityReportRejected($war));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return back()->with([
