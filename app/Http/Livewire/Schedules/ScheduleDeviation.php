@@ -18,6 +18,8 @@ use App\Notifications\DeviationSubmitted;
 
 use App\Http\Traits\ReminderTrait;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleDeviation extends Component
 {
     use ReminderTrait;
@@ -117,7 +119,11 @@ class ScheduleDeviation extends Component
             if(auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
                 if(!empty($user)) {
-                    Notification::send($user, new DeviationSubmitted($deviation));
+                    try {
+                        Notification::send($user, new DeviationSubmitted($deviation));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
 

@@ -1221,10 +1221,10 @@ class SalesOrderController extends Controller
             // change connection for each accounts
             if($sales_order->account_login->account->company->name == 'BEVI') {
                 $ftp = Storage::disk('ftp_bevi');
-                $ftp->put('BEVI/Incoming/SalesOrder/'.$filename, $xml);
+                $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
             } else if($sales_order->account_login->account->company->name == 'BEVA') {
                 $ftp = Storage::disk('ftp_beva');
-                $ftp->put('BEVA/Incoming/SasOrder/'.$filename, $xml);
+                $ftp->put('BEVA-test/Incoming/SasOrder/'.$filename, $xml);
             }
         }
 

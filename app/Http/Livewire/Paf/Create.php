@@ -21,6 +21,8 @@ use App\Notifications\PafSubmitted;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Session;
 
+use Illuminate\support\Facades\Log;
+
 class Create extends Component
 {
     use WithFileUploads;
@@ -132,7 +134,11 @@ class Create extends Component
             if(!empty($superior_id)) {
                 $user = User::findOrFail($superior_id);
                 if(!empty($user)) {
-                    Notification::send($user, new PafSubmitted($paf));
+                    try {
+                        Notification::send($user, new PafSubmitted($paf));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
         }

@@ -13,6 +13,8 @@ use App\Models\UserBranchScheduleApproval;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\ScheduleAddRequest;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleAdd extends Component
 {
     use WithPagination;
@@ -77,7 +79,11 @@ class ScheduleAdd extends Component
             if(auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
                 if(!empty($user)) {
-                    Notification::send($user, new ScheduleAddRequest($schedule));
+                    try {
+                        Notification::send($user, new ScheduleAddRequest($schedule));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
         }

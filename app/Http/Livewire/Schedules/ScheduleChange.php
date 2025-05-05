@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ScheduleRescheduleApproved;
 use App\Notifications\ScheduleRescheduleRejected;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleChange extends Component
 {
     use WithPagination;
@@ -57,7 +59,11 @@ class ScheduleChange extends Component
         $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
         $user = $delete_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleRescheduleApproved($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleRescheduleApproved($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));
@@ -89,7 +95,11 @@ class ScheduleChange extends Component
         $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
         $user = $delete_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleRescheduleRejected($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleRescheduleRejected($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));

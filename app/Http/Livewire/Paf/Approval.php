@@ -8,6 +8,8 @@ use App\Models\Paf;
 use App\Models\Brand;
 use App\Models\PafApproval;
 
+use Illuminate\Support\Facades\Log;
+
 class Approval extends Component
 {
     public $action, $paf;
@@ -61,7 +63,11 @@ class Approval extends Component
             }
             // send notification
             foreach($users as $user) {
-                Notification::send($user, new PafApproved($this->paf));
+                try {
+                    Notification::send($user, new PafApproved($this->paf));
+                } catch(\Exception $e) {
+                    Log::error('Notification failed: '.$e->getMessage());
+                }
             }
         }
 

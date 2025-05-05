@@ -21,6 +21,8 @@ use App\Notifications\TripSubmitted;
 
 use App\Models\Reminders;
 
+use Illuminate\Support\Facades\Log;
+
 class Approval extends Component
 {
     public $action, $activity_plan, $remarks;
@@ -85,7 +87,11 @@ class Approval extends Component
                         }
 
                         if(!empty($detail->trip->user)) {
-                            Notification::send($detail->trip->user, new TripForRevision($detail->trip));
+                            try {
+                                Notification::send($detail->trip->user, new TripForRevision($detail->trip));
+                            } catch(\Exception $e) {
+                                Log::error('Notification failed: '.$e->getMessage());
+                            }
                         }
                     } else {
                         $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)->first();
@@ -99,7 +105,11 @@ class Approval extends Component
             }
 
             if(!empty($user)) {
-                Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
+                try {
+                    Notification::send($user, new ActivityPlanRejected($this->activity_plan, $approval));
+                } catch(\Exception $e) {
+                    Log::error('Notification failed: '.$e->getMessage());
+                }
             }
         } else if($status == 'approved') { // approved
 
@@ -157,18 +167,27 @@ class Approval extends Component
                         }
 
                         // notify department admin
-                        $admin = $detail->trip->user->department->department_admin ?? NULL;
-                        Notification::send($detail->trip->user, new TripApprovedSuperior($detail->trip));
-                        if(!empty($admin)) {
-                            Notification::send($admin, new TripApprovedSuperior($detail->trip));
+                        try {
+                            $admin = $detail->trip->user->department->department_admin ?? NULL;
+                            Notification::send($detail->trip->user, new TripApprovedSuperior($detail->trip));
+                            if(!empty($admin)) {
+                                Notification::send($admin, new TripApprovedSuperior($detail->trip));
+                            }
+                        } catch(\Exception $e) {
+                            Log::error('Notification failed: '.$e->getMessage());
                         }
+                        
                     }
 
                 }
             }
 
             if(!empty($user)) {
-                Notification::send($user, new ActivityPlanApproved($this->activity_plan, $approval));
+                try {
+                    Notification::send($user, new ActivityPlanApproved($this->activity_plan, $approval));
+                } catch(\Exception $e) {
+                    Log::error('Notification failed: '.$e->getMessage());
+                }
             }
         }
 

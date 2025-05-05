@@ -21,6 +21,8 @@ use App\Notifications\ScheduleDeleteRequest;
 use App\Notifications\ScheduleRescheduleRequest;
 use App\Notifications\TripSubmitted;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleEvent extends Component
 {
     use WithPagination;
@@ -254,7 +256,11 @@ class ScheduleEvent extends Component
             if(auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
                 if(!empty($user)) {
-                    Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
+                    try {
+                        Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
 

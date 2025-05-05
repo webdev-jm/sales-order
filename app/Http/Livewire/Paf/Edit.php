@@ -14,6 +14,7 @@ use App\Models\Product;
 use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class Edit extends Component
 {
@@ -120,7 +121,11 @@ class Edit extends Component
             if(!empty($superior_id)) {
                 $user = User::findOrFail($superior_id);
                 if(!empty($user)) {
-                    Notification::send($user, new PafSubmitted($this->paf));
+                    try {
+                        Notification::send($user, new PafSubmitted($this->paf));
+                    } catch(\Exception $e) {
+                        Log::error('Notification failed: '.$e->getMessage());
+                    }
                 }
             }
         }
