@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ScheduleDeleteApproved;
 use App\Notifications\ScheduleDeleteRejected;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleDelete extends Component
 {
 
@@ -48,7 +50,11 @@ class ScheduleDelete extends Component
         $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();
         $user = $delete_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleDeleteApproved($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleDeleteApproved($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));
@@ -80,7 +86,11 @@ class ScheduleDelete extends Component
         $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();
         $user = $delete_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleDeleteRejected($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleDeleteRejected($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));

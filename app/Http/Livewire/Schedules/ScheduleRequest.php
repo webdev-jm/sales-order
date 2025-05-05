@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\ScheduleRequestRejected;
 use App\Notifications\ScheduleRequestApproved;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleRequest extends Component
 {
     use WithPagination;
@@ -40,7 +42,11 @@ class ScheduleRequest extends Component
         $schedule_request = $this->schedule_data->approvals()->where('status', 'schedule request')->orderBy('id', 'DESC')->first();
         $user = $schedule_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleRequestApproved($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleRequestApproved($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));
@@ -67,7 +73,11 @@ class ScheduleRequest extends Component
         $schedule_request = $this->schedule_data->approvals()->where('status', 'schedule request')->orderBy('id', 'DESC')->first();
         $user = $schedule_request->user;
         if(!empty($user)) {
-            Notification::send($user, new ScheduleRequestRejected($this->schedule_data));
+            try {
+                Notification::send($user, new ScheduleRequestRejected($this->schedule_data));
+            } catch(\Exception $e) {
+                Log::error('Notification failed: '.$e->getMessage());
+            }
         }
 
         return redirect(request()->header('Referer'));

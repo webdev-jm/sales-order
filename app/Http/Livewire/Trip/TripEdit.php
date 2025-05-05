@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use App\Notifications\TripSubmitted;
 
+use Illuminate\Support\Facades\Log;
+
 use Carbon\Carbon;
 
 class TripEdit extends Component
@@ -260,14 +262,22 @@ class TripEdit extends Component
                         foreach($superior_ids as $user_id) {
                             $superior = User::find($user_id);
                             if(!empty($superior)) {
-                                Notification::send($superior, new TripSubmitted($this->trip));
+                                try {
+                                    Notification::send($superior, new TripSubmitted($this->trip));
+                                } catch(\Exception $e) {
+                                    Log::error('Notification failed: '.$e->getMessage());
+                                }
                             }
                         }
                     }
                 } else { // if not in sales department notify admin
                     $admin = $department->department_admin;
                     if(!empty($admin) && $admin->id != auth()->user()->id) {
-                        Notification::send($admin, new TripSubmitted($this->trip));
+                        try {
+                            Notification::send($admin, new TripSubmitted($this->trip));
+                        } catch(\Exception $e) {
+                            Log::error('Notification failed: '.$e->getMessage());
+                        }
                     }
                 }
             }

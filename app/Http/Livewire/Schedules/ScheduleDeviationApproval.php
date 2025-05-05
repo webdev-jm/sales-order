@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\DeviationApproved;
 use App\Notifications\DeviationRejected;
 
+use Illuminate\Support\Facades\Log;
+
 class ScheduleDeviationApproval extends Component
 {
     use WithPagination;
@@ -85,8 +87,12 @@ class ScheduleDeviationApproval extends Component
         ->log(':causer.firstname :causer.lastname has approved schedule deviation :subject.reason_for_deviation');
 
         // notifications
-        $user = $this->deviation->user;
-        Notification::send($user, new DeviationApproved($this->deviation));
+        try {
+            $user = $this->deviation->user;
+            Notification::send($user, new DeviationApproved($this->deviation));
+        } catch(\Exception $e) {
+            Log::error('Notification failed: '.$e->getMessage());
+        }
 
         // update reminders
         $this->deviation->reminders()->whereNull('status')->update([
@@ -128,8 +134,12 @@ class ScheduleDeviationApproval extends Component
         ->log(':causer.firstname :causer.lastname has rejected schedule deviation :subject.reason_for_deviation');
 
         // notifications
-        $user = $this->deviation->user;
-        Notification::send($user, new DeviationRejected($this->deviation));
+        try {
+            $user = $this->deviation->user;
+            Notification::send($user, new DeviationRejected($this->deviation));
+        } catch(\Exception $e) {
+            Log::error('Notification failed: '.$e->getMessage());
+        }
 
         // update reminders
         $this->deviation->reminders()->whereNull('status')->update([
