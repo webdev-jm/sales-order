@@ -28,6 +28,8 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use Illuminate\Support\Facades\Http;
 
+use Carbon\Carbon;
+
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
 ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
@@ -50,7 +52,7 @@ class SalesOrderController extends Controller
         $status = trim($request->get('status'));
         $order_date = trim($request->get('order-date'));
 
-        $this->checkSalesOrderStatus();
+        // $this->checkSalesOrderStatus();
 
         $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
             ->whereHas('account_login', function($query) use($search) {
@@ -1224,7 +1226,7 @@ class SalesOrderController extends Controller
                 $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
             } else if($sales_order->account_login->account->company->name == 'BEVA') {
                 $ftp = Storage::disk('ftp_beva');
-                $ftp->put('BEVA-test/Incoming/SasOrder/'.$filename, $xml);
+                $ftp->put('BEVA-test/Incoming/SalesOrder/'.$filename, $xml);
             }
         }
 
@@ -1430,6 +1432,10 @@ class SalesOrderController extends Controller
                     ->orWhere('reference', '');
             })
             ->where('status', 'finalized')
+            ->whereBetween('order_date', [
+                Carbon::now()->subDays(3)->startOfDay(),
+                Carbon::now()->endOfDay()
+            ])
             ->get();
 
         foreach($sales_orders as $sales_order) {

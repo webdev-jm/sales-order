@@ -79,37 +79,39 @@ class SalesOrderTotal extends Component
     private function uomQuantityAllocation($quantity, $product_id, $uom) {
         $data = [];
 
-        $product = Product::findOrFail($product_id);
+        // $product = Product::findOrFail($product_id);
 
-        // Identify which UOM is 'CS'
-        $cs_uom = null;
-        if ($product->stock_uom == 'CS') {
-            $cs_uom = 'stock_uom';
-        } elseif ($product->order_uom == 'CS') {
-            $cs_uom = 'order_uom';
-        } elseif ($product->other_uom == 'CS') {
-            $cs_uom = 'other_uom';
-        }
+        // // Identify which UOM is 'CS'
+        // $cs_uom = null;
+        // if ($product->stock_uom == 'CS') {
+        //     $cs_uom = 'stock_uom';
+        // } elseif ($product->order_uom == 'CS') {
+        //     $cs_uom = 'order_uom';
+        // } elseif ($product->other_uom == 'CS') {
+        //     $cs_uom = 'other_uom';
+        // }
 
-        if($uom !== 'CS' && !empty($cs_uom)) {
-            $cs_quantity = $this->quantityConversion($quantity, $product->{$cs_uom.'_conversion'}, $product->{$cs_uom.'_operator'}, true);
+        // if($uom !== 'CS' && !empty($cs_uom)) {
+        //     $cs_quantity = $this->quantityConversion($quantity, $product->{$cs_uom.'_conversion'}, $product->{$cs_uom.'_operator'}, true);
 
-            // Extract decimal part if exists
-            $decimal_quantity = $cs_quantity - floor($cs_quantity);
-            if ($decimal_quantity > 0) {
-                $qty = $this->quantityConversion(
-                    $decimal_quantity, 
-                    $product->{$cs_uom . '_conversion'}, 
-                    $product->{$cs_uom . '_operator'}, 
-                    false
-                );
-                $data[$uom] = (int) floor($qty);
-            }
+        //     // Extract decimal part if exists
+        //     $decimal_quantity = $cs_quantity - floor($cs_quantity);
+        //     if ($decimal_quantity > 0) {
+        //         $qty = $this->quantityConversion(
+        //             $decimal_quantity, 
+        //             $product->{$cs_uom . '_conversion'}, 
+        //             $product->{$cs_uom . '_operator'}, 
+        //             false
+        //         );
+        //         $data[$uom] = (int) floor($qty);
+        //     }
 
-            $data['CS'] = (int) floor($cs_quantity);
-        } else {
-            $data[$uom] = $quantity;
-        }
+        //     $data['CS'] = (int) floor($cs_quantity);
+        // } else {
+        //     $data[$uom] = $quantity;
+        // }
+
+        $data[$uom] = $quantity;
 
         return $data;
     }
