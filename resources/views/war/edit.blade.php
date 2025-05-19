@@ -34,6 +34,9 @@
         color: black;
         text-align: center;
     }
+    .logo {
+        max-width: 100px;
+    }
 </style>
 @endsection
 

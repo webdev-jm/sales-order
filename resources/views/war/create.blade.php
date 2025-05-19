@@ -34,6 +34,9 @@
     .bg-editable {
         background-color: rgb(242, 253, 255);
     }
+    .logo {
+        max-width: 100px;
+    }
 </style>
 @endsection
 
