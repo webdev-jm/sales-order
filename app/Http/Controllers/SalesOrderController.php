@@ -52,48 +52,56 @@ class SalesOrderController extends Controller
         $status = trim($request->get('status'));
         $order_date = trim($request->get('order-date'));
 
-        // $this->checkSalesOrderStatus();
+        $sales_orders = SalesOrder::query()
+            ->orderByDesc('control_number')
+            // Filter by related account or user using search
+            ->when(!empty($search), function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    // Search on SalesOrder fields
+                    $q->where('control_number', 'like', "%{$search}%")
+                        ->orWhere('po_number', 'like', "%{$search}%")
+                        ->orWhere('order_date', 'like', "%{$search}%")
+                        ->orWhere('ship_date', 'like', "%{$search}%")
+                        ->orWhere('ship_to_name', 'like', "%{$search}%")
+                        ->orWhere('status', 'like', "%{$search}%")
+                        ->orWhere('reference', 'like', "%{$search}%");
 
-        $sales_orders = SalesOrder::orderBy('control_number', 'DESC')
-            ->whereHas('account_login', function($query) use($search) {
-                $query->when(!empty($search), function($qry) use($search) {
-                    $qry->whereHas('account', function($qry1) use($search) {
-                        $qry1->where('account_code', 'like', '%'.$search.'%')
-                        ->orWhere('short_name', 'like', '%'.$search.'%');
-                    })->orWhereHas('user', function($qry1) use ($search) {
-                        $qry1->where('firstname', 'like', '%'.$search.'%')
-                        ->orWhere('lastname', 'like', '%'.$search.'%');
+                    // Search on related account/user
+                    $q->orWhereHas('account_login.account', function ($subQ) use ($search) {
+                        $subQ->where('account_code', 'like', "%{$search}%")
+                            ->orWhere('short_name', 'like', "%{$search}%");
+                    })->orWhereHas('account_login.user', function ($subQ) use ($search) {
+                        $subQ->where('firstname', 'like', "%{$search}%")
+                            ->orWhere('lastname', 'like', "%{$search}%");
                     });
-                })
-                ->when(!auth()->user()->hasRole('superadmin'), function($query) {
-                    $user_account_ids = auth()->user()->accounts()->pluck('id')->toArray();
-                    $query->whereIn('account_id', $user_account_ids);
                 });
             })
-            ->when(!empty($search), function($query) use($search) {
-                $query->where(function($qry) use ($search) {
-                    $qry->where('control_number', 'like', '%'.$search.'%')
-                        ->orWhere('po_number', 'like', '%'.$search.'%')
-                        ->orWhere('order_date', 'like', '%'.$search.'%')
-                        ->orWhere('ship_date', 'like', '%'.$search.'%')
-                        ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-                        ->orWhere('status', 'like', '%'.$search.'%')
-                        ->orWhere('reference', 'like', '%'.$search.'%');
-                });
+            // Filter by order date
+            ->when(!empty($order_date), function ($query) use ($order_date) {
+                $query->whereDate('order_date', $order_date);
             })
-            ->when(!empty($status), function($query) use($status) {
-                if($status == 'uploaded') {
+            // Filter by upload or order status
+            ->when(!empty($status), function ($query) use ($status) {
+                if ($status === 'uploaded') {
                     $query->where('upload_status', 1);
-                } else if($status == 'upload_error') {
+                } elseif ($status === 'upload_error') {
                     $query->where('upload_status', 0);
                 } else {
                     $query->where('status', $status)->whereNull('upload_status');
                 }
             })
-            ->when(!empty($order_date), function($query) use($order_date) {
-                $query->where('order_date', $order_date);
+            // Filter by authenticated user's related accounts (if not superadmin)
+            ->when(!auth()->user()->hasRole('superadmin'), function ($query) {
+                $accountIds = auth()->user()->accounts()->pluck('id');
+                $query->whereHas('account_login', function ($q) use ($accountIds) {
+                    $q->whereIn('account_id', $accountIds);
+                });
             })
-            ->paginate($this->setting->data_per_page)->onEachSide(1)->appends(request()->query());
+            // Optional eager loading to reduce N+1 issues
+            ->with(['account_login.account', 'account_login.user'])
+            ->paginate($this->setting->data_per_page)
+            ->onEachSide(1)
+            ->appends(request()->query());
 
         return view('sales-orders.list')->with([
             'search' => $search,
@@ -118,7 +126,7 @@ class SalesOrderController extends Controller
         $date_from = trim($request->get('date_from'));
         $date_to = trim($request->get('date_to'));
 
-        $this->checkSalesOrderStatus();
+        // $this->checkSalesOrderStatus();
         
         if(isset($logged_account)) {
 
@@ -170,6 +178,33 @@ class SalesOrderController extends Controller
         
     }
 
+    private function generateControlNumber() {
+        $date_code = date('Ymd');
+
+        do {
+            $control_number = 'SO-'.$date_code.'-001';
+            // get the most recent sales order
+            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')
+                ->first();
+            if(!empty($sales_order)) {
+                $latest_control_number = $sales_order->control_number;
+                list(, $prev_date, $last_number) = explode('-', $latest_control_number);
+
+                // Increment the number based on the date
+                $number = ($date_code == $prev_date) ? ((int)$last_number + 1) : 1;
+
+                // Format the number with leading zeros
+                $formatted_number = str_pad($number, 3, '0', STR_PAD_LEFT);
+
+                // Construct the new control number
+                $control_number = "SO-$date_code-$formatted_number";
+            }
+
+        } while(SalesOrder::withTrashed()->where('control_number', $control_number)->exists());
+
+        return $control_number;
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -183,28 +218,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $date_code = date('Ymd', time());
-        $control_number = 'SO-'.$date_code.'-001';
-        $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
-        if(!empty($sales_order)) {
-            // increment control number
-            $control_number_arr = explode('-', $sales_order->control_number);
-            $last = end($control_number_arr);
-            array_pop($control_number_arr);
-            $prev_date = end($control_number_arr);
-            array_pop($control_number_arr);
-            if($date_code == $prev_date) { // same day increment number
-                $number = (int)$last + 1;
-            } else { // reset on different day
-                $number = 1;
-            }
-            for($i = strlen($number);$i <= 2; $i++) {
-                $number = '0'.$number;
-            }
-            array_push($control_number_arr, $date_code);
-            array_push($control_number_arr, $number);
-            $control_number = implode('-', $control_number_arr);
-        }
+        $control_number = $this->generateControlNumber();
         
         $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
@@ -220,28 +234,7 @@ class SalesOrderController extends Controller
 
     // resubmit sales order
     public function resubmit($id) {
-        $date_code = date('Ymd', time());
-        $control_number = 'SO-'.$date_code.'-001';
-        $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
-        if(!empty($sales_order)) {
-            // increment control number
-            $control_number_arr = explode('-', $sales_order->control_number);
-            $last = end($control_number_arr);
-            array_pop($control_number_arr);
-            $prev_date = end($control_number_arr);
-            array_pop($control_number_arr);
-            if($date_code == $prev_date) { // same day increment number
-                $number = (int)$last + 1;
-            } else { // reset on different day
-                $number = 1;
-            }
-            for($i = strlen($number);$i <= 2; $i++) {
-                $number = '0'.$number;
-            }
-            array_push($control_number_arr, $date_code);
-            array_push($control_number_arr, $number);
-            $control_number = implode('-', $control_number_arr);
-        }
+        $control_number = $this->generateControlNumber();
 
         $sales_order = SalesOrder::findOrFail($id);
         // change status to cancelled
@@ -309,32 +302,7 @@ class SalesOrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(StoreSalesOrderRequest $request) {
-        // check
-        $check = SalesOrder::where('control_number', $request->control_number)->first();
-        if(!empty($check)) {
-            $date_code = date('Ymd', time());
-            $control_number = $request->control_number;
-            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
-            if(!empty($sales_order)) {
-                // increment control number
-                $control_number_arr = explode('-', $sales_order->control_number);
-                $last = end($control_number_arr);
-                array_pop($control_number_arr);
-                $prev_date = end($control_number_arr);
-                array_pop($control_number_arr);
-                if($date_code == $prev_date) { // same day increment number
-                    $number = (int)$last + 1;
-                } else { // reset on different day
-                    $number = 1;
-                }
-                for($i = strlen($number);$i <= 2; $i++) {
-                    $number = '0'.$number;
-                }
-                array_push($control_number_arr, $date_code);
-                array_push($control_number_arr, $number);
-                $request->control_number = implode('-', $control_number_arr);
-            }
-        }
+        $request->control_number = $this->generateControlNumber();
 
         $logged_account = Session::get('logged_account');
         $account = $logged_account->account;
@@ -518,7 +486,7 @@ class SalesOrderController extends Controller
         }
 
         if($sales_order->status == 'finalized') {
-            $this->generateXml($sales_order);
+            // $this->generateXml($sales_order);
         }
 
         // logs
@@ -807,7 +775,7 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         } else {
-            $this->generateXml($sales_order);
+            // $this->generateXml($sales_order);
 
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
