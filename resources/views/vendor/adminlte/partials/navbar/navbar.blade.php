@@ -21,13 +21,19 @@
         </li> --}}
 
         @if(!empty(auth()->user()) && auth()->user()->hasRole('superadmin'))
+            <li class="nav-item">
+                <a href="#" class="nav-link" id="btn-online-users">
+                    <i class="far fa-user"></i>
+                    <span class="navbar-badge"><i class="fa fa-circle text-success"></i></span>
+                </a>
+            </li>
+        @endif
+
         <li class="nav-item">
-            <a href="#" class="nav-link" id="btn-online-users">
-                <i class="far fa-user"></i>
-                <span class="navbar-badge"><i class="fa fa-circle text-success"></i></span>
+            <a href="#" class="nav-link">
+                <strong>{{session('db_connection') == 'mysql' ? 'LIVE' : 'TEST'}} DB</strong>
             </a>
         </li>
-        @endif
         
     </ul>
 
