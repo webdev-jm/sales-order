@@ -26,9 +26,6 @@ class StoreProductRequest extends FormRequest
     public function rules()
     {
         return [
-            'brand_id' => [
-                'required',
-            ],
             'stock_code' => [
                 'required', Rule::unique((new Product)->getTable())
             ],

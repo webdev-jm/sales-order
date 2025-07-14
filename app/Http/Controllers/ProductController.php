@@ -82,7 +82,7 @@ class ProductController extends Controller
         $special_product = $request->special_product ?? false;
 
         $product = new Product([
-            'brand_id' => $request->brand_id,
+            'brand_id' => $request->brand_id ?? NULL,
             'stock_code' => $request->stock_code,
             'description' => $request->description,
             'size' => $request->size,
@@ -164,7 +164,7 @@ class ProductController extends Controller
         $special_product = $request->special_product ?? false;
 
         $product->update([
-            'brand_id' => $request->brand_id,
+            'brand_id' => $request->brand_id ?? NULL,
             'stock_code' => $request->stock_code,
             'description' => $request->description,
             'size' => $request->size,

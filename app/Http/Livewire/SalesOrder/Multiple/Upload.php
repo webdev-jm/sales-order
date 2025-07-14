@@ -259,7 +259,7 @@ class Upload extends Component
             $total_sales = 0;
             $part = 1;
             foreach($data['lines'] as $item) {
-                $num++;
+                // $num++;
 
                 // divide by parts
                 if($num > $curr_limit) {

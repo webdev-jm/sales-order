@@ -396,7 +396,7 @@ class SalesOrderController extends Controller
             } else if(in_array($product_id, $sku_ks_restrictions)) { // separate KS01046
                 $ks_1046_data[$product_id] = $items;
             } else {
-                $num++;
+                // $num++;
                 // divide by parts
                 if($num > $curr_limit) {
                     $curr_limit += $limit;
@@ -673,7 +673,7 @@ class SalesOrderController extends Controller
                 $ks_1046_data[$product_id] = $items;
             } else {
 
-                $num++;
+                // $num++;
                 // divide by parts
                 if($num > $curr_limit) {
                     $curr_limit += $limit;
@@ -1113,60 +1113,86 @@ class SalesOrderController extends Controller
         return $orders;
     }
 
-    private function quantityConversion($quantity, $conversion, $operator, $reverse = false) {
-        if($operator == 'M') { // mutiply
-            if($reverse) {
+    private function quantityConversion($quantity, $conversion, $operator, $reverse = false)
+    {
+        // Avoid division by zero
+        if ($conversion == 0) {
+            return (float) $quantity;
+        }
+
+        if ($operator == 'M') { // multiply
+            if ($reverse) {
                 return $quantity / $conversion;
             } else {
                 return $quantity * $conversion;
             }
-        } elseif($operator == 'D') { // divide
-            if($reverse) {
+        } elseif ($operator == 'D') { // divide
+            if ($reverse) {
                 return $quantity * $conversion;
             } else {
                 return $quantity / $conversion;
             }
         }
 
-        return $quantity;
+        return (float) $quantity;
     }
 
-    private function uomQuantityAllocation($quantity, $product_id, $uom) {
-        $data = [];
-
+    private function uomQuantityAllocation($quantity, $product_id, $uom)
+    {
+        // If the UOM is already 'CS', just return the quantity as a float.
+        if ($uom === 'CS') {
+            return (float) $quantity;
+        }
+        
+        // Assuming you are using Laravel's Eloquent to find the product.
+        // Replace with your actual data-fetching method.
         $product = Product::findOrFail($product_id);
 
-        // Identify which UOM is 'CS'
-        $cs_uom = null;
+        // --- Logic to find the 'CS' unit and its conversion details ---
+
+        $cs_uom_column = null;
+        $conversion = 1;
+        $operator = 'M';
+
+        // 1. Identify which UOM field holds 'CS'.
         if ($product->stock_uom == 'CS') {
-            $cs_uom = 'stock_uom';
+            $cs_uom_column = 'stock_uom';
         } elseif ($product->order_uom == 'CS') {
-            $cs_uom = 'order_uom';
+            $cs_uom_column = 'order_uom';
         } elseif ($product->other_uom == 'CS') {
-            $cs_uom = 'other_uom';
+            $cs_uom_column = 'other_uom';
         }
 
-        if($uom !== 'CS' && !empty($cs_uom)) {
-            $cs_quantity = $this->quantityConversion($quantity, $product->{$cs_uom.'_conversion'}, $product->{$cs_uom.'_operator'}, true);
-
-            // Extract decimal part if exists
-            $decimal_quantity = $cs_quantity - floor($cs_quantity);
-            if ($decimal_quantity > 0) {
-                $qty = $this->quantityConversion(
-                    $decimal_quantity, 
-                    $product->{$cs_uom . '_conversion'}, 
-                    $product->{$cs_uom . '_operator'}, 
-                    false
-                );
-                $data[$uom] = (int) floor($qty);
-            }
-
-            $data['CS'] = (int) floor($cs_quantity);
-        } else {
-            $data[$uom] = $quantity;
+        // 2. If no 'CS' unit is defined, return the original quantity.
+        if (is_null($cs_uom_column)) {
+            return (float) $quantity;
         }
 
-        return $data;
+        // 3. Get the conversion details based on which field was 'CS'.
+        if ($cs_uom_column === 'stock_uom') {
+            // Rule: If 'stock_uom' is the case unit, its conversion is 1.
+            // This is now handled directly in the code without needing database columns.
+            $conversion = 1;
+            $operator = 'M';
+        } elseif ($cs_uom_column === 'order_uom') {
+            $conversion = $product->order_uom_conversion;
+            $operator = $product->order_uom_operator;
+        } elseif ($cs_uom_column === 'other_uom') {
+            $conversion = $product->other_uom_conversion;
+            $operator = $product->other_uom_operator;
+        }
+
+        // --- Perform the conversion and return the decimal value ---
+
+        // Call the helper function with reverse=true to convert to the 'CS' unit.
+        $cs_quantity = $this->quantityConversion(
+            $quantity,
+            $conversion,
+            $operator,
+            true // Reverse is true to convert from pieces to cases
+        );
+
+        return (float) $cs_quantity;
     }
 
     private function isExcelDate(Cell $cell) {

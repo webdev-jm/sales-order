@@ -207,12 +207,12 @@
                                                             ->where('branch_id', $schedule['branch_id'])
                                                             ->first();
 
-                                                        $action_point = $action_point['action_points'];
+                                                        $action_point = $action_point['action_points'] ?? '';
                                                     }
                                                 }
                                                 if(!empty($line['schedules_visited'][$schedule['id']]) && empty($action_point)) {
                                                     $login = $line['schedules_visited'][$schedule['id']];
-                                                    $action_point = $login['action_points'];
+                                                    $action_point = $login['action_points'] ?? '';
                                                 } 
                                             @endphp
                                             <textarea name="action_points[{{$line['date']}}][{{$schedule['branch_id']}}]" class="form-control border-0 bg-editable align-middle" form="{{$type}}">{{$action_point ?? ''}}</textarea>
@@ -290,11 +290,11 @@
                                                             ->first())
                                                             ->where('branch_id', $deviation['branch_id'])
                                                             ->first();
-                                                        $action_points = $action_point['action_points'];
+                                                        $action_points = $action_point['action_points'] ?? '';
                                                     }
                                                 }
                                                 if(!empty($deviation['action_points']) && empty($action_points)) {
-                                                    $action_points = $deviation['action_points'];
+                                                    $action_points = $deviation['action_points'] ?? '';
                                                 }
 
                                             @endphp
