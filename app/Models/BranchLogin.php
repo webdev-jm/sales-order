@@ -29,6 +29,9 @@ class BranchLogin extends Model
         'accuracy',
         'time_in',
         'time_out',
+        'time_out_longitude',
+        'time_out_latitude',
+        'time_out_accuracy',
     ];
 
     public function user() {

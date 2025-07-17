@@ -75,10 +75,16 @@
 
             </div>
 
+            @if(!$longitude && !$latitude)
+                <strong class="text-danger">Please enable your location before signing out thank you!</strong>
+            @endif
+
         </div>
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-danger" wire:loading.attr="disabled">Sign Out</button>
+            @if($longitude && $latitude)
+                <button type="submit" class="btn btn-danger" wire:loading.attr="disabled">Sign Out</button>
+            @endif
         </div>
     </form>
 
@@ -91,6 +97,25 @@
                     alwaysShowClose: true
                 });
             });
+
+            window.addEventListener('reloadLocation', event => {
+                getLocation();
+            });
+
+            getLocation();
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        @this.accuracy = position.coords.accuracy.toFixed(3)+' m';
+                        @this.longitude = position.coords.longitude;
+                        @this.latitude = position.coords.latitude;
+                    }, function(error) {
+                        @this.accuracy = error.message;
+                    });
+                } else { 
+                    console.log("Geolocation is not supported by this browser.");
+                }
+            }
 
         });
     </script>

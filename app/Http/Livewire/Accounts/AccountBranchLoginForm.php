@@ -18,6 +18,8 @@ class AccountBranchLoginForm extends Component
     public $activities, $picture_file;
     public $image_url;
 
+    public $accuracy, $longitude, $latitude;
+
     protected $listeners = [
         'reloadActivities' => 'loadActivities'
     ];
@@ -30,7 +32,10 @@ class AccountBranchLoginForm extends Component
         }
 
         $this->logged_branch->update([
-            'time_out' => now()
+            'time_out' => now(),
+            'time_out_longitude' => $this->longitude ?? NULL,
+            'time_out_latitude' => $this->latitude ?? NULL,
+            'time_out_accuracy' => $this->accuracy ?? NULL
         ]);
 
         // logs

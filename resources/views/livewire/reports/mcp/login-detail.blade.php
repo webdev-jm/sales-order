@@ -11,8 +11,13 @@
                 </p>
 
                 <p class="text-uppercase">
-                    <b>Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude) ?? 'Address cannot be processed.'}}
+                    <b>Signin Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->latitude, $branch_login->longitude) ?? 'Address cannot be processed.'}}
                 </p>
+                @if(!empty($branch_login->time_out_longitude))
+                    <p class="text-uppercase">
+                        <b>Signout Address: </b>{{ \App\Helpers\AppHelper::instance()->getAddress($branch_login->time_out_latitude, $branch_login->time_out_longitude) ?? 'Address cannot be processed.'}}
+                    </p>
+                @endif
 
                 <div class="row" wire:loading>
                     <div class="col-12">
