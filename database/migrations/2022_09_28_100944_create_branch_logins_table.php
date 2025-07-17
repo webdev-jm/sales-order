@@ -24,6 +24,9 @@ class CreateBranchLoginsTable extends Migration
             $table->text('accuracy');
             $table->dateTime('time_in');
             $table->dateTime('time_out')->nullable();
+            $table->decimal('time_out_longitude', 10,7)->nullable();
+            $table->decimal('time_out_latitude', 10,7)->nullable();
+            $table->text('time_out_accuracy')->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')

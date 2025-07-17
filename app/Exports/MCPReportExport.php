@@ -107,7 +107,7 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
         $header = [
             'GROUP', 'USERNAME', 'USER', 'DATE', 'ACCOUNT', 'BRANCH CODE', 'BRANCH NAME',
             'LATITUDE', 'LONGITUDE', 'ADDRESS', 'TIME IN', 'TIME OUT', 'STATUS', 'SOURCE',
-            'PLANNED ACTIVITIES', 'ACTUAL ACTIVITIES', 'LOCATION'
+            'PLANNED ACTIVITIES', 'ACTUAL ACTIVITIES', 'LOCATION', 'TIME OUT ADDRESS'
         ];
 
         $data = [];
@@ -266,7 +266,8 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
             $schedule->source ?? 'unscheduled',
             $schedule->objective ?? '',
             $activity_str,
-            $activity_plan->exact_location ?? ''
+            $activity_plan->exact_location ?? '',
+            ($login && $login->time_out_latitude) ? \App\Helpers\AppHelper::instance()->getAddress($login->time_out_latitude, $login->time_out_longitude) : '-'
         ];
     }
 
