@@ -23,15 +23,12 @@ class PafDetail extends Model
     protected $fillable = [
         'paf_id',
         'product_id',
-        'branch_id',
-        'type',
-        'branch',
-        'amount',
-        'expense',
-        'quantity',
-        'srp',
-        'percentage',
-        'status',
+        'components',
+        'line',
+        'stock_code',
+        'description',
+        'brand',
+        'category',
     ];
 
     public function paf() {

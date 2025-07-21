@@ -17,15 +17,11 @@ class CreatePafDetailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('paf_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
-            $table->unsignedBigInteger('branch_id')->nullable();
-            $table->string('type')->nullable();
-            $table->string('branch')->nullable();
-            $table->decimal('amount', 10, 2);
-            $table->decimal('expense', 10, 2);
-            $table->integer('quantity');
-            $table->decimal('srp', 10, 2);
-            $table->decimal('percentage', 10, 2);
-            $table->string('status')->nullable();
+            $table->string('components')->nullable();
+            $table->integer('line')->nullable();
+            $table->string('stock_code')->nullable();
+            $table->string('brand')->nullable();
+            $table->string('category')->nullable();
             $table->timestamps();
 
             $table->foreign('paf_id')
@@ -34,10 +30,6 @@ class CreatePafDetailsTable extends Migration
 
             $table->foreign('product_id')
                 ->references('id')->on('products')
-                ->onDelete('cascade');
-
-            $table->foreign('branch_id')
-                ->references('id')->on('branches')
                 ->onDelete('cascade');
 
             $table->softDeletes();
