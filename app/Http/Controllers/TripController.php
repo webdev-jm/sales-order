@@ -65,193 +65,136 @@ class TripController extends Controller
     }
 
     public function index(Request $request) {
-        $date = trim($request->get('date'));
-        $user = trim($request->get('user'));
+        $date_from = trim($request->get('date_from'));
+        $date_to = trim($request->get('date_to'));
+        $user_id = trim($request->get('user'));
         $search = trim($request->get('search'));
         $company = trim($request->get('company'));
 
-        $query_arr = array();
-        if(!empty($date)) {
-            $query_arr[] = 'date='.$date;
-        }
-        if(!empty($user)) {
-            $query_arr[] = 'user='.$user;
-        }
-        if(!empty($search)) {
-            $query_arr[] = 'search='.$search;
-        }
-        if(!empty($company)) {
-            $query_arr[] = 'company='.$company;
+        $query_arr = [];
+        foreach (['date_from', 'date_to', 'user', 'search', 'company'] as $param) {
+            $val = trim($request->get($param));
+            if (!empty($val)) {
+                $query_arr[] = $param . '=' . $val;
+            }
         }
         $query_string = implode('&', $query_arr);
 
-        $users_arr[''] = '';
-        if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('finance') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
-            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
-                ->when(!empty($date), function($query) use($date) {
-                    $query->where(function($qry) use($date) {
-                        $qry->where('departure', $date)
-                            ->orWhere('return', $date);
-                    });
-                })
-                ->when(!empty($user), function($query) use($user) {
-                    $query->where('user_id', $user);
-                })
-                ->when(!empty($search), function($query) use($search) {
-                    $query->where(function($qry) use($search) {
-                        $qry->where('from', 'like', '%'.$search.'%')
-                            ->orWhere('to', 'like', '%'.$search.'%')
-                            ->orWhere('status', 'like', '%'.$search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$search.'%');
-                    });
-                })
-                ->when(!empty($company), function($query) use($company) {
-                    $group_codes = array();
-                    if($company == 'bevi') {
-                        $group_codes = ['CMD', 'NKA'];
-                    }
-                    if($company == 'beva') {
-                        $group_codes = ['RD'];
-                    }
+        $users_arr = ['' => 'ALL'];
+        $isFinance = auth()->user()->can('trip finance approver') || auth()->user()->hasRole('finance') || auth()->user()->hasRole('superadmin');
 
-                    $query->whereHas('user', function($qry) use($group_codes) {
-                        $qry->whereIn('group_code', $group_codes);
-                    });
-                })
-                ->paginate(10)->onEachSide(1)
-                ->appends(request()->query());
+        $group_codes = [];
+        if ($company == 'bevi') $group_codes = ['CMD', 'NKA'];
+        if ($company == 'beva') $group_codes = ['RD'];
 
-            $users = User::whereHas('trips', function($query) use($date, $search) {
-                $query->when(!empty($date), function($qry) use($date) {
-                        $qry->where('departure', $date)
-                            ->orWhere('return', $date);
-                    })
-                    ->when(!empty($search), function($qry) use($search) {
-                        $qry->where('status', 'like', '%'.$search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$search.'%')
-                            ->orWhere('from', 'like', '%'.$search.'%')
-                            ->orWhere('to', 'like', '%'.$search.'%');
-                    });
-            })
-            ->when(!empty($company), function($query) use($company) {
-                $group_codes = array();
-                if($company == 'bevi') {
-                    $group_codes = ['CMD', 'NKA'];
-                }
-                if($company == 'beva') {
-                    $group_codes = ['RD'];
-                }
-                $query->whereIn('group_code', $group_codes);
-            })
-            ->get();
+        $tripQuery = ActivityPlanDetailTrip::orderByDesc('id');
+        $userQuery = User::query();
 
-            foreach($users as $user) {
-                $users_arr[$user->id] = $user->fullName();
-            }
+        // Date filters
+        if ($date_from && $date_to) {
+            $tripQuery->where(function ($q) use ($date_from, $date_to) {
+                $q->whereBetween('departure', [$date_from, $date_to])
+                  ->orWhereBetween('return', [$date_from, $date_to]);
+            });
+            $userQuery->whereHas('trips', function ($q) use ($date_from, $date_to) {
+                $q->whereBetween('departure', [$date_from, $date_to])
+                  ->orWhereBetween('return', [$date_from, $date_to]);
+            });
+        } elseif ($date_from) {
+            $tripQuery->where(function ($q) use ($date_from) {
+                $q->where('departure', '>=', $date_from)
+                  ->orWhere('return', '>=', $date_from);
+            });
+            $userQuery->whereHas('trips', function ($q) use ($date_from) {
+                $q->where('departure', '>=', $date_from)
+                  ->orWhere('return', '>=', $date_from);
+            });
+        } elseif ($date_to) {
+            $tripQuery->where(function ($q) use ($date_to) {
+                $q->where('departure', '<=', $date_to)
+                  ->orWhere('return', '<=', $date_to);
+            });
+            $userQuery->whereHas('trips', function ($q) use ($date_to) {
+                $q->where('departure', '<=', $date_to)
+                  ->orWhere('return', '<=', $date_to);
+            });
+        }
 
-        } else { // users entry and user subordinate entries
-            // get subordinates of the user.
+        // User filter
+        if (!empty($user_id)) {
+            $tripQuery->where('user_id', $user_id);
+        }
 
-            // check if user is admin of a department
+        // Search filter
+        if (!empty($search)) {
+            $tripQuery->where(function ($q) use ($search) {
+                $q->where('from', 'like', "%$search%")
+                  ->orWhere('to', 'like', "%$search%")
+                  ->orWhere('status', 'like', "%$search%")
+                  ->orWhere('trip_number', 'like', "%$search%");
+            });
+            $userQuery->whereHas('trips', function ($q) use ($search) {
+                $q->where('status', 'like', "%$search%")
+                  ->orWhere('trip_number', 'like', "%$search%")
+                  ->orWhere('from', 'like', "%$search%")
+                  ->orWhere('to', 'like', "%$search%");
+            });
+        }
+
+        // Company filter
+        if (!empty($group_codes)) {
+            $tripQuery->whereHas('user', function ($q) use ($group_codes) {
+                $q->whereIn('group_code', $group_codes);
+            });
+            $userQuery->whereIn('group_code', $group_codes);
+        }
+
+        if ($isFinance) {
+            $trips = $tripQuery->paginate(10)->onEachSide(1)->appends($request->query());
+            $users = $userQuery->whereHas('trips')->get();
+        } else {
+            // Get subordinate user IDs
+            $users_ids = [];
             $departments = Department::where('department_admin_id', auth()->user()->id)->get();
-            // get all users under departments
-            $users_ids = array();
-            foreach($departments as $department) {
-                $users = $department->users;
-                foreach($users as $user) {
+            foreach ($departments as $department) {
+                foreach ($department->users as $user) {
                     $users_ids[] = $user->id;
                 }
             }
-            // get user subordiates
             $subordinate_ids = auth()->user()->getSubordinateIds();
-            if(!empty($subordinate_ids)) {
-                foreach($subordinate_ids as $level => $ids) {
-                    foreach($ids as $id) {
-                        $users_ids[] = $id;
-                    }
+            foreach ($subordinate_ids as $ids) {
+                foreach ($ids as $id) {
+                    $users_ids[] = $id;
                 }
             }
-
-            // get subordinates
-            $structures = DepartmentStructure::where('user_id', auth()->user()->id)
-                ->get();
-            if(!empty($structures)) {
-                foreach($structures as $structure) {
-                    $structure_sub = DepartmentStructure::whereRaw('FIND_IN_SET('.$structure->id.', reports_to_ids) > 0')
-                        ->get();
-                    if(!empty($structure_sub)) {
-                        foreach($structure_sub as $sub) {
-                            $users_ids[] = $sub->user_id;
-                        }
-                    }
+            $structures = DepartmentStructure::where('user_id', auth()->user()->id)->get();
+            foreach ($structures as $structure) {
+                $structure_subs = DepartmentStructure::whereRaw('FIND_IN_SET(' . $structure->id . ', reports_to_ids) > 0')->get();
+                foreach ($structure_subs as $sub) {
+                    $users_ids[] = $sub->user_id;
                 }
             }
-
             $users_ids = array_unique($users_ids);
 
-            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
-                ->where(function($query) use($users_ids) {
-                    $query->where('user_id', auth()->user()->id)
-                        ->orWhereIn('user_id', $users_ids);
+            $trips = $tripQuery
+                ->where(function ($q) use ($users_ids) {
+                    $q->where('user_id', auth()->user()->id)
+                      ->orWhereIn('user_id', $users_ids);
                 })
-                ->when(!empty($search), function($query) use($search) {
-                    $query->where(function($qry) use($search) {
-                        $qry->where('from', 'like', '%'.$search.'%')
-                            ->orWhere('to', 'like', '%'.$search.'%')
-                            ->orWhere('status', 'like', '%'.$search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$search.'%');
-                    });
-                })
-                ->when(!empty($company), function($query) use($company) {
-                    $group_codes = array();
-                    if($company == 'bevi') {
-                        $group_codes = ['CMD', 'NKA'];
-                    }
-                    if($company == 'beva') {
-                        $group_codes = ['RD'];
-                    }
+                ->paginate(10)->onEachSide(1)->appends($request->query());
 
-                    $query->whereHas('user', function($qry) use($group_codes) {
-                        $qry->whereIn('group_code', $group_codes);
-                    });
-                })
-                ->paginate(10)->onEachSide(1)
-                ->appends(request()->query());
+            $users = $userQuery->whereHas('trips')->whereIn('id', $users_ids)->get();
+        }
 
-            $users = User::whereHas('trips', function($query) use($date, $search) {
-                $query->when(!empty($date), function($qry) use($date) {
-                        $qry->where('departure', $date)
-                            ->orWhere('return', $date);
-                    })
-                    ->when(!empty($search), function($qry) use($search) {
-                        $qry->where('status', 'like', '%'.$search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$search.'%')
-                            ->orWhere('from', 'like', '%'.$search.'%')
-                            ->orWhere('to', 'like', '%'.$search.'%');
-                    });
-            })
-            ->when(!empty($company), function($query) use($company) {
-                $group_codes = array();
-                if($company == 'bevi') {
-                    $group_codes = ['CMD', 'NKA'];
-                }
-                if($company == 'beva') {
-                    $group_codes = ['RD'];
-                }
-                $query->whereIn('group_code', $group_codes);
-            })
-            ->whereIn('id', $users_ids)
-            ->get();
-
-            foreach($users as $user) {
-                $users_arr[$user->id] = $user->fullName();
-            }
+        foreach ($users as $user) {
+            $users_arr[$user->id] = $user->fullName();
         }
 
         return view('trips.index')->with([
-            'user' => $user,
+            'user' => $user_id,
             'search' => $search,
-            'date' => $date,
+            'date_from' => $date_from,
+            'date_to' => $date_to,
             'company' => $company,
             'trips' => $trips,
             'status_arr' => $this->status_arr,
@@ -790,9 +733,11 @@ class TripController extends Controller
 
     public function export(Request $request) {
         $search = trim($request->get('search'));
-        $date = $request->get('date');
-        $user_id = $request->get('user');
+        $date_from = trim($request->get('date_from'));
+        $date_to = trim($request->get('date_to'));
+        $user_id = trim($request->get('user'));
+        $company = trim($request->get('company'));
 
-        return Excel::download(new TripExport($search, $date, $user_id), 'SMS Trip Request List'.time().'.xlsx');
+        return Excel::download(new TripExport($search, $date_from, $date_to, $user_id, $company), 'SMS Trip Request List'.time().'.xlsx');
     }
 }
