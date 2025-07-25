@@ -86,7 +86,7 @@ class TripController extends Controller
         $query_string = implode('&', $query_arr);
 
         $users_arr[''] = '';
-        if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
+        if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('finance') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
             $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
                 ->when(!empty($date), function($query) use($date) {
                     $query->where(function($qry) use($date) {

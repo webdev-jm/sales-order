@@ -88,6 +88,11 @@
                         </td>
                         <td class="align-middle text-center px-1">
                             {{$product->brand}}
+                            @if(isset($paf_data[$product->id]))
+                                <button class="btn btn-xs btn-primary float-right">
+                                    <i class="fa fa-list"></i>
+                                </button>
+                            @endif
                         </td>
                         <td class="p-0 align-middle">
                             <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">

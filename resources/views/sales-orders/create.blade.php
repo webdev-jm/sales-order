@@ -245,6 +245,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-paf">
+    <div class="modal-dialog modal-lg">
+        <livewire:sales-order.sales-order-paf/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -279,7 +285,7 @@
                 $('#modal-summary').modal('show');
             } else {
                 status_val = 'draft';
-                $('#status').val(status_val);
+                $('#status').val(status_val); 
                 $('#'+$(this).attr('form')).submit();
             }
         });
