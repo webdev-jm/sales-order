@@ -17,10 +17,7 @@
             <i class="fa fa-plus mr-1"></i>
             ADD TRIP
         </a>
-        <a href="{{route('trip.export').(!empty($query_string) ? '?'.$query_string : '')}}" class="btn btn-success">
-            <i class="fa fa-download mr-1"></i>
-            EXPORT
-        </a>
+        
     </div>
 </div>
 @endsection
@@ -30,41 +27,67 @@
 
 <div class="card">
     <div class="card-header">
+        <h3 class="card-title">FILTERS</h3>
+    </div>
+    <div class="card-body">
         <div class="row">
-            <div class="col-lg-3">
-                <h3 class="card-title">List of Trips</h3>
+            <div class="col-md-2 my-2">
+                <div class="form-group">
+                    {!! Form::label('date_from', 'From:') !!}
+                    <div class="input-group input-group-sm">
+                        {!! Form::date('date_from', $date_from, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-9">
-                <div class="row">
-                    <div class="col-md-2 my-2">
-                        <div class="input-group input-group-sm">
-                            {!! Form::date('date', $date, ['class' => 'form-control', 'form' => 'search_form']) !!}
-                        </div>
+            <div class="col-md-2 my-2">
+                <div class="form-group">
+                    {!! Form::label('date_to', 'To:') !!}
+                    <div class="input-group input-group-sm">
+                        {!! Form::date('date_to', $date_to, ['class' => 'form-control', 'form' => 'search_form']) !!}
                     </div>
-                    <div class="col-md-3 my-2">
-                        <div class="input-group input-group-sm">
-                            {!! Form::select('user', $users, $user, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-3 my-2">
+                <div class="form-group">
+                    {!! Form::label('search', 'Search:') !!}
+                    <div class="input-group input-group-sm">
+                        {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                     </div>
-                    <div class="col-md-3 my-2">
-                        <div class="input-group input-group-sm">
-                            {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-3 my-2">
+                <div class="form-group">
+                    {!! Form::label('user', 'User:') !!}
+                    <div class="input-group input-group-sm">
+                        {!! Form::select('user', $users, $user, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
                     </div>
-                    <div class="col-md-2 my-2">
-                        <div class="input-group input-group-sm">
-                            {!! Form::select('company', ['bevi' => 'BEVI', 'beva' => 'BEVA'], $company, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
-                        </div>
-                    </div>
-                    <div class="col-md-2 my-2">
-                        <div class="input-group input-group-sm">
-                            {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
-                        </div>
+                </div>
+            </div>
+            
+            <div class="col-md-2 my-2">
+                <div class="form-group">
+                    {!! Form::label('company', 'Company:') !!}
+                    <div class="input-group input-group-sm">
+                        {!! Form::select('company', ['' => 'ALL', 'bevi' => 'BEVI', 'beva' => 'BEVA'], $company, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
                     </div>
                 </div>
             </div>
         </div>
-        
+    </div>
+    <div class="card-footer text-right">
+        {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm', 'form' => 'search_form']) !!}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">List of Trips</h3>
+        <div class="card-tools">
+            <a href="{{route('trip.export').(!empty($query_string) ? '?'.$query_string : '')}}" class="btn btn-success btn-sm">
+                <i class="fa fa-download mr-1"></i>
+                EXPORT
+            </a>
+        </div>
     </div>
     <div class="card-body table-responsive p-0">
         <table class="table table-hover text-nowrap table-sm">

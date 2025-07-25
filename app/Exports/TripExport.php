@@ -2,48 +2,60 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\WithProperties;
-use Maatwebsite\Excel\Concerns\WithBackgroundColor;
-
-use Maatwebsite\Excel\Concerns\WithChunkReading;
-use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
-
+use Maatwebsite\Excel\Concerns\{
+    FromCollection,
+    ShouldAutoSize,
+    WithStyles,
+    WithProperties,
+    WithBackgroundColor,
+    WithChunkReading,
+    WithStrictNullComparison
+};
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-
 use Illuminate\Support\Collection;
-
-use App\Models\ActivityPlanDetailTrip;
-use App\Models\Department;
-use App\Models\DepartmentStructure;
+use App\Models\{
+    ActivityPlanDetailTrip,
+    Department,
+    DepartmentStructure
+};
 
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
-ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
-ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
+ini_set('sqlsrv.ClientBufferMaxKBSize', '1000000');
+ini_set('pdo_sqlsrv.client_buffer_max_kb_size', '1000000');
 
-class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProperties, WithBackgroundColor, WithStrictNullComparison, WithChunkReading
+class TripExport implements
+    FromCollection,
+    ShouldAutoSize,
+    WithStyles,
+    WithProperties,
+    WithBackgroundColor,
+    WithStrictNullComparison,
+    WithChunkReading
 {
-    public $search;
-    public $date;
-    public $user_id;
+    protected $search;
+    protected $date_from;
+    protected $date_to;
+    protected $user_id;
+    protected $company;
 
-    public function __construct($search, $date, $user_id) {
-        $this->search = $search;
-        $this->date = $date;
-        $this->user_id = $user_id;
+    public function __construct($search, $date_from, $date_to, $user_id, $company)
+    {
+        $this->search = trim($search);
+        $this->date_from = trim($date_from);
+        $this->date_to = trim($date_to);
+        $this->user_id = trim($user_id);
+        $this->company = trim($company);
     }
 
     public function chunkSize(): int
     {
-        return 200; // Number of rows per chunk
+        return 200;
     }
 
     public function batchSize(): int
     {
-        return 200; // Number of rows per batch
+        return 200;
     }
 
     public function backgroundColor()
@@ -69,7 +81,6 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
     public function styles(Worksheet $sheet)
     {
         return [
-            // Title
             1 => [
                 'font' => ['bold' => true, 'size' => 15],
                 'alignment' => [
@@ -80,12 +91,8 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
                     'color' => ['argb' => 'E7FDEC']
                 ]
             ],
-            // header
             3 => [
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
+                'font' => ['bold' => true, 'size' => 12],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
@@ -97,122 +104,26 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
         ];
     }
 
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
         $header = [
-            'TRIP CODE',
-            'USER',
-            'FROM',
-            'TO',
-            'DEPARTURE',
-            'RETURN',
-            'TRIP TYPE',
-            'PASSENGER',
-            'PURPOSE',
-            'AMOUNT',
-            'STATUS',
-            'SOURCE',
-            'CREATED AT',
-            'APPROVED BY IMM. SUPERIOR',
-            'APPROVED BY FINANCE'
+            'TRIP CODE', 'USER', 'FROM', 'TO', 'DEPARTURE', 'RETURN', 'TRIP TYPE',
+            'PASSENGER', 'PURPOSE', 'AMOUNT', 'STATUS', 'SOURCE', 'CREATED AT',
+            'APPROVED BY IMM. SUPERIOR', 'APPROVED BY FINANCE'
         ];
 
-        if(auth()->user()->can('trip finance approver') || auth()->user()->hasRole('superadmin')) { // for finance view or administrators
-            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
-                ->when(!empty($this->date), function($query) {
-                    $query->where(function($qry) {
-                        $qry->where('departure', $this->date)
-                            ->orWhere('return', $this->date);
-                    });
-                })
-                ->when(!empty($this->user_id), function($query) {
-                    $query->where('user_id', $this->user_id);
-                })
-                ->when(!empty($this->search), function($query) {
-                    $query->where(function($qry) {
-                        $qry->where('from', 'like', '%'.$this->search.'%')
-                            ->orWhere('to', 'like', '%'.$this->search.'%')
-                            ->orWhere('status', 'like', '%'.$this->search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$this->search.'%');
-                    });
-                })
-                ->get();
-        } else {
-            // check if user is admin of a department
-            $departments = Department::where('department_admin_id', auth()->user()->id)->get();
-            // get all users under departments
-            $users_ids = array();
-            foreach($departments as $department) {
-                $users = $department->users;
-                foreach($users as $user) {
-                    $users_ids[] = $user->id;
-                }
-            }
-            // get user subordiates
-            $subordinate_ids = auth()->user()->getSubordinateIds();
-            if(!empty($subordinate_ids)) {
-                foreach($subordinate_ids as $level => $ids) {
-                    foreach($ids as $id) {
-                        $users_ids[] = $id;
-                    }
-                }
-            }
-
-            // get subordinates
-            $structures = DepartmentStructure::where('user_id', auth()->user()->id)
-                ->get();
-            if(!empty($structures)) {
-                foreach($structures as $structure) {
-                    $structure_sub = DepartmentStructure::whereRaw('FIND_IN_SET('.$structure->id.', reports_to_ids) > 0')
-                        ->get();
-                    if(!empty($structure_sub)) {
-                        foreach($structure_sub as $sub) {
-                            $users_ids[] = $sub->user_id;
-                        }
-                    }
-                }
-            }
-
-            $users_ids = array_unique($users_ids);
-
-            $trips = ActivityPlanDetailTrip::orderBy('id', 'DESC')
-                ->where(function($query) use($users_ids) {
-                    $query->where('user_id', auth()->user()->id)
-                        ->orWhereIn('user_id', $users_ids);
-                })
-                ->when(!empty($this->date), function($query) {
-                    $query->where(function($qry) {
-                        $qry->where('departure', $this->date)
-                            ->orWhere('return', $this->date);
-                    });
-                })
-                ->when(!empty($this->search), function($query) {
-                    $query->where(function($qry) {
-                        $qry->where('from', 'like', '%'.$this->search.'%')
-                            ->orWhere('to', 'like', '%'.$this->search.'%')
-                            ->orWhere('status', 'like', '%'.$this->search.'%')
-                            ->orWhere('trip_number', 'like', '%'.$this->search.'%');
-                    });
-                })
-                ->when(!empty($this->user_id), function($query) {
-                    $query->where('user_id', $this->user_id);
-                })
-                ->get();
-        }
+        $trips = $this->getTrips();
 
         $data = [];
-        foreach($trips as $trip) {
+        foreach ($trips as $trip) {
             $superior_approval = $trip->approvals()
-                ->orderBy('created_at', 'DESC')
                 ->where('status', 'approved by imm. superior')
+                ->latest('created_at')
                 ->first();
 
-            $finance_approval = $trip->approvals()  
-                ->orderBy('created_at', 'DESC')
+            $finance_approval = $trip->approvals()
                 ->where('status', 'approved by finance')
+                ->latest('created_at')
                 ->first();
 
             $data[] = [
@@ -235,10 +146,108 @@ class TripExport implements FromCollection, ShouldAutoSize, WithStyles, WithProp
         }
 
         return new Collection([
-            ['SMS - SALES MANAGEMENT SYSTEM'], 
+            ['SMS - SALES MANAGEMENT SYSTEM'],
             ['TRIP REQUEST LIST'],
             $header,
-            $data
+            ...$data
         ]);
+    }
+
+    protected function getTrips()
+    {
+        $user = auth()->user();
+        $query = ActivityPlanDetailTrip::query()->orderByDesc('id');
+
+        if ($user->can('trip finance approver') || $user->hasRole('finance') || $user->hasRole('superadmin')) {
+            $this->applyFilters($query);
+        } else {
+            $users_ids = $this->getSubordinateUserIds($user);
+            $query->where(function ($q) use ($user, $users_ids) {
+                $q->where('user_id', $user->id)
+                  ->orWhereIn('user_id', $users_ids);
+            });
+            $this->applyFilters($query, false);
+        }
+
+        return $query->get();
+    }
+
+    protected function applyFilters($query, $includeUserId = true)
+    {
+        if (!empty($this->date_from) && !empty($this->date_to)) {
+            $query->where(function ($q) {
+                $q->whereBetween('departure', [$this->date_from, $this->date_to])
+                  ->orWhereBetween('return', [$this->date_from, $this->date_to]);
+            });
+        } elseif (!empty($this->date_from)) {
+            $query->where(function ($q) {
+                $q->where('departure', '>=', $this->date_from)
+                  ->orWhere('return', '>=', $this->date_from);
+            });
+        } elseif (!empty($this->date_to)) {
+            $query->where(function ($q) {
+                $q->where('departure', '<=', $this->date_to)
+                  ->orWhere('return', '<=', $this->date_to);
+            });
+        }
+
+        if ($includeUserId && !empty($this->user_id)) {
+            $query->where('user_id', $this->user_id);
+        }
+
+        if (!empty($this->search)) {
+            $query->where(function ($q) {
+                $q->where('from', 'like', '%' . $this->search . '%')
+                  ->orWhere('to', 'like', '%' . $this->search . '%')
+                  ->orWhere('status', 'like', '%' . $this->search . '%')
+                  ->orWhere('trip_number', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if (!empty($this->company)) {
+            $group_codes = [];
+            if ($this->company === 'bevi') {
+                $group_codes = ['CMD', 'NKA'];
+            } elseif ($this->company === 'beva') {
+                $group_codes = ['RD'];
+            }
+            if ($group_codes) {
+                $query->whereHas('user', function ($q) use ($group_codes) {
+                    $q->whereIn('group_code', $group_codes);
+                });
+            }
+        }
+    }
+
+    protected function getSubordinateUserIds($user)
+    {
+        $users_ids = [];
+
+        // Department admin users
+        $departments = Department::where('department_admin_id', $user->id)->get();
+        foreach ($departments as $department) {
+            foreach ($department->users as $deptUser) {
+                $users_ids[] = $deptUser->id;
+            }
+        }
+
+        // User subordinates
+        $subordinate_ids = $user->getSubordinateIds();
+        foreach ($subordinate_ids as $ids) {
+            foreach ($ids as $id) {
+                $users_ids[] = $id;
+            }
+        }
+
+        // Subordinates via department structure
+        $structures = DepartmentStructure::where('user_id', $user->id)->get();
+        foreach ($structures as $structure) {
+            $structure_subs = DepartmentStructure::whereRaw('FIND_IN_SET(' . $structure->id . ', reports_to_ids) > 0')->get();
+            foreach ($structure_subs as $sub) {
+                $users_ids[] = $sub->user_id;
+            }
+        }
+
+        return array_unique($users_ids);
     }
 }
