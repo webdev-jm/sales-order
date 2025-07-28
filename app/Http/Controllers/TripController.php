@@ -131,13 +131,17 @@ class TripController extends Controller
                 $q->where('from', 'like', "%$search%")
                   ->orWhere('to', 'like', "%$search%")
                   ->orWhere('status', 'like', "%$search%")
-                  ->orWhere('trip_number', 'like', "%$search%");
+                  ->orWhere('trip_number', 'like', "%$search%")
+                  ->orWhere('invoice_number', 'like', "%$search%")
+                  ->orWhere('supplier', 'like', "%$search%");
             });
             $userQuery->whereHas('trips', function ($q) use ($search) {
                 $q->where('status', 'like', "%$search%")
                   ->orWhere('trip_number', 'like', "%$search%")
                   ->orWhere('from', 'like', "%$search%")
-                  ->orWhere('to', 'like', "%$search%");
+                  ->orWhere('to', 'like', "%$search%")
+                  ->orWhere('invoice_number', 'like', "%$search%")
+                  ->orWhere('supplier', 'like', "%$search%");
             });
         }
 
