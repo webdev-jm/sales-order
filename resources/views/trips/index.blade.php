@@ -24,6 +24,7 @@
 
 @section('content')
 {!! Form::open(['method' => 'GET', 'route' => ['trip.index'], 'id' => 'search_form']) !!}
+{!! Form::close() !!}
 
 <div class="card">
     <div class="card-header">
@@ -94,6 +95,9 @@
             <thead>
                 <tr>
                     <th>Trip Code</th>
+                    @can('trip invoice')
+                        <th>Invoice</th>
+                    @endcan
                     <th>User</th>
                     <th>From</th>
                     <th>To</th>
@@ -109,6 +113,20 @@
                 @foreach($trips as $trip)
                     <tr>
                         <td class="font-weight-bold">{{$trip->trip_number}}</td>
+                        @can('trip invoice')
+                            <td class="text-center">
+                                @if(!empty($trip->invoice_number))
+                                    <a href="" class="text-decoration-none text-danger font-bold btn-invoice" data-id="{{$trip->id}}">
+                                        {{$trip->invoice_number}}
+                                    </a>
+                                @else
+                                    <a class="btn btn-xs btn-primary btn-invoice" data-id="{{$trip->id}}">
+                                        <i class="fa fa-plus fa-sm"></i>
+                                        Add invoice
+                                    </a>
+                                @endif
+                            </td>
+                        @endcan
                         <td>{{$trip->user->fullName()}}</td>
                         <td class="text-uppercase">{{$trip->from}}</td>
                         <td class="text-uppercase">{{$trip->to}}</td>
@@ -164,13 +182,30 @@
     </div>
 </div>
 
+@can('trip invoice')
+<div class="modal fade" id="invoive-modal">
+    <div class="modal-dialog modal-lg">
+        <livewire:trip.invoice/>
+    </div>
+</div>
+@endcan
+
 @endsection
 
 @section('js')
-<script>
-    $(function() {
-    });
-</script>
+@can('trip invoice')
+    <script>
+        $(function() {
+            
+            $('body').on('click', '.btn-invoice', function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                Livewire.emit('setTripId', id);
+                $('#invoive-modal').modal('show');
+            });
+        });
+    </script>
+@endcan
 @endsection
 
 @section('footer')

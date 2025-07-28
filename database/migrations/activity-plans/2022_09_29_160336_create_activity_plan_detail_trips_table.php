@@ -29,6 +29,8 @@ class CreateActivityPlanDetailTripsTable extends Migration
             $table->text('purpose')->nullable();
             $table->string('status')->nullable();
             $table->string('source');
+            $table->string('invoice_number')->nullable();
+            $table->string('supplier')->nullable();
             $table->timestamps();
 
             $table->foreign('activity_plan_detail_id')

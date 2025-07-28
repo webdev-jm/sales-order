@@ -27,6 +27,8 @@ class ActivityPlanDetailTrip extends Model
         'purpose',
         'status',
         'source',
+        'invoice_number',
+        'supplier',
     ];
 
     /**
