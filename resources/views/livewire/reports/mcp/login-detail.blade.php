@@ -33,13 +33,14 @@
                             <label>{{$branch_login->operation_process->operation_process}}</label>
                             <ol>
                                 @foreach($branch_activities as $activity)
-                                <li>{{$activity->activity->description}}
-                                    @if(!empty($activity->remarks))
-                                    <ul>
-                                        <li>{{$activity->remarks}}</li>
-                                    </ul>
-                                    @endif
-                                </li>
+                                    <li>
+                                        {{$activity->activity->description}}
+                                        @if(!empty($activity->remarks))
+                                            <ul>
+                                                <li>{{$activity->remarks}}</li>
+                                            </ul>
+                                        @endif
+                                    </li>
                                 @endforeach
                             </ol>
                         </div>

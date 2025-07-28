@@ -238,7 +238,8 @@ class PermissionSeeder extends Seeder
                 'trip create'           => 'access to create trip',
                 'trip edit'             => 'access to edit trip details.',
                 'trip finance approver' => 'access to approve or reject trip ticket requests',
-                'trip attachment'       => 'access to attach files to trip request.'
+                'trip attachment'       => 'access to attach files to trip request.',
+                'trip invoice'          => 'access to add invoice and supplier details to trip request.',
             ],
             'Department' => [
                 'department access' => 'Access to departments module',
