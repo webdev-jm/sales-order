@@ -106,11 +106,18 @@ class TripExport implements
 
     public function collection()
     {
+        $user = auth()->user();
+        $canSeeInvoice = $user->can('trip invoice');
+
         $header = [
             'TRIP CODE', 'USER', 'FROM', 'TO', 'DEPARTURE', 'RETURN', 'TRIP TYPE',
             'PASSENGER', 'PURPOSE', 'AMOUNT', 'STATUS', 'SOURCE', 'CREATED AT',
             'APPROVED BY IMM. SUPERIOR', 'APPROVED BY FINANCE'
         ];
+
+        if ($canSeeInvoice) {
+            array_splice($header, 11, 0, ['INVOICE NUMBER', 'SUPPLIER']);
+        }
 
         $trips = $this->getTrips();
 
@@ -126,23 +133,29 @@ class TripExport implements
                 ->latest('created_at')
                 ->first();
 
-            $data[] = [
-                $trip->trip_number,
-                $trip->user->fullName(),
-                $trip->from,
-                $trip->to,
-                $trip->departure,
-                $trip->return,
-                $trip->trip_type,
-                $trip->passenger,
-                $trip->purpose,
-                $trip->amount,
-                $trip->status,
-                $trip->source,
-                $trip->created_at,
-                $superior_approval->created_at ?? '',
-                $finance_approval->created_at ?? '',
+            $row = [
+            $trip->trip_number,
+            $trip->user->fullName(),
+            $trip->from,
+            $trip->to,
+            $trip->departure,
+            $trip->return,
+            $trip->trip_type,
+            $trip->passenger,
+            $trip->purpose,
+            $trip->amount,
+            $trip->status,
+            $trip->source,
+            $trip->created_at,
+            $superior_approval->created_at ?? '',
+            $finance_approval->created_at ?? '',
             ];
+
+            if ($canSeeInvoice) {
+                array_splice($row, 11, 0, [$trip->invoice_number, $trip->supplier]);
+            }
+
+            $data[] = $row;
         }
 
         return new Collection([
