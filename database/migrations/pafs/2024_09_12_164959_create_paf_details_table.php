@@ -22,6 +22,7 @@ class CreatePafDetailsTable extends Migration
             $table->string('stock_code')->nullable();
             $table->string('brand')->nullable();
             $table->string('category')->nullable();
+            $table->integer('quantity')->default(0);
             $table->timestamps();
 
             $table->foreign('paf_id')

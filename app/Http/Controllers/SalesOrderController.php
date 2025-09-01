@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
+use App\Models\SalesOrderProductUomPaf;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
 use App\Models\PriceCode;
@@ -422,6 +423,20 @@ class SalesOrderController extends Controller
                         // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
+
+                    // check if there's a PAF row
+                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                        foreach($data['paf_rows'] as $paf_row) {
+                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                'paf_number' => $paf_row['paf_number'],
+                                'uom' => $paf_row['uom'],
+                                'quantity' => $paf_row['quantity'],
+                            ]);
+                            $sales_order_product_uom_paf->save();
+                        }
+
+                    }
                 }
             }
         }
@@ -449,6 +464,20 @@ class SalesOrderController extends Controller
                         // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
+
+                    // check if there's a PAF row
+                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                        foreach($data['paf_rows'] as $paf_row) {
+                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                'paf_number' => $paf_row['paf_number'],
+                                'uom' => $paf_row['uom'],
+                                'quantity' => $paf_row['quantity'],
+                            ]);
+                            $sales_order_product_uom_paf->save();
+                        }
+
+                    }
                 }
             }
         }
@@ -476,6 +505,19 @@ class SalesOrderController extends Controller
                         // 'warehouse' => $data['warehouse'],
                     ]);
                     $sales_order_product_uom->save();
+
+                    // check if there's a PAF row
+                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                        foreach($data['paf_rows'] as $paf_row) {
+                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                'paf_number' => $paf_row['paf_number'],
+                                'uom' => $paf_row['uom'],
+                                'quantity' => $paf_row['quantity'],
+                            ]);
+                            $sales_order_product_uom_paf->save();
+                        }
+                    }
                 }
             }
         }
@@ -548,11 +590,26 @@ class SalesOrderController extends Controller
 
             $product_uoms = $order_product->product_uoms;
             foreach($product_uoms as $uom) {
+
+                // check if there's a PAF row
+                $paf_rows = [];
+                $paf_rows_data = SalesOrderProductUomPaf::where('sales_order_product_uom_id', $uom->id)->get();
+                if(!$paf_rows_data->isEmpty()) {
+                    foreach($paf_rows_data as $paf_row) {
+                        $paf_rows[] = [
+                            'paf_number' => $paf_row->paf_number,
+                            'uom' => $paf_row->uom,
+                            'quantity' => $paf_row->quantity,
+                        ];
+                    }
+                }
+
                 $order_data['items'][$order_product->product_id]['data'][$uom->uom] = [
                     'quantity' => $uom->quantity,
                     'total' => $uom->uom_total,
                     'discount' => 0,
                     'discounted' => $uom->uom_total_less_disc,
+                    'paf_rows' => $paf_rows,
                 ];
             }
             $order_data['items'][$order_product->product_id]['product_total'] = $order_product->total_sales;

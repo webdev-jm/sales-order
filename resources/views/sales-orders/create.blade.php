@@ -309,6 +309,15 @@
             e.preventDefault();
             $('#modal-upload').modal('show');
         });
+
+        // paf details
+        $('body').on('click', '.btn-paf-details', function(e) {
+            e.preventDefault();
+            var product_id = $(this).data('product-id');
+            var uom = $(this).data('uom');
+            Livewire.emit('pafDetails', product_id, uom);
+            $('#modal-paf').modal('show');
+        });
     });
 </script>
 @endsection
