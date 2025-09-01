@@ -3,7 +3,7 @@
 namespace App\Http\Livewire\Trip;
 
 use Livewire\Component;
-use App\Models\ActivityPLanDetailTrip;
+use App\Models\ActivityPlanDetailTrip;
 
 class Invoice extends Component
 {
@@ -14,7 +14,7 @@ class Invoice extends Component
 
     public function setTripId($id)
     {
-        $this->trip = ActivityPLanDetailTrip::findOrFail($id);
+        $this->trip = ActivityPlanDetailTrip::findOrFail($id);
         if (isset($this->trip)) {
             $this->invoice = $this->trip->invoice_number ?? '';
             $this->supplier = $this->trip->supplier ?? '';

@@ -498,7 +498,7 @@ class WeeklyActivityReportController extends Controller
         $pdf = PDF::loadView('war.pdf', [
             'weekly_activity_report' => $weekly_activity_report,
             'area_status_arr' => $area_status_arr
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         if(auth()->user()->id !== 1) {
             // logs

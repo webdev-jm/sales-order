@@ -94,7 +94,7 @@
                                                             <div class="list-group position-absolute search-branch" wire:loading.remove>
                                                                 @if($accounts->count() > 0)
                                                                     @foreach($accounts as $account)
-                                                                        <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                                                        <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}',{{$account->id}}, '[{{$account->account_code}}], {{str_replace("'", "", $account->short_name)}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
                                                                     @endforeach
                                                                 @else
                                                                     <button class="list-group-item">No Results</button>
@@ -130,7 +130,7 @@
                                                                 @if($branches->count() > 0)
                                                                     @foreach($branches as $branch)
                                                                         <button class="list-group-item text-left" 
-                                                                            wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{str_replace("'", "",$branch->branch_name)}}')"
+                                                                            wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}}, '[{{str_replace("'", "",$branch->account->short_name)}}], {{str_replace("'", "",$branch->branch_code)}} - {{str_replace("'", "",$branch->branch_name)}}')"
                                                                         >
                                                                             [{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}
                                                                         </button>

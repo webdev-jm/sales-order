@@ -36,7 +36,7 @@
             </div>
         </div>
         <div class="card-body table-responsive p-0">
-            <table class="table table-sm table-bordered">
+            <table class="table table-sm table-bordered text-sm">
                 <thead class="bg-secondary">
                     <tr>
                         <th></th>
@@ -88,13 +88,8 @@
                         </td>
                         <td class="align-middle text-center px-1">
                             {{$product->brand}}
-                            @if(isset($paf_data[$product->id]))
-                                <button class="btn btn-xs btn-primary float-right">
-                                    <i class="fa fa-list"></i>
-                                </button>
-                            @endif
                         </td>
-                        <td class="p-0 align-middle">
+                        <td class="p-0 align-middle"> 
                             <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">
                                 @php
                                     $product_uom = $product->uom;
@@ -104,16 +99,26 @@
                                 @endforeach
                             </select>
                         </td>
-                        <td class="p-0 align-middle{{!empty($product->status) || empty($price_code) ? ' bg-disabled' : ''}}" wire:loading.class="bg-disabled">
-                            <input type="number" class="form-control border-0 w150{{!empty($product->status) || empty($price_code) ? ' text-center' : ''}}"
-                                min="0" 
-                                wire:loading.attr="disabled" 
-                                max="99999999999" 
-                                wire:change="change"
-                                wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}" 
-                                {{!empty($product->status) || empty($price_code) ? 'disabled' : ''}} 
-                                placeholder="{{empty($price_code) ? 'no price code' : ''}}"
-                            >
+                        <td class="py-0 px-1 align-middle{{!empty($product->status) || empty($price_code) ? ' bg-disabled' : ''}}" wire:loading.class="bg-disabled">
+                            <div class="input-group">
+                                <input type="number" class="form-control border-0 w150{{!empty($product->status) || empty($price_code) ? ' text-center' : ''}}"
+                                    min="0" 
+                                    wire:loading.attr="disabled" 
+                                    max="99999999999" 
+                                    wire:change="change"
+                                    wire:model.lazy="quantity.{{$product->id}}.{{$uom[$product->id] ?? $product->order_uom}}" 
+                                    {{!empty($product->status) || empty($price_code) ? 'disabled' : ''}} 
+                                    placeholder="{{empty($price_code) ? 'no price code' : ''}}"
+                                >
+                                <div class="input-group-prepend">
+                                    @if(isset($paf_data[$product->id]) && !empty($quantity[$product->id][$uom[$product->id] ?? $product->order_uom]))
+                                        <button class="btn btn-sm btn-primary btn-paf-details" data-product-id="{{$product->id}}" data-uom="{{$uom[$product->id] ?? $product->order_uom}}" type="button">
+                                            <i class="fa fa-list"></i>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                            
                         </td>
                     </tr>
                     @endforeach
