@@ -317,12 +317,12 @@ return [
             'icon'      => 'fas fa-fw fa-chart-pie',
             'active'    => ['dashboard*']
         ],
-        [
-            'text'      => 'remittances',
-            'url'       => 'remittance',
-            'icon'      => 'fas fa-fw fa-chart-pie',
-            'active'    => ['remittance*']
-        ],
+        // [
+        //     'text'      => 'remittances',
+        //     'url'       => 'remittance',
+        //     'icon'      => 'fas fa-fw fa-chart-pie',
+        //     'active'    => ['remittance*']
+        // ],
         [
             'text'      => 'Purchase Orders',
             'url'       => '/purchase-order',
