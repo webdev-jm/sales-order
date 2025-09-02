@@ -200,6 +200,12 @@
     </div>
 </div>
 
+<div class="modal fade" id="modal-paf">
+    <div class="modal-dialog modal-lg">
+        <livewire:sales-order.sales-order-paf/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
@@ -221,7 +227,7 @@
                     'po_number' : $('#po_number').val(),
                     'paf_number' : $('#paf_number').val(),
                     'order_date' : $('#order_date').val(),
-                    'ship_date' : $('#ship_date').val(),
+                    'ship_date' : $('#ship_date').val(), 
                     'shipping_instruction' : $('#shipping_instruction').val(),
                     'shipping_address_id' : $('#shipping_address_id').val()
                 }
@@ -251,6 +257,15 @@
         // format PRF Number
         $('#paf_number').mask('9999-A-00000', {
             autoUpperCase: true
+        });
+
+        // paf details
+        $('body').on('click', '.btn-paf-details', function(e) {
+            e.preventDefault();
+            var product_id = $(this).data('product-id');
+            var uom = $(this).data('uom');
+            Livewire.emit('pafDetails', product_id, uom);
+            $('#modal-paf').modal('show');
         });
     });
 </script>
