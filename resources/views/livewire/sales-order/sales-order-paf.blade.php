@@ -84,7 +84,7 @@
         </div>
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">CANCEL</button>
-            <button type="button" class="btn btn-primary" wire:click.prevent="savePAF">SAVE</button>
+            <button type="button" class="btn btn-primary" wire:click.prevent="savePAF" data-dismiss="modal">SAVE</button>
         </div>
     </div>
 </div>

@@ -137,7 +137,6 @@ class ActivityPlanController extends Controller
         $activity_plan_data = Session::get('activity_plan_data');
 
         if(!empty($activity_plan_data)) {
-            
             foreach($activity_plan_data as $year => $data) {
 
                 // check objectives
@@ -148,9 +147,14 @@ class ActivityPlanController extends Controller
                         // validate lines
                         $line_error = 0;
                         $line_empty = 1;
+                        $duplicate_error = 0;
+                        $duplicate_dates = [];
+
+                        // Collect date+branch_id combinations to check for duplicates
+                        $date_branch_arr = [];
+
                         foreach($data['details'][$data['month']] as $date => $details) {
                             if(!empty($details['lines'])) {
-                                // dates
                                 foreach($details['lines'] as $val) {
                                     // check for error
                                     if(empty($val['branch_id']) 
@@ -163,15 +167,32 @@ class ActivityPlanController extends Controller
                                     ) {
                                         $line_error = 1;
                                     }
-    
+
                                     // check if all lines are empty
                                     if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty(trim($val['purpose'])) || !empty($val['account_id'])) {
                                         $line_empty = 0;
+                                    }
+
+                                    // Check for duplicate date+branch_id
+                                    if(!empty($val['branch_id'])) {
+                                        $key = $date . '-' . $val['branch_id'];
+                                        if(isset($date_branch_arr[$key])) {
+                                            $duplicate_error = 1;
+                                            $duplicate_dates[] = $date;
+                                        } else {
+                                            $date_branch_arr[$key] = true;
+                                        }
                                     }
                                 }
                             } else {
                                 $line_empty = 0;
                             }
+                        }
+
+                        if($duplicate_error) {
+                            return back()->with([
+                                'message_error' => 'Duplicate entry detected for the same date and branch. Please check: ' . implode(', ', array_unique($duplicate_dates))
+                            ]);
                         }
 
                         if($line_error == 0 && $line_empty == 0) {
@@ -194,6 +215,15 @@ class ActivityPlanController extends Controller
                                 if(!empty($details['lines'])) {
                                     foreach($details['lines'] as $val) {
                                         if(!empty($val['branch_id'])) {
+                                            // Prevent duplicate in DB as well
+                                            $exists = ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
+                                                ->where('date', $date)
+                                                ->where('branch_id', $val['branch_id'])
+                                                ->first();
+                                            if($exists) {
+                                                continue; // skip duplicate
+                                            }
+
                                             $activity_plan_detail = new ActivityPlanDetail([
                                                 'activity_plan_id' => $activity_plan->id,
                                                 'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
@@ -274,15 +304,6 @@ class ActivityPlanController extends Controller
             if($request->status == 'submitted') {
 
                 // notifications
-                // $users = [];
-                // $supervisor_ids = $activity_plan->user->getSupervisorIds();
-                // foreach($supervisor_ids as $id) {
-                //     $user = User::find($id);
-                //     if(!empty($user)) {
-                //         $users[] = $user;
-                //     }
-                // }
-
                 $users = [];
                 $supervisor_ids = [];
                 $supervisor_id = $activity_plan->user->getImmediateSuperiorId();
@@ -548,6 +569,10 @@ class ActivityPlanController extends Controller
                         // validate lines
                         $line_error = 0;
                         $line_empty = 1;
+                        $duplicate_error = 0;
+                        $duplicate_dates = [];
+                        $date_branch_arr = [];
+
                         foreach($data['details'][$data['month']] as $date => $details) {
                             // dates
                             if(!empty($details['lines'])) {
@@ -568,14 +593,31 @@ class ActivityPlanController extends Controller
                                         ) {
                                             $line_error = 1;
                                         }
-        
+
                                         // check if all lines are empty
                                         if(!empty($val['branch_id']) || !empty($val['user_id']) || !empty($val['location']) || !empty($val['purpose']) || !empty($val['account_id'])) {
                                             $line_empty = 0;
                                         }
+
+                                        // Check for duplicate date+branch_id
+                                        if(!empty($val['branch_id'])) {
+                                            $key = $date . '-' . $val['branch_id'];
+                                            if(isset($date_branch_arr[$key])) {
+                                                $duplicate_error = 1;
+                                                $duplicate_dates[] = $date;
+                                            } else {
+                                                $date_branch_arr[$key] = true;
+                                            }
+                                        }
                                     }
                                 }
                             }
+                        }
+
+                        if($duplicate_error) {
+                            return back()->with([
+                                'message_error' => 'Duplicate entry detected for the same date and branch. Please check: ' . implode(', ', array_unique($duplicate_dates))
+                            ]);
                         }
 
                         if($line_error == 0 && $line_empty == 0) {
@@ -605,11 +647,11 @@ class ActivityPlanController extends Controller
                                         // check if already exist
                                         if(isset($val['id']) && !empty($val['id'])) { // update
                                             $activity_plan_detail = ActivityPlanDetail::find($val['id']);
-    
+
                                             // check if line is deleted
                                             if(!empty($val['deleted']) && $val['deleted'] == true && !empty($activity_plan_detail)) {
                                                 $activity_plan_detail->forceDelete();
-    
+
                                                 if(isset($val['trip']) && !empty($val['trip'])) {
                                                     $trip_data = $val['trip'];
                                                     // remove 
@@ -640,7 +682,7 @@ class ActivityPlanController extends Controller
                                                     ]);
                                                 }
                                             }
-    
+
                                         } else { // insert
                                             // check if exists
                                             $activity_plan_detail = ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
@@ -648,9 +690,9 @@ class ActivityPlanController extends Controller
                                                 ->where('branch_id', $val['branch_id'])
                                                 ->where('user_id', $val['user_id'])
                                                 ->first();
-    
+
                                             if(empty($activity_plan_detail)) {
-    
+
                                                 $activity_plan_detail = new ActivityPlanDetail([
                                                     'activity_plan_id' => $activity_plan->id,
                                                     'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
@@ -665,11 +707,11 @@ class ActivityPlanController extends Controller
                                             }
                                             
                                         }
-    
+
                                         // detail trip
                                         if(isset($val['trip']) && !empty($val['trip'])) {
                                             $trip_data = $val['trip'];
-    
+
                                             if(!empty($trip_data['selected_trip'])) {
                                                 if($trip_data['source'] == 'trips') {
                                                     $trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
@@ -717,7 +759,7 @@ class ActivityPlanController extends Controller
                                                         'status' => 'submitted'
                                                     ]);
                                                 }
-    
+
                                                 $approval = new ActivityPlanDetailTripApproval([
                                                     'user_id' => auth()->user()->id,
                                                     'activity_plan_detail_trip_id' => $trip->id,
@@ -755,16 +797,6 @@ class ActivityPlanController extends Controller
 
                 // notifications
                 if($request->status == 'submitted') {
-                    // notifications
-                    // $users = [];
-                    // $supervisor_ids = $activity_plan->user->getSupervisorIds();
-                    // foreach($supervisor_ids as $id) {
-                    //     $user = User::find($id);
-                    //     if(!empty($user)) {
-                    //         $users[] = $user;
-                    //     }
-                    // }
-
                     $users = [];
                     $supervisor_ids = [];
                     $supervisor_id = $activity_plan->user->getImmediateSuperiorId();

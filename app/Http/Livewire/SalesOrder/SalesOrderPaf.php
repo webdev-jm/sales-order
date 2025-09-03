@@ -48,11 +48,14 @@ class SalesOrderPaf extends Component
         $this->product_order = $order_data['items'][$this->product_id] ?? [];
 
         if(empty($this->paf_rows)) {
-            $this->paf_rows[] = [
-                'paf_number' => '',
-                'uom' => '',
-                'quantity' => '',
-            ];
+            $paf_data = $order_data['items'][$this->product_id]['data'][$this->uom]['paf_rows'] ?? [];
+            $this->paf_rows = array_map(function($row) {
+                return [
+                    'paf_number' => $row['paf_number'] ?? '',
+                    'uom' => $row['uom'] ?? '',
+                    'quantity' => $row['quantity'] ?? '',
+                ];
+            }, $paf_data);
         }
     }
 
