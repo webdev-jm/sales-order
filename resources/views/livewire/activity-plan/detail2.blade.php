@@ -17,7 +17,7 @@
                 <tbody>
                     {{-- month days --}}
                     @foreach($month_days[$month] as $date => $day)
-                    <tr class="{{$day['class']}}" data-widget="expandable-table" aria-expanded="{{$expand_dates[$date] ? 'true' : 'false'}}" wire:click="expandDate('{{$date}}')">
+                    <tr class="{{$day['class']}}" data-widget="expandable-table" aria-expanded="{{$expand_dates[$date] ? 'true' : 'false'}}" wire:click="expandDate('{{$date}}')" wire:key="date-{{$date}}">
                         <td class="text-uppercase font-weight-bold">
                             <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                             {{$day['day']}} - {{$day['date']}}
@@ -31,7 +31,7 @@
                             </span>
                         </td>
                     </tr>
-                    <tr class="expandable-body{{$expand_dates[$date] ? '' : ' d-none'}}">
+                    <tr class="expandable-body{{$expand_dates[$date] ? '' : ' d-none'}}" wire:key="date-body-{{$date}}">
                         <td class="text-right">
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered">
@@ -44,9 +44,7 @@
                                             <th>Purpose</th>
                                             <th>Work With</th>
                                             <th>Trip</th>
-                                            <th>
-
-                                            </th>
+                                            <th></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -58,7 +56,7 @@
                                                 $num++;
                                             @endphp
                                             @if(empty($data['deleted']) || (!empty($data['deleted']) && !$data['deleted']))
-                                                <tr>
+                                                <tr wire:key="line-{{$date}}-{{$line_key}}">
                                                     {{-- number --}}
                                                     <th class="text-center px-1">
                                                         {{$num}}
@@ -73,10 +71,9 @@
                                                         <div class="input-group input-group-sm">
                                                             <input type="text" class="form-control border-0" 
                                                                 wire:model="account_query.{{$date}}.{{$line_key}}"
-                                                                wire:keyup="setAccountQuery('{{$date}}', {{$line_key}})"
+                                                                wire:keyup="setAccountQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetAccountQuery"
                                                                 wire:keydown.tab.prevent="resetAccountQuery"
-                                                                
                                                                 @if(!empty($data['account_name']))
                                                                     placeholder="{{$data['account_name']}}"
                                                                 @endif
@@ -90,11 +87,11 @@
 
                                                         {{-- search results --}}
                                                         @if(isset($account_query[$date][$line_key]) && !empty($account_query[$date][$line_key]))
-                            
-                                                            <div class="list-group position-absolute search-branch" wire:loading.remove>
+                                                            <div class="list-group position-absolute search-branch" wire:loading.remove wire:key="account-results-{{$date}}-{{$line_key}}">
                                                                 @if($accounts->count() > 0)
                                                                     @foreach($accounts as $account)
-                                                                        <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}',{{$account->id}}, '[{{$account->account_code}}], {{str_replace("'", "", $account->short_name)}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                                                        {{-- Pass only the ID to the Livewire method --}}
+                                                                        <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}', {{$account->id}})">[{{$account->account_code}}], {{$account->short_name}}</button>
                                                                     @endforeach
                                                                 @else
                                                                     <button class="list-group-item">No Results</button>
@@ -111,7 +108,6 @@
                                                                 wire:keyup="setBranchQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetBranchQuery"
                                                                 wire:keydown.tab.prevent="resetBranchQuery"
-                                                                
                                                                 @if(!empty($data['branch_name']))
                                                                     placeholder="{{$data['branch_name']}}"
                                                                 @endif
@@ -130,7 +126,7 @@
                                                                 @if($branches->count() > 0)
                                                                     @foreach($branches as $branch)
                                                                         <button class="list-group-item text-left" 
-                                                                            wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}}, '[{{str_replace("'", "",$branch->account->short_name)}}], {{str_replace("'", "",$branch->branch_code)}} - {{str_replace("'", "",$branch->branch_name)}}')"
+                                                                            wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}})"
                                                                         >
                                                                             [{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}
                                                                         </button>
