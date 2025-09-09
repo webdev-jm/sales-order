@@ -12,7 +12,7 @@ use Carbon\Carbon;
 
 Trait SoXmlTrait {
 
-    public $url_link = 'http://api.bevi.com.ph/refreshable/public/api';
+    public $url_link = '192.168.11.240/refreshable/public/api';
 
     public function generateXml($sales_order) {
         $parts = $this->convertData($sales_order);
@@ -232,30 +232,34 @@ Trait SoXmlTrait {
             ->get();
 
         foreach($sales_orders as $sales_order) {
-            $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
-                'po_number' => $sales_order->po_number,
-                'company' => $sales_order->account_login->account->company->name
-            ])
-            ->get($this->url_link.'/so/sor_master');
+            $this->salesOrderStatus($sales_order);
+        }
 
-            if(!empty($response->json())) {
-                $so_data = $response->json()['data'];
-    
-                $so_arr = [];
-                foreach($so_data as $data) {
-                    $so_arr[] = ltrim($data['sales_order'], 0);
-                }
-                $reference = implode(', ', $so_arr);
-    
-                if(!empty($reference)) {
-                    $sales_order->update([
-                        'upload_status' => 1,
-                        'reference' => $reference ?? NULL
-                    ]);
-                }
+    }
+
+    public function salesOrderStatus($sales_order) {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+            'po_number' => $sales_order->po_number,
+            'company' => $sales_order->account_login->account->company->name
+        ])
+        ->get($this->url_link.'/so/sor_master');
+
+        if(!empty($response->json())) {
+            $so_data = $response->json()['data'];
+
+            $so_arr = [];
+            foreach($so_data as $data) {
+                $so_arr[] = ltrim($data['sales_order'], 0);
             }
-
+            $reference = implode(', ', $so_arr);
+    
+            if(!empty($reference)) {
+                $sales_order->update([
+                    'upload_status' => 1,
+                    'reference' => $reference ?? NULL
+                ]);
+            }
         }
 
     }

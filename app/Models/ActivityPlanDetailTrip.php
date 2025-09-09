@@ -15,6 +15,7 @@ class ActivityPlanDetailTrip extends Model
     protected $fillable = [
         'activity_plan_detail_id',
         'user_id',
+        'company_id',
         'trip_number',
         'from',
         'to',
@@ -33,9 +34,8 @@ class ActivityPlanDetailTrip extends Model
 
     /**
      * Dynamically set the database connection based on the session.
-     */
-    public function getConnectionName()
-    {
+    */
+    public function getConnectionName() {
         return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
     }
 

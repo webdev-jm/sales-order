@@ -21,21 +21,15 @@ class PafDetail extends Model
     }
 
     protected $fillable = [
-        'paf_id',
-        'product_id',
-        'components',
-        'line',
-        'stock_code',
-        'description',
+        'PAFNo',
+        'sku_code',
+        'sku_description',
         'brand',
         'category',
+        'quantity',
     ];
 
     public function paf() {
-        return $this->belongsTo('App\Models\Paf');
-    }
-
-    public function product() {
-        return $this->belongsTo('App\Models\Product');
+        return $this->belongsTo('App\Models\Paf', 'PAFNo', 'PAFNo');
     }
 }

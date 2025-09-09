@@ -427,13 +427,16 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(isset($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
+
                         }
 
                     }
@@ -468,13 +471,15 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
                         }
                     }
                 }
@@ -508,13 +513,15 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
                         }
                     }
                 }
@@ -546,6 +553,8 @@ class SalesOrderController extends Controller
         $parts = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
 
         $reference_arr = explode(' ,', $sales_order->reference);
+
+        $this->salesOrderStatus($sales_order);
         
         return view('sales-orders.show')->with([
             'sales_order' => $sales_order,
@@ -759,13 +768,15 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
                         }
                     }
                 }
@@ -799,13 +810,15 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
                         }
                     }
                 }
@@ -839,13 +852,15 @@ class SalesOrderController extends Controller
                     // check if there's a PAF row
                     if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
+                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
+                                    'paf_number' => $paf_row['paf_number'],
+                                    'uom' => $paf_row['uom'],
+                                    'quantity' => $paf_row['quantity'],
+                                ]);
+                                $sales_order_product_uom_paf->save();
+                            }
                         }
                     }
                 }
