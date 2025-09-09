@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 
 use App\Models\User;
+use App\Models\Company;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\ActivityPlanDetailTripDestination;
@@ -24,6 +25,7 @@ class TripEdit extends Component
 
     public $type;
     public $trip;
+    public $company_id;
     public $from, $to, $departure, $return, $passenger, $purpose, $attachment, $status;
     public $trip_attachment;
     public $form_errors;
@@ -49,6 +51,9 @@ class TripEdit extends Component
 
     public function submitTrip() {
         $this->validate([
+            'company_id' => [
+                'required',
+            ],
             'from' => [
                 'required'
             ],
@@ -167,6 +172,7 @@ class TripEdit extends Component
         ]);
 
         $this->trip->update([
+            'company_id' => $this->company_id,
             'from' => $this->from,
             'to' => $this->to,
             'departure' => $this->departure,
@@ -338,6 +344,7 @@ class TripEdit extends Component
         $this->passenger = $trip->passenger;
         $this->type = $trip->trip_type;
         $this->purpose = $trip->purpose;
+        $this->company_id = $trip->company_id;
 
         $this->trip_attachment = $this->trip->attachments()->where('title', 'TRIP ATTACHMENT')->first();
 
@@ -360,6 +367,8 @@ class TripEdit extends Component
 
     public function render()
     {
-        return view('livewire.trip.trip-edit');
+        $companies = Company::orderBy('name', 'ASC')->get();
+
+        return view('livewire.trip.trip-edit', compact('companies'));
     }
 }

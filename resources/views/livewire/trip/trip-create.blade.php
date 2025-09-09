@@ -14,6 +14,16 @@
     @endif
 
     <div class="row mb-1">
+        <div class="col-lg-3">
+            <div class="form-group">
+                <label for="company_id">COMPANY</label>
+                <select id="company_id" class="form-control" wire:model="company_id">
+                    @foreach($companies as $company)
+                        <option value="{{$company->id}}">{{$company->name}}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
                 
         <div class="col-lg-12">
             <button class="btn {{$type == 'one_way' ? 'btn-info' : 'btn-default'}}" wire:click.prevent="selectType('one_way')">

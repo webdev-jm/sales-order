@@ -18,7 +18,7 @@
                             <strong>Size:</strong> {{$product_order['size'] ?? ''}}
                         </li>
                         <li class="list-group-item">
-                            <strong>Quantity:</strong>
+                            <strong>Order Quantity:</strong>
                             @foreach($product_order['data'] ?? [] as $uom => $val)
                                 <span class="badge badge-secondary">{{$uom}}: {{number_format($val['quantity'] ?? 0)}}</span>
                             @endforeach
@@ -36,6 +36,7 @@
                                     <th>PAF NUMBER</th>
                                     <th>UOM</th>
                                     <th>QUANTITY</th>
+                                    <th>SELL-IN QUANTITY</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -64,10 +65,19 @@
                                             <input type="number" class="form-control border-0" wire:model="paf_rows.{{$index}}.quantity" min="0" max="99999999999" placeholder="Enter quantity">
                                         </td>
                                         <td class="p-0 align-middle text-center">
+                                            @if(isset($paf_rows[$index]['paf_number']) && !empty($paf_rows[$index]['paf_number']))
+                                                @php 
+                                                $paf_quantity = \App\Models\PafDetail::where('PAFNo', $paf_rows[$index]['paf_number'])
+                                                    ->where('sku_code', $product_order['stock_code'] ?? '')
+                                                    ->first();
+                                                @endphp
+                                                <span class="text-danger">{{$paf_quantity->quantity ?? '-'}} PCS</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-0 align-middle text-center">
                                             <button type="button" class="btn btn-danger btn-sm" wire:click.prevent="removeRow({{$index}})">
                                                 <i class="fa fa-trash"></i>
                                             </button>
-
                                         </td>
                                     </tr>
                                 @endforeach

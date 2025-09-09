@@ -21,31 +21,16 @@ class Paf extends Model
     }
 
     protected $fillable = [
-        'account_id',
-        'user_id',
-        'paf_number',
+        'PAFNo',
+        'account_code',
+        'account_name',
         'title',
-        'concept',
-        'expense_type',
-        'support_type',
         'start_date',
         'end_date',
-        'status',
+        'support_type',
     ];
 
-    public function account() {
-        return $this->belongsTo('App\Models\Account');
-    }
-
-    public function user() {
-        return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    public function approvals() {
-        return $this->hasMany('App\Models\PafApproval');
-    }
-
     public function paf_details() {
-        return $this->hasMany('App\Models\PafDetail');
+        return $this->hasMany('App\Models\PafDetail', 'PAFNo', 'PAFNo');
     }
 }

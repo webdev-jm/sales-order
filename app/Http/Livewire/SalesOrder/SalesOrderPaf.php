@@ -34,14 +34,11 @@ class SalesOrderPaf extends Component
         ]);
 
         $this->paf_details = PafDetail::where('sku_code', $this->product->stock_code)
-            ->get();
-
-        $this->paf_details = PafDetail::leftJoin('pafs', 'pafs.PAFNo', '=', 'paf_details.PAFNo')
-            ->where('pafs.start_date', '<=', now())
-            ->where('pafs.end_date', '>=', now())
-            ->where('pafs.account_code', $this->account->account_code)
-            ->where('paf_details.sku_code', $this->product->stock_code)
-            ->where('sku_code', $this->product->stock_code)
+            ->whereHas('paf', function($query) {
+                $query->where('account_code', $this->account->account_code)
+                    ->where('start_date', '<=', now())
+                    ->where('end_date', '>=', now());
+            })
             ->get();
 
         $order_data = Session::get('order_data');
