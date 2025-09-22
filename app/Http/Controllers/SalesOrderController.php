@@ -425,7 +425,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(isset($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
@@ -436,9 +436,7 @@ class SalesOrderController extends Controller
                                 ]);
                                 $sales_order_product_uom_paf->save();
                             }
-
                         }
-
                     }
                 }
             }
@@ -469,7 +467,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
@@ -511,7 +509,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
@@ -728,6 +726,10 @@ class SalesOrderController extends Controller
         $cristalino_data = array();
         $ks_1046_data = array();
 
+        foreach($sales_order->order_products->product_uoms as $uom) {
+            $paf_data = SalesOrderProductUomPaf::where('sales_order_product_uom_id', $uom->id)->get();
+            $paf_data->forceDelete();
+        }
         $sales_order->order_products()->forceDelete();
         foreach($order_data['items'] as $product_id => $items) {
 
@@ -766,7 +768,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
@@ -779,6 +781,7 @@ class SalesOrderController extends Controller
                             }
                         }
                     }
+
                 }
             }
         }
@@ -808,7 +811,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
@@ -850,7 +853,7 @@ class SalesOrderController extends Controller
                     $sales_order_product_uom->save();
 
                     // check if there's a PAF row
-                    if(isset($data['paf_rows']) && !empty($data['paf_rows'])) {
+                    if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                                 $sales_order_product_uom_paf = new SalesOrderProductUomPaf([

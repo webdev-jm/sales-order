@@ -187,7 +187,9 @@ class TripController extends Controller
                 })
                 ->paginate(10)->onEachSide(1)->appends($request->query());
 
-            $users = $userQuery->whereHas('trips')->whereIn('id', $users_ids)->get();
+            $users = $userQuery->whereHas('trips')
+                ->whereIn('id', $users_ids)
+                ->get();
         }
 
         foreach ($users as $user) {

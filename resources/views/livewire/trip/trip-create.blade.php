@@ -17,11 +17,13 @@
         <div class="col-lg-3">
             <div class="form-group">
                 <label for="company_id">COMPANY</label>
-                <select id="company_id" class="form-control" wire:model="company_id">
+                <select id="company_id" class="form-control{{$errors->has('company_id') ? ' is-invalid' : ''}}" wire:model="company_id">
+                    <option value="">-select-</option>
                     @foreach($companies as $company)
                         <option value="{{$company->id}}">{{$company->name}}</option>
                     @endforeach
                 </select>
+                <p class="text-danger mb-0">{{$errors->first('company_id')}}</p>
             </div>
         </div>
                 

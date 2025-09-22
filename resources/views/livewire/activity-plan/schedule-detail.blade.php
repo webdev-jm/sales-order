@@ -10,7 +10,7 @@
                 @if(isset($detail->branch))
                 <h5>BRANCH: [{{$detail->branch->branch_code}}] {{$detail->branch->branch_name}}</h5>
                 @endif
-            
+
                 <ul class="list-group">
                     @if(!empty($detail->exact_location))
                     <li class="list-group-item">
@@ -43,7 +43,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
-                                        {!! DNS1D::getBarcodeSVG($trip_data->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        {!! DNS1D::getBarcodeSVG($trip_data->trip_number, 'C39', 1.5, 50, 'black', false) !!}
                                         <br>
                                         <strong class="text-muted">TRIP CODE</strong>
                                         <br>
@@ -62,10 +62,10 @@
                                             {{$trip_data->transportation_type}}
                                         </h3>
                                     </div>
-                                </div> 
-                
+                                </div>
+
                                 <hr>
-                
+
                                 <div class="row">
                                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
                                         <h1 class="font-weight-bold w-100">{{$trip_data->from}}</h1>
@@ -85,9 +85,9 @@
                                         <h1 class="font-weight-bold w-100">{{$trip_data->to}}</h1>
                                     </div>
                                 </div>
-                
+
                                 <hr>
-                                
+
                                 <div class="row">
                                     <div class="{{$trip_data->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                         <strong class="text-muted">NAME</strong>
@@ -111,7 +111,7 @@
                                         <br>
                                         <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip_data->trip_type)}}</strong>
                                     </div>
-                                        
+
                                 </div>
                             </div>
                         </div>
@@ -128,7 +128,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
-                                        {!! DNS1D::getBarcodeSVG($trip_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        {!! DNS1D::getBarcodeSVG($trip_data->trip->trip_number, 'C39', 1.5, 50, 'black', false) !!}
                                         <br>
                                         <strong class="text-muted">TRIP CODE</strong>
                                         <br>
@@ -147,10 +147,10 @@
                                             {{$trip_data->trip->transportation_type}}
                                         </h3>
                                     </div>
-                                </div> 
-                
+                                </div>
+
                                 <hr>
-                
+
                                 <div class="row">
                                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
                                         <h1 class="font-weight-bold w-100">{{$trip_data->from}}</h1>
@@ -170,9 +170,9 @@
                                         <h1 class="font-weight-bold w-100">{{$trip_data->to}}</h1>
                                     </div>
                                 </div>
-                
+
                                 <hr>
-                                
+
                                 <div class="row">
                                     <div class="{{$trip_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                         <strong class="text-muted">NAME</strong>
@@ -196,7 +196,7 @@
                                         <br>
                                         <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $trip_data->trip->trip_type)}}</strong>
                                     </div>
-                                        
+
                                 </div>
                             </div>
                         </div>
