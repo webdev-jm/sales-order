@@ -23,6 +23,7 @@ class SalesOrderPaf extends Component
 
     public function showPafDetails($product_id, $uom)
     {
+        $this->paf_rows = [];
         $this->product_id = $product_id;
         $this->uom = $uom;
 

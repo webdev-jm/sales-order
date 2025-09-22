@@ -13,7 +13,7 @@
                     </li>
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
-                            [{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}} 
+                            [{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
                         </span>
                     </li>
                     <li class="list-group-item py-2">
@@ -73,7 +73,7 @@
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
-                                        {!! DNS1D::getBarcodeSVG($schedule->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        {!! DNS1D::getBarcodeSVG($schedule->trip->trip_number, 'C39', 1.5, 50, 'black', false) !!}
                                         <br>
                                         <strong class="text-muted">TRIP CODE</strong>
                                         <br>
@@ -117,7 +117,7 @@
                                 </div>
 
                                 <hr>
-                                
+
                                 <div class="row">
                                     <div class="col-lg-4 text-center">
                                         <strong class="text-muted">NAME</strong>
@@ -150,7 +150,7 @@
                     </li>
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
-                            [{{$branch_login->branch->account->short_name}}] {{$branch_login->branch->branch_code}} - {{$branch_login->branch->branch_name}} 
+                            [{{$branch_login->branch->account->short_name}}] {{$branch_login->branch->branch_code}} - {{$branch_login->branch->branch_name}}
                         </span>
                     </li>
                     <li class="list-group-item py-2">
@@ -163,7 +163,7 @@
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
+
         <script>
             document.addEventListener('livewire:load', function () {
             });

@@ -18,20 +18,22 @@
         <div class="col-lg-12 my-1">
             <b>TRIP NUMBER: </b><span class="font-weight-bold" style="font-size: 30px;">{{$trip->trip_number}}</span>
             <br>
-            {!! DNS1D::getBarcodeSVG($trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+            {!! DNS1D::getBarcodeSVG($trip->trip_number, 'C39', 1.5, 50, 'black', false) !!}
         </div>
 
         <div class="col-lg-3">
             <div class="form-group">
                 <label for="company_id">COMPANY</label>
-                <select id="company_id" class="form-control" wire:model="company_id">
+                <select id="company_id" class="form-control{{$errors->has('company_id') ? ' is-invalid' : ''}}" wire:model="company_id">
+                    <option value="">-select-</option>
                     @foreach($companies as $company)
                         <option value="{{$company->id}}">{{$company->name}}</option>
                     @endforeach
                 </select>
+                <p class="text-danger mb-0">{{$errors->first('company_id')}}</p>
             </div>
         </div>
-                
+
         <div class="col-lg-12">
             <button class="btn {{$type == 'one_way' ? 'btn-info' : 'btn-default'}}" wire:click.prevent="selectType('one_way')">
                 One way
@@ -53,7 +55,7 @@
                     <div class="card-header">
                         <h3 class="card-title">TRIP</h3>
                         <div class="card-tools">
-                            
+
                         </div>
                     </div>
                     <div class="card-body">
@@ -156,7 +158,7 @@
                                                 </div>
                                             </div>
                                         </div>
-        
+
                                         <div class="row">
                                             <div class="col-lg-3">
                                                 <div class="form-group">
@@ -165,7 +167,7 @@
                                                     <p class="text-danger mb-0">{{$errors->first('from_other')}}</p>
                                                 </div>
                                             </div>
-        
+
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>TO<i class="fa fa-plane-arrival ml-1"></i></label>
@@ -173,7 +175,7 @@
                                                     <p class="text-danger mb-0">{{$errors->first('to_other')}}</p>
                                                 </div>
                                             </div>
-        
+
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
@@ -181,7 +183,7 @@
                                                     <p class="text-danger mb-0">{{$errors->first('departure_other')}}</p>
                                                 </div>
                                             </div>
-        
+
                                             @if($type == 'round_trip')
                                                 <div class="col-lg-3">
                                                     <div class="form-group">
@@ -196,7 +198,7 @@
                                 </div>
                             @endfor
                         @endif
-                
+
                     </div>
                     <div class="card-footer text-right">
                         <button class="btn btn-secondary" wire:click.prevent="submitForm('draft')" wire:loading.remove>

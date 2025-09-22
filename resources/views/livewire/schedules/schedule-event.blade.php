@@ -21,7 +21,7 @@
                         <div class="card card-primary card-outline">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    TRIP DETAILS 
+                                    TRIP DETAILS
                                     <span class="badge bg-{{$status_arr[$schedule_data->trip->status]}}">{{strtoupper($schedule_data->trip->status)}}</span>
                                 </h3>
                                 <div class="card-tools">
@@ -34,7 +34,7 @@
 
                                 <div class="row">
                                     <div class="col-lg-6 text-center align-middle">
-                                        {!! DNS1D::getBarcodeSVG($schedule_data->trip->trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        {!! DNS1D::getBarcodeSVG($schedule_data->trip->trip_number, 'C39', 1.5, 50, 'black', false) !!}
                                         <br>
                                         <strong class="text-muted">TRIP CODE</strong>
                                         <br>
@@ -54,9 +54,9 @@
                                         </h3>
                                     </div>
                                 </div>
-                
+
                                 <hr>
-                
+
                                 <div class="row">
                                     <div class="col-lg-5 d-flex align-items-center text-center font-weight-bold">
                                         <h1 class="font-weight-bold w-100">{{$schedule_data->trip->from}}</h1>
@@ -76,9 +76,9 @@
                                         <h1 class="font-weight-bold w-100">{{$schedule_data->trip->to}}</h1>
                                     </div>
                                 </div>
-                
+
                                 <hr>
-                                
+
                                 <div class="row">
                                     <div class="{{$schedule_data->trip->trip_type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}} text-center">
                                         <strong class="text-muted">NAME</strong>
@@ -102,7 +102,7 @@
                                         <br>
                                         <strong class="text-uppercase text-lg">{{str_replace('_', ' ', $schedule_data->trip->trip_type)}}</strong>
                                     </div>
-                                        
+
                                 </div>
                             </div>
                         </div>
@@ -194,7 +194,7 @@
                                             <p class="text-danger">{{$errors->first('accuracy')}}</p>
                                         </div>
                                     </div>
-                    
+
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Longitude</label>
@@ -202,7 +202,7 @@
                                             <p class="text-danger">{{$errors->first('longitude')}}</p>
                                         </div>
                                     </div>
-                    
+
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Latitude</label>
@@ -220,7 +220,7 @@
                             <form action="" wire:submit.prevent="submitTrip">
                                 <div class="row">
                                     <div class="col-lg-12 text-center align-middle">
-                                        {!! DNS1D::getBarcodeSVG($trip_number, 'C39', 1.5, 50, 'black', false); !!}
+                                        {!! DNS1D::getBarcodeSVG($trip_number, 'C39', 1.5, 50, 'black', false) !!}
                                         <br>
                                         <strong class="text-muted">TRIP CODE</strong>
                                         <br>
@@ -237,7 +237,7 @@
                                             <p class="text-danger">{{$errors->first('departure')}}</p>
                                         </div>
                                     </div>
-                    
+
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Arrival <i class="fa fa-plane-arrival text-primary"></i></label>
@@ -245,7 +245,7 @@
                                             <p class="text-danger">{{$errors->first('arrival')}}</p>
                                         </div>
                                     </div>
-                    
+
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Transportation Type</label>
@@ -258,7 +258,7 @@
                                             <p class="text-danger">{{$errors->first('transportation_type')}}</p>
                                         </div>
                                     </div>
-                    
+
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Reference Number</label>
@@ -270,7 +270,7 @@
                                     <div class="col-12 text-right">
                                         <button class="btn btn-primary" type="submit">Add Trip</button>
                                     </div>
-                    
+
                                 </div>
 
                             </form>
@@ -345,7 +345,7 @@
                     }, function(error) {
                         @this.accuracy = error.message;
                     });
-                } else { 
+                } else {
                     console.log("Geolocation is not supported by this browser.");
                 }
             }
