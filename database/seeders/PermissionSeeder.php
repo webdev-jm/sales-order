@@ -18,6 +18,20 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions_arr = [
+            'Credit Memo Reason' => [
+                'cm reason access'   => 'access to credit memo reason module',
+                'cm reason create'   => 'access to create credit memo reason',
+                'cm reason edit'     => 'access to edit credit memo reason',
+                'cm reason delete'   => 'access to delete credit memo reason',
+            ],
+            'Credit Memo'=> [
+                'cm access'         => 'access to credit memo module',
+                'cm create'         => 'access to create credit memo',
+                'cm edit'           => 'access to edit credit memo',
+                'cm delete'         => 'access to delete credit memo',
+                'cm approve'        => 'access to approve credit memo',
+                'cm print'          => 'access to print credit memo',
+            ],
             'Sales Order' => [
                 'sales order list'          => 'access to sales order lists',
                 'sales order change status' => 'access to change upload error status sales orders',
@@ -263,7 +277,7 @@ class PermissionSeeder extends Seeder
                 'brand access'  => 'access to brand module',
                 'brand create'  => 'access to create brand',
                 'brand edit'    => 'access to edit brand',
-                'brand delete'  => 'access to delete brand', 
+                'brand delete'  => 'access to delete brand',
             ],
             'Pre Plan' => [
                 'pre plan access'   => 'access to pre plan module',
@@ -278,7 +292,7 @@ class PermissionSeeder extends Seeder
                 'paf activity delete'   => 'access to delete paf activity',
             ],
             'Remittances' => [
-                'remittance access' => 'access remittance module.' 
+                'remittance access' => 'access remittance module.'
             ],
             'Upload Templates' => [
                 'upload template access'    => 'access to upload templates',

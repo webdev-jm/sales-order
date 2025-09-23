@@ -1,54 +1,24 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\SalesOrderController;
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\DiscountController;
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\InvoiceTermController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\PriceCodeController;
-use App\Http\Controllers\SalesPersonController;
-use App\http\Controllers\RoleController;
-use App\Http\Controllers\SettingController;
-use App\Http\Controllers\AccountLoginController;
-use App\Http\Controllers\ShippingAddressController;
-use App\Http\Controllers\SystemLogController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\OperationProcessController;
-use App\Http\Controllers\UserBranchScheduleController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\RegionController;
-use App\Http\Controllers\ClassificationController;
-use App\Http\Controllers\AreaController;
-use App\Http\Controllers\AccountProductReferenceController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\OrganizationStructureController;
-use App\Http\Controllers\ActivityPlanController;
-use App\Http\Controllers\WeeklyActivityReportController;
-use App\Http\Controllers\SalesOrderCutOffController;
-use App\Http\Controllers\CostCenterController;
-use App\Http\Controllers\HolidayController;
-use App\Http\Controllers\DistrictController;
-use App\Http\Controllers\TerritoryController;
-use App\Http\Controllers\ProductivityReportController;
-use App\Http\Controllers\SalesmanController;
-use App\Http\Controllers\SalesmenLocationController;
-use App\Http\Controllers\ChannelOperationController;
-use App\Http\Controllers\SalesDashboardController;
-use App\Http\Controllers\TripController;
-use App\Http\Controllers\SalesOrderMultipleController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\PurchaseOrderController;
-use App\Http\Controllers\ShipAddressMappingController;
-use App\Http\Controllers\PafController;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\PafPrePlanController;
-use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\RemittanceController;
-use App\Http\Controllers\UploadTemplateController;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\{
+    UserController, AccountController, SalesOrderController, CompanyController,
+    DiscountController, BranchController, InvoiceTermController, ProductController,
+    PriceCodeController, SalesPersonController, RoleController, SettingController,
+    AccountLoginController, ShippingAddressController, SystemLogController, ProfileController,
+    OperationProcessController, UserBranchScheduleController, DashboardController, RegionController,
+    ClassificationController, AreaController, AccountProductReferenceController, ReportController,
+    OrganizationStructureController, ActivityPlanController, WeeklyActivityReportController, SalesOrderCutOffController,
+    CostCenterController, HolidayController, DistrictController, TerritoryController,
+    ProductivityReportController, SalesmanController, SalesmenLocationController, ChannelOperationController,
+    SalesDashboardController, TripController, SalesOrderMultipleController, DepartmentController,
+    PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
+    PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
+    CreditMemoReasonController, CreditMemoController
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -102,6 +72,18 @@ Route::group(['middleware' => 'auth'], function () {
     // SALES DASHBOARD
     Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
 
+    // CREDIT MEMO REASON
+    Route::group(['middleware' => 'permission:cm reason access'], function() {
+        Route::get('cm-reason', [CreditMemoReasonController::class, 'index'])->name('cm-reason.index');
+        Route::get('cm-reason/create', [CreditMemoReasonController::class, 'create'])->name('cm-reason.create')->middleware('permission:cm reason create');
+        Route::post('cm-reason', [CreditMemoReasonController::class, 'store'])->name('cm-reason.store')->middleware('permission:cm reason create');
+
+        Route::get('cm-reason/{id}', [CreditMemoReasonController::class, 'show'])->name('cm-reason.show');
+
+        Route::get('cm-reason/{id}/edit', [CreditMemoReasonController::class,'edit'])->name('cm-reason.edit')->middleware('permission:cm reason edit');
+        Route::post('cm-reason/{id}', [CreditMemoReasonController::class, 'update'])->name('cm-reason.update')->middleware('permission:cm reason edit');
+    });
+
     // REMITTANCE
     Route::get('remittance', [RemittanceController::class, 'index'])->name('remittance.index');
 
@@ -126,20 +108,20 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('pre-plan/{id}/edit', [PafPrePlanController::class, 'edit'])->name('pre-plan.edit')->permission('permission:pre plan edit');
         Route::post('pre-plan/{id}', [PafPrePlanController::class, 'update'])->name('pre-plan.update')->permission('permission:pre plan edit');
     });
-    
+
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
-        
+
         Route::get('sales-order', [SalesOrderController::class, 'index'])->name('sales-order.index');
         Route::get('sales-order/create', [SalesOrderController::class, 'create'])->name('sales-order.create')->middleware('permission:sales order create');
         Route::post('sales-order-store', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
 
         Route::post('sales-order/upload', [SalesOrderController::class, 'upload'])->name('sales-order.upload')->middleware('permission:sales order create');
-        
+
         Route::get('sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales-order.show');
 
         Route::get('sales-order/{id}/resubmit', [SalesOrderController::class, 'resubmit'])->name('sales-order.resubmit')->middleware('permission:sales order create');
-        
+
         Route::get('sales-order/{id}/edit', [SalesOrderController::class, 'edit'])->name('sales-order.edit')->middleware('permission:sales order edit');
         Route::post('sales-order/{id}', [SalesOrderController::class, 'update'])->name('sales-order.update')->middleware('permission:sales order edit');
 
@@ -184,7 +166,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('brand', [BrandController::class, 'index'])->name('brand.index');
         Route::get('brand/create', [BrandController::class, 'create'])->name('brand.create')->middleware('permission:brand create');
         Route::post('brand', [BrandController::class, 'store'])->name('brand.store')->middleware('permission:brand create');
-        
+
         Route::get('brand/{id}', [BrandController::class, 'show'])->name('brand.show');
 
         Route::get('brand/{id}/edit', [BrandController::class, 'edit'])->name('brand.edit')->middleware('permission:brand edit');
@@ -208,10 +190,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('trip', [TripController::class, 'index'])->name('trip.index');
         Route::get('trip/create', [TripController::class, 'create'])->name('trip.create')->middleware('permission:trip create');
         Route::get('trip/export', [TripController::class, 'export'])->name('trip.export');
-        
+
         Route::get('trip/{id}', [TripController::class, 'show'])->name('trip.show');
 
-        
+
         Route::get('trip/{id}/edit', [TripController::class, 'edit'])->name('trip.edit')->middleware('permission:trip edit');
 
         Route::get('shedule/trip-list', [TripController::class, 'list'])->name('trip.list');
@@ -244,7 +226,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('mcp/{id}', [ActivityPlanController::class, 'show'])->name('mcp.show');
 
         Route::post('mcp/upload', [ActivityPlanController::class, 'upload'])->name('mcp.upload');
-        
+
         Route::get('mcp/{id}/edit', [ActivityPlanController::class, 'edit'])->name('mcp.edit')->middleware('permission:mcp edit');
         Route::post('mcp/{id}', [ActivityPlanController::class, 'update'])->name('mcp.update')->middleware('permission:mcp edit');
 
@@ -349,7 +331,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('account', [AccountController::class, 'store'])->name('account.store')->middleware('permission:account create');
 
         Route::get('account/{id}', [AccountController::class, 'show'])->name('account.show');
-        
+
         Route::post('account/upload', [AccountController::class, 'upload'])->name('account.upload')->middleware('permission:account create');
 
         Route::get('account/{id}/edit', [AccountController::class, 'edit'])->name('account.edit')->middleware('permission:account edit');
@@ -381,7 +363,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('shipping-address/{id}', [ShippingAddressController::class, 'index'])->name('shipping-address.index');
         Route::get('shipping-address/{id}/create', [ShippingAddressController::class, 'create'])->name('shipping-address.create')->middleware('permission:shipping address create');
         Route::post('shipping-address', [ShippingAddressController::class, 'store'])->name('shipping-address.store')->middleware('permission:shipping address create');
-        
+
         Route::post('shipping-address/upload', [ShippingAddressController::class, 'upload'])->name('shipping-address.upload')->middleware('permission:shipping address create');
 
         Route::get('shipping-address/{id}/edit', [ShippingAddressController::class, 'edit'])->name('shipping-address.edit')->middleware('permission:shipping address edit');
@@ -410,7 +392,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('region', [RegionController::class, 'store'])->name('region.store')->middleware('permission:region create');
 
         Route::get('region/{id}', [RegionController::class, 'show'])->name('region.show');
-        
+
         Route::post('region/upload', [RegionController::class, 'upload'])->name('region.upload')->middleware('permission:region create');
 
         Route::get('region/{id}/edit', [RegionController::class, 'edit'])->name('region.edit')->middleware('permission:region edit');
@@ -508,7 +490,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('cost-center/upload', [CostCenterController::class, 'importCostCenter'])->name('cost-center.upload')->middleware('permission:cost center create');
 
         Route::get('cost-center/{id}', [CostCenterController::class, 'show'])->name('cost-center.show');
-        
+
         Route::get('cost-center/{id}/edit', [CostCenterController::class, 'edit'])->name('cost-center.edit')->middleware('permission:cost center edit');
         Route::post('cost-center/{id}', [CostCenterController::class, 'update'])->name('cost-center.update')->middleware('permission:cost center edit');
     });
