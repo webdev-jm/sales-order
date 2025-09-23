@@ -29,10 +29,10 @@ class DashboardController extends Controller
         // file_put_contents($filePath, $barcodeSVG);
 
         if(auth()->user()->can('system logs')) {
-            
+
             $year = date('Y');
             $month = date('n');
-            
+
             $results = DB::table('branch_logins as bl')
                 ->select(
                     DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),

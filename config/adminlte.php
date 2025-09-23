@@ -345,6 +345,13 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
+            'text'      => 'Credit Memo',
+            'url'       => '/credit-memo',
+            'icon'      => 'fas fa-fw fa-credit-card',
+            'can'       => 'cm access',
+            'active'    => ['credit-memo*']
+        ],
+        [
             'text'      => 'Invoice',
             'url'       => '/invoice',
             'icon'      => 'fas fa-fw fa-list',
@@ -479,7 +486,15 @@ return [
                 'price code access',
                 'sales people access',
                 'operation process access',
+                'cm reason access',
             ]
+        ],
+        [
+            'text'      => 'CM Reasons',
+            'url'       => '/cm-reason',
+            'icon'      => 'fas fa-fw fa-comment',
+            'can'       => 'cm reason access',
+            'active'    => ['cm-reason*']
         ],
         [
             'text'      => 'Departments',

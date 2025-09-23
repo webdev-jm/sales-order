@@ -12,7 +12,7 @@ class BrandController extends Controller
     public function index(Request $request) {
         $search = trim($request->get('search'));
         $brands = Brand::orderBy('id', 'DESC')
-            ->when(!empty($search), function($query) {
+            ->when(!empty($search), function($query) use($search) {
                 $query->where('brand', 'LIKE', '%' . $search . '%');
             })
             ->paginate(10)->onEachSide(1)
