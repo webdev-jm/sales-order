@@ -27,5 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call([PafExpenseTypeSeeder::class]);
         $this->call([PafActivitySeeder::class]);
         $this->call([BrandSeeder::class]);
+
+        $this->call([CreditMemoReasonSeeder::class]);
     }
 }
