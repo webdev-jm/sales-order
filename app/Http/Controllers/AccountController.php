@@ -10,6 +10,8 @@ use App\Models\PriceCode;
 use App\Http\Requests\StoreAccountRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\AccountImport;
@@ -30,7 +32,7 @@ class AccountController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $search = trim($request->get('search'));
         $accounts = Account::AccountSearch($search, $this->setting->data_per_page);
@@ -45,7 +47,7 @@ class AccountController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $discounts = Discount::orderBy('company_id', 'ASC')->get();
         $discount_arr = [];
@@ -85,7 +87,7 @@ class AccountController extends Controller
      * @param  \App\Http\Requests\StoreAccountRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreAccountRequest $request)
+    public function store(StoreAccountRequest $request): RedirectResponse
     {
         $account = new Account([
             'invoice_term_id' => $request->invoice_term_id,
@@ -122,7 +124,7 @@ class AccountController extends Controller
      * @param  \App\Models\Account  $account
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id): View
     {
         $account = Account::findOrFail(decrypt($id));
 
@@ -137,7 +139,7 @@ class AccountController extends Controller
      * @param  \App\Models\Account  $account
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id): View
     {
         $account = Account::findOrFail(decrypt($id));
         $discounts = Discount::orderBy('company_id', 'ASC')->get();
@@ -180,7 +182,7 @@ class AccountController extends Controller
      * @param  \App\Models\Account  $account
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateAccountRequest $request, $id)
+    public function update(UpdateAccountRequest $request, $id): RedirectResponse
     {
         $account = Account::findOrFail(decrypt($id));
         $account_name = '['.$account->account_code.'] '.$account->account_name;
@@ -204,7 +206,7 @@ class AccountController extends Controller
             'po_process_date' => $request->po_process_date,
             'po_prefix' => $request->po_prefix
         ]);
-        
+
         $changes_arr['changes'] = $account->getChanges();
 
         // logs
@@ -224,12 +226,12 @@ class AccountController extends Controller
      * @param  \App\Models\Account  $account
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Account $account)
+    public function destroy(Account $account): void
     {
         //
     }
 
-    public function upload(Request $request) {
+    public function upload(Request $request): RedirectResponse {
         $request->validate([
             'upload_file' => [
                 'mimes:xlsx'

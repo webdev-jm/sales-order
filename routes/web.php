@@ -72,6 +72,18 @@ Route::group(['middleware' => 'auth'], function () {
     // SALES DASHBOARD
     Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
 
+    // CREDIT MEMO
+    Route::group(['middleware' => 'permission:cm access'], function() {
+        Route::get('credit-memo', [CreditMemoController::class, 'index'])->name('cm.index');
+        Route::get('credit-memo/create', [CreditMemoController::class, 'create'])->name('cm.create')->middleware('permission:cm create');
+        Route::post('credit-memo', [CreditMemoController::class, 'store'])->name('cm.store')->middleware('permission:cm create');
+
+        Route::get('credit-memo/{id}', [CreditMemoController::class, 'show'])->name('cm.show');
+
+        Route::get('credit-memo/{id}/edit', [CreditMemoController::class, 'edit'])->name('cm.edit')->middleware('permission:cm edit');
+        Route::post('credit-memo/{id}', [CreditMemoController::class, 'update'])->name('cm.update')->middleware('permission:cm edit');
+    });
+
     // CREDIT MEMO REASON
     Route::group(['middleware' => 'permission:cm reason access'], function() {
         Route::get('cm-reason', [CreditMemoReasonController::class, 'index'])->name('cm-reason.index');

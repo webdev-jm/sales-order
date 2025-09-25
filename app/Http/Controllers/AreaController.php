@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\AreaImport;
 
 use App\Http\Traits\GlobalTrait;
+use Illuminate\View\View;
 
 class AreaController extends Controller
 {
@@ -27,7 +28,7 @@ class AreaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $search = trim($request->get('search'));
 
