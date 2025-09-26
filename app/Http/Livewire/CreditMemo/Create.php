@@ -7,15 +7,17 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\CreditMemoReason;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Create extends Component
 {
     public $accounts;
     public $reasons;
-    public $year, $month, $invoice_number, $account_id, $cm_reason_id;
+    public $year, $month, $invoice_number, $account_id, $so_number, $po_number;
+    public $cm_reason_id;
     public $invoice_data;
 
-    public $api_url = "192.168.11.240/refreshable/public/api/credit-memo/invoice";
+    public $api_url = "192.168.11.240/refreshable/public/api/credit-memo/";
 
     public function render()
     {
@@ -41,11 +43,16 @@ class Create extends Component
                 'month' => $this->month,
                 'invoice_number' => $this->invoice_number,
                 'company' => $company,
+                'so_number' => $this->so_number,
+                'po_number' => $this->po_number,
+                'account_code' => $account->account_code ?? '',
             ])
-            ->get($this->api_url);
+            ->get($this->api_url.'getInvoice');
 
         $this->invoice_data = $response->json();
+    }
 
-        dd($this->invoice_data);
+    public function selectSalesOrder($invoice_number, $so_number, $account_code, $year, $month) {
+
     }
 }

@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Credit Memo - Add
+    RUD - Add
 @endsection
 
 @section('css')
@@ -10,7 +10,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Credit Memo / Add</h1>
+        <h1>RUD / Add</h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('cm.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
