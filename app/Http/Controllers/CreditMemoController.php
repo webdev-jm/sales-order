@@ -31,8 +31,8 @@ class CreditMemoController extends Controller
         $credit_memos = CreditMemo::orderBy('created_at', 'DESC')
             ->when($search, function ($query, $search) {
                 $query->where('invoice_number', 'like', "%{$search}%")
-                      ->orWhere('po_number', 'like', "%{$search}%")
-                      ->orWhere('status', 'like', "%{$search}%");
+                    ->orWhere('po_number', 'like', "%{$search}%")
+                    ->orWhere('status', 'like', "%{$search}%");
             })
             ->paginate($this->setting->item_per_page)
             ->appends(request()->query());

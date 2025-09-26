@@ -345,7 +345,7 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
-            'text'      => 'Credit Memo',
+            'text'      => 'RUD',
             'url'       => '/credit-memo',
             'icon'      => 'fas fa-fw fa-credit-card',
             'can'       => 'cm access',
