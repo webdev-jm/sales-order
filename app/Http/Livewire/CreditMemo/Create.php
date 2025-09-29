@@ -16,6 +16,7 @@ class Create extends Component
     public $year, $month, $invoice_number, $account_id, $so_number, $po_number;
     public $cm_reason_id;
     public $invoice_data;
+    public $detail_data;
 
     public $api_url = "192.168.11.240/refreshable/public/api/credit-memo/";
 
@@ -38,7 +39,7 @@ class Create extends Component
 
         $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer UaHxtws9LHZ47QG21lBXjQgka3Fe93H5xV1Y6HBQDN4=',
+                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
                 'year' => $this->year,
                 'month' => $this->month,
                 'invoice_number' => $this->invoice_number,
@@ -50,9 +51,30 @@ class Create extends Component
             ->get($this->api_url.'getInvoice');
 
         $this->invoice_data = $response->json();
+
+        $this->reset('detail_data');
     }
 
     public function selectSalesOrder($invoice_number, $so_number, $account_code, $year, $month) {
+        $account = Account::where('account_code', $account_code)->first();
+        $company = $account ? $account->company->name : null;
 
+        $response = Http::withHeaders([
+            'Accept' => 'application/json',
+                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                'year' => $year,
+                'month' => $month,
+                'invoice_number' => $invoice_number,
+                'company' => $company,
+                'sales_order' => $so_number,
+                'account_code' => $account_code ?? '',
+        ])
+        ->get($this->api_url.'getInvoiceDetail');
+
+        $this->detail_data = $response->json();
+    }
+
+    public function clearDetail() {
+        $this->reset('detail_data');
     }
 }
