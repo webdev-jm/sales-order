@@ -89,40 +89,110 @@
                     </div>
                 </div>
 
-                <div class="col-lg-12 table-responsive">
-                    @if(!empty($invoice_data))
-                        <table class="table table-bordered table-hover table-sm text-xs">
+                @if(!empty($detail_data))
+
+                    <div class="col-lg-12 text-right mb-2">
+                        <button class="btn btn-sm btn-secondary" wire:click.prevent="clearDetail" wire:loading.attr="disabled">
+                            <i class="fa fa-arrow-left mr-1"></i>
+                            Back
+                        </button>
+                    </div>
+
+                    <div class="col-lg-12 table-responsive">
+                        <table class="table table-sm text-xs table-bordered table-hover">
                             <thead>
-                                <tr class="bg-secondary text-white">
-                                    <th>Invoice Number</th>
-                                    <th>Sales Order</th>
-                                    <th>Year</th>
-                                    <th>Month</th>
-                                    <th>Customer</th>
-                                    <th>PO Number</th>
-                                    <th>Order Date</th>
-                                    <th>ReqShipDate</th>
+                                <tr>
+                                    <th>Sales Order Line</th>
+                                    <th>Stock Code</th>
+                                    <th>Stock Description</th>
+                                    <th>Warehouse</th>
+                                    <th>Bin</th>
+                                    <th>Order Qty</th>
+                                    <th>Ship Qty</th>
+                                    <th>Unit Cost</th>
+                                    <th>Order Uom</th>
+                                    <th>Stock Qty To Ship</th>
+                                    <th>Stocking Uom</th>
+                                    <th>Conv Fact Ord Uom</th>
+                                    <th>Mul Div C</th>
+                                    <th>Price</th>
+                                    <th>Price Uom</th>
+                                    <th>Line Ship Date</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($invoice_data as $data)
-                                    <tr wire:click.prevent="selectSalesOrder('{{$data['InvoiceNumber']}}', '{{$data['SalesOrder']}}', '{{$data['Customer']}}', '{{$data['TrnYear']}}', '{{$data['TrnMonth']}}')">
-                                        <td>{{ $data['InvoiceNumber'] }}</td>
-                                        <td>{{ $data['SalesOrder'] }}</td>
-                                        <td>{{ $data['TrnYear'] }}</td>
-                                        <td>{{ $data['TrnMonth'] }}</td>
-                                        <td>{{ $data['Customer'] }}</td>
-                                        <td>{{ $data['CustomerPoNumber'] }}</td>
-                                        <td>{{ $data['OrderDate'] }}</td>
-                                        <td>{{ $data['ReqShipDate'] }}</td>
+                                @foreach($detail_data as $data)
+                                    <tr data-widget="expandable-table" aria-expanded="false">
+                                        <td>{{$data['SalesOrderLine']}}</td>
+                                        <td>{{$data['StockCode']}}</td>
+                                        <td>{{$data['StockDescription']}}</td>
+                                        <td>{{$data['Warehouse']}}</td>
+                                        <td>{{$data['Bin']}}</td>
+                                        <td>{{$data['OrderQty']}}</td>
+                                        <td>{{$data['ShipQty']}}</td>
+                                        <td>{{$data['UnitCost']}}</td>
+                                        <td>{{$data['OrderUom']}}</td>
+                                        <td>{{$data['StockQtyToShip']}}</td>
+                                        <td>{{$data['StockingUom']}}</td>
+                                        <td>{{$data['ConvFactOrdUom']}}</td>
+                                        <td>{{$data['MulDivC']}}</td>
+                                        <td>{{$data['Price']}}</td>
+                                        <td>{{$data['PriceUom']}}</td>
+                                        <td>{{$data['LineShipDate']}}</td>
+                                    </tr>
+                                    <tr class="expandable-body">
+                                        <td colspan="16">
+                                            <ul class="list-group list-group-flush">
+                                                @foreach ($data['lot_data'] as $lot_data)
+                                                    <li class="list-group-item py-1">
+                                                        <strong>LOT</strong>: {{ $lot_data['Lot'] }}
+                                                        <strong>STOCK QTY TO SHIP</strong>: {{ $lot_data['StockQtyToShip'] }}
+                                                        <strong>LOT EXPIRY DATE</strong>: {{ $lot_data['LotExpiryDate'] }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
-                    @else
-                        <p>No invoice data found.</p>
-                    @endif
-                </div>
+                    </div>
+                @else
+                    <div class="col-lg-12 table-responsive">
+                        @if(!empty($invoice_data))
+                            <table class="table table-bordered table-hover table-sm text-xs">
+                                <thead>
+                                    <tr class="bg-secondary text-white">
+                                        <th>Invoice Number</th>
+                                        <th>Sales Order</th>
+                                        <th>Year</th>
+                                        <th>Month</th>
+                                        <th>Customer</th>
+                                        <th>PO Number</th>
+                                        <th>Order Date</th>
+                                        <th>ReqShipDate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($invoice_data as $data)
+                                        <tr wire:click.prevent="selectSalesOrder('{{$data['InvoiceNumber']}}', '{{$data['SalesOrder']}}', '{{$data['Customer']}}', '{{$data['TrnYear']}}', '{{$data['TrnMonth']}}')">
+                                            <td>{{ $data['InvoiceNumber'] }}</td>
+                                            <td>{{ $data['SalesOrder'] }}</td>
+                                            <td>{{ $data['TrnYear'] }}</td>
+                                            <td>{{ $data['TrnMonth'] }}</td>
+                                            <td>{{ $data['Customer'] }}</td>
+                                            <td>{{ $data['CustomerPoNumber'] }}</td>
+                                            <td>{{ $data['OrderDate'] }}</td>
+                                            <td>{{ $data['ReqShipDate'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <p>No invoice data found.</p>
+                        @endif
+                    </div>
+                @endif
 
             </div>
 

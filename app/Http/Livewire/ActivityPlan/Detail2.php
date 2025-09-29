@@ -106,7 +106,7 @@ class Detail2 extends Component
     {
         $this->year = (string)$year;
         $this->month = $month < 10 ? '0' . (int)$month : (string)$month;
-        
+
         // This is the key: Reset and re-populate all properties that are
         // dependent on the month to ensure Livewire's state is clean.
         $this->reset(['month_days', 'expand_dates', 'account_query', 'branch_query']);
@@ -162,6 +162,11 @@ class Detail2 extends Component
         $this->account_id = null;
     }
 
+    public function clearAccount($date, $key) {
+        $this->month_days[$this->month][$date]['lines'][$key]['account_id'] = '';
+        $this->month_days[$this->month][$date]['lines'][$key]['account_name'] = '';
+    }
+
     public function setBranchQuery($date, $key)
     {
         $query = $this->branch_query[$date][$key] ?? '';
@@ -203,6 +208,11 @@ class Detail2 extends Component
         $this->account_id = null;
     }
 
+    public function clearBranch($date, $key) {
+        $this->month_days[$this->month][$date]['lines'][$key]['branch_id'] = '';
+        $this->month_days[$this->month][$date]['lines'][$key]['branch_name'] = '';
+    }
+
     // ---
     // SCHEDULE METHODS
     // ---
@@ -226,10 +236,10 @@ class Detail2 extends Component
     public function removeLine($date, $key)
     {
         $line = $this->month_days[$this->month][$date]['lines'][$key];
-        
+
         if (!empty($line['id'])) {
             $this->month_days[$this->month][$date]['lines'][$key]['deleted'] = true;
-            
+
             // Unlink trip if applicable
             if (isset($line['trip']) && !empty($line['trip'])) {
                 $trip_data = $line['trip'];
@@ -282,24 +292,24 @@ class Detail2 extends Component
         $this->last_day = date('t', strtotime($this->year . '-' . $this->month . '-01'));
         $days = [];
         $expand_dates = [];
-        
+
         $activity_plan_data = Session::get('activity_plan_data');
         $session_details = $activity_plan_data[$this->year]['details'] ?? [];
 
         for ($i = 1; $i <= (int)$this->last_day; $i++) {
             $date = $this->year . '-' . $this->month . '-' . ($i < 10 ? '0' . $i : $i);
             $day_of_week = date('D', strtotime($date));
-            
+
             $class = 'bg-light';
             if ($day_of_week === 'Sun') {
                 $class = 'bg-navy';
             } elseif ($day_of_week === 'Sat') {
                 $class = 'bg-secondary';
             }
-            
+
             // Always initialize with an empty lines array to ensure consistency
             $lines = $session_details[$this->month][$date]['lines'] ?? [];
-            
+
             $days[$date] = [
                 'day' => $day_of_week,
                 'date' => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
@@ -310,7 +320,7 @@ class Detail2 extends Component
             // Initialize expand state, default to false.
             $expand_dates[$date] = false;
         }
-        
+
         // Use a consistent key for the month, and assign directly
         $this->month_days[$this->month] = $days;
         $this->expand_dates = $expand_dates;
@@ -319,7 +329,7 @@ class Detail2 extends Component
     protected function setSession()
     {
         $activity_plan_data = Session::get('activity_plan_data', []);
-        
+
         // Overwrite the specific year's data to ensure the session is always in sync with the component's state
         $activity_plan_data[$this->year] = [
             'year' => $this->year,
