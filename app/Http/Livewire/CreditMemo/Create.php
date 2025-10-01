@@ -7,7 +7,8 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\CreditMemoReason;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Session;
+
 
 class Create extends Component
 {
@@ -31,6 +32,18 @@ class Create extends Component
 
         $this->year = date('Y');
         $this->month = (int)date('m');
+
+        $this->cm_data = [
+            'account_id' => $this->account_id,
+            'cm_reason_id' => $this->cm_reason_id,
+            'invoice_number' => $this->invoice_number,
+            'so_number' => $this->so_number,
+            'po_number' => '',
+            'warehouse_location' => '',
+            'ship_date' => '',
+        ];
+
+        Session::put('cm_data', $this->cm_data);
     }
 
     public function searchInvoice() {
@@ -72,9 +85,13 @@ class Create extends Component
         ->get($this->api_url.'getInvoiceDetail');
 
         $this->detail_data = $response->json();
+
+        $this->so_number = $so_number;
+        $this->invoice_number = $invoice_number;
     }
 
     public function clearDetail() {
         $this->reset('detail_data');
+        $this->reset(['so_number', 'invoice_number']);
     }
 }
