@@ -99,63 +99,30 @@
                     </div>
 
                     <div class="col-lg-12 table-responsive">
-                        <table class="table table-sm text-xs table-bordered table-hover">
+                        {{-- <table class="table table-sm text-xs table-bordered table-hover">
                             <thead>
-                                <tr>
-                                    <th>Sales Order Line</th>
-                                    <th>Stock Code</th>
-                                    <th>Stock Description</th>
-                                    <th>Warehouse</th>
-                                    <th>Bin</th>
-                                    <th>Order Qty</th>
-                                    <th>Ship Qty</th>
-                                    <th>Unit Cost</th>
-                                    <th>Order Uom</th>
-                                    <th>Stock Qty To Ship</th>
-                                    <th>Stocking Uom</th>
-                                    <th>Conv Fact Ord Uom</th>
-                                    <th>Mul Div C</th>
-                                    <th>Price</th>
-                                    <th>Price Uom</th>
-                                    <th>Line Ship Date</th>
+                                <tr class="text-center">
+                                    <th></th>
+                                    <th class="align-middle">Sales Order Line</th>
+                                    <th class="align-middle">Stock Code</th>
+                                    <th class="align-middle">Stock Description</th>
+                                    <th class="align-middle">Quantity</th>
+                                    <th class="align-middle">Uom</th>
+                                    <th class="align-middle"></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($detail_data as $data)
-                                    <tr data-widget="expandable-table" aria-expanded="false">
-                                        <td>{{$data['SalesOrderLine']}}</td>
-                                        <td>{{$data['StockCode']}}</td>
-                                        <td>{{$data['StockDescription']}}</td>
-                                        <td>{{$data['Warehouse']}}</td>
-                                        <td>{{$data['Bin']}}</td>
-                                        <td>{{$data['OrderQty']}}</td>
-                                        <td>{{$data['ShipQty']}}</td>
-                                        <td>{{$data['UnitCost']}}</td>
-                                        <td>{{$data['OrderUom']}}</td>
-                                        <td>{{$data['StockQtyToShip']}}</td>
-                                        <td>{{$data['StockingUom']}}</td>
-                                        <td>{{$data['ConvFactOrdUom']}}</td>
-                                        <td>{{$data['MulDivC']}}</td>
-                                        <td>{{$data['Price']}}</td>
-                                        <td>{{$data['PriceUom']}}</td>
-                                        <td>{{$data['LineShipDate']}}</td>
-                                    </tr>
-                                    <tr class="expandable-body">
-                                        <td colspan="16">
-                                            <ul class="list-group list-group-flush">
-                                                @foreach ($data['lot_data'] as $lot_data)
-                                                    <li class="list-group-item py-1">
-                                                        <strong>LOT</strong>: {{ $lot_data['Lot'] }}
-                                                        <strong>STOCK QTY TO SHIP</strong>: {{ $lot_data['StockQtyToShip'] }}
-                                                        <strong>LOT EXPIRY DATE</strong>: {{ $lot_data['LotExpiryDate'] }}
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                @endforeach
+
                             </tbody>
-                        </table>
+                        </table> --}}
+
+                        <ul class="list-group">
+                        @foreach($detail_data as $key => $data)
+                            <li class="list-group-item py-0 px-1">
+                                <livewire:credit-memo.cm-row :row_data="$data" wire:key="$key"/>
+                            </li>
+                        @endforeach
+                        </ul>
                     </div>
                 @else
                     <div class="col-lg-12 table-responsive">
