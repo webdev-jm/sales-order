@@ -581,6 +581,13 @@ return [
             'active'    => ['branch*']
         ],
         [
+            'text'      => 'Branch Address',
+            'url'       => '/branch-address',
+            'icon'      => 'fas fa-fw fa-globe',
+            'can'       => 'branch address access',
+            'active'    => ['branch-address*']
+        ],
+        [
             'text'      => 'Regions',
             'url'       => '/region',
             'icon'      => 'fas fa-fw fa-map',
