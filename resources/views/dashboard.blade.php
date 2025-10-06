@@ -52,7 +52,7 @@
     <div class="col-lg-6">
         <livewire:dashboard.reminder-list />
     </div>
-    
+
 </div>
 
 {{-- <div class="row">
@@ -119,10 +119,11 @@
 @section('js')
 <script src="https://code.highcharts.com/maps/highmaps.js"></script>
 <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
 @can('system logs')
     <script>
-        
+
         (async () => {
 
             const topology = await fetch(
