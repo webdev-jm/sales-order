@@ -42,26 +42,17 @@
         <table class="table table-hover text-nowrap table-sm">
             <thead>
                 <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <th>Branch</th>
+                    <th>Address</th>
+                    <th>Coordinates</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($branch_address as $branch)
                 <tr>
-                    <td>{{$branch->account->account_code ?? ''}} {{$branch->account->short_name ?? ''}}</td>
-                    <td>{{$branch->branch_code}}</td>
-                    <td>{{$branch->branch_name}}</td>
-                    <td class="text-right">
-                        @can('branch edit')
-                            <a href="{{route('branch.edit', $branch->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
-                        @endcan
-                        @can('branch delete')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$branch->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
-                        @endcan
-                    </td>
+                    <td>{{$branch->branch->branch_code ?? ''}} {{$branch->branch->branch_name ?? ''}}</td>
+                    <td>{{$branch->address}}</td>
+                    <td>{{$branch->latitude}} {{$branch->longitude}}</td>
                 </tr>
                 @endforeach
             </tbody>

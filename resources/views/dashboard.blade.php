@@ -47,6 +47,74 @@
 {!! Form::open(['method' => 'GET', 'route' => ['dashboard'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
+
+@can('system logs')
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Map Chart Test</h3>
+    </div>
+    <div class="card-body">
+        {!! Form::open(['method' => 'GET', 'route' => ['dashboard'], 'id' => 'filter_form']) !!}
+        {!! Form::close() !!}
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">FILTER</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="year">Year</label>
+                                    <input type="number" class="form-control" name="year" form="filter_form" value="{{$year}}">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="month">Month</label>
+                                    <select name="month" form="filter_form" class="form-control" id="month">
+                                        <option value="">-select month-</option>
+                                        @for($i = 1; $i <= 12; $i++)
+                                            <option value="{{$i}}" {{$month == $i ? 'selected' : ''}}>{{date('F', mktime(0, 0, 0, $i, 10))}}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="day">Day</label>
+                                    <input type="number" class="form-control" name="day" form="filter_form" value="{{$day}}">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="user_id">User</label>
+                                    <select name="user_id" form="filter_form" class="form-control" id="user_id">
+                                        <option value="">-select user-</option>
+                                        @foreach($users as $user)
+                                            <option value="{{$user->id}}" {{$user_id == $user->id ? 'selected' : ''}}>{{$user->fullName()}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm', 'form' => 'filter_form']) !!}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
+    </div>
+</div>
+@endcan
+
 <div class="row">
     {{-- REMINDERS --}}
     <div class="col-lg-6">
@@ -55,64 +123,6 @@
 
 </div>
 
-{{-- <div class="row">
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header">
-                GLOW+
-            </div>
-            <div class="card-body p-2">
-                {!! DNS2D::getBarcodeSVG('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20QR-DESKTOP-GLOW+.jpg', 'QRCODE', 10, 10, 'black') !!}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header">
-                SLIM+
-            </div>
-            <div class="card-body p-2">
-                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-SLIM+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header">
-                SLEEP+
-            </div>
-            <div class="card-body p-2">
-                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-SLEEP+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
-            </div>
-        </div>
-    </div>
-
-    <div class="col-lg-3">
-        <div class="card">
-            <div class="card-header">
-                RENEW+
-            </div>
-            <div class="card-body p-2">
-                {!! DNS2D::getBarcodeHTML('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-RENEW+%20(1).jpg', 'QRCODE', 10, 10, 'black') !!}
-            </div>
-        </div>
-    </div>
-</div> --}}
-
-@can('system logs')
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Map Chart Test</h3>
-    </div>
-    <div class="card-body">
-        <figure class="highcharts-figure">
-            <div id="container"></div>
-        </figure>
-    </div>
-</div>
-@endcan
 
 @endsection
 
@@ -121,6 +131,7 @@
 <script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
 <script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/maps/modules/tiledwebmap.js"></script>
 @can('system logs')
     <script>
 
@@ -130,70 +141,112 @@
                 'https://code.highcharts.com/mapdata/countries/ph/ph-all.topo.json'
             ).then(response => response.json());
 
-            // Create the chart
             Highcharts.mapChart('container', {
                 chart: {
-                    map: topology,
-                    margin: 1
+                    margin: 0
                 },
 
                 title: {
-                    text: 'Branch Visits',
-                    floating: true,
-                    style: {
-                        textOutline: '5px contrast'
-                    }
+                    text: ''
                 },
 
                 subtitle: {
-                    text: 'branch visits per salesman',
-                    floating: true,
-                    y: 36,
-                    style: {
-                        textOutline: '5px contrast'
+                    text: ''
+                },
+
+                navigation: {
+                    buttonOptions: {
+                        align: 'left',
+                        theme: {
+                            stroke: '#e6e6e6'
+                        }
                     }
                 },
 
                 mapNavigation: {
                     enabled: true,
                     buttonOptions: {
-                        alignTo: 'spacingBox',
-                        verticalAlign: 'bottom'
+                        alignTo: 'spacingBox'
                     }
                 },
 
                 mapView: {
-                    padding: [0, 0, 85, 0]
+                    center: [121.0071423, 14.5635197],
+                    zoom: 10
+                },
+
+                tooltip: {
+                    pointFormat: '{point.name}'
                 },
 
                 legend: {
-                    floating: true,
-                    backgroundColor: '#ffffffcc'
+                    enabled: true,
+                    title: {
+                        text: 'Branches'
+                    },
+                    align: 'left',
+                    symbolWidth: 20,
+                    symbolHeight: 20,
+                    itemStyle: {
+                        textOutline: '1 1 1px rgba(255,255,255)'
+                    },
+                    backgroundColor: `color-mix(
+                        in srgb,
+                        var(--highcharts-background-color, white),
+                        transparent 15%
+                    )`,
+                    float: true,
+                    borderRadius: 2,
+                    itemMarginBottom: 5
                 },
 
                 plotOptions: {
                     mappoint: {
-                        keys: ['id', 'lat', 'lon', 'name', 'y'],
-                        marker: {
-                            lineWidth: 1,
-                            lineColor: '#000',
-                            symbol: 'mapmarker',
-                            radius: 8
-                        },
                         dataLabels: {
                             enabled: false
                         }
                     }
                 },
 
-                tooltip: {
-                    headerFormat: '<span style="color:{point.color}">\u25CF</span> {point.key}<br/>',
-                    pointFormat: '{series.name}'
-                },
+                series: [{
+                    type: 'tiledwebmap',
+                    name: 'Basemap Tiles',
+                    provider: {
+                        type: 'OpenStreetMap'
+                    },
+                    showInLegend: false
+                }, {
+                    type: 'mapbubble',
+                    name: 'Branch Visits',
+                    dataLabels: {
+                        enabled: true,
+                        format: '{point.capital}',
+                        style: {
+                            color: 'var(--highcharts-neutral-color-100, black)'
+                        }
+                    },
+                    accessibility: {
+                        point: {
+                            valueDescriptionFormat: '{point.name}, ' +
+                                '{point.branch}. Population {point.time}. ' +
+                                'Latitude {point.lat:.2f}, longitude {point.lon:.2f}.'
+                        }
+                    },
+                    data: @php echo json_encode($chart_data); @endphp,
+                    maxSize: '12%',
+                } ,{
+                    type: 'mappoint',
+                    name: 'Branches',
+                    marker: {
+                        symbol: 'url(https://www.highcharts.com/samples/graphics/museum.svg)',
+                        width: 24,
+                        height: 24
+                    },
+                    data: @php echo json_encode($branch_data); @endphp
 
-                series: @php echo json_encode($chart_data); @endphp,
-
+                },]
             });
+
 
         })();
     </script>

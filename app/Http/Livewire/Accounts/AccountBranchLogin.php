@@ -9,6 +9,7 @@ use App\Models\BranchLogin;
 use App\Models\Region;
 use App\Models\Classification;
 use App\Models\Area;
+use App\Models\BranchAddress;
 
 use AccountLoginModel;
 
@@ -23,9 +24,9 @@ class AccountBranchLogin extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
-    
+
     public $scheduled;
-    
+
     public $account, $branch_accuracy, $branch_longitude, $branch_latitude;
     public $branch, $accuracy, $longitude, $latitude;
     public $search;
@@ -43,7 +44,7 @@ class AccountBranchLogin extends Component
 
     public function showScheduled() {
         if(!empty($this->scheduled)) {
-            $this->reset('scheduled'); 
+            $this->reset('scheduled');
         } else {
             $curr_date = date('Y-m-d',time());
             $this->scheduled = $curr_date;
@@ -136,6 +137,8 @@ class AccountBranchLogin extends Component
                 'time_in' => now(),
             ]);
             $branch_login->save();
+
+            // save to branch address if not exist
 
             // logs
             activity('login')
