@@ -11,6 +11,8 @@ use App\Models\Classification;
 use App\Models\Area;
 use App\Models\BranchAddress;
 
+use Illuminate\Support\Facades\Http;
+
 use AccountLoginModel;
 
 use Illuminate\Support\Facades\Session;
@@ -139,6 +141,45 @@ class AccountBranchLogin extends Component
             $branch_login->save();
 
             // save to branch address if not exist
+            $branch_address = BranchAddress::where('branch_id', $this->branch->id)
+                ->first();
+            if(empty($branch_address)) {
+                $api_key = 'pk.4d088f5b2675bd22fa5f84fef3ac3c38';
+                $lat = $this->latitude;
+                $lon = $this->longitude;
+
+                $response = Http::get('https://us1.locationiq.com/v1/reverse.php?key='.$api_key.'&lat='.$lat.'&lon='.$lon.'&format=json&addressdetails=1&normalizeaddress=1&extratags=1');
+
+                if ($response->successful()) {
+                    $data = $response->json();
+
+                    $address = $data['address'] || [];
+                    $houseNumber = $address['house_number'] || '';
+                    $road = $address['road'] || '';
+                    $quarter = $address['quarter'] || '';
+                    $suburb = $address['suburb'] || '';
+                    $city = $address['city'] || '';
+                    $state = $address['state'] || '';
+                    $postcode = $address['postcode'] || '';
+                    $country = $address['country'] || '';
+                    $displayName = $data['display_name'] || '';
+
+                    $branch_address = new BranchAddress([
+                        'branch_id' => $this->branch->id,
+                        'latitude' => $this->latitude,
+                        'longitude' => $this->longitude,
+                        'street1' => $houseNumber.' '.$road,
+                        'street2' => $quarter.' '.$suburb,
+                        'city' => $city,
+                        'state' => $state,
+                        'zip' => $postcode,
+                        'country' => $country,
+                        'address' => $displayName,
+                    ]);
+                    $branch_address->save();
+                }
+
+            }
 
             // logs
             activity('login')

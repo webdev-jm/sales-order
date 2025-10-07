@@ -20,6 +20,7 @@ class DashboardController extends Controller
      */
     public function index(Request $request)
     {
+
         // $d = new DNS2D();
 
         // // Generate the barcode SVG content

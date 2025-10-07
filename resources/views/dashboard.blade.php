@@ -172,7 +172,7 @@
 
                 mapView: {
                     center: [121.0071423, 14.5635197],
-                    zoom: 10
+                    zoom: 12
                 },
 
                 tooltip: {
