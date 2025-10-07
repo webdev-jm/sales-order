@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
+use App\Models\UserBranchSchedule;
+use App\Models\User;
 
 // use Milon\Barcode\DNS2D;
 
+set_time_limit(300);
 class DashboardController extends Controller
 {
     /**
@@ -15,7 +18,7 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         // $d = new DNS2D();
 
@@ -30,82 +33,110 @@ class DashboardController extends Controller
 
         if(auth()->user()->can('system logs')) {
 
-            $year = date('Y');
-            $month = date('n');
+            $year = trim($request->get('year'));
+            $month = trim($request->get('month'));
+            $day = trim($request->get('day'));
+            $user_id = trim($request->get('user_id'));
 
-            $results = DB::table('branch_logins as bl')
-                ->select(
-                    DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
-                    'bl.id',
-                    'bl.latitude',
-                    'bl.longitude',
-                    'bl.time_in',
-                    'bl.accuracy',
-                    DB::raw('CONCAT(a.short_name, " ", b.branch_code, " ", b.branch_name) as branch')
-                )
-                ->join('users as u', 'u.id', '=', 'bl.user_id')
-                ->join('branches as b', 'b.id', '=', 'bl.branch_id')
-                ->join('accounts as a', 'a.id', '=', 'b.account_id')
-                ->where(DB::raw('YEAR(time_in)'), $year)
-                ->where(DB::raw('MONTH(time_in)'), $month)
+            $chart_data = [];
+            $branch_data = [];
+            if(!empty($year) || !empty($month) || !empty($day) || !empty($user_id)) {
+
+                $results = DB::table('branch_logins as bl')
+                    ->select(
+                        DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
+                        'bl.id',
+                        'bl.latitude',
+                        'bl.longitude',
+                        'bl.time_in',
+                        'bl.accuracy',
+                        DB::raw('CONCAT(a.short_name, " ", b.branch_code, " ", b.branch_name) as branch'),
+                        'bl.branch_id'
+                    )
+                    ->join('users as u', 'u.id', '=', 'bl.user_id')
+                    ->join('branches as b', 'b.id', '=', 'bl.branch_id')
+                    ->join('accounts as a', 'a.id', '=', 'b.account_id')
+                    ->when(!empty($year), function($query) use($year) {
+                        $query->where(DB::raw('YEAR(time_in)'), $year);
+                    })
+                    ->when(!empty($month), function($query) use($month) {
+                        $query->where(DB::raw('MONTH(time_in)'), $month);
+                    })
+                    ->when(!empty($day), function($query) use($day) {
+                        $query->where(DB::raw('DAY(time_in)'), $day);
+                    })
+                    ->when(!empty($user_id), function($query) use($user_id) {
+                        $query->where('u.id', $user_id);
+                    })
+                    ->get();
+
+                foreach($results as $result) {
+                    // Actual login marker
+                    $chart_data[] = [
+                        'lat' => (float)$result->latitude,
+                        'lon' => (float)$result->longitude,
+                        'z' => (float)str_replace('m', '', $result->accuracy),
+                        'time_in' => $result->time_in,
+                        'accuracy' => $result->accuracy,
+                        'branch' => $result->branch,
+                        'user' => $result->name,
+                        'color' => '#ff1100ff', // Blue for actual login
+                    ];
+
+                    // Branch address marker
+                    // $branch_address = BranchAddress::where('branch_id', $result->branch_id)->first();
+                    // if(!empty($branch_address)) {
+                    //     $chart_data[] = [
+                    //         'lat' => (float)$branch_address->latitude,
+                    //         'lon' => (float)$branch_address->longitude,
+                    //         'z' => 10,
+                    //         'branch' => $result->branch,
+                    //         'color' => '#f02c2cff', // Green for branch address
+                    //     ];
+                    // }
+                }
+
+                // get user branch schedules
+                $schedules = UserBranchSchedule::with('branch')
+                    ->where('source', 'activity-plan')
+                    ->when(!empty($year), function($query) use($year) {
+                        $query->where(DB::raw('YEAR(date)'), $year);
+                    })
+                    ->when(!empty($month), function($query) use($month) {
+                        $query->where(DB::raw('MONTH(date)'), $month);
+                    })
+                    ->when(!empty($day), function($query) use($day) {
+                        $query->where(DB::raw('DAY(date)'), $day);
+                    })
+                    ->when(!empty($user_id), function($query) use($user_id) {
+                        $query->where('user_id', $user_id);
+                    })
+                    ->get();
+
+                foreach($schedules as $schedule) {
+                    $branch_address = $schedule->branch->addresses->first();
+                    if(!empty($branch_address)) {
+                        $branch_data[] = [
+                            'lat' => (float)$branch_address->latitude,
+                            'lon' => (float)$branch_address->longitude,
+                            'name' => $schedule->branch->branch_code.' '.$schedule->branch->branch_name,
+                        ];
+                    }
+                }
+            }
+
+            $users = User::orderBy('firstname', 'ASC')
+                ->whereHas('branch_logins')
                 ->get();
 
-            $data = [];
-            foreach($results as $result) {
-                $data[$result->name][] = [
-                    $result->id,
-                    (float)$result->latitude,
-                    (float)$result->longitude,
-                    $result->branch.' ['.$result->time_in.'] - '.$result->accuracy,
-                    -6
-                ];
-            }
-
-            $chart_data = [
-                [
-                    'allAreas' => true,
-                    'name' => 'Coasline',
-                    'states' => [
-                        'inactive' => [
-                            'opacity' => 0.2
-                        ]
-                    ],
-                    'dataLabels' => [
-                        'enabled' => true,
-                        'format' => '{point.name}'
-                    ],
-                    'enableMouseTracking' => false,
-                    'showInLegend' => false,
-                    'borderColor' => 'blue',
-                    'opacity' => 0.3,
-                    'borderWidth' => 10
-                ],
-                [
-                    'allAreas' => true,
-                    'name' => 'Countries',
-                    'states' => [
-                        'inactive' => [
-                            'opacity' => 1
-                        ]
-                    ],
-                    'dataLabels' => [
-                        'enabled' => false,
-                    ],
-                    'enableMouseTracking' => false,
-                    'showInLegend' => false,
-                    'borderColor' => 'rgba(0, 0, 0, 0.25)',
-                ],
-            ];
-            foreach($data as $name => $val) {
-                $chart_data[] = [
-                    'name' => $name,
-                    'data' => $val,
-                    'type' => 'mappoint'
-                ];
-            }
-
             return view('dashboard')->with([
-                'chart_data' => $chart_data
+                'chart_data' => $chart_data,
+                'branch_data' => $branch_data,
+                'year' => $year,
+                'month' => $month,
+                'day' => $day,
+                'user_id' => $user_id,
+                'users' => $users,
             ]);
         } else {
             return view('dashboard');
