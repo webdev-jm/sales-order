@@ -64,28 +64,18 @@
                         <h3 class="card-title">FILTER</h3>
                     </div>
                     <div class="card-body">
+
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="year">Year</label>
-                                    <input type="number" class="form-control" name="year" form="filter_form" value="{{$year}}">
+                                    <label for="date_from">Date From</label>
+                                    <input type="date" class="form-control" name="date_from" form="filter_form" value="{{$date_from}}">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="month">Month</label>
-                                    <select name="month" form="filter_form" class="form-control" id="month">
-                                        <option value="">-select month-</option>
-                                        @for($i = 1; $i <= 12; $i++)
-                                            <option value="{{$i}}" {{$month == $i ? 'selected' : ''}}>{{date('F', mktime(0, 0, 0, $i, 10))}}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label for="day">Day</label>
-                                    <input type="number" class="form-control" name="day" form="filter_form" value="{{$day}}">
+                                    <label for="date_to">Date To</label>
+                                    <input type="date" class="form-control" name="date_to" form="filter_form" value="{{$date_to}}">
                                 </div>
                             </div>
                             <div class="col-lg-3">
@@ -176,7 +166,11 @@
                 },
 
                 tooltip: {
-                    pointFormat: '{point.name}'
+                    pointFormat: '{point.name} <br>'+
+                        '{point.branch}<br>' +
+                        '{point.user} <br>' +
+                        '{point.time_in} <br>' +
+                        '{point.accuracy}'
                 },
 
                 legend: {
@@ -220,7 +214,7 @@
                     name: 'Branch Visits',
                     dataLabels: {
                         enabled: true,
-                        format: '{point.capital}',
+                        format: '{point.time_in}',
                         style: {
                             color: 'var(--highcharts-neutral-color-100, black)'
                         }

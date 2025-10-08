@@ -34,14 +34,13 @@ class DashboardController extends Controller
 
         if(auth()->user()->can('system logs')) {
 
-            $year = trim($request->get('year'));
-            $month = trim($request->get('month'));
-            $day = trim($request->get('day'));
+            $date_from = trim($request->get('date_from'));
+            $date_to = trim($request->get('date_to'));
             $user_id = trim($request->get('user_id'));
 
             $chart_data = [];
             $branch_data = [];
-            if(!empty($year) || !empty($month) || !empty($day) || !empty($user_id)) {
+            if(!empty($date_from) || !empty($date_to) || !empty($user_id)) {
 
                 $results = DB::table('branch_logins as bl')
                     ->select(
@@ -57,14 +56,11 @@ class DashboardController extends Controller
                     ->join('users as u', 'u.id', '=', 'bl.user_id')
                     ->join('branches as b', 'b.id', '=', 'bl.branch_id')
                     ->join('accounts as a', 'a.id', '=', 'b.account_id')
-                    ->when(!empty($year), function($query) use($year) {
-                        $query->where(DB::raw('YEAR(time_in)'), $year);
+                    ->when(!empty($date_from), function($query) use($date_from) {
+                        $query->where(DB::raw('DATE(time_in)'), '>=', $date_from);
                     })
-                    ->when(!empty($month), function($query) use($month) {
-                        $query->where(DB::raw('MONTH(time_in)'), $month);
-                    })
-                    ->when(!empty($day), function($query) use($day) {
-                        $query->where(DB::raw('DAY(time_in)'), $day);
+                    ->when(!empty($date_to), function($query) use($date_to) {
+                        $query->where(DB::raw('DATE(time_in)'), '<=', $date_to);
                     })
                     ->when(!empty($user_id), function($query) use($user_id) {
                         $query->where('u.id', $user_id);
@@ -100,14 +96,11 @@ class DashboardController extends Controller
                 // get user branch schedules
                 $schedules = UserBranchSchedule::with('branch')
                     ->where('source', 'activity-plan')
-                    ->when(!empty($year), function($query) use($year) {
-                        $query->where(DB::raw('YEAR(date)'), $year);
+                    ->when(!empty($date_from), function($query) use($date_from) {
+                        $query->where('date', '>=', $date_from);
                     })
-                    ->when(!empty($month), function($query) use($month) {
-                        $query->where(DB::raw('MONTH(date)'), $month);
-                    })
-                    ->when(!empty($day), function($query) use($day) {
-                        $query->where(DB::raw('DAY(date)'), $day);
+                    ->when(!empty($date_to), function($query) use($date_to) {
+                        $query->where('date', '<=', $date_to);
                     })
                     ->when(!empty($user_id), function($query) use($user_id) {
                         $query->where('user_id', $user_id);
@@ -133,9 +126,8 @@ class DashboardController extends Controller
             return view('dashboard')->with([
                 'chart_data' => $chart_data,
                 'branch_data' => $branch_data,
-                'year' => $year,
-                'month' => $month,
-                'day' => $day,
+                'date_from' => $date_from,
+                'date_to' => $date_to,
                 'user_id' => $user_id,
                 'users' => $users,
             ]);
