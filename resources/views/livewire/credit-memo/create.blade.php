@@ -99,22 +99,6 @@
                     </div>
 
                     <div class="col-lg-12 table-responsive">
-                        {{-- <table class="table table-sm text-xs table-bordered table-hover">
-                            <thead>
-                                <tr class="text-center">
-                                    <th></th>
-                                    <th class="align-middle">Sales Order Line</th>
-                                    <th class="align-middle">Stock Code</th>
-                                    <th class="align-middle">Stock Description</th>
-                                    <th class="align-middle">Quantity</th>
-                                    <th class="align-middle">Uom</th>
-                                    <th class="align-middle"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table> --}}
 
                         <ul class="list-group">
                         @foreach($detail_data as $key => $data)
@@ -141,8 +125,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($invoice_data as $data)
-                                        <tr wire:click.prevent="selectSalesOrder('{{$data['InvoiceNumber']}}', '{{$data['SalesOrder']}}', '{{$data['Customer']}}', '{{$data['TrnYear']}}', '{{$data['TrnMonth']}}')">
+                                    @foreach($invoice_data as $key => $data)
+                                        <tr wire:click.prevent="selectSalesOrder({{$key}})">
                                             <td>{{ $data['InvoiceNumber'] }}</td>
                                             <td>{{ $data['SalesOrder'] }}</td>
                                             <td>{{ $data['TrnYear'] }}</td>

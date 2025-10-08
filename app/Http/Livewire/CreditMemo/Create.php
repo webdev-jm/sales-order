@@ -33,17 +33,20 @@ class Create extends Component
         $this->year = date('Y');
         $this->month = (int)date('m');
 
-        $this->cm_data = [
-            'account_id' => $this->account_id,
-            'cm_reason_id' => $this->cm_reason_id,
-            'invoice_number' => $this->invoice_number,
-            'so_number' => $this->so_number,
-            'po_number' => '',
-            'warehouse_location' => '',
-            'ship_date' => '',
-        ];
+        $this->cm_data = Session::get('cm_data');
+        if(empty($this->cm_data)) {
+            $this->cm_data = [
+                'account_id' => $this->account_id,
+                'cm_reason_id' => $this->cm_reason_id,
+                'invoice_number' => $this->invoice_number,
+                'so_number' => $this->so_number,
+                'po_number' => '',
+                'warehouse_location' => '',
+                'ship_date' => '',
+            ];
 
-        Session::put('cm_data', $this->cm_data);
+            Session::put('cm_data', $this->cm_data);
+        }
     }
 
     public function searchInvoice() {
@@ -68,30 +71,63 @@ class Create extends Component
         $this->reset('detail_data');
     }
 
-    public function selectSalesOrder($invoice_number, $so_number, $account_code, $year, $month) {
-        $account = Account::where('account_code', $account_code)->first();
+    public function selectSalesOrder($key) {
+        $invoice = $this->invoice_data[$key];
+        $account = Account::where('account_code', $invoice['Customer'])->first();
         $company = $account ? $account->company->name : null;
 
         $response = Http::withHeaders([
             'Accept' => 'application/json',
                 'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
-                'year' => $year,
-                'month' => $month,
-                'invoice_number' => $invoice_number,
+                'year' => $invoice['TrnYear'],
+                'month' => $invoice['TrnMonth'],
+                'invoice_number' => $invoice['InvoiceNumber'],
                 'company' => $company,
-                'sales_order' => $so_number,
-                'account_code' => $account_code ?? '',
+                'sales_order' => $invoice['SalesOrder'],
+                'account_code' => $invoice['Customer'] ?? '',
         ])
         ->get($this->api_url.'getInvoiceDetail');
 
         $this->detail_data = $response->json();
 
-        $this->so_number = $so_number;
-        $this->invoice_number = $invoice_number;
+        $this->so_number = $invoice['SalesOrder'];
+        $this->invoice_number = $invoice['InvoiceNumber'];
+        $this->po_number = $invoice['CustomerPoNumber'];
+
+        $this->updateSession();
     }
 
     public function clearDetail() {
         $this->reset('detail_data');
         $this->reset(['so_number', 'invoice_number']);
+    }
+
+    public function updateSession() {
+        $this->cm_data = [
+            'account_id' => $this->account_id,
+            'cm_reason_id' => $this->cm_reason_id,
+            'invoice_number' => $this->invoice_number,
+            'so_number' => $this->so_number,
+            'po_number' => $this->po_number,
+            'warehouse_location' => '',
+            'ship_date' => '',
+            'detail_data' => $this->detail_data,
+        ];
+
+        Session::put('cm_data', $this->cm_data);
+    }
+
+    public function saveRUD() {
+        $this->validate([
+            'cm_data.account_id' => [
+                'required',
+            ],
+            'cm_data.invoice_number' => [
+                'required',
+            ],
+            'cm_data.so_number' => [
+                'required',
+            ]
+        ]);
     }
 }
