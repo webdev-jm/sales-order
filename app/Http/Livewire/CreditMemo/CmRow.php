@@ -16,10 +16,6 @@ class CmRow extends Component
         return view('livewire.credit-memo.cm-row');
     }
 
-    public function mount() {
-        $this->cm_data = Session::get('cm_data');
-    }
-
     public function showDetails() {
         if($this->showDetail) {
             $this->showDetail = 0;
@@ -29,7 +25,12 @@ class CmRow extends Component
     }
 
     public function setSession() {
+        $this->cm_data = Session::get('cm_data');
         $this->cm_data['cm_details'][$this->row_data['StockCode']] = $this->cm_row_details;
         Session::put('cm_data', $this->cm_data);
+    }
+
+    public function updatedCmRowDetails() {
+        $this->setSession();
     }
 }
