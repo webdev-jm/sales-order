@@ -164,6 +164,7 @@
                         '<b>BRANCH: </b>{point.branch}<br>' +
                         '<b>USER: </b>{point.user} <br>' +
                         '<b>TIME IN: </b>{point.time_in} <br>' +
+                        '<b>TIME OUT: </b> {point.time_out} <br>' +
                         '<b>ACCURACY: </b>{point.accuracy}'
                 },
 
