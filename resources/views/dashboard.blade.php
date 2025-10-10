@@ -25,20 +25,14 @@
 
 @section('content_header')
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">TESTING</h3>
-    </div>
-</div>
-
     <div class="row">
         <div class="col-lg-6">
             <h1>Dashboard</h1>
         </div>
         @can('sales dashboard')
-        <div class="col-lg-6 text-right">
+        {{-- <div class="col-lg-6 text-right">
             <a href="{{route('sales-dashboard.index')}}" class="btn btn-primary">SALES DASHBOARD</a>
-        </div>
+        </div> --}}
         @endcan
     </div>
 @endsection
@@ -167,10 +161,10 @@
 
                 tooltip: {
                     pointFormat: '{point.name} <br>'+
-                        '{point.branch}<br>' +
-                        '{point.user} <br>' +
-                        '{point.time_in} <br>' +
-                        '{point.accuracy}'
+                        '<b>BRANCH: </b>{point.branch}<br>' +
+                        '<b>USER: </b>{point.user} <br>' +
+                        '<b>TIME IN: </b>{point.time_in} <br>' +
+                        '<b>ACCURACY: </b>{point.accuracy}'
                 },
 
                 legend: {
@@ -214,7 +208,7 @@
                     name: 'Branch Visits',
                     dataLabels: {
                         enabled: true,
-                        format: '{point.time_in}',
+                        format: '{point.user} <br> {point.time_in}',
                         style: {
                             color: 'var(--highcharts-neutral-color-100, black)'
                         }
@@ -232,7 +226,7 @@
                     type: 'mappoint',
                     name: 'Branches',
                     marker: {
-                        symbol: 'url(https://www.highcharts.com/samples/graphics/museum.svg)',
+                        symbol: 'url(https://www.highcharts.com/samples/graphics/building.svg)',
                         width: 24,
                         height: 24
                     },

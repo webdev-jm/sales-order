@@ -13,7 +13,7 @@
                 </div>
             </div>
             <div class="card-body">
-                
+
                 <div class="row">
                     <div class="col-lg-3">
                         <div class="form-group">
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                 </div>
-        
+
             </div>
             <div class="card-footer text-right">
                 <button class="btn btn-primary" type="submit" wire:loading.attr="disabled">
@@ -41,9 +41,13 @@
                 <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 DRAFT ALL
             </button>
-            <button class="btn btn-success" wire:click.prevent="saveAll('finalized')" wire:loading.attr="disabled">
+            {{-- <button class="btn btn-success" wire:click.prevent="saveAll('finalized')" wire:loading.attr="disabled">
                 <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 FINALIZE ALL
+            </button> --}}
+            <button class="btn btn-primary" id="btn-summary-modal" wire:click="setSoData">
+                <i class="fa fa-list mr-1"></i>
+                VIEW SUMMARY
             </button>
         </div>
 
@@ -109,7 +113,7 @@
                                 </h4>
                             </div>
                         </div>
-                        
+
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
                                 Ship to Address
@@ -129,7 +133,7 @@
                                     @endif
                                 </address>
                             </div>
-                            
+
                             <div class="col-sm-4 invoice-col">
                                 <b>PO Number: {{$po_number}}</b><br>
                                 <b>PO Value:</b> {{number_format($data['po_value'], 2)}}<br>
@@ -138,7 +142,7 @@
                                 <b>Discount:</b> {{$account->discount->description ?? ''}}<br>
                                 <b>Account:</b> [{{$account->account_code}}] {{$account->short_name}}
                             </div>
-                    
+
                             <div class="col-sm-4 invoice-col">
                                 <b>Reference:</b> <br>
                                 <b>Shipping Instruction:</b><br>
@@ -147,9 +151,9 @@
                                 </p>
                             </div>
                         </div>
-                        
+
                         <div class="row">
-                            
+
                             <div class="col-12 table-responsive">
                                 <table class="table table-sm table-bordered">
                                     <thead class="bg-thead">
@@ -207,7 +211,7 @@
                                 </table>
                             </div>
                         </div>
-                    
+
                         <div class="row">
                             <div class="col-lg-6">
                                 <p class="lead">Order Summary</p>
