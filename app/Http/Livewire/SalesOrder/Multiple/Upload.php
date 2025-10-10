@@ -42,6 +42,10 @@ class Upload extends Component
     public $err_data;
     public $success_data;
 
+    protected $listeners = [
+        'finalizeAll' => 'saveAll'
+    ];
+
     public function checkFileData() {
         $this->validate([
             'so_file' => 'required|mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'
@@ -324,19 +328,19 @@ class Upload extends Component
         }
     }
 
-    // public function saveAll($status) {
-    //     $this->reset([
-    //         'success_data',
-    //         'err_data',
-    //     ]);
+    public function saveAll($status) {
+        $this->reset([
+            'success_data',
+            'err_data',
+        ]);
 
-    //     foreach($this->so_data as $po_number => $data) {
-    //         $this->saveSalesOrder($status, $po_number);
-    //     }
-    // }
+        foreach($this->so_data as $po_number => $data) {
+            $this->saveSalesOrder($status, $po_number);
+        }
+    }
 
     public function setSoData() {
-        $this->emit('setSummary', $this->so_data);
+        $this->emit('setSummary', $this->so_data, $this->logged_account);
     }
 
     public function mount($logged_account) {
@@ -355,5 +359,5 @@ class Upload extends Component
 
     public function render() {
         return view('livewire.sales-order.multiple.upload');
-    } 
+    }
 }

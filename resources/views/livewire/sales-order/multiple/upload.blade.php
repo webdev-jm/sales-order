@@ -41,11 +41,7 @@
                 <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                 DRAFT ALL
             </button>
-            {{-- <button class="btn btn-success" wire:click.prevent="saveAll('finalized')" wire:loading.attr="disabled">
-                <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
-                FINALIZE ALL
-            </button> --}}
-            <button class="btn btn-primary" id="btn-summary-modal" wire:click="setSoData">
+            <button class="btn btn-primary" id="btn-summary-modal" wire:click="setSoData" wire:loading.attr="disabled">
                 <i class="fa fa-list mr-1"></i>
                 VIEW SUMMARY
             </button>
