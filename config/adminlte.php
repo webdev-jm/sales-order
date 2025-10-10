@@ -352,6 +352,13 @@ return [
             'active'    => ['credit-memo*']
         ],
         [
+            'text'      => 'PPU',
+            'url'       => '/ppu-form',
+            'icon'      => 'fas fa-fw fa-file',
+            'can'       => 'ppu form access',
+            'active'    => ['ppu-form*']
+        ],
+        [
             'text'      => 'Invoice',
             'url'       => '/invoice',
             'icon'      => 'fas fa-fw fa-list',

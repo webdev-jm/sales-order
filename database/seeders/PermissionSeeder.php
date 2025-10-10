@@ -299,7 +299,13 @@ class PermissionSeeder extends Seeder
                 'upload template create'    => 'access to create upload templates',
                 'upload template edit'      => 'access to edit upload templates',
                 'upload template delete'    => 'access to delete upload templates',
-            ]
+            ],
+            'PPU Form' => [
+                'ppu form access'  => 'access to ppu form module',
+                'ppu form create'  => 'access to create ppu form',
+                'ppu form edit'    => 'access to edit ppu form',
+                'ppu form delete'  => 'access to delete ppu form',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {

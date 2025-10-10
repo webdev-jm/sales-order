@@ -17,7 +17,7 @@ use App\Http\Controllers\{
     SalesDashboardController, TripController, SalesOrderMultipleController, DepartmentController,
     PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
     PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
-    CreditMemoReasonController, CreditMemoController
+    CreditMemoReasonController, CreditMemoController, PPUFormController, PPUFormMultipleController
 };
 
 /*
@@ -95,6 +95,19 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('cm-reason/{id}/edit', [CreditMemoReasonController::class,'edit'])->name('cm-reason.edit')->middleware('permission:cm reason edit');
         Route::post('cm-reason/{id}', [CreditMemoReasonController::class, 'update'])->name('cm-reason.update')->middleware('permission:cm reason edit');
     });
+
+     // PPU
+    Route::group(['middleware' => 'permission:ppu form access'], function() {
+        Route::get('ppu-form', [PPUFormController::class, 'index'])->name('ppu.index');
+        Route::get('ppu-form/create', [PPUFormController::class, 'create'])->name('ppu.create');
+        Route::get('ppu-form/show/{id}', [PPUFormController::class, 'show'])->name('ppu.show');
+        Route::get('ppu-form/edit/{id}', [PPUFormController::class, 'edit'])->name('ppu.edit');
+        Route::get('ppu-form/pdf/{id}', [PPUFormController::class, 'printPDF'])->name('ppu.pdf');
+        Route::post('ppu-form/store', [PPUFormController::class, 'store'])->name('ppu.store');
+        Route::post('ppu-form/update/{id}', [PPUFormController::class, 'update'])->name('ppu.update');
+        Route::get('ppu-form-multiple', [PPUFormMultipleController::class, 'index'])->name('ppu-form-multiple.index');
+
+   });
 
     // REMITTANCE
     Route::get('remittance', [RemittanceController::class, 'index'])->name('remittance.index');
