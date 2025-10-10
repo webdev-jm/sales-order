@@ -142,6 +142,13 @@ class PermissionSeeder extends Seeder
                 'branch edit'   => 'access to edit branches',
                 'branch delete' => 'access to delete branches',
             ],
+            'Branch Address' => [
+                'branch address access' => 'access to branch address module',
+                'branch address create' => 'access to create branch address',
+                'branch address edit'   => 'access to edit branch address',
+                'branch address upload' => 'access to upload branch address',
+                'branch address delete' => 'access to delete branch address',
+            ],
             'Regions' => [
                 'region access' => 'access to regions module',
                 'region create' => 'access to create regions',

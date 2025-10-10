@@ -17,7 +17,7 @@ use App\Http\Controllers\{
     SalesDashboardController, TripController, SalesOrderMultipleController, DepartmentController,
     PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
     PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
-    CreditMemoReasonController, CreditMemoController, PPUFormController, PPUFormMultipleController
+    PPUFormController, PPUFormMultipleController, CreditMemoReasonController, CreditMemoController, BranchAddressController
 };
 
 /*
@@ -408,6 +408,13 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('branch/{id}/edit', [BranchController::class, 'edit'])->name('branch.edit')->middleware('permission:branch edit');
         Route::post('branch/{id}', [BranchController::class, 'update'])->name('branch.update')->middleware('permission:branch edit');
+    });
+
+    // BRANCH ADDRESS
+    Route::group(['middleware' => 'permission:branch address access'], function() {
+        Route::get('branch-address', [BranchAddressController::class, 'index'])->name('branch-address.index');
+
+        Route::post('branch-address/upload', [BranchAddressController::class, 'upload'])->name('branch-address.upload')->middleware('permission:branch address create');
     });
 
     // REGIONS

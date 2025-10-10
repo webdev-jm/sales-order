@@ -52,7 +52,7 @@ class Report extends Component
     public function updatedUserId() {
         $this->reset(['schedules', 'actuals', 'deviations']);
     }
-    
+
     public function updatedDateFrom() {
         $this->reset(['schedules', 'actuals', 'deviations']);
     }
@@ -80,8 +80,13 @@ class Report extends Component
                 ->when(!empty($this->user_id), function($query) {
                     $query->where('id', $this->user_id);
                 })
+                ->when(auth()->user()->hasRole('GSM'), function($query) {
+                    $subordinateIds = auth()->user()->getSubordinateIds();
+                    $subordinateIds = array_merge(...array_values($subordinateIds));
+                    $query->whereIn('id', $subordinateIds);
+                })
                 ->first();
-                
+
             if(!empty($check)) {
                 $all_dates[] = $date->toDateString();
             }
@@ -95,7 +100,7 @@ class Report extends Component
         $items = collect($data);
         $offset = ($currentPage - 1) * $perPage;
         $itemsForCurrentPage = $items->slice($offset, $perPage);
-        
+
         $paginator = new LengthAwarePaginator(
             $itemsForCurrentPage,
             $items->count(),
@@ -133,8 +138,13 @@ class Report extends Component
                     ->when(!empty($this->user_id), function($query) {
                         $query->where('id', $this->user_id);
                     })
+                    ->when(auth()->user()->hasRole('GSM'), function($query) {
+                        $subordinateIds = auth()->user()->getSubordinateIds();
+                        $subordinateIds = array_merge(...array_values($subordinateIds));
+                        $query->whereIn('id', $subordinateIds);
+                    })
                     ->get();
-    
+
                 if(!empty($users_arr->count())) {
                     foreach($users_arr as $user) {
                         // get schedules
@@ -148,38 +158,38 @@ class Report extends Component
                             })
                             ->where('user_id', $user->id)
                             ->get();
-    
+
                         $this->schedules[$date][$user->id]['schedules'] = $schedules_data;
                         $this->schedules[$date][$user->id]['user'] = $user;
-    
+
                         foreach($schedules_data as $schedule) {
                             // get actual branch sign-in
                             $branch_logins = BranchLogin::where('user_id', $schedule->user_id)
                                 ->where('branch_id', $schedule->branch_id)
                                 ->where(DB::raw('date(time_in)'), $schedule->date)
                                 ->get();
-            
+
                             if(!empty($branch_logins)) {
                                 $this->actuals[$schedule->id] = $branch_logins;
                             }
                         }
-    
+
                         // get deviated schedules
                         $deviations_data = BranchLogin::orderBy('time_in', 'ASC')
                             ->where('user_id', $user->id)
                             ->where('time_in', 'like', $date.'%')
                             ->whereNotIn('branch_id', $schedules_data->pluck('branch_id'))
                             ->get();
-    
+
                         foreach($deviations_data as $key => $deviation) {
-    
+
                             $this->deviations[$date][$user->id][$deviation->branch_id]['id'] = $deviation->id;
                             $this->deviations[$date][$user->id][$deviation->branch_id]['date'] = date('Y-m-d', strtotime($deviation->time_in));
                             $this->deviations[$date][$user->id][$deviation->branch_id]['branch_code'] = $deviation->branch->branch_code;
                             $this->deviations[$date][$user->id][$deviation->branch_id]['branch_name'] = $deviation->branch->branch_name;
                             $this->deviations[$date][$user->id][$deviation->branch_id]['account_name'] = $deviation->branch->account->short_name;
                             $this->deviations[$date][$user->id][$deviation->branch_id]['source'] = $deviation->source;
-    
+
                             // actuals
                             $this->deviations[$date][$user->id][$deviation->branch_id]['actuals'][$deviation->id] = [
                                 'id' => $deviation->id,
@@ -188,19 +198,25 @@ class Report extends Component
                                 'time_in' => $deviation->time_in,
                                 'time_out' => $deviation->time_out,
                             ];
-    
+
                         }
                     }
                 } else {
                     $this->schedules[$date] = [];
                 }
-                
+
             }
         }
-        
+
         // Filter options
         $users = User::orderBy('firstname', 'ASC')
-            ->whereHas('schedules')->get();
+            ->whereHas('schedules')
+            ->when(auth()->user()->hasRole('GSM'), function($query) {
+                $subordinateIds = auth()->user()->getSubordinateIds();
+                $subordinateIds = array_merge(...array_values($subordinateIds));
+                $query->whereIn('id', $subordinateIds);
+            })
+            ->get();
 
         return view('livewire.reports.mcp.report')->with([
             'paginatedData' => $paginatedData,

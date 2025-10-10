@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 @section('title')
-    Credit Memos
+    RUD
 @endsection
 
 @section('css')
@@ -10,11 +10,11 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>Credit Memos</h1>
+        <h1>RUD</h1>
     </div>
     <div class="col-md-6 text-right">
         @can('cm create')
-            <a href="{{route('cm.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add Credit Memo</a>
+            <a href="{{route('cm.create')}}" class="btn btn-primary"><i class="fas fa-plus mr-1"></i>Add RUD</a>
         @endcan
     </div>
 </div>
@@ -23,7 +23,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-        <h3 class="card-title">List of Credit Memo</h3>
+        <h3 class="card-title">List of RUD</h3>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
                 <input type="text" name="table_search" class="form-control float-right" placeholder="Search">

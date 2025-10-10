@@ -345,7 +345,7 @@ return [
             'active'    => ['list-sales-order*']
         ],
         [
-            'text'      => 'Credit Memo',
+            'text'      => 'RUD',
             'url'       => '/credit-memo',
             'icon'      => 'fas fa-fw fa-credit-card',
             'can'       => 'cm access',
@@ -586,6 +586,13 @@ return [
             'icon'      => 'fas fa-fw fa-code-branch',
             'can'       => 'branch access',
             'active'    => ['branch*']
+        ],
+        [
+            'text'      => 'Branch Address',
+            'url'       => '/branch-address',
+            'icon'      => 'fas fa-fw fa-globe',
+            'can'       => 'branch address access',
+            'active'    => ['branch-address*']
         ],
         [
             'text'      => 'Regions',

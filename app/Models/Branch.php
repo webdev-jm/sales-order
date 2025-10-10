@@ -143,4 +143,8 @@ class Branch extends Model
 
         return $branches;
     }
+
+    public function addresses() {
+        return $this->hasMany('App\Models\BranchAddress');
+    }
 }

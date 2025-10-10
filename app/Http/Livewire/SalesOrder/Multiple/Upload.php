@@ -42,6 +42,10 @@ class Upload extends Component
     public $err_data;
     public $success_data;
 
+    protected $listeners = [
+        'finalizeAll' => 'saveAll'
+    ];
+
     public function checkFileData() {
         $this->validate([
             'so_file' => 'required|mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'
@@ -75,10 +79,10 @@ class Upload extends Component
         foreach($data as $key => $row) {
             if(!empty(trim($row[0]))) {
                 if($key != 0) {
-    
+
                     $account = $this->account;
                     $discount = $account->discount;
-    
+
                     $po_number = trim($row[0]);
                     if(!empty($account->po_prefix)) {
                         $po_number = $account->po_prefix.''.$po_number;
@@ -92,14 +96,14 @@ class Upload extends Component
                     $po_value = (float)trim($row[6]);
                     $paf_number = trim($row[7]);
                     $shipping_instruction = trim($row[8]);
-    
+
                     $shipping_address = array();
                     if(!empty($ship_to_address) && !empty($this->shipping_addresses)) {
                         $shipping_address = $this->shipping_addresses->filter(function ($address) use ($ship_to_address) {
                             return $address['address_code'] === $ship_to_address;
                         })->first();
                     }
-    
+
                     if(is_int($ship_date)) {
                         $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
                     } else {
@@ -110,7 +114,7 @@ class Upload extends Component
                             $ship_date = $dateTime->format('Y-m-d');
                         }
                     }
-    
+
                     $data_arr[$po_number]['ship_to_address'] = $ship_to_address;
                     $data_arr[$po_number]['shipping_address'] = !empty($shipping_address) ? $shipping_address : $data_arr[$po_number]['shipping_address'] ?? [];
                     $data_arr[$po_number]['ship_date'] = $ship_date;
@@ -118,15 +122,15 @@ class Upload extends Component
                     $data_arr[$po_number]['paf_number'] = !empty($paf_number) ? $paf_number : $data_arr[$po_number]['paf_number'] ?? '';
                     $data_arr[$po_number]['shipping_instruction'] = !empty($shipping_instruction) ? $shipping_instruction : $data_arr[$po_number]['shipping_instruction'] ?? '';
                     $data_arr[$po_number]['discount'] = $discount;
-                    
+
                     $product = Product::where('stock_code', $sku_code)
                         ->first();
-    
+
                     $total_val = array();
                     if(!empty($product) && !empty($quantity) && !empty($uom)) {
                         $total_val = $this->getProductPrice($product, $account, $uom, $quantity);
                     }
-    
+
                     $data_arr[$po_number]['lines'][] = [
                         'sku_code' => $sku_code,
                         'product' => $product ?? '',
@@ -141,6 +145,8 @@ class Upload extends Component
         }
 
         $this->so_data = $data_arr;
+
+        // dd($this->so_data);
 
     }
 
@@ -331,6 +337,10 @@ class Upload extends Component
         foreach($this->so_data as $po_number => $data) {
             $this->saveSalesOrder($status, $po_number);
         }
+    }
+
+    public function setSoData() {
+        $this->emit('setSummary', $this->so_data, $this->logged_account);
     }
 
     public function mount($logged_account) {

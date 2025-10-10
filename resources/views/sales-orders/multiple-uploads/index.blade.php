@@ -23,12 +23,21 @@
 
 <livewire:sales-order.multiple.upload :logged_account="$logged_account" />
 
+<div class="modal fade" id="summary-modal">
+    <div class="modal-dialog modal-xl">
+        <livewire:sales-order.multiple.summary/>
+    </div>
+</div>
+
 @endsection
 
 @section('js')
 <script>
     $(function() {
-
+        $('body').on('click', '#btn-summary-modal', function(e) {
+            e.preventDefault();
+            $('#summary-modal').modal('show');
+        });
     });
 </script>
 @endsection
