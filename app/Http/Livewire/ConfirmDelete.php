@@ -17,6 +17,7 @@ use App\Models\SalesPerson;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use App\Models\SalesOrder;
+use App\Models\PPUForm;
 use App\Models\OperationProcess;
 use App\Models\Region;
 use App\Models\Area;
@@ -126,6 +127,11 @@ class ConfirmDelete extends Component
                 $this->model = SalesOrder::findOrFail($model_id);
                 $this->name = 'sales order '.$this->model->control_number;
                 $this->route = '/sales-order';
+                break;
+            case 'PPUForm':
+                $this->model = PPUForm::findOrFail($model_id);
+                $this->name = 'ppu form '.$this->model->control_number;
+                $this->route = '/ppu-form';
                 break;
             case 'OperationProcess':
                 $this->model = OperationProcess::findOrFail($model_id);
