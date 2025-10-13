@@ -78,8 +78,12 @@
                                 @foreach($row_data['bin_data'] as $key => $bin_data)
                                     <tr>
                                         <th class="align-middle text-center">
-                                            <button class="btn btn-xs btn-secondary" wire:click.prevent="selectBin({{ $key }})">
-                                                <i class="far fa-circle"></i>
+                                            <button class="btn btn-xs btn-{{empty($cm_row_details[$key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
+                                                @if(!empty($cm_row_details[$key]))
+                                                    <i class="fa fa-check-circle"></i>
+                                                @else
+                                                    <i class="far fa-circle"></i>
+                                                @endif
                                             </button>
                                         </th>
                                         <td>{{$bin_data['Lot']}}</td>
