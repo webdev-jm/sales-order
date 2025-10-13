@@ -100,13 +100,21 @@
 
                     <div class="col-lg-12 table-responsive">
 
-                        <ul class="list-group">
-                        @foreach($detail_data as $key => $data)
-                            <li class="list-group-item py-0 px-1">
+                        <table class="table table-sm table-bordered text-xs">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Sales Order Line</th>
+                                    <th>Stock Code</th>
+                                    <th>Description</th>
+                                    <th>Quantity</th>
+                                    <th>Uom</th>
+                                </tr>
+                            </thead>
+                            @foreach($detail_data as $key => $data)
                                 <livewire:credit-memo.cm-row :row_data="$data" wire:key="$key"/>
-                            </li>
-                        @endforeach
-                        </ul>
+                            @endforeach
+                        </table>
                     </div>
                 @else
                     <div class="col-lg-12 table-responsive">
