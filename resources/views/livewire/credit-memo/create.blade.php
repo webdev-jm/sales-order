@@ -72,6 +72,9 @@
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">RUD Details</h3>
+            <div class="card-tools">
+                <button wire:click.prevent="saveRUD">SAVE</button>
+            </div>
         </div>
         <div class="card-body">
 
@@ -80,12 +83,13 @@
                 <div class="col-lg-3">
                     <div class="form-group">
                         <label for="cm_reason_id">Reason</label>
-                        <select class="form-control" id="cm_reason_id" wire:model="cm_reason_id">
+                        <select class="form-control{{ $errors->has('cm_reason_id') ? ' is-invalid' : ''}}" id="cm_reason_id" wire:model="cm_reason_id">
                             <option value="">- select reason -</option>
                             @foreach($reasons as $reason)
                                 <option value="{{$reason->id}}">[{{$reason->reason_code}}] {{$reason->reason_description}}</option>
                             @endforeach
                         </select>
+                        <small class="text-danger">{{ $errors->first('cm_reason_id') }}</small>
                     </div>
                 </div>
 

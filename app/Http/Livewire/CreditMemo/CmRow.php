@@ -26,22 +26,16 @@ class CmRow extends Component
     }
 
     public function setSession() {
-        $this->cm_data = Session::get('cm_data');
-        if($this->showDetail == 1) {
-            $this->cm_data['cm_details'][$this->row_data['StockCode']] = $this->cm_row_details;
-        } else {
-            unset($this->cm_data['cm_details'][$this->row_data['StockCode']]);
-        }
-        Session::put('cm_data', $this->cm_data);
-    }
-
-    public function updatedCmRowDetails() {
-        $this->setSession();
+        $cm_data = Session::get('cm_data');
+        $cm_data['cm_details'][$this->row_data['StockCode']] = $this->cm_row_details;
+        Session::put('cm_data', $cm_data);
     }
 
     public function selectBin($key) {
-        if(!empty($this->cm_data['cm_details'][$this->row_data['Sto~kCode']])) {
-            $this->cm_row_details['bin_data'][$key] =$this->row_data['bin_data'][$key];
+        if($this->showDetail && empty($this->cm_row_details[$key])) {
+            $this->cm_row_details[$key] = $this->row_data['bin_data'][$key];
+        } else {
+            unset($this->cm_row_details[$key]);
         }
 
         $this->setSession();
