@@ -74,6 +74,7 @@ class DashboardController extends Controller
                         'lon' => (float)$result->longitude,
                         'z' => (float)str_replace('m', '', $result->accuracy),
                         'time_in' => $result->time_in,
+                        'time_out' => $result->time_out,
                         'accuracy' => $result->accuracy,
                         'branch' => $result->branch,
                         'user' => $result->name,
