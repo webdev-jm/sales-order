@@ -97,7 +97,6 @@ class DashboardController extends Controller
 
                 // get user branch schedules
                 $schedules = UserBranchSchedule::with('branch')
-                    ->where('source', 'activity-plan')
                     ->when(!empty($date_from), function($query) use($date_from) {
                         $query->where('date', '>=', $date_from);
                     })
@@ -119,6 +118,7 @@ class DashboardController extends Controller
                             'user' => $schedule->user->fullName(),
                             'schedule_date' => $schedule->date,
                             'objective' => $schedule->objective,
+                            'source' => $schedule->source,
                         ];
                     }
                 }

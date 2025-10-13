@@ -228,7 +228,8 @@
                         pointFormat: '<b>BRANCH: </b>{point.name} <br>'+
                         '<b>USER: </b>{point.user} <br>' +
                         '<b>SCHEDULE: </b>{point.schedule_date} <br>' +
-                        '<b>OBJECTIVE: </b>{point.objective}'
+                        '<b>OBJECTIVE: </b>{point.objective} <br>' +
+                        '<b>SOURCE: </b>{point.source}'
                     },
                 },]
             });
