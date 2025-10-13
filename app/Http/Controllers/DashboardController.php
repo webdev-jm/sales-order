@@ -49,6 +49,7 @@ class DashboardController extends Controller
                         'bl.latitude',
                         'bl.longitude',
                         'bl.time_in',
+                        'bl.time_out',
                         'bl.accuracy',
                         DB::raw('CONCAT(a.short_name, " ", b.branch_code, " ", b.branch_name) as branch'),
                         'bl.branch_id'
@@ -115,6 +116,9 @@ class DashboardController extends Controller
                             'lat' => (float)$branch_address->latitude,
                             'lon' => (float)$branch_address->longitude,
                             'name' => $schedule->branch->branch_code.' '.$schedule->branch->branch_name,
+                            'user' => $schedule->user->fullName(),
+                            'schedule_date' => $schedule->date,
+                            'objective' => $schedule->objective,
                         ];
                     }
                 }

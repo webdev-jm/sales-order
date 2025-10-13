@@ -159,15 +159,6 @@
                     zoom: 12
                 },
 
-                tooltip: {
-                    pointFormat: '{point.name} <br>'+
-                        '<b>BRANCH: </b>{point.branch}<br>' +
-                        '<b>USER: </b>{point.user} <br>' +
-                        '<b>TIME IN: </b>{point.time_in} <br>' +
-                        '<b>TIME OUT: </b> {point.time_out} <br>' +
-                        '<b>ACCURACY: </b>{point.accuracy}'
-                },
-
                 legend: {
                     enabled: true,
                     title: {
@@ -214,12 +205,13 @@
                             color: 'var(--highcharts-neutral-color-100, black)'
                         }
                     },
-                    accessibility: {
-                        point: {
-                            valueDescriptionFormat: '{point.name}, ' +
-                                '{point.branch}. Population {point.time}. ' +
-                                'Latitude {point.lat:.2f}, longitude {point.lon:.2f}.'
-                        }
+                    tooltip: {
+                        pointFormat: '{point.name} <br>'+
+                            '<b>BRANCH: </b>{point.branch}<br>' +
+                            '<b>USER: </b>{point.user} <br>' +
+                            '<b>TIME IN: </b>{point.time_in} <br>' +
+                            '<b>TIME OUT: </b> {point.time_out} <br>' +
+                            '<b>ACCURACY: </b>{point.accuracy}'
                     },
                     data: @php echo json_encode($chart_data); @endphp,
                     maxSize: '12%',
@@ -231,8 +223,13 @@
                         width: 24,
                         height: 24
                     },
-                    data: @php echo json_encode($branch_data); @endphp
-
+                    data: @php echo json_encode($branch_data); @endphp,
+                    tooltip: {
+                        pointFormat: '<b>BRANCH: </b>{point.name} <br>'+
+                        '<b>USER: </b>{point.user} <br>' +
+                        '<b>SCHEDULE: </b>{point.schedule_date} <br>' +
+                        '<b>OBJECTIVE: </b>{point.objective}'
+                    },
                 },]
             });
 
