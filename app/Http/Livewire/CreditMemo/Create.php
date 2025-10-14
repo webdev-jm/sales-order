@@ -119,21 +119,21 @@ class Create extends Component
         Session::put('cm_data', $this->cm_data);
     }
 
-    public function saveRUD() {
-        $this->validate([
-            'cm_data.account_id' => [
-                'required',
-            ],
-            'cm_data.invoice_number' => [
-                'required',
-            ],
-            'cm_data.so_number' => [
-                'required',
-            ],
-            'cm_reason_id' => [
-                'required',
-            ]
-        ]);
+    public function saveRUD($status) {
+        // $this->validate([
+        //     'cm_data.account_id' => [
+        //         'required',
+        //     ],
+        //     'cm_data.invoice_number' => [
+        //         'required',
+        //     ],
+        //     'cm_data.so_number' => [
+        //         'required',
+        //     ],
+        //     'cm_reason_id' => [
+        //         'required',
+        //     ]
+        // ]);
 
         $xml = new XmlConverterHelper();
 
