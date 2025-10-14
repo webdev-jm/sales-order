@@ -4,9 +4,10 @@ namespace App\Http\Traits;
 
 use App\Models\Discount;
 use App\Models\PriceCode;
+use App\Models\Product;
 
 Trait SoProductPriceTrait {
-    
+
     public function getProductPrice($product, $account, $uom, $quantity) {
         // uom conversion
         switch($uom) {
@@ -24,7 +25,7 @@ Trait SoProductPriceTrait {
         $line_discount = Discount::where('discount_code', $account->line_discount_code)
             ->where('company_id', $account->company_id)
             ->first();
-        
+
         // check price code
         if($product->special_product) {
             $special_product = $account->products()
@@ -133,7 +134,6 @@ Trait SoProductPriceTrait {
         // apply line discount
         $uom_discounted = $uom_total;
         if(!empty($line_discount)) {
-            $discounted = $total;
             if($line_discount->discount_1 > 0) {
                 $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
             }
@@ -168,6 +168,60 @@ Trait SoProductPriceTrait {
         }
 
         return $quantity;
+    }
+
+    public function uomConversion($quantity, $stock_code, $uom_from, $uom_to) {
+        $uom_data = [
+            $uom_from => $quantity,
+            $uom_to => 0,
+        ];
+        if(!empty($quantity) && !empty($stock_code) && !empty($uom_from) && !empty($uom_to)) {
+            $product = Product::where('stock_code', $stock_code)->first();
+            if(!empty($product)) {
+                // convert to stock uom first
+                if($uom_from == $product->order_uom) {
+                    $conversion = $product->order_uom_conversion;
+                    $operator = $product->order_uom_operator;
+                    $reverse = false;
+
+                } else if($uom_from == $product->other_uom) {
+                    $conversion = $product->other_uom_conversion;
+                    $operator = $product->other_uom_operator;
+                    $reverse = false;
+                }
+
+                if($uom_from == $product->stock_uom) {
+                    $stock_quantity = $quantity;
+                } else {
+                    $stock_quantity = $this->quantityConversion($quantity, $conversion, $operator, $reverse);
+                }
+
+                switch ($uom_to) {
+                    case $product->order_uom:
+                        $conversion = $product->order_uom_conversion;
+                        $operator = $product->order_uom_operator;
+                        $reverse = true;
+
+                        $converted_quantity = $this->quantityConversion($stock_quantity, $conversion, $operator, $reverse);
+                    break;
+                    case $product->other_uom:
+                        $conversion = $product->other_uom_conversion;
+                        $operator = $product->other_uom_operator;
+                        $reverse = true;
+
+                        $converted_quantity = $this->quantityConversion($stock_quantity, $conversion, $operator, $reverse);
+                    break;
+                    default:
+                        $converted_quantity = $stock_quantity;
+                    break;
+
+                }
+
+                $uom_data[$uom_to] = $converted_quantity;
+            }
+        }
+
+        return $uom_data;
     }
 
 }

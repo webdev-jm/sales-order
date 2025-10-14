@@ -62,22 +62,23 @@
                         </table>
                     </div>
                     <div class="col-lg-7">
-                        <table class="table table-sm table-bordered table-hover">
+                        <table class="table table-sm table-bordered table-hover text-xs">
                             <thead>
                                 <tr>
-                                    <th colspan="3">LOT DETAILS</th>
+                                    <th colspan="5">LOT DETAILS</th>
                                 </tr>
                                 <tr>
-                                    <th></th>
+                                    <th class="p-0"></th>
                                     <th>Lot</th>
                                     <th>Bin</th>
                                     <th>Quantity</th>
+                                    <th>Uom</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($row_data['bin_data'] as $key => $bin_data)
                                     <tr>
-                                        <th class="align-middle text-center">
+                                        <th class="align-middle text-center p-0">
                                             <button class="btn btn-xs btn-{{empty($cm_row_details[$key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
                                                 @if(!empty($cm_row_details[$key]))
                                                     <i class="fa fa-check-circle"></i>
@@ -88,7 +89,8 @@
                                         </th>
                                         <td>{{$bin_data['Lot']}}</td>
                                         <td>{{$bin_data['Bin']}}</td>
-                                        <td>{{$bin_data['StockQtyToShip']}}</td>
+                                        <td>{{$bin_data['conversion'][$row_data['OrderUom']] ?? '-'}}</td>
+                                        <td>{{ $row_data['OrderUom'] }}</td>
                                     </tr>
                                 @endforeach
                             </tbody>

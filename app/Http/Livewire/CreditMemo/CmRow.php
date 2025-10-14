@@ -4,9 +4,12 @@ namespace App\Http\Livewire\CreditMemo;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Session;
+use App\Http\Traits\SoProductPriceTrait;
 
 class CmRow extends Component
 {
+    use SoProductPriceTrait;
+
     public $row_data;
     public $showDetail;
     public $cm_data;
@@ -15,6 +18,14 @@ class CmRow extends Component
     {
         return view('livewire.credit-memo.cm-row');
     }
+
+    public function mount() {
+        foreach($this->row_data['bin_data'] as $key => $row_data) {
+            $cs_conversion =$this->uomConversion($row_data['StockQtyToShip'],$this->row_data['StockCode'], $this->row_data['StockingUom'], $this->row_data['OrderUom']);
+            $this->row_data['bin_data'][$key]['conversion'] = $cs_conversion;
+        }
+    }
+
     public function showDetails() {
         if($this->showDetail) {
             $this->showDetail = 0;

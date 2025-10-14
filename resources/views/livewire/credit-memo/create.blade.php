@@ -73,7 +73,12 @@
         <div class="card-header">
             <h3 class="card-title">RUD Details</h3>
             <div class="card-tools">
-                <button wire:click.prevent="saveRUD">SAVE</button>
+                <button wire:click.prevent="saveRUD('draft')" class="btn btn-secondary btn-sm" wire:loading.attr="disabled">
+                    SAVE AS DRAFT
+                </button>
+                <button wire:click.prevent="saveRUD('submitted')" class="btn btn-success btn-sm" wire:loading.attr="disabled">
+                    SUBMIT
+                </button>
             </div>
         </div>
         <div class="card-body">
