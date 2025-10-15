@@ -11,7 +11,7 @@
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
-        <h1>PPU FORM MULTIPLE UPLOAD</h1>
+        <h1>PPU FORM UPLOAD</h1>
     </div>
     <div class="col-md-6 text-right">
         <a href="{{route('ppu.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>

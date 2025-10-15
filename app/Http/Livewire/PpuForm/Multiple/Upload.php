@@ -78,26 +78,27 @@ class Upload extends Component
         foreach($data as $key => $row) {
             if(!empty(trim($row[0]))) {
                 if($key != 0) {
-    
-                    $rtv_number = trim($row[0]);
+                    
+                    $account = $this->account;
 
-                    $submitted_date = $row[1];
-                    $pickup_date = trim($row[2]);
-                    $rtv_date = trim($row[3]);
+                    $rtv_number = trim($row[0]);
+                    $date_submitted = $row[1];
+                    $pickup_date = $row[2];
+                    $rtv_date = $row[3];
                     $branch_name = trim($row[4]);
                     $total_quantity = (int)trim($row[5]);
                     $total_amount = (float)trim($row[6]);
                     $remarks = trim($row[7]);
     
     
-                    if(is_int($submitted_date)) {
-                        $submitted_date = Date::excelToDateTimeObject($submitted_date)->format('Y-m-d');
+                    if(is_int($date_submitted)) {
+                        $date_submitted = Date::excelToDateTimeObject($date_submitted)->format('Y-m-d');
                     } else {
-                        $dateTime = \DateTime::createFromFormat('m-d-Y', $submitted_date);
+                        $dateTime = \DateTime::createFromFormat('m-d-Y', $date_submitted);
                         if ($dateTime === false) {
-                            $submitted_date = $submitted_date;
+                            $date_submitted = $date_submitted;
                         } else {
-                            $submitted_date = $dateTime->format('Y-m-d');
+                            $date_submitted = $dateTime->format('Y-m-d');
                         }
                     }
 
@@ -122,19 +123,25 @@ class Upload extends Component
                             $rtv_date = $dateTime->format('Y-m-d');
                         }
                     }
+
+                    $data_arr['date_submitted'] = $date_submitted;
+                    $data_arr['pickup_date'] = $pickup_date;
     
                     $data_arr['lines'][] = [
+                        'rtv_number' => $rtv_number,
+                        'rtv_date' => $rtv_date,
                         'branch_name' => $branch_name,
                         'total_quantity' => $total_quantity,
                         'total_amount' => $total_amount,
                         'remarks' => $remarks,
-
                     ];
                 }
             }
         }
 
         $this->ppu_data = $data_arr;
+
+        // dd($this->account);
 
     }
 
@@ -165,154 +172,81 @@ class Upload extends Component
         return $control_number;
     }
 
-    public function saveSalesOrder($status, $po_number) {
+    public function savePPUForm($status) {
         // validate
-        $data = $this->so_data[$po_number];
+        $data = $this->ppu_data;
+
         $err = array();
         if(empty($data['lines'])) {
             $err['lines'] = 'Please add items first';
         }
-        if(empty($data['po_value']) || $data['po_value'] <= 0) {
-            $err['po_value'] = 'PO value is required';
-        }
-        if(empty($data['ship_date'])) {
-            $err['ship_date'] = 'Ship date is required.';
-        }
-        if(empty($po_number)) {
-            $err['po_number'] = 'PO number is required';
-        } else {
-            // check for duplicates
-            $check1 = SalesOrder::where('po_number', $po_number)->withTrashed()->exists();
-            $check2 = PurchaseOrderNumber::where('po_number', $po_number)->exists();
-            if(!empty($check1) || !empty($check2)) {
-                $err['po_number'] = 'Po number already exists';
+        foreach($data['lines'] as $key => $item) {
+            if(empty($item['rtv_number'])) {
+                $err['rtv_number'] = 'RTV number is required';
+            } else {
+                // check for duplicates
+                $check1 = PPUFormItem::where('rtv_number', $item['rtv_number'])->withTrashed()->exists();
+                if(!empty($check1)) {
+                    $err['rtv_number'] = 'RTV number '.$item['rtv_number'].' already exists';
+                }
             }
-        }
-
-        $uom_err = 0;
-        foreach($data['lines'] as $item) {
-            if(empty($item['uom'])) {
-                $uom_err = 1;
-            }
-        }
-
-        if($uom_err) {
-            $err['uom'] = 'UOM is required for all items';
         }
 
         if(empty($err)) {
             // create sales order
             $control_number = $this->generateControlNumber();
 
-            $ship_to_name = $this->account->account_name;
-            $ship_to_building = $this->account->ship_to_address1;
-            $ship_to_street = $this->account->ship_to_address1;
-            $ship_to_city = $this->account->ship_to_address1;
-            $postal = $this->account->postal_code;
-            if(!empty($data['shipping_address'])) {
-                $ship_to_name = $data['shipping_address']['address_code'].' - '.$data['shipping_address']['ship_to_name'];
-                $ship_to_building = $data['shipping_address']['building'];
-                $ship_to_street = $data['shipping_address']['street'];
-                $ship_to_city = $data['shipping_address']['city'];
-                $postal = $data['shipping_address']['postal'];
-            }
-
-            $sales_order = new SalesOrder([
+            $ppu_form = new PPUForm([
                 'account_login_id' => $this->logged_account->id,
-                'shipping_address_id' => $data['shipping_address']['id'] ?? NULL,
                 'control_number' => $control_number,
-                'po_number' => $po_number,
-                'paf_number' => $data['paf_number'],
-                'reference' => NULL,
-                'order_date' => date('Y-m-d'),
-                'ship_date' => $data['ship_date'],
-                'shipping_instruction' => $data['shipping_instruction'],
-                'ship_to_name' => $ship_to_name,
-                'ship_to_building' => $ship_to_building,
-                'ship_to_street' => $ship_to_street,
-                'ship_to_city' => $ship_to_city,
-                'ship_to_postal' => $postal,
+                'date_prepared' => date('Y-m-d'),
+                'pickup_date' => $data['pickup_date'],
+                'date_submitted' => $data['date_submitted'],
                 'status' => $status,
-                'total_quantity' => 0,
-                'total_sales' => 0,
-                'grand_total' => 0,
-                'po_value' => $data['po_value'],
             ]);
-            $sales_order->save();
+            $ppu_form->save();
 
             $num = 0;
-            $limit = $this->account->company->order_limit ?? $this->setting->sales_order_limit;
-            // CUSTOM LIMIT FOR WATSON
-            if($this->account->short_name == 'WATSONS') {
-                $curr_limit = 23;
-            } else {
-                $curr_limit = $limit;
-            }
 
             $total_quantity = 0;
-            $total_sales = 0;
-            $part = 1;
-            foreach($data['lines'] as $item) {
-                // $num++;
+            $total_amount = 0;
 
-                // divide by parts
-                if($num > $curr_limit) {
-                    $curr_limit += $limit;
-                    $part++;
-                }
+            foreach($data['lines'] as $key => $item) {
 
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $item['product']['id'],
-                    'part' => $part,
-                    'total_quantity' => $item['quantity'],
-                    'total_sales' => $item['total'],
+                $ppu_form_item = new PPUFormItem([
+                    'ppuform_id' => $ppu_form->id,
+                    'rtv_number' => $item['rtv_number'],
+                    'rtv_date' => $item['rtv_date'],
+                    'branch_name' => $item['branch_name'],
+                    'total_quantity' => $item['total_quantity'],
+                    'total_amount' => $item['total_amount'],
+                    'remarks' => $item['remarks'],
                 ]);
-                $sales_order_product->save();
+                $ppu_form_item->save();
 
-                $sales_order_product_uom = new SalesOrderProductUom([
-                    'sales_order_product_id' => $sales_order_product->id,
-                    'uom' => $item['uom'],
-                    'quantity' => $item['quantity'],
-                    'uom_total' => $item['total'],
-                    'uom_total_less_disc' => $item['total_less_discount'],
-                ]);
-                $sales_order_product_uom->save();
 
-                $total_quantity += $item['quantity'];
-                $total_sales += $item['total'];
+                $total_quantity += $item['total_quantity'];
+                $total_amount += $item['total_amount'];
             }
 
-            // apply discount
-            $grand_total = $total_sales;
-            if(!empty($data['discount'])) {
-                $discounts = [$data['discount']['discount_1'], $data['discount']['discount_2'], $data['discount']['discount_3']];
 
-                foreach ($discounts as $discountValue) {
-                    if ($discountValue > 0) {
-                        $grand_total = $grand_total * ((100 - $discountValue) / 100);
-                    }
-                }
-            }
-
-            $sales_order->update([
+            $ppu_form->update([
                 'total_quantity' => $total_quantity,
-                'total_sales' => $total_sales,
-                'grand_total' => $grand_total
+                'total_amount' => $total_amount
             ]);
 
             // logs
             activity('create')
-                ->performedOn($sales_order)
-                ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number [ :subject.po_number ]');
+                ->performedOn($ppu_form)
+                ->log(':causer.firstname :causer.lastname has created ppu form :subject.control_number');
 
-            $this->success_data[$po_number] = [
-                'message' => 'Sales Order '.$control_number.' has been created.',
+            $this->success_data = [
+                'message' => 'PPU Form '.$control_number.' has been created.',
                 'control_number' => $control_number,
                 'status' => $status
             ];
         } else {
-            $this->err_data[$po_number] = $err;
+            $this->err_data = $err;
         }
     }
 
@@ -321,10 +255,7 @@ class Upload extends Component
             'success_data',
             'err_data',
         ]);
-
-        foreach($this->so_data as $po_number => $data) {
-            $this->saveSalesOrder($status, $po_number);
-        }
+        $this->savePPUForm($status);
     }
 
     public function mount($logged_account) {

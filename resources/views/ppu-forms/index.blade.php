@@ -13,21 +13,13 @@
         <h1>PPU Forms</h1>
     </div>
     <div class="col-md-6 text-right">
-        @if(empty($cut_off))
-           
-            @can('ppu form create')
-                <a href="{{route('ppu.create')}}" class="btn btn-primary">
-                    <i class="fas fa-plus mr-1"></i>
-                    ADD PPU FORM
-                </a>
-            @endcan
+        @can('ppu form create')
+            <a href="{{route('ppu.create')}}" class="btn btn-primary">
+                <i class="fas fa-plus mr-1"></i>
+                ADD PPU FORM
+            </a>
+        @endcan
 
-            <!-- <a href="{{route('ppu-form-multiple.index')}}" class="btn btn-success">
-                <i class="fa fa-upload mr-1"></i>
-                UPLOAD MULTIPLE PPU
-            </a> -->
-
-        @endif
     </div>
 
     @if(!empty($cut_off))
@@ -71,44 +63,33 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($ppu_form as $sales_order)
+                @foreach($ppu_form as $ppu_forms)
                 <tr>
-                    <td>{{$sales_order->control_number}}</td>
-                    <td>{{$sales_order->date_prepared}}</td>
-                    <td>{{$sales_order->account_login->account->account_name}}</td>
-                    <td>{{$sales_order->pickup_date}}</td>
-
+                    <td>{{$ppu_forms->control_number}}</td>
+                    <td>{{$ppu_forms->date_prepared}}</td>
+                    <td>{{$ppu_forms->account_login->account->account_name}}</td>
+                    <td>{{$ppu_forms->pickup_date}}</td>
                     <td>
-                        @if(isset($sales_order->upload_status))
-                            @if($sales_order->status == 'cancelled')
-                                <span class="badge badge-danger">{{$sales_order->status}}</span>
-                            @else
-                                <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
-                            @endif
+                        @if($ppu_forms->status == 'cancelled')
+                            <span class="badge badge-danger">{{$ppu_forms->status}}</span>
                         @else
-                            @if($sales_order->status == 'cancelled')
-                                <span class="badge badge-danger">{{$sales_order->status}}</span>
-                            @else
-                                <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
-                            @endif
+                            <span class="badge {{$ppu_forms->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$ppu_forms->status}}</span>
                         @endif
                     </td>
-                    <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
+                    <td>{{isset($ppu_forms->account_login->user) ? $ppu_forms->account_login->user->fullName() : '-'}}</td>
                     <td class="text-right">
-                        @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
-                            @if($sales_order->status == 'draft')
-                                @can('sales order edit')
-                                    <a href="{{route('ppu.edit', $sales_order->id)}}" title="edit">
-                                        <i class="fas fa-edit text-success mx-1"></i>
-                                    </a>
-                                @endcan
-                            @endif
+                        @if($ppu_forms->status == 'draft')
+                            @can('ppu form edit')
+                                <a href="{{route('ppu.edit', $ppu_forms->id)}}" title="edit">
+                                    <i class="fas fa-edit text-success mx-1"></i>
+                                </a>
+                            @endcan
                         @endif
-                        <a href="{{route('ppu.show', $sales_order->id)}}" title="view">
+                        <a href="{{route('ppu.show', $ppu_forms->id)}}" title="view">
                             <i class="fa fa-eye text-primary mx-1"></i>
                         </a>
-                        @if(auth()->user()->can('ppu form delete') || $sales_order->status == 'draft')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$sales_order->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
+                        @if(auth()->user()->can('ppu form delete') || $ppu_forms->status == 'draft')
+                            <a href="#" title="delete" class="btn-delete" data-id="{{$ppu_forms->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                         @endif
                     </td>
                 </tr>

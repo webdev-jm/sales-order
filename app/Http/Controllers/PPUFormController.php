@@ -323,7 +323,6 @@ class PPUFormController extends Controller
 
         if(!empty($ppu_item)){
             foreach ($ppu_item['items'] as $key => $items){
-                
                 $ppuform_item = new PPUFormItem([
                     'ppuform_id' => $ppu_form->id,
                     'rtv_number' => $items['rs'],

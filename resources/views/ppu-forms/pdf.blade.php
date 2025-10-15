@@ -142,11 +142,11 @@
             <tr>
                 <th>No.</th>
                 <th>RTV/RS No.</th>
-                <th>RTV Date</th>
+                <th style="width: 60px;">RTV Date</th>
                 <th>Branch Name</th>
                 <th>Total Qty</th>
                 <th>Total Amount</th>
-                <th>Remarks</th>
+                <th style="width: 50px;">Remarks</th>
             </tr>
         </thead>
         <tbody>
@@ -156,7 +156,7 @@
                 <td>{{ $order['rtv_number'] ?? '' }}</td>
                 <td>{{ $order['rtv_date'] ?? '' }}</td>
                 <td>{{ $order['branch_name'] ?? '' }}</td>
-                <td>{{ $order['total_quantity'] ?? 0 }}</td>
+                <td>{{ number_format($order['total_quantity'] ?? 0, 0) }}</td>
                 <td>{{ number_format($order['total_amount'] ?? 0, 2) }}</td>
                 <td>{{ $order['remarks'] ?? '' }}</td>
             </tr>

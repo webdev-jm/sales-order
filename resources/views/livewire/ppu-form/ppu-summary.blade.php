@@ -58,7 +58,8 @@
 
         <div class="modal-footer">
             <button id="btn-finalize" class="btn btn-success">Finalize</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button id="btn-draft" class="btn btn-secondary">Save as Draft</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
         </div>
     </div>
 </div>
