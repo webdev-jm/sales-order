@@ -316,6 +316,15 @@
             }
         });
 
+        $('body').on('click', '#btn-draft', function(e) {
+            e.preventDefault();
+
+            var status_val = 'draft';
+            $('#status').val(status_val);
+            $('#update_ppu').submit();
+            
+        });
+
         function checkDuplicateNames() {
             const names = [];
             const inputs = document.querySelectorAll('input[name*="[rs]"]');

@@ -12,7 +12,13 @@
     <div class="col-md-6">
         <h1 id="so-title">PPU Forms / Add</h1>
     </div>
+    
     <div class="col-md-6 text-right">
+        
+        <a href="{{route('ppu-form-multiple.index')}}" class="btn btn-success">
+            <i class="fa fa-upload mr-1"></i>
+            UPLOAD PPU
+        </a>
         <a href="{{route('ppu.index')}}" class="btn btn-default"><i class="fas fa-arrow-left mr-1"></i>{{__('Back')}}</a>
     </div>
 </div>
@@ -328,6 +334,15 @@
                 $('#status').val(status_val);
                 $('#add_ppu').submit();
             }
+        });
+
+        $('body').on('click', '#btn-draft', function(e) {
+            e.preventDefault();
+
+            var status_val = 'draft';
+            $('#status').val(status_val);
+            $('#add_ppu').submit();
+            
         });
 
 

@@ -4,9 +4,9 @@
     <form wire:submit.prevent="checkFileData">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">UPLOAD MULTIPLE PPU<i class="fa fa-spinner-fa-spin" wire:loading></i></h3>
+                <h3 class="card-title">UPLOAD PPU<i class="fa fa-spinner-fa-spin" wire:loading></i></h3>
                 <div class="card-tools">
-                    <a href="{{asset('/assets/SMS Multiple PO upload Format.xlsx')}}" class="btn btn-success btn-sm">
+                    <a href="{{asset('/assets/SMS PPU upload Format.xlsx')}}" class="btn btn-success btn-sm">
                         <i class="fa fa-download mr-1"></i>
                         DOWNLOAD TEMPLATE
                     </a>
@@ -34,7 +34,7 @@
         </div>
     </form>
 
-    @if(!empty($so_data))
+    @if(!empty($ppu_data))
     <div class="row">
         <div class="col-12 mb-3">
             <button class="btn btn-secondary" wire:click.prevent="saveAll('draft')" wire:loading.attr="disabled">
@@ -47,18 +47,18 @@
             </button>
         </div>
 
-        @foreach($so_data as $po_number => $data)
+
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">CONTROL NUMBER: <b>{{$success_data[$po_number]['control_number'] ?? 'N/A'}}</b></div>
+                        <div class="card-title">CONTROL NUMBER: <b>{{$success_data['control_number'] ?? 'N/A'}}</b></div>
                         <div class="card-tools">
-                            @if(empty($success_data[$po_number]['control_number']))
-                                <button class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')">
+                            @if(empty($success_data['control_number']))
+                                <button class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="savePPUForm('draft', '')">
                                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Save as Draft
                                 </button>
-                                <button class="btn btn-success" wire:loading.attr="disabled" wire:click.prevent="saveSalesOrder('finalized', '{{$po_number}}')">
+                                <button class="btn btn-success" wire:loading.attr="disabled" wire:click.prevent="savePPUForm('finalized', '')">
                                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Finalize
                                 </button>
@@ -66,13 +66,12 @@
                         </div>
                     </div>
                     <div class="card-body">
-
-                        @if(!empty($err_data[$po_number]))
+                        @if(!empty($err_data))
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-danger pl-0">
                                         <ul class="mb-0">
-                                            @foreach($err_data[$po_number] as $err)
+                                            @foreach($err_data as $err)
                                                 <li class="">{{$err}}</li>
                                             @endforeach
                                         </ul>
@@ -81,11 +80,11 @@
                             </div>
                         @endif
 
-                        @if(!empty($success_data[$po_number]['message']))
+                        @if(!empty($success_data['message']))
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-success">
-                                        {{$success_data[$po_number]['message']}}
+                                        {{$success_data['message']}}
                                     </div>
                                 </div>
                             </div>
@@ -94,11 +93,11 @@
                         <div class="row">
                             <div class="col-12">
                                 <h4>
-                                    {{$success_data[$po_number]['control_number'] ?? 'N/A'}}
+                                    {{$success_data['control_number'] ?? 'N/A'}}
                                     <small class="float-right">
-                                        @if(!empty($success_data[$po_number]['status']))
-                                            <span class="badge {{$success_data[$po_number]['status'] == 'draft' ? 'bg-secondary' : 'bg-success'}}">
-                                                {{$success_data[$po_number]['status']}}
+                                        @if(!empty($success_data['status']))
+                                            <span class="badge {{$success_data['status'] == 'draft' ? 'bg-secondary' : 'bg-success'}}">
+                                                {{$success_data['status']}}
                                             </span>
                                         @else
                                             <span class="badge badge-info">
@@ -112,28 +111,21 @@
                         
                         <div class="row invoice-info">
                             <div class="col-sm-4 invoice-col">
-                                <address>
-                                    @if(!empty($data['shipping_address']))
-                                        <strong>{{$data['shipping_address']['ship_to_name']}}</strong><br>
-                                        <b>Date Prepared:</b> {{$data['ship_date']}}<br>
-                                        <b>Prepared By:</b><br>{{$data['ship_date']}}<br>
-                                    @else
-                                        <strong>{{$account->account_name}}</strong><br>
-                                        {{$account->ship_to_address1}}<br>
-                                        {{$account->ship_to_address2}}<br>
-                                        {{$account->ship_to_address3}}<br>
-                                        {{$account->postal_code}}
-                                    @endif
-                                </address>
+                                <b>Account:</b> [{{$account->account_code}}] {{$account->short_name}}<br>
+                                <b>Date Prepared:</b> {{ date('Y-m-d') }} <br>
+
                             </div>
-                            
                             <div class="col-sm-4 invoice-col">
-                                <b>Submitted Date:</b><br> {{date('Y-m-d')}}<br>
-                                <b>Pick-Up Date:</b><br> {{$data['ship_date']}}<br>
-                            </div>
-                    
+                                <b>Submitted Date:</b><br>
+                                <p>
+                                    {{$ppu_data['date_submitted']}}
+                                </p>
+                                <b>Pick-up Date:</b><br>
+                                <p>
+                                    {{$ppu_data['pickup_date']}}
+                                </p>
+                            </div>    
                         </div>
-                        
                         <div class="row">
                             
                             <div class="col-12 table-responsive">
@@ -153,76 +145,46 @@
                                         @php
                                             $num = 0;
                                             $quantity_total = 0;
-                                            $sales_total = 0;
-                                            $sales_total_less_disc = 0;
+                                            $amount_total = 0;
                                         @endphp
-                                        @foreach($data['lines'] as $key => $val)
+                                        @foreach($ppu_data['lines'] as $key => $val)
                                             @php
                                                 $num++;
                                             @endphp
                                             <tr>
                                                 <td class="align-middle text-center">{{$num}}</td>
-                                                <td class="align-middle">{{$val['sku_code']}}</td>
-                                                @if(!empty($val['product']))
-                                                    <td class="align-middle">{{$val['product']['description']}} [{{$val['product']['size']}}]</td>
-                                                @else
-                                                    <td class="align-middle">
-                                                        product not found
-                                                    </td>
-                                                @endif
-                                                <td>{{$val['uom']}}</td>
-                                                <td class="text-right">{{$val['quantity']}}</td>
-                                                <td class="text-right">{{number_format($val['total'], 2)}}</td>
-                                                <td class="text-right">{{number_format($val['total_less_discount'], 2)}}</td>
+                                                <td class="align-middle">{{$val['rtv_number']}}</td>
+                                                <td class="align-middle">{{$val['rtv_date']}}</td>
+                                                <td class="align-middle">{{$val['branch_name']}}</td>
+                                                <td class="text-right">{{$val['total_quantity']}}</td>
+                                                <td class="text-right">{{number_format($val['total_amount'], 2)}}</td>
+                                                <td class="text-right">{{$val['remarks']}}</td>
                                             </tr>
                                             @php
-                                                $quantity_total += $val['quantity'];
-                                                $sales_total += $val['total'];
-                                                $sales_total_less_disc += $val['total_less_discount'];
+                                                $quantity_total += $val['total_quantity'];
+                                                $amount_total += $val['total_amount'];
                                             @endphp
                                         @endforeach
                                     </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <th colspan="4">TOTAL</th>
-                                            <th class="text-right">{{number_format($quantity_total)}}</th>
-                                            <th class="text-right">{{number_format($sales_total, 2)}}</th>
-                                            <th class="text-right">{{number_format($sales_total_less_disc, 2)}}</th>
-                                        </tr>
-                                    </tfoot>
                                 </table>
                             </div>
                         </div>
                     
                         <div class="row">
                             <div class="col-lg-6">
-                                <p class="lead">Order Summary</p>
+                                <p class="lead">PPU Summary</p>
                                 <div class="table-responsive">
                                     <table class="table">
                                         <tr>
-                                            <th style="width:50%">Total:</th>
-                                            <td class="text-right">{{number_format($sales_total, 2)}}</td>
+                                            <th style="width:50%">Total Quantity:</th>
+                                            <td class="text-right">{{$quantity_total ?? ''}}</td>
+                                       
                                         </tr>
                                         <tr>
-                                            <th>Discount</th>
-                                            <td class="text-right">{{$account->discount->description ?? ''}}</td>
+                                            <th style="width:50%">Total Amount:</th>
+                                            <td class="text-right">{{number_format($amount_total, 2)}}</td>
                                         </tr>
-                                        <tr>
-                                            @php
-                                                $discounted_total = $sales_total;
-                                                if(!empty($data['discount'])) {
-                                                    $discounts = [$data['discount']['discount_1'], $data['discount']['discount_2'], $data['discount']['discount_3']];
 
-                                                    foreach ($discounts as $discountValue) {
-                                                        if ($discountValue > 0) {
-                                                            $discounted_total = $discounted_total * ((100 - $discountValue) / 100);
-                                                        }
-                                                    }
-                                                }
-                                            @endphp
-                                            <th>Total Less Discount</th>
-                                            <td class="text-right">{{number_format($discounted_total, 2)}}</td>
-                                        </tr>
                                     </table>
                                 </div>
                             </div>
@@ -230,7 +192,7 @@
                     </div>
                 </div>
             </div>
-        @endforeach
+
     </div>
     @endif
 

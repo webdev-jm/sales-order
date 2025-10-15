@@ -352,13 +352,6 @@ return [
             'active'    => ['credit-memo*']
         ],
         [
-            'text'      => 'PPU',
-            'url'       => '/ppu-form',
-            'icon'      => 'fas fa-fw fa-file',
-            'can'       => 'ppu form access',
-            'active'    => ['ppu-form*']
-        ],
-        [
             'text'      => 'Invoice',
             'url'       => '/invoice',
             'icon'      => 'fas fa-fw fa-list',
@@ -455,6 +448,13 @@ return [
             'icon'      => 'fas fa-fw fa-window-restore',
             'can'       => 'channel operation report',
             'active'    => ['channel-operation*']
+        ],
+        [
+            'text'      => 'PPU',
+            'url'       => '/ppu-form',
+            'icon'      => 'fas fa-fw fa-file',
+            'can'       => 'ppu form access',
+            'active'    => ['ppu-form*']
         ],
         // DMS
         [
