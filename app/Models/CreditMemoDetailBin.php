@@ -7,29 +7,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Session;
 
-class CreditMemo extends Model
+
+class CreditMemoDetailBin extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    USE SoftDeletes;
 
     protected $fillable = [
-        'account_id',
-        'user_id',
-        'credit_memo_reason_id',
-        'invoice_number',
-        'po_number',
-        'so_number',
-        'cm_date',
-        'ship_date',
-        'ship_code',
-        'ship_name',
-        'shipping_instruction',
-        'ship_address1',
-        'ship_address2',
-        'ship_address3',
-        'ship_address4',
-        'ship_address5',
-        'status',
+        'credit_memo_detail_id',
+        'lot_number',
+        'bin_location',
+        'quantity',
+        'uom',
     ];
 
     /**
