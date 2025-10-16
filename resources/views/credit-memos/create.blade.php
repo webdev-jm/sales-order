@@ -22,24 +22,12 @@
 
 <livewire:credit-memo.create />
 
-<div class="modal fade" id="rud-summary-modal">
-    <div class="modal-dialog modal-xl">
-        <livewire:credit-memo.summary/>
-    </div>
-</div>
-
 @endsection
 
 @section('js')
 <script>
     $(function() {
         $('.select').select2();
-
-        $(function() {
-            $('body').on('click', '#btn-summary-modal', function() {
-                $('#rud-summary-modal').modal('show');
-            });
-        });
     })
 </script>
 @endsection
