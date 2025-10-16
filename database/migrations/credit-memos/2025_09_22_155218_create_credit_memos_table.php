@@ -19,18 +19,9 @@ class CreateCreditMemosTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('credit_memo_reason_id')->nullable();
             $table->string('invoice_number');
-            $table->string('po_number');
-            $table->string('so_number');
-            $table->date('cm_date');
             $table->date('ship_date');
-            $table->string('ship_code')->nullable();
-            $table->string('ship_name')->nullable();
-            $table->string('shipping_instruction')->nullable();
-            $table->string('ship_address1')->nullable();
-            $table->string('ship_address2')->nullable();
-            $table->string('ship_address3')->nullable();
-            $table->string('ship_address4')->nullable();
-            $table->string('ship_address5')->nullable();
+            $table->string('warehouse_location');
+            $table->string('po_number');
             $table->string('status');
             $table->timestamps();
 

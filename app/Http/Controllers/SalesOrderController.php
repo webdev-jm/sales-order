@@ -123,7 +123,7 @@ class SalesOrderController extends Controller
         $date_to = trim($request->get('date_to'));
 
         // $this->checkSalesOrderStatus();
-
+        
         if(isset($logged_account)) {
 
             Session::forget('order_data');
@@ -171,7 +171,7 @@ class SalesOrderController extends Controller
                 'message_error' => 'please sign in to account before creating sales order'
             ]);
         }
-
+        
     }
 
     private function generateControlNumber() {
@@ -215,7 +215,7 @@ class SalesOrderController extends Controller
         }
 
         $control_number = $this->generateControlNumber();
-
+        
         $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
             $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +'.$logged_account->account->po_process_date.' weekdays'));
@@ -390,7 +390,7 @@ class SalesOrderController extends Controller
         $cristalino_data = array();
         $ks_1046_data = array();
         foreach($order_data['items'] as $product_id => $items) {
-
+            
             // separate Cristalino
             if(in_array($product_id, $cristalino_prod_ids)) {
                 $cristalino_data[$product_id] = $items;
@@ -412,7 +412,7 @@ class SalesOrderController extends Controller
                     'total_sales' => $items['product_total'],
                 ]);
                 $sales_order_product->save();
-
+    
                 foreach($items['data'] as $uom => $data) {
                     $sales_order_product_uom = new SalesOrderProductUom([
                         'sales_order_product_id' => $sales_order_product->id,
@@ -454,7 +454,7 @@ class SalesOrderController extends Controller
                     'total_sales' => $items['product_total'],
                 ]);
                 $sales_order_product->save();
-
+    
                 foreach($items['data'] as $uom => $data) {
                     $sales_order_product_uom = new SalesOrderProductUom([
                         'sales_order_product_id' => $sales_order_product->id,
@@ -496,7 +496,7 @@ class SalesOrderController extends Controller
                     'total_sales' => $items['product_total'],
                 ]);
                 $sales_order_product->save();
-
+    
                 foreach($items['data'] as $uom => $data) {
                     $sales_order_product_uom = new SalesOrderProductUom([
                         'sales_order_product_id' => $sales_order_product->id,
@@ -552,8 +552,8 @@ class SalesOrderController extends Controller
 
         $reference_arr = explode(' ,', $sales_order->reference);
 
-        // $this->salesOrderStatus($sales_order);
-
+        $this->salesOrderStatus($sales_order);
+        
         return view('sales-orders.show')->with([
             'sales_order' => $sales_order,
             'parts' => $parts,
@@ -706,7 +706,7 @@ class SalesOrderController extends Controller
             'grand_total' => $order_data['grand_total'],
             'po_value' => $order_data['po_value'] ?? 0,
         ]);
-
+        
         $num = 0;
         $part = 1;
         $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
@@ -798,7 +798,7 @@ class SalesOrderController extends Controller
                     'total_sales' => $items['product_total'],
                 ]);
                 $sales_order_product->save();
-
+    
                 foreach($items['data'] as $uom => $data) {
                     $sales_order_product_uom = new SalesOrderProductUom([
                         'sales_order_product_id' => $sales_order_product->id,
@@ -840,7 +840,7 @@ class SalesOrderController extends Controller
                     'total_sales' => $items['product_total'],
                 ]);
                 $sales_order_product->save();
-
+    
                 foreach($items['data'] as $uom => $data) {
                     $sales_order_product_uom = new SalesOrderProductUom([
                         'sales_order_product_id' => $sales_order_product->id,
@@ -889,7 +889,7 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         }
-
+        
     }
 
     public function upload(Request $request) {
@@ -927,7 +927,7 @@ class SalesOrderController extends Controller
         $row_num = 0;
         foreach($imports[0] as $row) {
             $row_num++;
-
+            
             // PO NUMBER
             if($row_num == 1 && $row[0] == 'PO NUMBER') {
                 $po_number = $row[1];
@@ -1024,7 +1024,7 @@ class SalesOrderController extends Controller
             'postal_code' => $postal_code,
         ]);
     }
-
+    
     private function processData($data) {
         $logged_account = Session::get('logged_account');
         if(empty($logged_account)) {
@@ -1197,7 +1197,7 @@ class SalesOrderController extends Controller
                 } else {
                     unset($orders['items'][$product->id]);
                 }
-
+                
                 $total += $product_total;
                 $total_quantity += $product_quantity;
             }
@@ -1256,7 +1256,7 @@ class SalesOrderController extends Controller
         if ($uom === 'CS') {
             return (float) $quantity;
         }
-
+        
         // Assuming you are using Laravel's Eloquent to find the product.
         // Replace with your actual data-fetching method.
         $product = Product::findOrFail($product_id);
