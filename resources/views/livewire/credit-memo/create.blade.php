@@ -62,7 +62,7 @@
 
         </div>
         <div class="card-footer text-right">
-            <button class="btn btn-primary" wire:click.prevent="searchInvoice()" wire:loading.attr="disabled">
+            <button class="btn btn-primary btn-sm" wire:click.prevent="searchInvoice()" wire:loading.attr="disabled">
                 <i class="fa fa-search mr-1"></i>
                 Search Invoice
             </button>
@@ -73,11 +73,8 @@
         <div class="card-header">
             <h3 class="card-title">RUD Details</h3>
             <div class="card-tools">
-                <button wire:click.prevent="saveRUD('draft')" class="btn btn-secondary btn-sm" wire:loading.attr="disabled">
-                    SAVE AS DRAFT
-                </button>
-                <button wire:click.prevent="saveRUD('submitted')" class="btn btn-success btn-sm" wire:loading.attr="disabled">
-                    SUBMIT
+                <button class="btn btn-primary btn-sm" id="btn-summary-modal" wire:click.prevent="setSummaryData">
+                    SUMMARY
                 </button>
             </div>
         </div>
@@ -166,4 +163,5 @@
 
         </div>
     </div>
+
 </div>
