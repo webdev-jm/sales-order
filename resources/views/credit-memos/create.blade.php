@@ -33,12 +33,9 @@
 @section('js')
 <script>
     $(function() {
-        $('.select').select2();
 
-        $(function() {
-            $('body').on('click', '#btn-summary-modal', function() {
-                $('#rud-summary-modal').modal('show');
-            });
+        $('body').on('click', '#btn-summary-modal', function() {
+            $('#rud-summary-modal').modal('show');
         });
     })
 </script>

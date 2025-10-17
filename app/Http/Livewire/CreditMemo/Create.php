@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Session;
 
 class Create extends Component
 {
-
     public $accounts;
     public $reasons;
     public $year, $month, $invoice_number, $account_id, $so_number, $po_number;
@@ -117,10 +116,9 @@ class Create extends Component
         Session::put('cm_data', $this->cm_data);
     }
 
-    public function setSummaryData() {
-        $this->emit('setCmData');
-
-        dd(Session::get('cm_data'));
+    public function showSummary() {
+        // $this->updateSession();
+        // $this->emit('setCmData', Session::get('cm_data'));
     }
 
 }
