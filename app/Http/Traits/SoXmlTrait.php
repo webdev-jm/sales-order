@@ -21,7 +21,7 @@ Trait SoXmlTrait {
             $xml = $this->arrayToXml($data);
 
             $filename = $sales_order->po_number.'-'.$part.'.xml';
-            
+
             // $ftp = Storage::disk('DFM');
 
             // change connection for each accounts
@@ -85,7 +85,7 @@ Trait SoXmlTrait {
             ->get($this->url_link.'/so/ar_customer');
 
         $customer = $response->json()['data'];
-        
+
         $details = $sales_order->order_products;
         $parts = array_unique($details->pluck('part')->toArray());
 
@@ -253,7 +253,7 @@ Trait SoXmlTrait {
                 $so_arr[] = ltrim($data['sales_order'], 0);
             }
             $reference = implode(', ', $so_arr);
-    
+
             if(!empty($reference)) {
                 $sales_order->update([
                     'upload_status' => 1,
@@ -261,6 +261,5 @@ Trait SoXmlTrait {
                 ]);
             }
         }
-
     }
 }
