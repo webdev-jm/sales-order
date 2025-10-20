@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProductUom;
 use App\Models\SalesOrderProduct;
-use App\Models\SalesOrderProductUomPaf;
+use App\Models\SalesOrderProductUomPAF;
 
 use Illuminate\Support\Facades\Session;
 
@@ -17,7 +17,7 @@ class Autosave extends Component
     use GlobalTrait;
 
     public $setting;
-    
+
     public $sales_order_id, $sales_order;
     public $logged_account;
     public $ship_date, $shipping_instruction,
@@ -34,7 +34,7 @@ class Autosave extends Component
 
     public function save() {
         $order_data = Session::get('order_data');
-        
+
         $shipping_address_id = $this->shipping_address_id == 'default' ? NULL : $this->shipping_address_id;
 
         $this->sales_order->update([
@@ -59,11 +59,11 @@ class Autosave extends Component
 
         foreach($this->sales_order->order_products as $so_product) {
             foreach($so_product->product_uoms as $uom) {
-                $paf_data = SalesOrderProductUomPaf::where('sales_order_product_uom_id', $uom->id)->forceDelete();
+                $paf_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
             }
         }
         $this->sales_order->order_products()->forceDelete();
-        
+
         foreach($order_data['items'] as $product_id => $items) {
             // $num++;
 
@@ -96,7 +96,7 @@ class Autosave extends Component
                 if(!empty($data['paf_rows'])) {
                     foreach($data['paf_rows'] as $paf_row) {
                         if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                            $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                 'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                 'paf_number' => $paf_row['paf_number'],
                                 'uom' => $paf_row['uom'],
@@ -114,7 +114,7 @@ class Autosave extends Component
     public function getData() {
         $this->dispatchBrowserEvent('getData');
     }
-    
+
     public function mount($sales_order_id) {
         $this->logged_account = Session::get('logged_account');
         $this->sales_order = SalesOrder::findOrFail($sales_order_id);

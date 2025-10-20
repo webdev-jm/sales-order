@@ -5,7 +5,7 @@ namespace App\Http\Livewire\SalesOrder;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\PafDetail;
-use App\Models\SalesOrderProductUomPaf;
+use App\Models\SalesOrderProductUomPAF;
 use Illuminate\Support\Facades\Session;
 
 class SalesOrderPaf extends Component
