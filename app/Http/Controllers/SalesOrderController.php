@@ -726,10 +726,16 @@ class SalesOrderController extends Controller
         $cristalino_data = array();
         $ks_1046_data = array();
 
-        foreach($sales_order->order_products->product_uoms as $uom) {
-            $paf_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->get();
-            $paf_data->forceDelete();
+        // delete existing PAF rows and product_uoms for each order product before removing the order_products
+        foreach ($sales_order->order_products as $order_product) {
+            // delete paf rows for each uom
+            foreach ($order_product->product_uoms as $uom) {
+                SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
+            }
+            // delete the product uoms
+            $order_product->product_uoms()->forceDelete();
         }
+        // finally delete the sales order products
         $sales_order->order_products()->forceDelete();
         foreach($order_data['items'] as $product_id => $items) {
 
