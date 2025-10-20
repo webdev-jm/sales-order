@@ -4,13 +4,13 @@ namespace App\Helpers;
 
 class XmlConverterHelper {
 
-    public function arrayToXml($data, $name) {
+    public function arrayToXml($data, $name, $program = NULL) {
         $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;  // Enable formatting and indentation
 
         $parent = $dom->createElement($name);
         $parent->setAttribute('xmlns:xsd', 'http://www.w3.org/2001/XMLSchema-instance');
-        $parent->setAttribute('xsd:noNamespaceSchemaLocation', 'SORTOIDOC.XSD');
+        $parent->setAttribute('xsd:noNamespaceSchemaLocation', $program);
         $dom->appendChild($parent);
 
         $this->arrayToXmlHelper($data, $dom, $parent);

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
-use App\Models\SalesOrderProductUomPaf;
+use App\Models\SalesOrderProductUomPAF;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
 use App\Models\PriceCode;
@@ -428,7 +428,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(isset($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
@@ -470,7 +470,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
@@ -512,7 +512,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
@@ -599,7 +599,7 @@ class SalesOrderController extends Controller
 
                 // check if there's a PAF row
                 $paf_rows = [];
-                $paf_rows_data = SalesOrderProductUomPaf::where('sales_order_product_uom_id', $uom->id)->get();
+                $paf_rows_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->get();
                 if(!empty($paf_rows_data->count())) {
                     foreach($paf_rows_data as $paf_row) {
                         $paf_rows[] = [
@@ -727,7 +727,7 @@ class SalesOrderController extends Controller
         $ks_1046_data = array();
 
         foreach($sales_order->order_products->product_uoms as $uom) {
-            $paf_data = SalesOrderProductUomPaf::where('sales_order_product_uom_id', $uom->id)->get();
+            $paf_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->get();
             $paf_data->forceDelete();
         }
         $sales_order->order_products()->forceDelete();
@@ -771,7 +771,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
@@ -814,7 +814,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
@@ -856,7 +856,7 @@ class SalesOrderController extends Controller
                     if(!empty($data['paf_rows'])) {
                         foreach($data['paf_rows'] as $paf_row) {
                             if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPaf([
+                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
                                     'sales_order_product_uom_id' => $sales_order_product_uom->id,
                                     'paf_number' => $paf_row['paf_number'],
                                     'uom' => $paf_row['uom'],
