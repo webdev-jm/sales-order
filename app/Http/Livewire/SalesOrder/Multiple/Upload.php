@@ -109,7 +109,7 @@ class Upload extends Component
                     } else {
                         $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
                         if ($dateTime === false) {
-                            $ship_date = $ship_date;
+                            // keep original $ship_date if parsing fails
                         } else {
                             $ship_date = $dateTime->format('Y-m-d');
                         }

@@ -66,6 +66,9 @@
                 <i class="fa fa-search mr-1"></i>
                 Search Invoice
             </button>
+            <button type="button" class="btn btn-primary btn-sm" wire:click.prevent="showSummary" id="btn-summary-modal">
+                SUMMARY
+            </button>
         </div>
     </div>
 
@@ -73,9 +76,7 @@
         <div class="card-header">
             <h3 class="card-title">RUD Details</h3>
             <div class="card-tools">
-                <button type="button" class="btn btn-primary btn-sm" wire:click.prevent="showSummary" id="btn-summary-modal">
-                    SUMMARY
-                </button>
+
             </div>
         </div>
         <div class="card-body">
