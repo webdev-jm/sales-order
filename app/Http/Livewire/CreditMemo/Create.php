@@ -118,7 +118,7 @@ class Create extends Component
 
     public function showSummary() {
         // $this->updateSession();
-        // $this->emit('setCmData', Session::get('cm_data'));
+        $this->emit('setCmData', Session::get('cm_data'));
     }
 
 }

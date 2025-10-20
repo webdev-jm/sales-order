@@ -12,7 +12,7 @@ use Carbon\Carbon;
 
 Trait SoXmlTrait {
 
-    public $url_link = '192.168.11.240/refreshable/public/api';
+    public $url_link = 'api.bevi.com.ph/refreshable/public/api';
 
     public function generateXml($sales_order) {
         $parts = $this->convertData($sales_order);

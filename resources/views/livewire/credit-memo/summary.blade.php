@@ -6,8 +6,6 @@
         <div class="modal-body">
             @if(!empty($summary_data))
 
-                <pre>{{ dd($summary_data) }}</pre>
-
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title"></h3>
