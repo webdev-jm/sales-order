@@ -17,7 +17,7 @@ class CreateCreditMemoDetailBinsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('credit_memo_detail_id')->nullable();
             $table->string('lot_number')->nullable();
-            $table->string('bin_location')->nullable();
+            $table->string('bin')->nullable();
             $table->decimal('quantity', 10, 2)->nullable();
             $table->string('uom')->nullable();
             $table->timestamps();

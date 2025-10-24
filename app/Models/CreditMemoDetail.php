@@ -15,12 +15,16 @@ class CreditMemoDetail extends Model
     protected $fillable = [
         'credit_memo_id',
         'product_id',
-        'lot_number',
-        'quantity',
-        'uom',
-        'unit_price',
-        'amount',
-        'expiry_date',
+        'credit_note_number',
+        'warehouse',
+        'order_quantity',
+        'order_uom',
+        'price',
+        'price_uom',
+        'unit_cost',
+        'ship_quantity',
+        'stock_quantity_to_ship',
+        'stocking_uom',
     ];
 
     /**
@@ -29,5 +33,13 @@ class CreditMemoDetail extends Model
     public function getConnectionName()
     {
         return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+    }
+
+    public function credit_memo() {
+        return $this->belongsTo('App\Models\CreditMemo', 'credit_memo_id', 'id');
+    }
+
+    public function cm_bins() {
+        return $this->hasMany('App\Models\CreditMemoDetailBin', 'credit_memo_detail_id', 'id');
     }
 }

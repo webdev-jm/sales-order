@@ -17,12 +17,16 @@ class CreateCreditMemoDetailsTable extends Migration
             $table->id();
             $table->unsignedBigInteger('credit_memo_id')->nullable();
             $table->unsignedBigInteger('product_id')->nullable();
-            $table->string('lot_number');
-            $table->integer('quantity');
-            $table->string('uom');
-            $table->decimal('unit_price',10,2);
-            $table->decimal('amount',10,2);
-            $table->date('expiration_date')->nullable();
+            $table->string('credit_note_number')->nullable();
+            $table->string('warehouse')->nullable();
+            $table->integer('order_quantity')->nullable();
+            $table->string('order_uom')->nullable();
+            $table->decimal('price', 10, 2)->nullable();
+            $table->string('price_uom')->nullable();
+            $table->decimal('unit_cost', 10, 2)->nullable();
+            $table->integer('ship_quantity')->nullable();
+            $table->integer('stock_quantity_to_ship')->nullable();
+            $table->string('stocking_uom')->nullable();
             $table->timestamps();
 
             $table->foreign('credit_memo_id')

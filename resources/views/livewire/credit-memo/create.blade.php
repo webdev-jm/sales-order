@@ -10,6 +10,7 @@
                     <div class="form-group">
                         <label for="invoice_number">Invoice Number</label>
                         <input type="text" class="form-control" placeholder="Enter Invoice Number" id="invoice_number" wire:model="invoice_number">
+                        <small>{{ $errors->first('invoice_number') }}</small>
                     </div>
                 </div>
 
@@ -17,6 +18,7 @@
                     <div class="form-group">
                         <label for="so_number">SO Number</label>
                         <input type="text" class="form-control" placeholder="Enter SO Number" id="so_number" wire:model="so_number">
+                        <small>{{ $errors->first('so_number') }}</small>
                     </div>
                 </div>
 
@@ -24,6 +26,7 @@
                     <div class="form-group">
                         <label for="po_number">PO Number</label>
                         <input type="text" class="form-control" placeholder="Enter PO Number" id="po_number" wire:model="po_number">
+                        <small>{{ $errors->first('po_number') }}</small>
                     </div>
                 </div>
 
@@ -84,7 +87,7 @@
                     <button class="btn btn-secondary btn-sm" wire:click.prevent="saveRUD('draft')">
                         SAVE AS DRAFT
                     </button>
-                    <button class="btn btn-success btn-sm" wire:click.prevent="saveRUD('draft')">
+                    <button class="btn btn-success btn-sm" wire:click.prevent="saveRUD('submitted')">
                         SUBMIT
                     </button>
                 @endif
@@ -119,7 +122,7 @@
                             <li class="list-group-item py-1 pr-1 align-middle">
                                 <strong>REASON:</strong>
                                 <span class="float-right">
-                                    <select class="form-control{{ $errors->has('cm_reason_id') ? ' is-invalid' : ''}} form-control-sm" id="cm_reason_id" wire:model="cm_reason_id">
+                                    <select class="form-control{{ $errors->has('cm_reason_id') ? ' is-invalid' : ''}} form-control-sm" id="cm_reason_id" wire:model="cm_data.cm_reason_id">
                                         <option value="">- select reason -</option>
                                         @foreach($reasons as $reason)
                                             <option value="{{$reason->id}}">[{{$reason->reason_code}}] {{$reason->reason_description}}</option>
@@ -130,7 +133,7 @@
                             <li class="list-group-item py-1 pr-1">
                                 <strong>DATE:</strong>
                                 <span class="float-right">
-                                    <input type="date" class="form-control form-control-sm">
+                                    <input type="date" class="form-control form-control-sm" wire:model="cm_date">
                                 </span>
                             </li>
                         </ul>
