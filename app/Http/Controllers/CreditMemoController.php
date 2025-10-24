@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use App\Http\Traits\GlobalTrait;
 
+use Illuminate\Support\Facades\Session;
+
 use App\Models\Account;
 use App\Models\CreditMemoReason;
 
@@ -26,6 +28,9 @@ class CreditMemoController extends Controller
      */
     public function index(Request $request): View
     {
+        Session::forget('cm_data');
+        Session::forget('cm_details');
+
         $search = trim($request->get('search'));
 
         $credit_memos = CreditMemo::orderBy('created_at', 'DESC')

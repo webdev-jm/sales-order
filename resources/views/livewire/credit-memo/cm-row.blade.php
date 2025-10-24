@@ -12,12 +12,6 @@
         <td class="p-0 align-middle text-center">{{$row_data['SalesOrderLine']}}</td>
         <td class="p-0 align-middle text-center">{{$row_data['StockCode']}}</td>
         <td class="py-0 align-middle text-left">{{$row_data['StockDescription']}}</td>
-        <td class="p-0 align-middle">
-            <input type="number" class="form-control form-control-sm border-0" placeholder="Quantity" wire:model.live="cm_row_details.quantity">
-        </td>
-        <td class="p-0 align-middle">
-            <input type="text" class="form-control form-control-sm border-0" placeholder="Uom" wire:model.live="cm_row_details.uom">
-        </td>
     </tr>
     @if($showDetail == 1)
         <tr>
@@ -79,8 +73,8 @@
                                 @foreach($row_data['bin_data'] as $key => $bin_data)
                                     <tr>
                                         <th class="align-middle text-center p-0">
-                                            <button class="btn btn-xs btn-{{empty($cm_row_details[$key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
-                                                @if(!empty($cm_row_details[$key]))
+                                            <button class="btn btn-xs btn-{{empty($cm_row_details['data'][$key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
+                                                @if(!empty($cm_row_details['data'][$key]))
                                                     <i class="fa fa-check-circle"></i>
                                                 @else
                                                     <i class="far fa-circle"></i>
