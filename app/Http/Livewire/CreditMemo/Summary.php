@@ -6,15 +6,13 @@ use Livewire\Component;
 use App\Helpers\XmlConverterHelper;
 use Illuminate\Support\Facades\Session;
 
-use App\Models\CreditMemo;
-use App\Models\CreditMemoDetail;
-use App\Models\CreditMemoDetailBin;
+
 
 class Summary extends Component
 {
     public $summary_data;
     protected $listeners = [
-        'setCmData' => 'setCmData'
+        'setSummary' => 'setCmData'
     ];
 
     public function render()
@@ -22,9 +20,8 @@ class Summary extends Component
         return view('livewire.credit-memo.summary');
     }
 
-    public function setCmData($cm_data) {
-        $this->summary_data = $cm_data;
-        dd($this->summary_data);
+    public function setCmData() {
+        $this->summary_data = Session::get('cm_data');
     }
 
     public function generateXml() {

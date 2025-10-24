@@ -5,7 +5,6 @@
         </div>
         <div class="modal-body">
             @if(!empty($summary_data))
-
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title"></h3>
