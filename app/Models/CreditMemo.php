@@ -39,4 +39,20 @@ class CreditMemo extends Model
     {
         return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
     }
+
+    public function cm_details() {
+        return $this->hasMany('App\Models\CreditMemoDetail', 'credit_memo_id', 'id');
+    }
+
+    public function account() {
+        return $this->belongsTo('App\Models\Account', 'account_id', 'id');
+    }
+
+    public function user() {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
+    public function reason() {
+        return $this->belongsTo('App\Models\CreditMemoReason', 'credit_memo_reason_id', 'id');
+    }
 }

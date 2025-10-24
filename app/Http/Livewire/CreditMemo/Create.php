@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\CreditMemo;
 use App\Models\CreditMemoDetail;
 use App\Models\CreditMemoDetailBin;
-use App\Models\Product;
+use App\Models\CreditMemoApproval;
 
 class Create extends Component
 {
@@ -20,6 +20,7 @@ class Create extends Component
     public $reasons;
     public $year, $month, $invoice_number, $account, $account_id, $so_number, $po_number;
     public $cm_reason_id;
+    public $cm_date;
     public $invoice_data;
     public $selected_invoice;
     public $detail_data;
@@ -79,7 +80,7 @@ class Create extends Component
         $this->invoice_data = $response->json();
 
         $this->reset('detail_data');
-        $this->$this->show_summary = false;
+        $this->show_summary = false;
 
         Session::forget('cm_data');
         Session::forget('cm_details');
@@ -182,7 +183,7 @@ class Create extends Component
             'po_number' => $this->cm_data['po_number'],
             'so_number' => $this->cm_data['so_number'],
             'cm_date' => now(),
-            'ship_date' => $this->cm_data['ship_date'],
+            'ship_date' => $this->cm_date,
             'ship_code' => $this->cm_data['ship_code'],
             'ship_name' => $this->cm_data['ship_name'],
             'shipping_instruction' => $this->cm_data['shipping_instruction'],
@@ -195,30 +196,64 @@ class Create extends Component
         ]);
         $rud->save();
 
-        foreach($this->cm_details as $detail) {
+        foreach($this->cm_details as $stock_code => $detail) {
             $product = $detail['product'];
 
             if(!empty($product)) {
                 $rud_detail = new CreditMemoDetail([
                     'credit_memo_id' => $rud->id,
-                    'product_id' => $product->id,
-                    'quantity' => $detail['StockQtyToShip'],
-                    'uom' => $detail['UOM'],
+                    'product_id' => $product['id'],
+                    'credit_note_number' => NULL,
+                    'warehouse' => $detail['row_data']['warehouse'] ?? NULL,
+                    'order_quantity' => $detail['row_data']['order_quantity'] ?? NULL,
+                    'order_uom' => $detail['row_data']['order_uom'] ?? NULL,
+                    'price' => $detail['row_data']['price'] ?? NULL,
+                    'price_uom' => $detail['row_data']['price_uom'] ?? NULL,
+                    'unit_cost' => $detail['row_data']['unit_cost'] ?? NULL,
+                    'ship_quantity' => $detail['row_data']['ship_quantity'] ?? NULL,
+                    'stock_quantity_to_ship' => $detail['row_data']['stock_quantity_to_ship'] ?? NULL,
+                    'stocking_uom' => $detail['row_data']['stocking_uom'] ?? NULL,
                 ]);
                 $rud_detail->save();
 
-                foreach($detail['conversion'] as $uom => $conv) {
-                    $rud_detail_bin = new CreditMemoDetailBin([
-                        'credit_memo_detail_id' => $rud_detail->id,
-                        'lot_number' => $detail['Lot'],
-                        'bin_location' => $detail['BinLocation'],
-                        'quantity' => $conv,
-                        'uom' => $uom,
-                    ]);
-                    $rud_detail_bin->save();
+                foreach($detail['data'] as  $bin_data) {
+                    foreach($bin_data['conversion'] as $uom => $conv) {
+                        $rud_detail_bin = new CreditMemoDetailBin([
+                            'credit_memo_detail_id' => $rud_detail->id,
+                            'lot_number' => $bin_data['Lot'],
+                            'bin' => $bin_data['Bin'],
+                            'quantity' => $conv,
+                            'uom' => $uom,
+                        ]);
+                        $rud_detail_bin->save();
+                    }
                 }
             }
         }
+
+        if($status == 'submitted') {
+            $approval = new CreditMemoApproval([
+                'credit_memo_id' => $rud->id,
+                'user_id' => auth()->user()->id,
+                'status' => $status,
+                'remarks' => NULL,
+            ]);
+            $approval->save();
+
+            // logs
+            activity('submitted')
+                ->performedOn($rud)
+                ->log(':causer.firstname :causer.lastname has submitted RUD');
+        } else {
+            // logs
+            activity('update')
+                ->performedOn($rud)
+                ->log(':causer.firstname :causer.lastname has updated RUD');
+        }
+
+        return redirect()->route('cm.index')->with([
+            'message_success' => 'Credit Memo successfully saved.',
+        ]);
     }
 
 }
