@@ -26,6 +26,7 @@ class CreateCreditMemoDetailsTable extends Migration
             $table->decimal('unit_cost', 10, 2)->nullable();
             $table->integer('ship_quantity')->nullable();
             $table->integer('stock_quantity_to_ship')->nullable();
+            $table->date('line_ship_date')->nullable();
             $table->string('stocking_uom')->nullable();
             $table->timestamps();
 
