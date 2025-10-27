@@ -15,8 +15,10 @@ use App\Models\CreditMemoDetail;
 use App\Models\CreditMemoDetailBin;
 use App\Models\CreditMemoApproval;
 
-class Create extends Component
+class Edit extends Component
 {
+    public $rud;
+
     public $accounts;
     public $reasons;
     public $year, $month, $invoice_number, $account, $account_id, $so_number, $po_number;
@@ -34,11 +36,23 @@ class Create extends Component
 
     public function render()
     {
-        return view('livewire.credit-memo.create');
+        return view('livewire.credit-memo.edit');
     }
 
-    public function mount()
-    {
+    public function mount($credit_memo) {
+        $this->rud = $credit_memo;
+
+        $this->year = $this->rud->year;
+        $this->month = $this->rud->month;
+        $this->invoice_number = $this->rud->invoice_number;
+        $this->so_number = $this->rud->so_number;
+        $this->po_number = $this->rud->po_number;
+        $this->account = $this->rud->account;
+
+        $this->account_id = $this->rud->account_id;
+        $this->cm_reason_id = $this->rud->credit_memo_reason_id;
+        $this->cm_date = $this->rud->cm_date;
+
         // Cache static data to avoid redundant queries
         $this->accounts = Cache::remember('accounts_list', 3600, function () {
             return Account::orderBy('account_code', 'ASC')->get();
@@ -47,10 +61,7 @@ class Create extends Component
             return CreditMemoReason::orderBy('reason_code', 'DESC')->get();
         });
 
-        $this->year = date('Y');
-        $this->month = (int)date('m');
-
-        // Initialize session data efficiently
+        $this->getInvoice();
         $this->initializeSessionData();
     }
 
@@ -69,6 +80,44 @@ class Create extends Component
                 'ship_date' => '',
             ];
             Session::put('cm_data', $this->cm_data);
+        }
+
+        $cm_details = Session::get('cm_details', []);
+        if (empty($cm_details)) {
+            $cm_details = [];
+            foreach($this->rud->cm_details as $detail) {
+                $product = $detail->product;
+                $cm_details[$product->stock_code] = [
+                    'row_data' => [
+                        'warehouse' => $detail->warehouse,
+                        'bin' => $detail->bin,
+                        'order_quantity' => $detail->order_quantity,
+                        'order_uom' => $detail->order_uom,
+                        'price' => $detail->price,
+                        'price_uom' => $detail->price_uom,
+                        'unit_cost' => $detail->unit_cost,
+                        'ship_quantity' => $detail->ship_quantity,
+                        'stock_quantity_to_ship' => $detail->stock_quantity_to_ship,
+                        'stocking_uom' => $detail->stocking_uom,
+                        'line_ship_date' => $detail->line_ship_date,
+                    ],
+                    'product' => $product,
+                    'data' => [],
+                ];
+
+                foreach($detail->cm_bins as $bin){
+                    $lot_bin_key = $bin->lot_number . '-' . $bin->bin;
+                    $cm_details[$product->stock_code]['data'][$lot_bin_key] = [
+                        'Lot' => $bin->lot_number,
+                        'Bin' => $bin->bin,
+                        'conversion' => [
+                            $bin->uom => $bin->quantity,
+                        ],
+                    ];
+                }
+            }
+
+            Session::put('cm_details', $cm_details);
         }
     }
 
@@ -172,8 +221,6 @@ class Create extends Component
             'invoice_number' => $this->invoice_number,
             'so_number' => $this->so_number,
             'po_number' => $this->po_number,
-            'year' => $this->year,
-            'month' => $this->month,
             'warehouse_location' => '',
             'ship_date' => '',
             'detail_data' => $this->detail_data,
@@ -196,6 +243,40 @@ class Create extends Component
         $this->cm_details = Session::get('cm_details', []);
     }
 
+    public function getInvoice() {
+        try {
+            $response = Http::withHeaders([
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                    'year' => $this->year,
+                    'month' => $this->month,
+                    'invoice_number' => $this->invoice_number,
+                    'company' => $this->account->company->name ?? NULL,
+                    'sales_order' => $this->so_number,
+                    'account_code' => $this->account->account_code ?? NULL,
+                    'po_number' => $this->po_number,
+                ])
+                ->timeout(30)
+                ->get($this->api_url . 'getInvoiceData');
+
+            if ($response->failed()) {
+                $this->addError('select', 'Failed to fetch invoice details. Please try again.');
+                return;
+            }
+            $data = $response->json();
+
+            $this->detail_data = $data['details'] ?? [];
+            $this->so_number = $data['SalesOrder'];
+            $this->invoice_number = $data['InvoiceNumber'];
+            $this->po_number = $data['CustomerPoNumber'];
+            $this->selected_invoice = $data;
+
+            $this->saveSession();
+        } catch(\Exception $e) {
+            $this->addError('get invoice', 'An error occurred while extracting the so invoice data.');
+        }
+    }
+
     public function saveRUD($status)
     {
         $this->validate([
@@ -214,16 +295,12 @@ class Create extends Component
             'cm_details.required' => 'At least one item must be selected.',
         ]);
 
-        $rud = new CreditMemo([
+        $this->rud->update([
             'account_id' => $this->cm_data['account_id'],
-            'user_id' => auth()->user()->id,
             'credit_memo_reason_id' => $this->cm_data['cm_reason_id'] ?? NULL,
             'invoice_number' => $this->cm_data['invoice_number'],
             'po_number' => $this->cm_data['po_number'],
             'so_number' => $this->cm_data['so_number'],
-            'year' => (int)$this->cm_data['year'],
-            'month' => (int)$this->cm_data['month'],
-            'cm_date' => now(),
             'ship_date' => $this->cm_date,
             'ship_code' => $this->cm_data['ship_code'],
             'ship_name' => $this->cm_data['ship_name'],
@@ -235,14 +312,19 @@ class Create extends Component
             'ship_address5' => $this->cm_data['ship_address5'],
             'status' => $status
         ]);
-        $rud->save();
+
+        // Delete existing details and bins
+        $this->rud->cm_details()->each(function ($detail) {
+            $detail->cm_bins()->forceDelete();
+        });
+        $this->rud->cm_details()->forceDelete();
 
         foreach($this->cm_details as $stock_code => $detail) {
             $product = $detail['product'];
 
             if(!empty($product)) {
                 $rud_detail = new CreditMemoDetail([
-                    'credit_memo_id' => $rud->id,
+                    'credit_memo_id' => $this->rud->id,
                     'product_id' => $product['id'],
                     'credit_note_number' => NULL,
                     'warehouse' => $detail['row_data']['warehouse'] ?? NULL,
@@ -254,7 +336,6 @@ class Create extends Component
                     'ship_quantity' => $detail['row_data']['ship_quantity'] ?? NULL,
                     'stock_quantity_to_ship' => $detail['row_data']['stock_quantity_to_ship'] ?? NULL,
                     'stocking_uom' => $detail['row_data']['stocking_uom'] ?? NULL,
-                    'line_ship_date' => $detail['row_data']['line_ship_date'] ?? NULL,
                 ]);
                 $rud_detail->save();
 
@@ -275,7 +356,7 @@ class Create extends Component
 
         if($status == 'submitted') {
             $approval = new CreditMemoApproval([
-                'credit_memo_id' => $rud->id,
+                'credit_memo_id' => $this->rud->id,
                 'user_id' => auth()->user()->id,
                 'status' => $status,
                 'remarks' => NULL,
@@ -284,12 +365,12 @@ class Create extends Component
 
             // logs
             activity('submitted')
-                ->performedOn($rud)
+                ->performedOn($this->rud)
                 ->log(':causer.firstname :causer.lastname has submitted RUD');
         } else {
             // logs
             activity('update')
-                ->performedOn($rud)
+                ->performedOn($this->rud)
                 ->log(':causer.firstname :causer.lastname has updated RUD');
         }
 
@@ -297,5 +378,4 @@ class Create extends Component
             'message_success' => 'Credit Memo successfully saved.',
         ]);
     }
-
 }

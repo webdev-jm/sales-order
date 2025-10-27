@@ -25,6 +25,7 @@ class CreditMemoDetail extends Model
         'ship_quantity',
         'stock_quantity_to_ship',
         'stocking_uom',
+        'line_ship_date',
     ];
 
     /**
@@ -41,5 +42,9 @@ class CreditMemoDetail extends Model
 
     public function cm_bins() {
         return $this->hasMany('App\Models\CreditMemoDetailBin', 'credit_memo_detail_id', 'id');
+    }
+
+    public function product() {
+        return $this->belongsTo('App\Models\Product', 'product_id', 'id');
     }
 }

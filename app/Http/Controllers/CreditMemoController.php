@@ -17,6 +17,12 @@ class CreditMemoController extends Controller
     use GlobalTrait;
 
     public $setting;
+    public $status_arr = [
+        'draft' => 'secondary',
+        'submitted' => 'info',
+        'returned' => 'danger',
+        'approved' => 'approved',
+    ];
 
     public function __construct() {
         $this->setting = $this->getSettings();
@@ -44,7 +50,8 @@ class CreditMemoController extends Controller
 
         return view('credit-memos.index')->with([
             'credit_memos' => $credit_memos,
-            'search' => $search
+            'search' => $search,
+            'status_arr' => $this->status_arr,
         ]);
     }
 
@@ -86,9 +93,14 @@ class CreditMemoController extends Controller
      * @param  \App\Models\CreditMemo  $creditMemo
      * @return \Illuminate\Http\Response
      */
-    public function edit(CreditMemo $creditMemo)
+    public function edit($id)
     {
-        //
+        $credit_memo  = CreditMemo::findOrFail($id);
+
+        return view('credit-memos.edit')->with([
+            'credit_memo' => $credit_memo,
+            'status_arr' => $this->status_arr,
+        ]);
     }
 
     /**

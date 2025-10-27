@@ -71,10 +71,13 @@
                             </thead>
                             <tbody>
                                 @foreach($row_data['bin_data'] as $key => $bin_data)
+                                    @php
+                                        $lot_bin_key = $bin_data['Lot'] . '-' . $bin_data['Bin'];
+                                    @endphp
                                     <tr>
                                         <th class="align-middle text-center p-0">
-                                            <button class="btn btn-xs btn-{{empty($cm_row_details['data'][$key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
-                                                @if(!empty($cm_row_details['data'][$key]))
+                                            <button class="btn btn-xs btn-{{empty($cm_row_details['data'][$lot_bin_key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
+                                                @if(!empty($cm_row_details['data'][$lot_bin_key]))
                                                     <i class="fa fa-check-circle"></i>
                                                 @else
                                                     <i class="far fa-circle"></i>

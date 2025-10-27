@@ -40,19 +40,38 @@
                 <thead>
                     <tr>
                         <th>Account</th>
+                        <th>Invoice</th>
+                        <th>SO Number</th>
+                        <th>PO Number</th>
                         <th>Reason</th>
+                        <th>User</th>
+                        <th>Status</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($credit_memos as $credit_memo)
                         <tr>
-                            <td>{{$credit_memo->account->account_code}}</td>
-                            <td>{{$credit_memo->reason->reason_code}}</td>
+                            <td>{{ $credit_memo->account->account_code }}</td>
+                            <td>{{ $credit_memo->invoice_number }}</td>
+                            <td>{{ $credit_memo->so_number }}</td>
+                            <td>{{ $credit_memo->po_number }}</td>
+                            <td>{{ $credit_memo->reason->reason_description }}</td>
+                            <td>{{ $credit_memo->user->fullName() }}</td>
+                            <td>
+                                <span class="badge badge-{{ $status_arr[$credit_memo->status] }} text-uppercase">
+                                    {{ $credit_memo->status }}
+                                </span>
+                            </td>
                             <td class="text-right">
-                                @can('cm edit')
-                                    <a href="{{route('cm.edit', $credit_memo->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
-                                @endcan
+                                <a href="{{route('cm.show', $credit_memo->id)}}" title="view details">
+                                    <i class="fas fa-eye text-primary mx-1"></i>
+                                </a>
+                                @if($credit_memo->status == 'draft')
+                                    @can('cm edit')
+                                        <a href="{{route('cm.edit', $credit_memo->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
+                                    @endcan
+                                @endif
                                 @can('cm delete')
                                     <a href="#" title="delete" class="btn-delete" data-id="{{$credit_memo->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                                 @endcan

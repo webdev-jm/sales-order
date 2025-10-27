@@ -21,6 +21,8 @@ class CreateCreditMemosTable extends Migration
             $table->string('invoice_number');
             $table->string('po_number');
             $table->string('so_number');
+            $table->integer('year');
+            $table->integer('month');
             $table->date('cm_date');
             $table->date('ship_date');
             $table->string('ship_code')->nullable();

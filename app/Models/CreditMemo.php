@@ -19,6 +19,8 @@ class CreditMemo extends Model
         'invoice_number',
         'po_number',
         'so_number',
+        'year',
+        'month',
         'cm_date',
         'ship_date',
         'ship_code',
