@@ -65,9 +65,28 @@
 
                 <div class="col-md-12">
                     <div class="form-group">
-                        <div class="custom-file">
-                            <input type="file" wire:model="picture_file" id="picture" accept="image/png, image/gif, image/jpeg" class="custom-file-input {{$errors->has('picture_file') ? 'is-invalid' : ''}}" multiple>
-                            <label for="picture" class="custom-file-label">Upload Picture</label>
+                        <div class="custom-file text-center">
+                            <button type="button" class="btn btn-primary" id="openCameraBtn" wire:loading.attr="disabled">
+                                <i class="fas fa-camera"></i> Open Camera
+                            </button>
+
+                            <div id="cameraStream" class="mt-2" style="display:none;">
+                                <video id="video" autoplay playsinline style="max-width:100%; transform: scaleX(-1);"></video>
+
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-success" id="captureBtn">Capture</button>
+                                    <button type="button" class="btn btn-secondary" id="retakeBtn" style="display:none;">Retake</button>
+                                    <button type="button" class="btn btn-danger" id="closeCameraBtn">Close</button>
+                                </div>
+
+                                <canvas id="canvas" style="display:none;"></canvas>
+
+                                <div id="preview" class="mt-2" style="display:none;">
+                                    <label>Preview</label>
+                                    <img id="previewImg" class="mx-auto d-inline img" />
+                                </div>
+                            </div>
+
                             <p class="text-danger">{{$errors->first('picture_file')}}</p>
                         </div>
                     </div>
@@ -112,11 +131,117 @@
                     }, function(error) {
                         @this.accuracy = error.message;
                     });
-                } else { 
+                } else {
                     console.log("Geolocation is not supported by this browser.");
                 }
             }
 
+        });
+
+        document.addEventListener('livewire:load', function () {
+            let stream = null;
+            const openBtn = document.getElementById('openCameraBtn');
+            const closeBtn = document.getElementById('closeCameraBtn');
+            const captureBtn = document.getElementById('captureBtn');
+            const retakeBtn = document.getElementById('retakeBtn');
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const preview = document.getElementById('preview');
+            const previewImg = document.getElementById('previewImg');
+            const cameraStream = document.getElementById('cameraStream');
+
+            async function startCamera() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    alert('Camera API not supported in this browser.');
+                    return;
+                }
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                    video.srcObject = stream;
+                    cameraStream.style.display = '';
+                    openBtn.style.display = 'none';
+                } catch (e) {
+                    alert('Could not access camera: ' + e.message);
+                }
+            }
+
+            function stopCamera() {
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+                cameraStream.style.display = 'none';
+                openBtn.style.display = '';
+                preview.style.display = 'none';
+                retakeBtn.style.display = 'none';
+                captureBtn.style.display = '';
+                previewImg.src = '';
+            }
+
+            openBtn && openBtn.addEventListener('click', startCamera);
+
+            captureBtn && captureBtn.addEventListener('click', function () {
+                const width = video.videoWidth || 1280;
+                const height = video.videoHeight || 720;
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, width, height);
+
+                canvas.toBlob(function (blob) {
+                    const file = new File([blob], 'camera.jpg', { type: blob.type || 'image/jpeg' });
+
+                    // Robust upload: prefer global Livewire.upload (capital or lowercase), otherwise fallback to emitting base64 data
+                    const lw = (window.Livewire || window.livewire);
+
+                    if (lw && typeof lw.upload === 'function') {
+                        lw.upload('picture_file', file,
+                            () => {
+                                // success: show preview, allow retake
+                                previewImg.src = URL.createObjectURL(file);
+                                preview.style.display = '';
+                                retakeBtn.style.display = '';
+                                captureBtn.style.display = 'none';
+                                // stop camera if you want to conserve resources (optional)
+                                // stopCamera();
+                            },
+                            (error) => {
+                                alert('Upload failed: ' + error);
+                            }
+                        );
+                    } else if (window.livewire && typeof window.livewire.emit === 'function') {
+                        // Fallback: convert to base64 and emit an event; handle it in Livewire component (e.g. listen for 'pictureFileCaptured')
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            // emit base64 payload to Livewire; implement server-side handler to accept it
+                            window.livewire.emit('pictureFileCaptured', e.target.result);
+                            previewImg.src = URL.createObjectURL(file);
+                            preview.style.display = '';
+                            retakeBtn.style.display = '';
+                            captureBtn.style.display = 'none';
+                        };
+                        reader.onerror = function() {
+                            alert('Upload failed: unable to read file');
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Livewire file upload is not available in this environment.');
+                    }
+                }, 'image/jpeg', 0.95);
+            });
+
+            retakeBtn && retakeBtn.addEventListener('click', function () {
+                preview.style.display = 'none';
+                retakeBtn.style.display = 'none';
+                captureBtn.style.display = '';
+                previewImg.src = '';
+            });
+
+            closeBtn && closeBtn.addEventListener('click', stopCamera);
+
+            window.addEventListener('beforeunload', function () {
+                if (stream) stream.getTracks().forEach(t => t.stop());
+            });
         });
     </script>
 </div>

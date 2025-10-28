@@ -82,9 +82,14 @@ class CreditMemoController extends Controller
      * @param  \App\Models\CreditMemo  $creditMemo
      * @return \Illuminate\Http\Response
      */
-    public function show(CreditMemo $creditMemo)
+    public function show($id)
     {
-        //
+        $credit_memo = CreditMemo::findOrFail($id);
+
+        return view('credit-memos.show')->with([
+            'credit_memo' => $credit_memo,
+            'status_arr' => $this->status_arr,
+        ]);
     }
 
     /**
