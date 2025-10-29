@@ -21,7 +21,7 @@ class CreditMemoController extends Controller
         'draft' => 'secondary',
         'submitted' => 'info',
         'returned' => 'danger',
-        'approved' => 'approved',
+        'approved' => 'success',
     ];
 
     public function __construct() {

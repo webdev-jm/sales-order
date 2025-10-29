@@ -12,9 +12,6 @@
         <div class="col-md-6">
             <h1>
                 RUD / Details
-                <span type="button" class="badge badge-{{ $status_arr[$credit_memo->status] }}">
-                    {{ strtoupper($credit_memo->status) }}
-                </span>
             </h1>
 
         </div>
@@ -28,21 +25,7 @@
     <div class="row">
         @if($credit_memo->status != 'draft')
             <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">APPROVALS</h3>
-                        <div class="card-tools">
-                            <button class="btn btn-sm btn-danger">
-                                RETURN
-                            </button>
-                            <button class="btn btn-sm btn-success">
-                                APPROVE
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                    </div>
-                </div>
+                <livewire:credit-memo.approvals :credit_memo="$credit_memo"/>
             </div>
         @endif
 
