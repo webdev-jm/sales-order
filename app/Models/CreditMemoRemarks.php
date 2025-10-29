@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Session;
 
-class CreditMemoApproval extends Model
+class CreditMemoRemarks extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -15,8 +15,8 @@ class CreditMemoApproval extends Model
     protected $fillable = [
         'credit_memo_id',
         'user_id',
-        'status',
-        'remarks',
+        'message',
+        'seen_by',
     ];
 
     /**
@@ -28,7 +28,7 @@ class CreditMemoApproval extends Model
     }
 
     public function credit_memo() {
-        return $this->belongsTo('App\Models\CreditMemo', 'credit_memo_id', 'id');
+        return $this->belongsTo('App\Models\CreditMemo');
     }
 
     public function user() {
