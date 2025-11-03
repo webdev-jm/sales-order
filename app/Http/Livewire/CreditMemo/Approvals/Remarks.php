@@ -41,5 +41,7 @@ class Remarks extends Component
         $cm_remark->save();
 
         $this->reset('message');
+
+        $this->emit('remarkAdded');
     }
 }

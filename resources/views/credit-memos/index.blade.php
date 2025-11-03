@@ -67,7 +67,7 @@
                                 <a href="{{route('cm.show', $credit_memo->id)}}" title="view details">
                                     <i class="fas fa-eye text-primary mx-1"></i>
                                 </a>
-                                @if($credit_memo->status == 'draft')
+                                @if($credit_memo->status == 'draft' || $credit_memo->status == 'returned')
                                     @can('cm edit')
                                         <a href="{{route('cm.edit', $credit_memo->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
                                     @endcan

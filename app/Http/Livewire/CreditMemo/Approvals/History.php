@@ -13,15 +13,17 @@ class History extends Component
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
-    public $rud;
+    protected $listeners = [
+        'updateHistory' => 'render'
+    ];
 
+    public $rud;
     public $status_arr = [
         'draft' => 'secondary',
         'submitted' => 'info',
         'returned' => 'danger',
         'approved' => 'success',
     ];
-
     public function render()
     {
 

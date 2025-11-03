@@ -43,10 +43,13 @@ class Approvals extends Component
         ]);
         $approval->save();
 
+        $this->emit('updateHistory');
+
         // logs
         activity('updated')
             ->performedOn($this->rud)
             ->withProperties($changes_arr)
             ->log(':causer.firstname :causer.lastname has '.$status.' a RUD Invoice: :subject.invoice_number');
+
     }
 }
