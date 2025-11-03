@@ -84,10 +84,10 @@
             <h3 class="card-title">RUD Details</h3>
             <div class="card-tools">
                 @if($show_summary)
-                    <button class="btn btn-secondary btn-sm" wire:click.prevent="saveRUD('draft')">
+                    <button class="btn btn-secondary btn-sm" wire:click.prevent="saveRUD('draft')" wire:loading.attr="disabled">
                         SAVE AS DRAFT
                     </button>
-                    <button class="btn btn-success btn-sm" wire:click.prevent="saveRUD('submitted')">
+                    <button class="btn btn-success btn-sm" wire:click.prevent="saveRUD('submitted')" wire:loading.attr="disabled">
                         SUBMIT
                     </button>
                 @endif

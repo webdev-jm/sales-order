@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="direct-chat-messages">
+            <div class="direct-chat-messages" id="chat-box">
                 @foreach($remarks as $remark)
                     @if($remark->user_id == auth()->user()->id)
                         <div class="direct-chat-msg right">
@@ -49,4 +49,27 @@
             </form>
         </div>
     </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+
+        function scrollToBottom() {
+            if (chatBox) {
+                // Set the scroll position to the bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        // Scroll to bottom immediately on page load/after Livewire loads
+        // We listen for livewire:load which fires after the initial component render
+        window.addEventListener('livewire:load', () => {
+            scrollToBottom();
+
+            // Listen for the event emitted from the Livewire component
+            Livewire.on('remarkAdded', () => {
+                // Use a slight delay to ensure the DOM has updated with the new message
+                setTimeout(scrollToBottom, 50);
+            });
+        });
+    </script>
 </div>

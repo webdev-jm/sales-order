@@ -284,6 +284,13 @@
 @section('js')
     <script>
         $(function() {
+            // Get the chat box element by its ID
+            const chatBox = document.getElementById('chat-box');
+
+            // Set the scroll position to the bottom
+            if (chatBox) {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
         })
     </script>
 @endsection

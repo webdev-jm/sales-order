@@ -8,12 +8,14 @@
                 </span>
             </h3>
             <div class="card-tools">
-                <button class="btn btn-sm btn-danger" wire:click.prevent="approve('returned')">
-                    RETURN
-                </button>
-                <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">
-                    APPROVE
-                </button>
+                @if($rud->status == 'submitted')
+                    <button class="btn btn-sm btn-danger" wire:click.prevent="approve('returned')">
+                        RETURN
+                    </button>
+                    <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">
+                        APPROVE
+                    </button>
+                @endif
             </div>
         </div>
         <div class="card-body">
