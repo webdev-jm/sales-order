@@ -150,8 +150,8 @@ class AccountBranchLogin extends Component
 
                 $response = Http::get('https://us1.locationiq.com/v1/reverse.php?key='.$api_key.'&lat='.$lat.'&lon='.$lon.'&format=json&addressdetails=1&normalizeaddress=1&extratags=1');
 
-                if ($response->successful()) {
-                    $data = $response->json();
+                $data = $response->json();
+                if (isset($data['address']) && !empty($data['address'])) {
 
                     $address = $data['address'] || [];
                     $houseNumber = $address['house_number'] || '';
