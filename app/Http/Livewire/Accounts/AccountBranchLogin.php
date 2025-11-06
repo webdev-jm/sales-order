@@ -150,19 +150,19 @@ class AccountBranchLogin extends Component
 
                 $response = Http::get('https://us1.locationiq.com/v1/reverse.php?key='.$api_key.'&lat='.$lat.'&lon='.$lon.'&format=json&addressdetails=1&normalizeaddress=1&extratags=1');
 
-                $data = $response->json();
-                if (isset($data['address']) && !empty($data['address'])) {
+                if ($response->successful()) {
+                    $data = $response->json();
 
-                    $address = $data['address'] || [];
-                    $houseNumber = $address['house_number'] || '';
-                    $road = $address['road'] || '';
-                    $quarter = $address['quarter'] || '';
-                    $suburb = $address['suburb'] || '';
-                    $city = $address['city'] || '';
-                    $state = $address['state'] || '';
-                    $postcode = $address['postcode'] || '';
-                    $country = $address['country'] || '';
-                    $displayName = $data['display_name'] || '';
+                    $address = $data['address'] ?? [];
+                    $houseNumber = $address['house_number'] ?? '';
+                    $road = $address['road'] ?? '';
+                    $quarter = $address['quarter'] ?? '';
+                    $suburb = $address['suburb'] ?? '';
+                    $city = $address['city'] ?? '';
+                    $state = $address['state'] ?? '';
+                    $postcode = $address['postcode'] ?? '';
+                    $country = $address['country'] ?? '';
+                    $displayName = $data['display_name'] ?? '';
 
                     $branch_address = new BranchAddress([
                         'branch_id' => $this->branch->id,
