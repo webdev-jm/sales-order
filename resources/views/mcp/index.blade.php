@@ -82,7 +82,7 @@
                     <td>
                         <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span>
                     </td>
-                    <td>{{$activity_plan->created_at->diffForHumans()}}</td>
+                    <td>{{$activity_plan->created_at}}</td>
                     <td class="text-right">
                         <a href="{{route('mcp.show', $activity_plan->id)}}"  title="view"><i class="fas fa-eye text-primary mx-1"></i></a>
                         @if(auth()->user()->can('mcp edit') && in_array($activity_plan->status, ['draft', 'returned', 'rejected']))

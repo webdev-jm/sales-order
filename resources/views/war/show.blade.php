@@ -7,7 +7,7 @@
 @section('css')
 <style>
     .w200 {
-        width: 200px !important; 
+        width: 200px !important;
     }
     .w300 {
         width: 300px !important;
@@ -67,7 +67,7 @@
                 {!! Form::open(['method' => 'POST', 'route' => ['war.approval', $weekly_activity_report->id], 'id' => 'war_approval']) !!}
                 {!! Form::hidden('status', $weekly_activity_report->status, ['form' => 'war_approval', 'id' => 'status']) !!}
                 {!! Form::close() !!}
-                
+
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Approval</h3>
@@ -111,7 +111,7 @@
                                         <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
                                     </td>
                                     <td>{{$approval->remarks}}</td>
-                                    <td>{{$approval->created_at->diffForHumans()}}</td>
+                                    <td>{{$approval->created_at}}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -120,7 +120,7 @@
                 </div>
             @endif
         </div>
-        
+
         <!-- activity logs -->
         <div class="col-lg-8">
             <livewire:war.war-activity-logs :war="$weekly_activity_report"/>
@@ -301,7 +301,7 @@
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                
+
                             @endif
                         @endforeach
                     @endif

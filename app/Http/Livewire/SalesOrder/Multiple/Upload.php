@@ -189,6 +189,24 @@ class Upload extends Component
         }
         if(empty($data['ship_date'])) {
             $err['ship_date'] = 'Ship date is required.';
+        } else {
+            // Validate ship date against account's po_process_date (weekdays only)
+            $poProcessDays = (int) ($this->account->po_process_date ?? 0);
+            $poProcessDays = $poProcessDays > 0 ? $poProcessDays : 1;
+
+            $orderDate = \Carbon\Carbon::parse(date('Y-m-d'))->startOfDay();
+            $leadDate = $orderDate->copy()->addWeekdays($poProcessDays)->startOfDay();
+
+            try {
+                $shipDate = \Carbon\Carbon::parse($data['ship_date'])->startOfDay();
+            } catch (\Exception $e) {
+                $err['ship_date'] = 'Invalid ship date format.';
+                $shipDate = null;
+            }
+
+            if (!empty($shipDate) && $shipDate->lt($leadDate)) {
+                $err['ship_date'] = 'The ship date must be at least '.$poProcessDays.' day(s) from the order date excluding Saturday and Sunday.';
+            }
         }
         if(empty($po_number)) {
             $err['po_number'] = 'PO number is required';
@@ -211,6 +229,8 @@ class Upload extends Component
         if($uom_err) {
             $err['uom'] = 'UOM is required for all items';
         }
+
+
 
         if(empty($err)) {
             // create sales order
