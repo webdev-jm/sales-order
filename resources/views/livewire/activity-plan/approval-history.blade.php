@@ -21,7 +21,7 @@
                             <i class="fas fa-user bg-{{$status_arr[$approval->status]}}"></i>
 
                             <div class="timeline-item">
-                                <span class="time"><i class="far fa-clock"></i> {{$approval->created_at->diffForHumans()}}</span>
+                                <span class="time"><i class="far fa-clock"></i> {{$approval->created_at}}</span>
 
                                 <h3 class="timeline-header {{!empty($approval->remarks) ? '' : 'border-0'}}">
                                     <a href="#">{{$approval->user->fullName()}}</a> <span class="mx-2 badge bg-{{$status_arr[$approval->status]}}">{{$approval->status}}</span> the activity plan
@@ -54,7 +54,7 @@
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
+
         <script>
             document.addEventListener('livewire:load', function () {
             });

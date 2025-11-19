@@ -87,7 +87,9 @@ class TripController extends Controller
         if ($company == 'bevi') $group_codes = ['CMD', 'NKA'];
         if ($company == 'beva') $group_codes = ['RD'];
 
-        $tripQuery = ActivityPlanDetailTrip::orderByDesc('id');
+        $tripQuery = ActivityPlanDetailTrip::orderByDesc('departure')
+            ->orderByDesc('status')
+            ->orderByDesc('id');
         $userQuery = User::query();
 
         // Date filters
@@ -256,7 +258,7 @@ class TripController extends Controller
                     $qry->whereHas('trip');
                 });
         })
-        ->when(!empty($subordinate_ids), function($query) {
+        ->when(!empty($subordinate_ids), function($query) use($subordinate_ids) {
             $query->whereIn('id', $subordinate_ids);
         })
         ->get();
@@ -267,7 +269,7 @@ class TripController extends Controller
         foreach($users as $user) {
             $user_arr[$user->id] = $user->fullName();
         }
-        
+
         return view('trips.list')->with([
             'trips' => $trips,
             'users' => $user_arr,
@@ -294,7 +296,7 @@ class TripController extends Controller
                 ->where('activity_plan_detail_trip_id', $trip->id)
                 ->where(DB::raw('DATE(created_at)'), $data->date)
                 ->get();
-            
+
             $approval_data[$data->date] = $approvals;
         }
 
@@ -309,7 +311,7 @@ class TripController extends Controller
             $structures = DepartmentStructure::where('department_id', $department->id)
                 ->where('user_id', $user->id)
                 ->get();
-                
+
             foreach($structures as $structure) {
                 $reports_to_ids = explode(',', $structure->reports_to_ids);
                 $supervisors = DepartmentStructure::whereIn('id', $reports_to_ids)
@@ -408,7 +410,7 @@ class TripController extends Controller
             $structures = DepartmentStructure::where('department_id', $department->id)
                 ->where('user_id', $user->id)
                 ->get();
-                
+
             foreach($structures as $structure) {
                 $reports_to_ids = explode(',', $structure);
                 $supervisors = DepartmentStructure::whereIn('id', $reports_to_ids)
@@ -421,7 +423,7 @@ class TripController extends Controller
                 }
             }
         }
-        
+
         // for revision
         if($trip->status == 'for revision') {
             try {
@@ -491,7 +493,7 @@ class TripController extends Controller
             } catch(\Exception $e) {
                 Log::error('Notification failed: '.$e->getMessage());
             }
-            
+
         }
         // rejected by finance
         if($trip->status == 'rejected by finance') {
@@ -551,7 +553,7 @@ class TripController extends Controller
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         $changes_arr['old'] = $trip->getOriginal();
-        
+
         // update status
         $trip->update([
             'status' => 'approved'
@@ -571,7 +573,7 @@ class TripController extends Controller
             $detail = $trip->activity_plan_detail;
             $activity_plan = $detail->activity_plan;
             $user = $activity_plan->user;
-    
+
             // convert to schedules
             $schedule = UserBranchSchedule::updateOrInsert([
                 'user_id' => $activity_plan->user_id,
@@ -599,7 +601,7 @@ class TripController extends Controller
         } catch(\Exception $e) {
             Log::error('Notification failed: '.$e->getMessage());
         }
-        
+
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been approved.'
@@ -644,7 +646,7 @@ class TripController extends Controller
         } catch(\Exception $e) {
             Log::error('Notification failed: '.$e->getMessage());
         }
-        
+
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been rejected.'
         ]);
@@ -683,7 +685,7 @@ class TripController extends Controller
                 'max:1500'
             ]
         ]);
-        
+
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         // make directory if do not exist
@@ -717,13 +719,13 @@ class TripController extends Controller
         $trips = ActivityPlanDetailTrip::where('user_id', $id)
             ->paginate(10)->onEachSide(1)
             ->appends(request()->query());
-        
+
         return view('trips.user-page')->with([
             'trips' => $trips,
             'user' => $user,
             'status_arr' => $this->status_arr,
         ]);
-        
+
     }
 
     public function trip_user_detail($id) {

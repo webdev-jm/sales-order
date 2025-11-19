@@ -19,7 +19,7 @@
                         <td class="p-0 text-center align-middle">{{$activity->log_name}}</td>
                         <td class="p-0 text-center align-middle">{{$activity->causer->fullName() ?? '-'}}</td>
                         <td class="p-0 pl-1 text-left align-middle">{{$activity->description}}</td>
-                        <td class="p-0 text-center align-middle">{{$activity->created_at->diffForHumans()}}</td>
+                        <td class="p-0 text-center align-middle">{{$activity->created_at}}</td>
                     </tr>
                     @endforeach
                 </tbody>
