@@ -93,7 +93,7 @@
     </style>
 </head>
 <body>
-    
+
     <div class="mb-3">
         <label>
             <span class="font-weight-bold">ACTIVITY PLAN FOR THE MONTH OF</span> <span class="text-uppercase text-primary">{{date('F Y', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}}</span>
@@ -112,7 +112,7 @@
 
     <div class="mb-3">
         <label class="font-weight-bold">OBJECTIVE FOR THE MONTH</label>
-        <p class="objective mt-0">{{$activity_plan->objectives}}</p>
+        <pre class="objective mt-0">{{trim($activity_plan->objectives)}}</pre>
     </div>
 
     <table class="table table-sm">

@@ -44,6 +44,13 @@ class Detail2 extends Component
         } else {
             $this->year = $year ?? date('Y');
             $this->month = $month ?? date('m');
+
+            if($this->month == 12) {
+                $this->month = '01';
+                $this->year = date('Y') + 1;
+            } else {
+                $this->month = ($this->month + 1) < 10 ? '0'.($this->month + 1) : ($this->month + 1);
+            }
         }
 
         // 2. Normalize the month and year
