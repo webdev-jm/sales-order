@@ -7,6 +7,9 @@
     <title>Activity Plan</title>
 
     <style>
+        body {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+        }
         .text-uppercase {
             text-transform: uppercase;
         }
@@ -38,9 +41,10 @@
         .objective {
             border: 1px solid black;
             padding: 1 10 15 10;
-            white-space: pre-wrap;       /* Standard property for wrapping */
-            word-wrap: break-word;       /* For older browsers */
-            overflow-wrap: break-word;   /* Modern, recommended equivalent */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-family: 'Source Sans Pro', Arial, sans-serif;
         }
         .bg-warning {
             background-color: rgb(240, 240, 140);
