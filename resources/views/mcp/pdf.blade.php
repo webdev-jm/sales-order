@@ -38,6 +38,9 @@
         .objective {
             border: 1px solid black;
             padding: 1 10 15 10;
+            white-space: pre-wrap;       /* Standard property for wrapping */
+            word-wrap: break-word;       /* For older browsers */
+            overflow-wrap: break-word;   /* Modern, recommended equivalent */
         }
         .bg-warning {
             background-color: rgb(240, 240, 140);
