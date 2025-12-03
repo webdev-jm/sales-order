@@ -49,7 +49,7 @@
     .w100 {
         width: 100px !important;
     }
-    
+
     .trip-icon {
         font-size: 60px !important;
         margin-bottom: 0;
@@ -59,6 +59,10 @@
     }
     .w-100 {
         width: 100% !important;
+    }
+
+    #container {
+        height: 500px;
     }
 </style>
 @endsection
@@ -79,14 +83,14 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">
-            Activity Plan for the Month of: 
+            Activity Plan for the Month of:
             <span class="font-weight-bold text-uppercase">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</span>
         </h3>
         <div class="card-tools">
             @if($activity_plan->status == 'submitted' && (
                 $activity_plan->user->getImmediateSuperiorId() == auth()->user()->id ||
                 auth()->user()->hasRole('superadmin') ||
-                auth()->user()->hasRole('admin') || 
+                auth()->user()->hasRole('admin') ||
                 auth()->user()->can('mcp approval')
             ))
                 <button class="btn btn-danger" id="btn-reject">Reject</button>
@@ -102,13 +106,25 @@
             <b>POSITION:</b> {{implode(', ', $position)}}
             @endif
         </p>
-        
+
         <div class="row">
             <div class="col-lg-12">
                 <label class="mb-0">Objectives for the month:</label>
                 <pre>{{$activity_plan->objectives}}</pre>
             </div>
         </div>
+    </div>
+</div>
+
+{{-- map view --}}
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">MCP MAP PREVIEW</h3>
+    </div>
+    <div class="card-body">
+        <figure class="highcharts-figure">
+            <div id="container"></div>
+        </figure>
     </div>
 </div>
 
@@ -121,6 +137,8 @@
         <div id="calendar-container"></div>
     </div>
 </div>
+
+
 
 <div class="modal fade" id="modal-detail">
     <div class="modal-dialog modal-lg">
@@ -144,6 +162,11 @@
 @section('plugins.Fullcalendar', true)
 
 @section('js')
+<script src="https://code.highcharts.com/maps/highmaps.js"></script>
+<script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
+<script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/maps/modules/tiledwebmap.js"></script>
 <script>
 $(function() {
 
@@ -166,7 +189,7 @@ $(function() {
         e.preventDefault();
         $('#modal-history').modal('show');
     });
-    
+
     // calendar
     var calendarEl = document.getElementById('calendar-container');
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -187,7 +210,7 @@ $(function() {
             var month = date.getMonth() + 1;
             var day = date.getDate();
             var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
-            
+
 
             Livewire.emit('setDetail', id);
             $('#modal-detail').modal('show');
@@ -198,6 +221,105 @@ $(function() {
     });
     calendar.render();
 });
+</script>
+{{-- map --}}
+<script>
+
+    (async () => {
+
+        const topology = await fetch(
+            'https://code.highcharts.com/mapdata/countries/ph/ph-all.topo.json'
+        ).then(response => response.json());
+
+        Highcharts.mapChart('container', {
+            chart: {
+                margin: 0
+            },
+
+            title: {
+                text: ''
+            },
+
+            subtitle: {
+                text: ''
+            },
+
+            navigation: {
+                buttonOptions: {
+                    align: 'left',
+                    theme: {
+                        stroke: '#e6e6e6'
+                    }
+                }
+            },
+
+            mapNavigation: {
+                enabled: true,
+                buttonOptions: {
+                    alignTo: 'spacingBox'
+                }
+            },
+
+            mapView: {
+                center: [121.0071423, 14.5635197],
+                zoom: 12
+            },
+
+            legend: {
+                enabled: true,
+                title: {
+                    text: 'Branches'
+                },
+                align: 'left',
+                symbolWidth: 20,
+                symbolHeight: 20,
+                itemStyle: {
+                    textOutline: '1 1 1px rgba(255,255,255)'
+                },
+                backgroundColor: `color-mix(
+                    in srgb,
+                    var(--highcharts-background-color, white),
+                    transparent 15%
+                )`,
+                float: true,
+                borderRadius: 2,
+                itemMarginBottom: 5
+            },
+
+            plotOptions: {
+                mappoint: {
+                    dataLabels: {
+                        enabled: false
+                    }
+                }
+            },
+
+            series: [{
+                type: 'tiledwebmap',
+                name: 'Basemap Tiles',
+                provider: {
+                    type: 'OpenStreetMap'
+                },
+                showInLegend: false
+            },{
+                type: 'mappoint',
+                name: 'Branches',
+                marker: {
+                    symbol: 'url(https://www.highcharts.com/samples/graphics/building.svg)',
+                    width: 24,
+                    height: 24
+                },
+                data: @php echo json_encode($chart_data); @endphp,
+                tooltip: {
+                    pointFormat: '<b>BRANCH: </b>{point.name} <br>'+
+                    '<b>SCHEDULE: </b>{point.schedule_date} <br>' +
+                    '<b>OBJECTIVE: </b>{point.objective} <br>'
+                },
+            },]
+        });
+
+
+    })();
 </script>
 @endsection
 

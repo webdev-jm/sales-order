@@ -208,6 +208,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('combined/report', [ReportController::class, 'combinedReports'])->name('report.combined');
         Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
+
+        Route::get('report/map', [ReportController::class, 'map'])->name('report.map');
     });
 
     // TRIP

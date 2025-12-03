@@ -85,7 +85,7 @@ class ActivityPlanController extends Controller
         $month = date('m');
         $deadline = $this->getMonthDeadline($year, $month);
         $days_left = $this->getDeadlineCount($deadline);
-        
+
         // set next month data
         $next_month = $month;
         if($month == 12) {
@@ -157,9 +157,9 @@ class ActivityPlanController extends Controller
                             if(!empty($details['lines'])) {
                                 foreach($details['lines'] as $val) {
                                     // check for error
-                                    if(empty($val['branch_id']) 
-                                        && 
-                                        (!empty($val['user_id']) || 
+                                    if(empty($val['branch_id'])
+                                        &&
+                                        (!empty($val['user_id']) ||
                                         !empty($val['location']) ||
                                         !empty(trim($val['purpose'])) ||
                                         !empty($val['account_id']) ||
@@ -235,7 +235,7 @@ class ActivityPlanController extends Controller
                                                 'work_with' => $val['work_with'] ?? NULL,
                                             ]);
                                             $activity_plan_detail->save();
-        
+
                                             // check if there's trip data
                                             if(isset($val['trip']) && !empty($val['trip'])) {
                                                 $trip_data = $val['trip'];
@@ -269,7 +269,7 @@ class ActivityPlanController extends Controller
                                                     ]);
                                                     $activity_plan_detail_trip->save();
                                                 }
-                                                
+
                                                 // add approvals
                                                 if($request->status == 'submitted') {
                                                     $approval = new ActivityPlanDetailTripApproval([
@@ -295,12 +295,12 @@ class ActivityPlanController extends Controller
                             'message_error' => 'Please fill up activity plan details.'
                         ]);
                     }
-                    
+
                 } else {
                     throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
             }
-            
+
             if($request->status == 'submitted') {
 
                 // notifications
@@ -339,7 +339,7 @@ class ActivityPlanController extends Controller
                 $this->setReminder('ActivityPlan', $activity_plan->id, 'The activity plan was submitted for your approval', $supervisor_ids, 'mcp/'.$activity_plan->id);
 
             }
-            
+
             return redirect()->route('mcp.index')->with([
                 'message_success' => 'MCP has been saved.'
             ]);
@@ -361,13 +361,14 @@ class ActivityPlanController extends Controller
         $activity_plan = ActivityPlan::findOrFail($id);
 
         $schedule_data = [];
+        $chart_data = [];
         foreach($activity_plan->details as $detail) {
             if(isset($detail->branch->branch_name)) {
                 $title = '['.strtoupper($detail->branch->branch_name).'] '.(!empty($detail->activity) ? '- '.$detail->activity : '');
                 $bg_color = '#09599e';
                 if(!empty($detail->trip)) {
                     $trip_data = $detail->trip;
-                    $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title; 
+                    $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title;
                     $bg_color = '#0CA1A4';
 
                     // check if approved
@@ -379,9 +380,9 @@ class ActivityPlanController extends Controller
                         ->first();
                     if(!empty($destination)) {
                         $trip_data = $destination->trip;
-                        $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title; 
+                        $title = 'TRIP CODE: '.$trip_data->trip_number.' '.$title;
                         $bg_color = '#0CA1A4';
-                        
+
                         // check if approved
                         if(!empty($trip_data) && $trip_data->status == 'approved') {
                             $bg_color = '#1CA40C';
@@ -398,9 +399,20 @@ class ActivityPlanController extends Controller
                     'borderColor' => '#024d4d',
                     'id' => $detail->id,
                 ];
+
+                $branch_address = $detail->branch->addresses->first();
+                if(!empty($branch_address)) {
+                    $chart_data[] = [
+                        'lat' => (float)$branch_address->latitude,
+                        'lon' => (float)$branch_address->longitude,
+                        'name' => $detail->branch->branch_code.' '.$detail->branch->branch_name,
+                        'schedule_date' => $detail->date,
+                        'objective' => $detail->activity,
+                    ];
+                }
             }
         }
- 
+
         $position = [];
         $organizations = $activity_plan->user->organizations;
         if(!empty($organizations)) {
@@ -423,6 +435,7 @@ class ActivityPlanController extends Controller
             'activity_plan' => $activity_plan,
             'schedule_data' => $schedule_data,
             'status_arr' => $this->status_arr,
+            'chart_data' => $chart_data
             // 'subordinate_ids' => $subordinate_ids
         ]);
     }
@@ -439,7 +452,7 @@ class ActivityPlanController extends Controller
 
         // check status
         if(in_array($activity_plan->status, ['draft', 'returned', 'rejected'])) {
-            
+
             // header
             $activity_plan_data[$activity_plan->year] = [
                 'year' => $activity_plan->year,
@@ -482,7 +495,7 @@ class ActivityPlanController extends Controller
                     $destination = ActivityPlanDetailTripDestination::where('activity_plan_detail_id', $detail->id)
                         ->where('departure', $detail->date)
                         ->first();
-                    
+
                     if(!empty($destination)) {
                         $trip = [
                             'selected_trip' => $destination->id,
@@ -583,9 +596,9 @@ class ActivityPlanController extends Controller
                                         $line_empty = 0;
                                     } else {
                                         // check for error
-                                        if(empty($val['branch_id']) 
-                                            && 
-                                            (!empty($val['user_id']) || 
+                                        if(empty($val['branch_id'])
+                                            &&
+                                            (!empty($val['user_id']) ||
                                             !empty($val['location']) ||
                                             !empty(trim($val['purpose'])) ||
                                             !empty($val['account_id']) ||
@@ -643,7 +656,7 @@ class ActivityPlanController extends Controller
                             foreach($data['details'][$data['month']] as $date => $details) {
                                 if(!empty($details['lines'])) {
                                     foreach($details['lines'] as $val) {
-                                        
+
                                         // check if already exist
                                         if(isset($val['id']) && !empty($val['id'])) { // update
                                             $activity_plan_detail = ActivityPlanDetail::find($val['id']);
@@ -654,7 +667,7 @@ class ActivityPlanController extends Controller
 
                                                 if(isset($val['trip']) && !empty($val['trip'])) {
                                                     $trip_data = $val['trip'];
-                                                    // remove 
+                                                    // remove
                                                     if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
                                                         if($trip_data['source'] == 'trips') {
                                                             $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
@@ -705,7 +718,7 @@ class ActivityPlanController extends Controller
                                                 ]);
                                                 $activity_plan_detail->save();
                                             }
-                                            
+
                                         }
 
                                         // detail trip
@@ -742,10 +755,10 @@ class ActivityPlanController extends Controller
                                                     'created_at' => now(),
                                                     'updated_at' => now(),
                                                 ]);
-        
+
                                                 $trip->save();
                                             }
-                                            
+
                                             // add approvals
                                             if($request->status == 'submitted') {
                                                 $trip_status_arr = [
@@ -768,7 +781,7 @@ class ActivityPlanController extends Controller
                                                 $approval->save();
                                             }
                                         }
-                                        
+
                                     }
                                 }
                             }
@@ -783,7 +796,7 @@ class ActivityPlanController extends Controller
                             'message_error' => 'Please fill up activity plan details.'
                         ]);
                     }
-                    
+
                 } else {
                     throw ValidationException::withMessages(['objectives' => 'Objectives is required']);
                 }
@@ -805,11 +818,11 @@ class ActivityPlanController extends Controller
                         if(!empty($user)) {
                             $users[] = $user;
                         }
-                        
+
                         $supervisor_ids[] = $supervisor_id;
                     }
 
-                    
+
                     if(!empty($users)) {
                         foreach($users as $user) {
                             try {
@@ -968,7 +981,7 @@ class ActivityPlanController extends Controller
         $row_num = 0;
         foreach($imports[0] as $row) {
             $row_num++;
-            
+
             // YEAR
             if($row_num == 1 && $row[0] == 'YEAR') {
                 $year = $row[1];
@@ -985,7 +998,7 @@ class ActivityPlanController extends Controller
             if($row_num > 4) {
                 if(!empty($row[0])) {
                     $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
-    
+
                     $data[$date_key][] = [
                         'account_code' => trim($row[2] ?? ''),
                         'branch_code' => trim($row[3]),
@@ -1003,7 +1016,7 @@ class ActivityPlanController extends Controller
             'month' => $month,
             'objectives' => $objectives,
         ];
-        
+
         $details = [];
         foreach($data as $date => $lines) {
             $day = $week_days_arr[date('w', strtotime($date))];

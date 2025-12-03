@@ -87,8 +87,7 @@ class TripController extends Controller
         if ($company == 'bevi') $group_codes = ['CMD', 'NKA'];
         if ($company == 'beva') $group_codes = ['RD'];
 
-        $tripQuery = ActivityPlanDetailTrip::orderByDesc('departure')
-            ->orderByDesc('status')
+        $tripQuery = ActivityPlanDetailTrip::orderByDesc('status')
             ->orderByDesc('id');
         $userQuery = User::query();
 
