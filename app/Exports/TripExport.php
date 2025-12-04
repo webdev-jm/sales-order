@@ -110,7 +110,7 @@ class TripExport implements
         $canSeeInvoice = $user->can('trip invoice');
 
         $header = [
-            'TRIP CODE', 'USER', 'FROM', 'TO', 'DEPARTURE', 'RETURN', 'TRIP TYPE',
+            'YEAR', 'TRIP CODE', 'USER', 'FROM', 'TO', 'DEPARTURE', 'RETURN', 'TRIP TYPE',
             'PASSENGER', 'PURPOSE', 'AMOUNT', 'STATUS', 'SOURCE', 'CREATED AT',
             'APPROVED BY IMM. SUPERIOR', 'APPROVED BY FINANCE'
         ];
@@ -134,21 +134,22 @@ class TripExport implements
                 ->first();
 
             $row = [
-            $trip->trip_number,
-            $trip->user->fullName(),
-            $trip->from,
-            $trip->to,
-            $trip->departure,
-            $trip->return,
-            $trip->trip_type,
-            $trip->passenger,
-            $trip->purpose,
-            $trip->amount,
-            $trip->status,
-            $trip->source,
-            $trip->created_at,
-            $superior_approval->created_at ?? '',
-            $finance_approval->created_at ?? '',
+                date('Y', strtotime($trip->departure)),
+                $trip->trip_number,
+                $trip->user->fullName(),
+                $trip->from,
+                $trip->to,
+                $trip->departure,
+                $trip->return,
+                $trip->trip_type,
+                $trip->passenger,
+                $trip->purpose,
+                $trip->amount,
+                $trip->status,
+                $trip->source,
+                $trip->created_at,
+                $superior_approval->created_at ?? '',
+                $finance_approval->created_at ?? '',
             ];
 
             if ($canSeeInvoice) {
