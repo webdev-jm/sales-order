@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\UserBranchSchedule;
 use App\Models\BranchLogin;
+use App\Models\BranchAddress;
 use App\Models\ActivityPlan;
 use App\Models\User;
 use App\Models\WeeklyActivityReport;
@@ -140,7 +141,7 @@ class ReportController extends Controller
                     'accuracy' => $result->accuracy,
                     'branch' => $result->branch,
                     'user' => $result->name,
-                    'color' => '#ff1100ff', // Blue for actual login
+                    'color' => '#ff1100ff', // Red for actual login
                 ];
 
                 // Branch address marker
@@ -151,7 +152,7 @@ class ReportController extends Controller
                 //         'lon' => (float)$branch_address->longitude,
                 //         'z' => 10,
                 //         'branch' => $result->branch,
-                //         'color' => '#f02c2cff', // Green for branch address
+                //         'color' => '#f02c2cff', // Red for branch address
                 //     ];
                 // }
             }

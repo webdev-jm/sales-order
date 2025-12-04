@@ -33,7 +33,7 @@
         <h3 class="card-title">MCP MAP Reports</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['method' => 'GET', 'route' => ['dashboard'], 'id' => 'filter_form']) !!}
+        {!! Form::open(['method' => 'GET', 'route' => ['report.map'], 'id' => 'filter_form']) !!}
         {!! Form::close() !!}
 
         <div class="row">
