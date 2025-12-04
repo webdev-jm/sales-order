@@ -139,7 +139,6 @@
 </div>
 
 
-
 <div class="modal fade" id="modal-detail">
     <div class="modal-dialog modal-lg">
         <livewire:activity-plan.schedule-detail/>
@@ -227,10 +226,6 @@ $(function() {
 
     (async () => {
 
-        const topology = await fetch(
-            'https://code.highcharts.com/mapdata/countries/ph/ph-all.topo.json'
-        ).then(response => response.json());
-
         Highcharts.mapChart('container', {
             chart: {
                 margin: 0
@@ -262,7 +257,7 @@ $(function() {
 
             mapView: {
                 center: [121.0071423, 14.5635197],
-                zoom: 12
+                zoom: 7
             },
 
             legend: {
@@ -304,16 +299,25 @@ $(function() {
             },{
                 type: 'mappoint',
                 name: 'Branches',
+                zIndex: 1000,
                 marker: {
                     symbol: 'url(https://www.highcharts.com/samples/graphics/building.svg)',
                     width: 24,
-                    height: 24
+                    height: 24,
+                    enableMouseTracking: true,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
                 },
                 data: @php echo json_encode($chart_data); @endphp,
                 tooltip: {
-                    pointFormat: '<b>BRANCH: </b>{point.name} <br>'+
-                    '<b>SCHEDULE: </b>{point.schedule_date} <br>' +
-                    '<b>OBJECTIVE: </b>{point.objective} <br>'
+                    useHtml: true,
+                    pointFormat: '<b>BRANCH:</b> {point.name} <br>' +
+                        '<hr style="margin:4px 0;">' +
+                        '<b>SCHEDULES & OBJECTIVES</b><br>' +
+                        '{point.activities_html}'
                 },
             },]
         });

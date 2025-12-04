@@ -66,8 +66,8 @@ class AreaController extends Controller
 
         // logs
         activity('create')
-        ->performedOn($area)
-        ->log(':causer.firstname :causer.lastname has created area :subject.area_name');
+            ->performedOn($area)
+            ->log(':causer.firstname :causer.lastname has created area :subject.area_name');
 
         return redirect()->route('area.index')->with([
             'message_success' => 'Area '.$area->are_name.' was created.'
