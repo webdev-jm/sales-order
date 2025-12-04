@@ -362,6 +362,7 @@ class ActivityPlanController extends Controller
 
         $schedule_data = [];
         $chart_data = [];
+        $branch_activities = [];
         foreach($activity_plan->details as $detail) {
             if(isset($detail->branch->branch_name)) {
                 $title = '['.strtoupper($detail->branch->branch_name).'] '.(!empty($detail->activity) ? '- '.$detail->activity : '');
@@ -401,16 +402,48 @@ class ActivityPlanController extends Controller
                 ];
 
                 $branch_address = $detail->branch->addresses->first();
+                $branch = $detail->branch;
                 if(!empty($branch_address)) {
-                    $chart_data[] = [
-                        'lat' => (float)$branch_address->latitude,
-                        'lon' => (float)$branch_address->longitude,
-                        'name' => $detail->branch->branch_code.' '.$detail->branch->branch_name,
+                    if(!isset($branch_activities[$branch->id])) {
+                        $branch_activities[$branch->id] = [
+                            'lat' => (float)$branch_address->latitude,
+                            'lon' => (float)$branch_address->longitude,
+                            'name' => $branch->branch_code.' '.$branch->branch_name,
+                            'activities' => []
+                        ];
+                    }
+
+                    $branch_activities[$branch->id]['activities'][] = [
                         'schedule_date' => $detail->date,
                         'objective' => $detail->activity,
                     ];
                 }
             }
+        }
+
+        foreach($branch_activities as $branch_activity) {
+            $activities_html = '<div style="max-height: 200px; overflow-y: auto;">'; // Add a scrollable container
+
+            foreach ($branch_activity['activities'] as $i => $activity) {
+                $activities_html .= "
+                    📅 <b>Schedule ".($i + 1).":</b> " . e($activity['schedule_date']) . " <br>
+                    🎯 <b>Objective ".($i + 1).":</b> " . e($activity['objective']) . " <br>
+                ";
+                // Add a separator between activities
+                if ($i < count($branch_activity['activities']) - 1) {
+                    $activities_html .= "<hr style='margin:4px 0;'>";
+                }
+            }
+            $activities_html .= '</div>';
+
+            // Build the final array for Highcharts
+            $chart_data[] = [
+                'lat' => $branch_activity['lat'],
+                'lon' => $branch_activity['lon'],
+                'name' => $branch_activity['name'],
+                // Pass the pre-formatted HTML string to a new key
+                'activities_html' => $activities_html
+            ];
         }
 
         $position = [];
