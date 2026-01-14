@@ -219,6 +219,13 @@ class Upload extends Component
             }
         }
 
+        // limit shipping instruction to 50 chars
+        if(!empty($data['shipping_instruction'])) {
+            if(strlen($data['shipping_instruction']) > 50) {
+                $err['shipping_instruction'] = 'Shipping instruction must not exceed 50 characters';
+            }
+        }
+
         $uom_err = 0;
         foreach($data['lines'] as $item) {
             if(empty($item['uom'])) {
