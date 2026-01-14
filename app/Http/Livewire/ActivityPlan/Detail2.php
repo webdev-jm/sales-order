@@ -242,7 +242,7 @@ class Detail2 extends Component
 
     public function removeLine($date, $key)
     {
-        $line = $this->month_days[$this->month][$date]['lines'][$key];
+        $line = $this->month_days[$this->month][$date]['lines'][$key] ?? NULL;
 
         if (!empty($line['id'])) {
             $this->month_days[$this->month][$date]['lines'][$key]['deleted'] = true;

@@ -87,7 +87,7 @@ class TripController extends Controller
         if ($company == 'bevi') $group_codes = ['CMD', 'NKA'];
         if ($company == 'beva') $group_codes = ['RD'];
 
-        $tripQuery = ActivityPlanDetailTrip::orderByDesc('status')
+        $tripQuery = ActivityPlanDetailTrip::orderByDesc('departure')
             ->orderByDesc('id');
         $userQuery = User::query();
 
@@ -600,7 +600,6 @@ class TripController extends Controller
         } catch(\Exception $e) {
             Log::error('Notification failed: '.$e->getMessage());
         }
-
 
         return back()->with([
             'message_success' => 'Trip '.$trip->trip_number.' has been approved.'
