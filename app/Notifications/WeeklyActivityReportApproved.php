@@ -81,3 +81,4 @@ class WeeklyActivityReportApproved extends Notification
         ];
     }
 }
+ 
