@@ -25,6 +25,7 @@
         "livewire/livewire": "^2.10",
         "maatwebsite/excel": "^3.1",
         "milon/barcode": "^10.0",
+        "opencage/geocode": "^3.3",
         "rap2hpoutre/laravel-log-viewer": "^2.2",
         "silviolleite/laravelpwa": "^2.0",
         "simplesoftwareio/simple-qrcode": "~4",

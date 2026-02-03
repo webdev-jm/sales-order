@@ -46,7 +46,7 @@
             font-size: 25px;
             margin: 0 0 0 0;
         }
-        
+
         .page-break {
             page-break-after: always;
         }
@@ -268,10 +268,10 @@
             <thead>
                 <tr>
                     <th class="text-left">
-                        DATE FILED: 
+                        DATE FILED:
                     </th>
                     <td>
-                        {{date('Y-m-d', strtotime($deviation->created_at))}}
+                        {{date('Y-m-d H:i:s a', strtotime($deviation->created_at))}}
                     </td>
 
                     @php
@@ -279,15 +279,15 @@
                     @endphp
                     <th class="text-left">DATE APPROVED: </th>
                     <td>
-                        @if(!empty($approval)) {{date('Y-m-d', strtotime($approval->created_at))}} @endif
+                        @if(!empty($approval)) {{date('Y-m-d H:i:s a', strtotime($approval->created_at))}} @endif
                     </td>
                 </tr>
                 <tr>
                     <th class="text-left">
-                        DATE OF DEVIATION: 
+                        DATE OF DEVIATION:
                     </th>
                     <td>{{$deviation->date}}</td>
-                    
+
                     <th class="text-left">APPROVED BY:</th>
                     <td class="text-uppercase">
                         @if(!empty($approval)) {{$approval->user->fullName()}} @endif
@@ -301,6 +301,6 @@
         </table>
 
     </div>
-    
+
 </body>
 </html>
