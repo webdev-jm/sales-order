@@ -4,12 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
-use App\Models\SalesOrderProductUom;
 use App\Models\SalesOrderProductUomPAF;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
-use App\Models\PriceCode;
-use App\Models\Discount;
 
 use App\Http\Requests\StoreSalesOrderRequest;
 use App\Http\Requests\UpdateSalesOrderRequest;
@@ -26,6 +23,7 @@ use App\Exports\SalesOrderExport;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use App\Http\Traits\SoXmlTrait;
+use App\Services\SalesOrderService;
 
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
@@ -38,9 +36,11 @@ class SalesOrderController extends Controller
     use SoXmlTrait;
 
     public $setting;
+    protected $salesOrderService;
 
-    public function __construct() {
+    public function __construct(SalesOrderService $salesOrderService) {
         $this->setting = $this->getSettings();
+        $this->salesOrderService = $salesOrderService;
     }
 
     public function list(Request $request) {
@@ -174,33 +174,6 @@ class SalesOrderController extends Controller
 
     }
 
-    private function generateControlNumber() {
-        $date_code = date('Ymd');
-
-        do {
-            $control_number = 'SO-'.$date_code.'-001';
-            // get the most recent sales order
-            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')
-                ->first();
-            if(!empty($sales_order)) {
-                $latest_control_number = $sales_order->control_number;
-                list(, $prev_date, $last_number) = explode('-', $latest_control_number);
-
-                // Increment the number based on the date
-                $number = ($date_code == $prev_date) ? ((int)$last_number + 1) : 1;
-
-                // Format the number with leading zeros
-                $formatted_number = str_pad($number, 3, '0', STR_PAD_LEFT);
-
-                // Construct the new control number
-                $control_number = "SO-$date_code-$formatted_number";
-            }
-
-        } while(SalesOrder::withTrashed()->where('control_number', $control_number)->exists());
-
-        return $control_number;
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -214,7 +187,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $control_number = $this->generateControlNumber();
+        $control_number = $this->salesOrderService->generateControlNumber();
 
         $process_ship_date = date('Y-m-d', strtotime(date('Y-m-d') . ' +1 day'));
         if(!empty($logged_account->account->po_process_date) && $logged_account->account->po_process_date >= 3) {
@@ -298,246 +271,39 @@ class SalesOrderController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(StoreSalesOrderRequest $request) {
-        $request->control_number = $this->generateControlNumber();
-
-        $logged_account = Session::get('logged_account');
-        $account = $logged_account->account;
 
         $order_data = Session::get('order_data');
 
         if(empty($order_data['items'])) {
-            return back()->with([
-                'message_error' => 'Please add items first.',
-                'shipping_address_id' => $request->shipping_address_id,
-                'control_number' => $request->control_number,
-                'po_number' => $request->po_number,
-                'paf_number' => $request->paf_number,
-                'order_date' => $request->order_date,
-                'ship_date' => $request->ship_date,
-                'shipping_instruction' => $request->shipping_instruction,
-                'ship_to_name' => $request->ship_to_name,
-                'ship_to_building' => $request->ship_to_address1,
-                'ship_to_street' => $request->ship_to_address2,
-                'ship_to_city' => $request->ship_to_address3,
-                'ship_to_postal' => $request->postal_code,
-            ]);
+            return back()->with('message_error', 'Please add items first.')->withInput();
         }
 
         if(empty($order_data['po_value']) || $order_data['po_value'] <= 0) {
-            return back()->with([
-                'message_error' => 'PO value is required.',
-                'shipping_address_id' => $request->shipping_address_id,
-                'control_number' => $request->control_number,
-                'po_number' => $request->po_number,
-                'paf_number' => $request->paf_number,
-                'order_date' => $request->order_date,
-                'ship_date' => $request->ship_date,
-                'shipping_instruction' => $request->shipping_instruction,
-                'ship_to_name' => $request->ship_to_name,
-                'ship_to_building' => $request->ship_to_address1,
-                'ship_to_street' => $request->ship_to_address2,
-                'ship_to_city' => $request->ship_to_address3,
-                'ship_to_postal' => $request->postal_code,
+            return back()->with('message_error', 'PO value is required.')->withInput();
+        }
+
+        $logged_account = Session::get('logged_account');
+        $account = $logged_account->account;
+
+        try {
+            $sales_order = $this->salesOrderService->createOrder(
+                $request,
+                $account,
+                $order_data
+            );
+
+            // logs
+            activity('create')
+                ->performedOn($sales_order)
+                ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number :subject.po_number');
+
+            return redirect()->route('sales-order.index')->with([
+                'message_success' => 'Sales Order '.$sales_order->control_number.' was created'
             ]);
+
+        } catch(\Exception $e) {
+            return back()->with('message_error', 'Error creating order: ' . $e->getMessage())->withInput();
         }
-
-        $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
-
-        // check account po prefix
-        $po_number = $request->po_number;
-        if(!empty($logged_account->account->po_prefix)) {
-            $po_number = $logged_account->account->po_prefix.''.$po_number;
-        }
-
-        $sales_order = new SalesOrder([
-            'account_login_id' => $logged_account->id,
-            'shipping_address_id' => $shipping_address_id,
-            'control_number' => $request->control_number,
-            'po_number' => $po_number,
-            'paf_number' => $request->paf_number,
-            'order_date' => $request->order_date,
-            'ship_date' => $request->ship_date,
-            'shipping_instruction' => $request->shipping_instruction,
-            'ship_to_name' => $request->ship_to_name,
-            'ship_to_building' => $request->ship_to_address1,
-            'ship_to_street' => $request->ship_to_address2,
-            'ship_to_city' => $request->ship_to_address3,
-            'ship_to_postal' => $request->postal_code,
-            'status' => $request->status,
-            'total_quantity' => $order_data['total_quantity'],
-            'total_sales' => $order_data['total'],
-            'grand_total' => $order_data['grand_total'],
-            'po_value' => $order_data['po_value'] ?? 0
-        ]);
-        $sales_order->save();
-
-        $num = 0;
-        $part = 1;
-        $limit = $account->company->order_limit ?? $this->setting->sales_order_limit;
-        // CUSTOM LIMIT FOR WATSON
-        if($account->short_name == 'WATSONS') {
-            $curr_limit = 23;
-        } else {
-            $curr_limit = $limit;
-        }
-
-        // get CRISTALINO [CSP10001, CSP10002, CSP10003]
-        $cristalino_prod_ids = Product::whereIn('stock_code', ['CSP10001', 'CSP10002', 'CSP10003'])->get()->pluck('id')->toArray();
-        // get KS01046
-        $sku_restictions = ['KS01046', 'KS01047'];
-        $sku_ks_restrictions = Product::whereIn('stock_code', $sku_restictions)->get()->pluck('id')->toArray();
-
-        $cristalino_data = array();
-        $ks_1046_data = array();
-        foreach($order_data['items'] as $product_id => $items) {
-
-            // separate Cristalino
-            if(in_array($product_id, $cristalino_prod_ids)) {
-                $cristalino_data[$product_id] = $items;
-            } else if(in_array($product_id, $sku_ks_restrictions)) { // separate KS01046
-                $ks_1046_data[$product_id] = $items;
-            } else {
-                // $num++;
-                // divide by parts
-                if($num > $curr_limit) {
-                    $curr_limit += $limit;
-                    $part++;
-                }
-
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(isset($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // save cristalino in other as other parts
-        if(!empty($cristalino_data)) {
-            $part = $part + 1;
-            foreach($cristalino_data as $product_id => $items) {
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // save KS01046
-        if(!empty($sku_ks_restrictions)) {
-            $part = $part + 1;
-            foreach($ks_1046_data as $product_id => $items) {
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if($sales_order->status == 'finalized') {
-            // $this->generateXml($sales_order);
-        }
-
-        // logs
-        activity('create')
-        ->performedOn($sales_order)
-        ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number :subject.po_number');
-
-        return redirect()->route('sales-order.index')->with([
-            'message_success' => 'Sales Order '.$sales_order->control_number.' was created'
-        ]);
     }
 
     /**
@@ -646,35 +412,11 @@ class SalesOrderController extends Controller
         $order_data = Session::get('order_data');
 
         if(empty($order_data['items'])) {
-            return back()->with([
-                'message_error' => 'Please add items first.',
-                'shipping_address_id' => $request->shipping_address_id,
-                'po_number' => $request->po_number,
-                'paf_number' => $request->paf_number,
-                'ship_date' => $request->ship_date,
-                'shipping_instruction' => $request->shipping_instruction,
-                'ship_to_name' => $request->ship_to_name,
-                'ship_to_building' => $request->ship_to_address1,
-                'ship_to_street' => $request->ship_to_address2,
-                'ship_to_city' => $request->ship_to_address3,
-                'ship_to_postal' => $request->postal_code,
-            ]);
+            return back()->with('message_error', 'Please add items first.')->withInput();
         }
 
         if(empty($order_data['po_value']) || $order_data['po_value'] <= 0) {
-            return back()->with([
-                'message_error' => 'PO value is required.',
-                'shipping_address_id' => $request->shipping_address_id,
-                'po_number' => $request->po_number,
-                'paf_number' => $request->paf_number,
-                'ship_date' => $request->ship_date,
-                'shipping_instruction' => $request->shipping_instruction,
-                'ship_to_name' => $request->ship_to_name,
-                'ship_to_building' => $request->ship_to_address1,
-                'ship_to_street' => $request->ship_to_address2,
-                'ship_to_city' => $request->ship_to_address3,
-                'ship_to_postal' => $request->postal_code,
-            ]);
+            return back()->with('message_error', 'PO value is required.')->withInput();
         }
 
         $shipping_address_id = $request->shipping_address_id == 'default' ? NULL : $request->shipping_address_id;
@@ -683,198 +425,12 @@ class SalesOrderController extends Controller
 
         $changes_arr['old'] = $sales_order->getOriginal();
 
-        // check account po prefix
-        $po_number = $request->po_number;
-        if(!empty($logged_account->account->po_prefix)) {
-            $po_number = $logged_account->account->po_prefix.''.$po_number;
-        }
-
-        $sales_order->update([
-            'shipping_address_id' => $shipping_address_id,
-            'po_number' => $po_number,
-            'paf_number' => $request->paf_number,
-            'ship_date' => $request->ship_date,
-            'shipping_instruction' => $request->shipping_instruction,
-            'ship_to_name' => $request->ship_to_name,
-            'ship_to_building' => $request->ship_to_address1,
-            'ship_to_street' => $request->ship_to_address2,
-            'ship_to_city' => $request->ship_to_address3,
-            'ship_to_postal' => $request->postal_code,
-            'status' => $request->status,
-            'total_quantity' => $order_data['total_quantity'],
-            'total_sales' => $order_data['total'],
-            'grand_total' => $order_data['grand_total'],
-            'po_value' => $order_data['po_value'] ?? 0,
-        ]);
-
-        $num = 0;
-        $part = 1;
-        $limit = $logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
-        $curr_limit = $limit;
-        // CUSTOM LIMIT FOR WATSON
-        if($logged_account->account->short_name == 'WATSONS') {
-            $curr_limit = 23;
-        } else {
-            $curr_limit = $limit;
-        }
-
-        // get CRISTALINO [CSP10001, CSP10002, CSP10003]
-        $cristalino_prod_ids = Product::whereIn('stock_code', ['CSP10001', 'CSP10002', 'CSP10003'])->get()->pluck('id')->toArray();
-        // get KS01046
-        $ks_1046 = Product::where('stock_code', 'KS01046')->first();
-
-        $cristalino_data = array();
-        $ks_1046_data = array();
-
-        // delete existing PAF rows and product_uoms for each order product before removing the order_products
-        foreach ($sales_order->order_products as $order_product) {
-            // delete paf rows for each uom
-            foreach ($order_product->product_uoms as $uom) {
-                SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
-            }
-            // delete the product uoms
-            $order_product->product_uoms()->forceDelete();
-        }
-        // finally delete the sales order products
-        $sales_order->order_products()->forceDelete();
-        foreach($order_data['items'] as $product_id => $items) {
-
-            // separate Cristalino
-            if(in_array($product_id, $cristalino_prod_ids)) {
-                $cristalino_data[$product_id] = $items;
-            } else if($product_id == $ks_1046->id) { // separate KS01046
-                $ks_1046_data[$product_id] = $items;
-            } else {
-
-                // $num++;
-                // divide by parts
-                if($num > $curr_limit) {
-                    $curr_limit += $limit;
-                    $part++;
-                }
-
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
-
-        // save cristalino in other as other parts
-        if(!empty($cristalino_data)) {
-            $part = $part + 1;
-            foreach($cristalino_data as $product_id => $items) {
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // save KS01046
-        if(!empty($ks_1046_data)) {
-            $part = $part + 1;
-            foreach($ks_1046_data as $product_id => $items) {
-                $sales_order_product = new SalesOrderProduct([
-                    'sales_order_id' => $sales_order->id,
-                    'product_id' => $product_id,
-                    'part' => $part,
-                    'total_quantity' => $items['product_quantity'],
-                    'total_sales' => $items['product_total'],
-                ]);
-                $sales_order_product->save();
-
-                foreach($items['data'] as $uom => $data) {
-                    $sales_order_product_uom = new SalesOrderProductUom([
-                        'sales_order_product_id' => $sales_order_product->id,
-                        'uom' => $uom,
-                        'quantity' => $data['quantity'],
-                        'uom_total' => $data['total'],
-                        'uom_total_less_disc' => $data['discounted'],
-                        // 'warehouse' => $data['warehouse'],
-                    ]);
-                    $sales_order_product_uom->save();
-
-                    // check if there's a PAF row
-                    if(!empty($data['paf_rows'])) {
-                        foreach($data['paf_rows'] as $paf_row) {
-                            if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                                $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                    'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                    'paf_number' => $paf_row['paf_number'],
-                                    'uom' => $paf_row['uom'],
-                                    'quantity' => $paf_row['quantity'],
-                                ]);
-                                $sales_order_product_uom_paf->save();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        $this->salesOrderService->updateOrder(
+            $sales_order,
+            $request,
+            $logged_account->account,
+            $order_data
+        );
 
         $changes_arr['changes'] = $sales_order->getChanges();
 
@@ -950,9 +506,7 @@ class SalesOrderController extends Controller
                     $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
                 } else {
                     $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
-                    if ($dateTime === false) {
-                        $ship_date = $ship_date;
-                    } else {
+                    if ($dateTime !== false) {
                         $ship_date = $dateTime->format('Y-m-d');
                     }
                 }
@@ -1010,7 +564,7 @@ class SalesOrderController extends Controller
 
         }
 
-        $order_data = $this->processData($data);
+        $order_data = $this->salesOrderService->calculateOrderTotals($data, $logged_account->account);
 
         $order_data['po_value'] = $po_value;
 
@@ -1029,293 +583,6 @@ class SalesOrderController extends Controller
             'ship_to_address3' => $ship_to_address_3,
             'postal_code' => $postal_code,
         ]);
-    }
-
-    private function processData($data) {
-        $logged_account = Session::get('logged_account');
-        if(empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order'
-            ]);
-        }
-
-        $discount = $logged_account->account->discount;
-
-        // process data
-        $orders = [];
-        $total = 0;
-        $total_quantity = 0;
-        if(!empty($data)) {
-
-            $line_discount = Discount::where('discount_code', $logged_account->account->line_discount_code)
-                ->where('company_id', $logged_account->account->company_id)
-                ->first();
-
-            foreach($data as $product_id => $details) {
-                $product = $details['product'];
-                $orders['items'][$product_id] = [
-                    'stock_code' => $product->stock_code,
-                    'description' => $product->description,
-                    'size' => $product->size,
-                ];
-
-                // check price code
-                if($product->special_product) {
-                    $special_product = $logged_account->account->products()
-                        ->where('product_id', $product->id)
-                        ->first();
-
-                    $code = $special_product->pivot->price_code ?? $logged_account->account->price_code;
-                } else {
-                    $code = $logged_account->account->price_code;
-                }
-
-                $price_code = PriceCode::where('company_id', $logged_account->account->company_id)
-                    ->where('product_id', $product->id)
-                    ->where('code', $code)
-                    ->first();
-
-                $product_total = 0;
-                $product_quantity = 0;
-                if(!empty($price_code)) {
-                    foreach($details['data'] as $uom => $val) {
-                        // get price
-                        $selling_price = $price_code->selling_price;
-                        $price_basis = $price_code->price_basis;
-
-                        // convert selling price to stock uom price
-                        if($price_basis == 'A') {
-                            if($product->order_uom_operator == 'M') { // Multiply
-                                $selling_price = $selling_price / $product->order_uom_conversion;
-                            }
-                            if($product->order_uom_operator == 'D') { // Divide
-                                $selling_price = $selling_price * $product->order_uom_conversion;
-                            }
-                        } else if($price_basis == 'O') {
-                            // check operation
-                            if($product->other_uom_operator == 'M') { // Multiply
-                                $selling_price = $selling_price / $product->other_uom_conversion;
-                            }
-                            if($product->other_uom_operator == 'D') { // Divide
-                                $selling_price = $selling_price * $product->other_uom_conversion;
-                            }
-                        }
-
-                        $quantity = (float)$val['quantity'];
-
-                        // check account sales order UOM
-                        if(!empty($logged_account->account->sales_order_uom) && $uom != $logged_account->account->sales_order_uom) {
-                            if($product->order_uom == $logged_account->account->sales_order_uom && $uom != $product->order_uom) {
-                                if($uom == $product->stock_uom) {
-                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
-                                } elseif($uom == $product->other_uom) {
-                                    // check operation
-                                    if($product->other_uom_operator == 'M') { // Multiply
-                                        // convert to stock uom first
-                                        $quantity = $quantity * $product->other_uom_conversion;
-                                        $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
-                                    } elseif($product->other_uom_operator == 'D') { // Divide
-                                        // convert to stock uom first
-                                        $quantity = $quantity / $product->other_uom_conversion;
-                                        $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = true);
-                                    }
-                                }
-                                $uom = $product->order_uom;
-                            } else if($product->other_uom == $logged_account->account->sales_order_uom && $uom != $product->other_uom) {
-                                if($uom == $product->stock_uom) {
-                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
-                                } else if($uom == $product->order_uom) {
-                                    if($product->order_uom_operator == 'M') {
-                                        // convert to stock uom
-                                        $quantity = $quantity * $product->order_uom_conversion;
-                                        $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
-                                    } elseif($product->order_uom_operator == 'D') {
-                                        $quantity = $quantity / $product->order_uom_conversion;
-                                        $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = true);
-                                    }
-                                }
-                                $uom = $product->other_uom;
-                            } else if($product->stock_uom == $logged_account->account->sales_order_uom && $uom != $product->stock_uom) {
-                                if($uom == $product->order_uom) {
-                                    $quantity = $this->quantityConversion($quantity, $product->order_uom_conversion, $product->order_uom_operator, $reverse = false);
-                                } else if($uom == $product->other_uom) {
-                                    $quantity = $this->quantityConversion($quantity, $product->other_uom_conversion, $product->other_uom_operator, $reverse = false);
-                                }
-
-                                $uom = $product->stock_uom;
-                            }
-                        }
-
-                        // get total
-                        $uom_total = 0;
-                        if(strtoupper($uom) == strtoupper($product->stock_uom)) {
-                            $uom_total += $quantity * $selling_price;
-                        } else if($uom == $product->order_uom) { // order UOM
-                            // check operator
-                            if($product->order_uom_operator == 'M') { // Multiply
-                                $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
-                            }
-                            if($product->order_uom_operator == '') { // Divide
-                                $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
-                            }
-                        } else if($uom == $product->other_uom) { // other UOM
-                            // check operator
-                            if($product->other_uom_operator == 'M') { // Multiply
-                                $uom_total += ($quantity * $product->other_uom_conversion) * $selling_price;
-                            }
-                            if($product->other_uom_operator == 'D') { // Divide
-                                $uom_total += ($quantity / $product->other_uom_conversion) * $selling_price;
-                            }
-                        }
-
-                        // apply line discount
-                        $uom_discounted = $uom_total;
-                        if(!empty($line_discount)) {
-                            $discounted = $total;
-                            if($line_discount->discount_1 > 0) {
-                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_1) / 100);
-                            }
-                            if($line_discount->discount_2 > 0) {
-                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_2) / 100);
-                            }
-                            if($line_discount->discount_3 > 0) {
-                                $uom_discounted = $uom_discounted * ((100 - $line_discount->discount_3) / 100);
-                            }
-                        }
-
-                        if($uom_total > 0) {
-                            $orders['items'][$product->id]['data'][$uom] = [
-                                'quantity' => $quantity,
-                                'total' => $uom_total,
-                                'discount' => $line_discount->description ?? '0',
-                                'discounted' => $uom_discounted,
-                            ];
-                        }
-
-                        $product_total += $uom_discounted;
-                        $product_quantity += $quantity;
-                    }
-                }
-
-                if($product_total > 0) {
-                    $orders['items'][$product->id]['product_total'] = $product_total;
-                    $orders['items'][$product->id]['product_quantity'] = $product_quantity;
-                } else {
-                    unset($orders['items'][$product->id]);
-                }
-
-                $total += $product_total;
-                $total_quantity += $product_quantity;
-            }
-        }
-
-        // apply inventory discount
-        $discounted = $total;
-        if(!empty($discount)) {
-            if($discount->discount_1 > 0) {
-                $discounted = $discounted * ((100 - $discount->discount_1) / 100);
-            }
-            if($discount->discount_2 > 0) {
-                $discounted = $discounted * ((100 - $discount->discount_2) / 100);
-            }
-            if($discount->discount_3 > 0) {
-                $discounted = $discounted * ((100 - $discount->discount_3) / 100);
-            }
-        }
-
-        $orders['total_quantity'] = $total_quantity;
-        $orders['total'] = $total;
-        $orders['discount_id'] = $discount->id ?? NULL;
-        $orders['grand_total'] = $discounted;
-        $orders['po_value'] = '';
-
-        return $orders;
-    }
-
-    private function quantityConversion($quantity, $conversion, $operator, $reverse = false)
-    {
-        // Avoid division by zero
-        if ($conversion == 0) {
-            return (float) $quantity;
-        }
-
-        if ($operator == 'M') { // multiply
-            if ($reverse) {
-                return $quantity / $conversion;
-            } else {
-                return $quantity * $conversion;
-            }
-        } elseif ($operator == 'D') { // divide
-            if ($reverse) {
-                return $quantity * $conversion;
-            } else {
-                return $quantity / $conversion;
-            }
-        }
-
-        return (float) $quantity;
-    }
-
-    private function uomQuantityAllocation($quantity, $product_id, $uom)
-    {
-        // If the UOM is already 'CS', just return the quantity as a float.
-        if ($uom === 'CS') {
-            return (float) $quantity;
-        }
-
-        // Assuming you are using Laravel's Eloquent to find the product.
-        // Replace with your actual data-fetching method.
-        $product = Product::findOrFail($product_id);
-
-        // --- Logic to find the 'CS' unit and its conversion details ---
-
-        $cs_uom_column = null;
-        $conversion = 1;
-        $operator = 'M';
-
-        // 1. Identify which UOM field holds 'CS'.
-        if ($product->stock_uom == 'CS') {
-            $cs_uom_column = 'stock_uom';
-        } elseif ($product->order_uom == 'CS') {
-            $cs_uom_column = 'order_uom';
-        } elseif ($product->other_uom == 'CS') {
-            $cs_uom_column = 'other_uom';
-        }
-
-        // 2. If no 'CS' unit is defined, return the original quantity.
-        if (is_null($cs_uom_column)) {
-            return (float) $quantity;
-        }
-
-        // 3. Get the conversion details based on which field was 'CS'.
-        if ($cs_uom_column === 'stock_uom') {
-            // Rule: If 'stock_uom' is the case unit, its conversion is 1.
-            // This is now handled directly in the code without needing database columns.
-            $conversion = 1;
-            $operator = 'M';
-        } elseif ($cs_uom_column === 'order_uom') {
-            $conversion = $product->order_uom_conversion;
-            $operator = $product->order_uom_operator;
-        } elseif ($cs_uom_column === 'other_uom') {
-            $conversion = $product->other_uom_conversion;
-            $operator = $product->other_uom_operator;
-        }
-
-        // --- Perform the conversion and return the decimal value ---
-
-        // Call the helper function with reverse=true to convert to the 'CS' unit.
-        $cs_quantity = $this->quantityConversion(
-            $quantity,
-            $conversion,
-            $operator,
-            true // Reverse is true to convert from pieces to cases
-        );
-
-        return (float) $cs_quantity;
-    }
-
-    private function isExcelDate(Cell $cell) {
-        return Date::isDateTime($cell);
     }
 
     public function export(Request $request) {
