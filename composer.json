@@ -15,7 +15,7 @@
         "illuminate/redis": "^8.83",
         "intervention/image": "^2.7",
         "jeroennoten/laravel-adminlte": "^3.8",
-        "laravel/framework": "^8.75",
+        "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
@@ -35,11 +35,11 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.7",
-        "facade/ignition": "^2.5",
+        "spatie/laravel-ignition": "^1.0",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^5.10",
+        "nunomaduro/collision": "^6.1",
         "phpunit/phpunit": "^9.5.10"
     },
     "autoload": {
