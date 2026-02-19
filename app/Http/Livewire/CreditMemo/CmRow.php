@@ -11,125 +11,110 @@ class CmRow extends Component
 {
     use SoProductPriceTrait;
 
-    public $row_data;
-    public $showDetail;
-    public $cm_details;
-    public $cm_row_details;
+    public array $row_data;
+    public bool $showDetail = false;
+    public array $cm_row_details = ['data' => []];
     public $product;
-
-    public function render()
-    {
-        return view('livewire.credit-memo.cm-row');
-    }
 
     public function mount()
     {
-        // Validate row_data to ensure required keys exist
-        $this->validateRowData();
-
-        // Fetch product once and cache
-        $this->product = Product::where('stock_code', $this->row_data['StockCode'])->first();
-
-        // Initialize cm_details from session
-        $this->cm_details = Session::get('cm_details', []);
-
-        // Check if details exist for this stock code
-        if (isset($this->cm_details[$this->row_data['StockCode']])) {
-            $this->cm_row_details = $this->cm_details[$this->row_data['StockCode']];
-            $this->showDetail = 1;
-        } else {
-            $this->cm_row_details = ['data' => []];
-            $this->showDetail = 0;
-        }
-
-        // Precompute UOM conversions for bin_data efficiently
+        $this->product = Product::where('stock_code', $this->stockCode)->first();
         $this->precomputeConversions();
+
+        // Check if this row is already in session (selected)
+        $all_details = Session::get('cm_details', []);
+        if (isset($all_details[$this->stockCode])) {
+            $this->cm_row_details = $all_details[$this->stockCode];
+            $this->showDetail = true;
+        }
     }
 
-    protected function validateRowData()
+    public function getStockCodeProperty()
     {
-        // Basic validation to prevent errors, similar to Create.php's validation
-        if (!isset($this->row_data['StockCode'], $this->row_data['bin_data'])) {
-            throw new \InvalidArgumentException('Invalid row_data: Missing required keys.');
-        }
+        return $this->row_data['StockCode'];
     }
 
     protected function precomputeConversions()
     {
-        // Optimize UOM conversion by avoiding redundant calls
         foreach ($this->row_data['bin_data'] as $key => $bin) {
             $this->row_data['bin_data'][$key]['conversion'] = $this->uomConversion(
                 $bin['StockQtyToShip'],
-                $this->row_data['StockCode'],
+                $this->stockCode,
                 $this->row_data['StockingUom'],
                 $this->row_data['OrderUom']
             );
+            $this->row_data['bin_data'][$key]['composite_key'] = "{$bin['Lot']}-{$bin['Bin']}";
         }
     }
 
-    public function showDetails()
+    public function toggleDetails()
     {
         $this->showDetail = !$this->showDetail;
-        $this->updateSession();
+        if ($this->showDetail) {
+            $this->initializeRowDetails();
+        } else {
+            $this->removeFromSession();
+        }
     }
 
-    protected function updateSession()
+    protected function initializeRowDetails()
     {
-        // Batch session updates to optimize performance, following Create.php pattern
-        $cm_details = Session::get('cm_details', []);
+        $this->cm_row_details['product'] = $this->product;
+        // Only store essential data in session to reduce size
+        $this->cm_row_details['row_data'] = collect($this->row_data)
+            ->only(['Warehouse', 'Bin', 'OrderQty', 'ShipQty', 'Price', 'UnitCost', 'OrderUom', 'StockingUom'])
+            ->toArray();
 
-        if ($this->showDetail) {
-            // Prepare row details data
-            $this->cm_row_details['product'] = $this->product;
-            $this->cm_row_details['row_data'] = [
-                'warehouse' => $this->row_data['Warehouse'] ?? null,
-                'bin' => $this->row_data['Bin'] ?? null,
-                'order_quantity' => $this->row_data['OrderQty'] ?? null,
-                'ship_quantity' => $this->row_data['ShipQty'] ?? null,
-                'price' => $this->row_data['Price'] ?? null,
-                'line_ship_date' => $this->row_data['LineShipDate'] ?? null,
-                'unit_cost' => $this->row_data['UnitCost'] ?? null,
-                'order_uom' => $this->row_data['OrderUom'] ?? null,
-                'stock_quantity_to_ship' => $this->row_data['StockQtyToShip'] ?? null,
-                'stocking_uom' => $this->row_data['StockingUom'] ?? null,
-                'price_uom' => $this->row_data['PriceUom'] ?? null,
-            ];
-
-            // Initialize data if empty, using lot-bin keys to avoid duplicates
-            if (empty($this->cm_row_details['data'])) {
-                $this->cm_row_details['data'] = [];
-                foreach ($this->row_data['bin_data'] as $bin) {
-                    $lot_bin_key = $bin['Lot'] . '-' . $bin['Bin'];
-                    $this->cm_row_details['data'][$lot_bin_key] = $bin;
-                }
-            }
-
-            $cm_details[$this->row_data['StockCode']] = $this->cm_row_details;
+        if (empty($this->cm_row_details['data'])) {
+            $this->selectAllBins();
         } else {
-            unset($cm_details[$this->row_data['StockCode']]);
+            $this->syncToSession();
         }
-
-        Session::put('cm_details', $cm_details);
     }
 
     public function selectBin($key)
     {
-        // Ensure data array exists
-        if (!isset($this->cm_row_details['data'])) {
-            $this->cm_row_details['data'] = [];
-        }
+        $bin = $this->row_data['bin_data'][$key];
+        $cKey = $bin['composite_key'];
 
-        if ($this->showDetail) {
-            $lot_bin_key = $this->row_data['bin_data'][$key]['Lot'] . '-' . $this->row_data['bin_data'][$key]['Bin'];
-            if (!isset($this->cm_row_details['data'][$lot_bin_key])) {
-                // Add bin data if not present, using lot-bin key
-                $this->cm_row_details['data'][$lot_bin_key] = $this->row_data['bin_data'][$key];
-            } else {
-                // Remove if already selected
-                unset($this->cm_row_details['data'][$lot_bin_key]);
-            }
+        if (isset($this->cm_row_details['data'][$cKey])) {
+            unset($this->cm_row_details['data'][$cKey]);
+        } else {
+            $this->cm_row_details['data'][$cKey] = $bin;
         }
+        $this->syncToSession();
+    }
 
-        $this->updateSession();
+    public function selectAllBins()
+    {
+        foreach ($this->row_data['bin_data'] as $bin) {
+            $this->cm_row_details['data'][$bin['composite_key']] = $bin;
+        }
+        $this->syncToSession();
+    }
+
+    public function clearAllBins()
+    {
+        $this->cm_row_details['data'] = [];
+        $this->syncToSession();
+    }
+
+    protected function syncToSession()
+    {
+        $cm_details = Session::get('cm_details', []);
+        $cm_details[$this->stockCode] = $this->cm_row_details;
+        Session::put('cm_details', $cm_details);
+    }
+
+    protected function removeFromSession()
+    {
+        $cm_details = Session::get('cm_details', []);
+        unset($cm_details[$this->stockCode]);
+        Session::put('cm_details', $cm_details);
+    }
+
+    public function render()
+    {
+        return view('livewire.credit-memo.cm-row');
     }
 }

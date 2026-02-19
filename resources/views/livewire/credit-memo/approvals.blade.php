@@ -1,22 +1,18 @@
 <div>
     <div class="card">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">
                 APPROVALS
-                <span type="button" class="badge badge-{{ $status_arr[$rud->status] }}">
+                <span class="badge badge-{{ $status_arr[$rud->status] ?? 'secondary' }}">
                     {{ strtoupper($rud->status) }}
                 </span>
             </h3>
-            <div class="card-tools">
-                @if($rud->status == 'submitted')
-                    <button class="btn btn-sm btn-danger" wire:click.prevent="approve('returned')">
-                        RETURN
-                    </button>
-                    <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">
-                        APPROVE
-                    </button>
-                @endif
-            </div>
+            @if($rud->status == 'submitted')
+                <div>
+                    <button class="btn btn-sm btn-danger" wire:click.prevent="approve('returned')">RETURN</button>
+                    <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">APPROVE</button>
+                </div>
+            @endif
         </div>
         <div class="card-body">
             <div class="row">

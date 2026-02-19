@@ -1,92 +1,54 @@
 <tbody class="table table-sm table-bordered text-xs">
     <tr>
-        <td class="p-0 align-middle text-center">
-            <button class="btn btn-xs btn-{{ $showDetail ? 'success' : 'secondary' }}" wire:click.pevent="showDetails" title="select row">
-                @if($showDetail == 0)
-                    <i class="far fa-circle"></i>
-                @else
-                    <i class="fa fa-check-circle"></i>
-                @endif
+        <td class="p-0 align-middle text-center" width="50">
+            <button class="btn btn-xs btn-{{ $showDetail ? 'success' : 'secondary' }}"
+                    wire:click.prevent="toggleDetails">
+                <i class="fa {{ $showDetail ? 'fa-check-circle' : 'far fa-circle' }}"></i>
             </button>
         </td>
-        <td class="p-0 align-middle text-center">{{$row_data['SalesOrderLine']}}</td>
-        <td class="p-0 align-middle text-center">{{$row_data['StockCode']}}</td>
-        <td class="py-0 align-middle text-left">{{$row_data['StockDescription']}}</td>
+        <td class="align-middle text-center">{{ $row_data['SalesOrderLine'] }}</td>
+        <td class="align-middle text-center"><strong>{{ $this->stockCode }}</strong></td>
+        <td class="align-middle">{{ $row_data['StockDescription'] }}</td>
     </tr>
-    @if($showDetail == 1)
+
+    @if($showDetail)
         <tr>
-            <td colspan="7">
-                <div class="row">
+            <td colspan="4">
+                <div class="row p-2 bg-light">
                     <div class="col-lg-5">
-                        <table class="table table-sm table-bordered table-hover">
-                            <tr>
-                                <th>Warehouse:</th>
-                                <td>{{$row_data['Warehouse']}}</td>
-                                <th>Unit Cost:</th>
-                                <td>{{$row_data['UnitCost']}}</td>
-                            </tr>
-                            <tr>
-                                <th>Bin:</th>
-                                <td>{{$row_data['Bin']}}</td>
-                                <th>Order UOM:</th>
-                                <td>{{$row_data['OrderUom']}}</td>
-                            </tr>
-                            <tr>
-                                <th>Order Quantity:</th>
-                                <td>{{$row_data['OrderQty']}}</td>
-                                <th>Stock Quantity to Ship:</th>
-                                <td>{{$row_data['StockQtyToShip']}}</td>
-                            </tr>
-                            <tr>
-                                <th>Ship Quantity:</th>
-                                <td>{{$row_data['ShipQty']}}</td>
-                                <th>Stocking UOM:</th>
-                                <td>{{$row_data['StockingUom']}}</td>
-                            </tr>
-                            <tr>
-                                <th>Price:</th>
-                                <td>{{$row_data['Price']}}</td>
-                                <th>Price Uom:</th>
-                                <td>{{$row_data['PriceUom']}}</td>
-                            </tr>
-                            <tr>
-                                <th>Line Ship Date:</th>
-                                <td colspan="3">{{$row_data['LineShipDate']}}</td>
-                            </tr>
+                        <table class="table table-sm table-bordered bg-white">
+                             @foreach(['Warehouse', 'Bin', 'OrderQty', 'Price', 'StockingUom'] as $field)
+                                <tr>
+                                    <th class="bg-light w-25">{{ $field }}:</th>
+                                    <td>{{ $row_data[$field] ?? '-' }}</td>
+                                </tr>
+                             @endforeach
                         </table>
                     </div>
+
                     <div class="col-lg-7">
-                        <table class="table table-sm table-bordered table-hover text-xs">
-                            <thead>
-                                <tr>
-                                    <th colspan="5">LOT DETAILS</th>
-                                </tr>
-                                <tr>
-                                    <th class="p-0"></th>
-                                    <th>Lot</th>
-                                    <th>Bin</th>
-                                    <th>Quantity</th>
-                                    <th>Uom</th>
-                                </tr>
-                            </thead>
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong>LOT DETAILS</strong>
+                            <div>
+                                <button class="btn btn-xs btn-outline-success" wire:click.prevent="selectAllBins">All</button>
+                                <button class="btn btn-xs btn-outline-danger" wire:click.prevent="clearAllBins">Clear</button>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-bordered table-hover text-xs bg-white">
+                            <thead><tr><th>Select</th><th>Lot</th><th>Bin</th><th>Qty</th></tr></thead>
                             <tbody>
-                                @foreach($row_data['bin_data'] as $key => $bin_data)
-                                    @php
-                                        $lot_bin_key = $bin_data['Lot'] . '-' . $bin_data['Bin'];
-                                    @endphp
-                                    <tr>
-                                        <th class="align-middle text-center p-0">
-                                            <button class="btn btn-xs btn-{{empty($cm_row_details['data'][$lot_bin_key]) ? 'secondary' : 'success'}}" wire:click.prevent="selectBin({{ $key }})">
-                                                @if(!empty($cm_row_details['data'][$lot_bin_key]))
-                                                    <i class="fa fa-check-circle"></i>
-                                                @else
-                                                    <i class="far fa-circle"></i>
-                                                @endif
+                                @foreach($row_data['bin_data'] as $key => $bin)
+                                    @php $isSelected = isset($cm_row_details['data'][$bin['composite_key']]); @endphp
+                                    <tr class="{{ $isSelected ? 'table-success' : '' }}">
+                                        <td class="text-center">
+                                            <button class="btn btn-xs btn-{{ $isSelected ? 'success' : 'light border' }}"
+                                                    wire:click.prevent="selectBin({{ $key }})">
+                                                <i class="fa {{ $isSelected ? 'fa-check-circle' : 'far fa-circle' }}"></i>
                                             </button>
-                                        </th>
-                                        <td>{{$bin_data['Lot']}}</td>
-                                        <td>{{$bin_data['Bin']}}</td>
-                                        <td>{{$bin_data['conversion'][$row_data['OrderUom']] ?? '-'}}</td>
+                                        </td>
+                                        <td>{{ $bin['Lot'] }}</td>
+                                        <td>{{ $bin['Bin'] }}</td>
+                                        <td>{{ $bin['conversion'][$row_data['OrderUom']] ?? '0' }}</td>
                                         <td>{{ $row_data['OrderUom'] }}</td>
                                     </tr>
                                 @endforeach
