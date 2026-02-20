@@ -29,6 +29,7 @@ class PermissionSeeder extends Seeder
                 'cm create'         => 'access to create credit memo',
                 'cm edit'           => 'access to edit credit memo',
                 'cm delete'         => 'access to delete credit memo',
+                'cm review'         => 'access to review credit memo',
                 'cm approve'        => 'access to approve credit memo',
                 'cm print'          => 'access to print credit memo',
             ],
