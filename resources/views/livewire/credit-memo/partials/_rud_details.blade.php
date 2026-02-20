@@ -60,7 +60,6 @@
                                 <th>Stock Code</th>
                                 <th>Description</th>
                                 <th>Lot / Bin Details</th>
-                                <th width="100">Total Qty</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -101,9 +100,6 @@
                                                 </tr>
                                             @endforeach
                                         </table>
-                                    </td>
-                                    <td class="align-middle text-center font-weight-bold">
-                                        {{ $detail['row_data']['OrderQty'] ?? 0 }} {{ $detail['row_data']['OrderUom'] ?? '' }}
                                     </td>
                                 </tr>
                             @endforeach

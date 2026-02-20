@@ -5,7 +5,7 @@
         </div>
         <div class="card-body">
 
-            @if(!empty($approvals))
+            @if($approvals->count() > 0)
                 <div class="timeline timeline-inverse" style="max-height: 800px; min-height: 140px; overflow-y: auto;">
 
                     @foreach($approvals as $date => $data)
@@ -42,12 +42,6 @@
 
                     <div>
                         <i class="far fa-clock bg-gray"></i>
-                    </div>
-                </div>
-
-                <div class="row mt-2">
-                    <div class="col-12">
-                        {{$approval_dates->links()}}
                     </div>
                 </div>
             @else

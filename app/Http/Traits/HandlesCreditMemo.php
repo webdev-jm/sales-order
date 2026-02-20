@@ -60,15 +60,20 @@ trait HandlesCreditMemo
                 'sales_order' => $this->so_number,
                 'account_code' => $this->account->account_code ?? null,
                 'po_number' => $this->po_number,
-            ])->timeout(30)->get($this->api_base_url . 'getInvoiceDetail');
+            ])->timeout(30)->get($this->api_base_url . 'getInvoiceData');
 
             if ($response->failed()) {
                 $this->addError('load_details', 'Failed to fetch invoice details from Syspro.');
                 return;
             }
 
-            // The API returns the array of lines directly
-            $this->detail_data = $response->json();
+            $data = $response->json();
+
+            $this->detail_data = $data['details'] ?? [];
+            $this->so_number = $data['SalesOrder'];
+            $this->invoice_number = $data['InvoiceNumber'];
+            $this->po_number = $data['CustomerPoNumber'];
+            $this->selected_invoice = $data;
 
         } catch (\Exception $e) {
             $this->addError('load_details', 'Connection error: ' . $e->getMessage());
@@ -148,7 +153,6 @@ trait HandlesCreditMemo
     }
 
     public function updateQuantity($stockCode, $binKey, $qty) {
-        // 1. Validate existence
         if (!isset($this->cm_details[$stockCode]['data'][$binKey])) {
             return;
         }
@@ -161,13 +165,12 @@ trait HandlesCreditMemo
         $this->cm_details[$stockCode]['data'][$binKey]['conversion'][$uom] = (float) $qty;
 
         // 4. (Optional) Auto-update the Header 'Order Quantity' to match the sum of bins
-        // If you want the main line quantity to equal the sum of the lot quantities:
         $newTotal = 0;
         foreach($this->cm_details[$stockCode]['data'] as $bin) {
              $newTotal += array_values($bin['conversion'])[0];
         }
         $this->cm_details[$stockCode]['row_data']['OrderQty'] = $newTotal;
-        $this->cm_details[$stockCode]['row_data']['order_quantity'] = $newTotal; // Update both keys for safety
+        $this->cm_details[$stockCode]['row_data']['order_quantity'] = $newTotal;
 
         // 5. Sync to Session so the change persists if we reload or submit
         Session::put('cm_details', $this->cm_details);
@@ -207,14 +210,17 @@ trait HandlesCreditMemo
             'po_number' => $this->po_number,
             'year' => $this->year,
             'month' => $this->month,
-            'ship_name' => $this->selected_invoice['CustomerName'] ?? ($this->cm_data['ship_name'] ?? null),
-            'ship_address1' => $this->selected_invoice['ShipAddr1'] ?? ($this->cm_data['ship_address1'] ?? null),
+            'ship_name' => $this->selected_invoice['CustomerName'] ?? ($this->cm_data['ship_name'] ?? NULL),
+            'ship_address1' => $this->selected_invoice['ShipAddr1'] ?? ($this->cm_data['ship_address1'] ?? NULL),
+            'ship_address2' => $this->selected_invoice['ShipAddr2'] ?? ($this->cm_data['ship_address2'] ?? NULL),
+            'ship_address3' => $this->selected_invoice['ShipAddr3'] ?? ($this->cm_data['ship_address3'] ?? NULL),
+            'ship_address4' => $this->selected_invoice['ShipAddr4'] ?? ($this->cm_data['ship_address4'] ?? NULL),
+            'ship_address5' => $this->selected_invoice['ShipAddr5'] ?? ($this->cm_data['ship_address5'] ?? NULL),
         ];
         Session::put('cm_data', $this->cm_data);
     }
 
     protected function saveToDatabase($rud, $status) {
-         // ... (Same DB transaction logic as provided in previous answer) ...
          DB::transaction(function () use ($rud, $status) {
             $rud->fill([
                 'account_id' => $this->cm_data['account_id'],
@@ -230,6 +236,10 @@ trait HandlesCreditMemo
                 'status' => $status,
                 'ship_name' => $this->cm_data['ship_name'] ?? null,
                 'ship_address1' => $this->cm_data['ship_address1'] ?? null,
+                'ship_address2' => $this->cm_data['ship_address2'] ?? null,
+                'ship_address3' => $this->cm_data['ship_address3'] ?? null,
+                'ship_address4' => $this->cm_data['ship_address4'] ?? null,
+                'ship_address5' => $this->cm_data['ship_address5'] ?? null,
             ]);
             $rud->save();
 

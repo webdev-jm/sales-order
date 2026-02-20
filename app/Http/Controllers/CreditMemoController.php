@@ -20,8 +20,10 @@ class CreditMemoController extends Controller
     public $status_arr = [
         'draft' => 'secondary',
         'submitted' => 'info',
-        'returned' => 'danger',
-        'approved' => 'success',
+        'returned' => 'warning',
+        'for approval' => 'primary',
+        'rejected' => 'danger',
+        'approved' => 'success'
     ];
 
     public function __construct() {

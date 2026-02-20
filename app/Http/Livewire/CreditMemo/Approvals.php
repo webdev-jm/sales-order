@@ -2,42 +2,83 @@
 
 namespace App\Http\Livewire\CreditMemo;
 
+use App\Models\CreditMemoRemarks;
 use Livewire\Component;
+use App\Http\Livewire\Traits\WithCreditMemoStatus;
 use App\Models\CreditMemoApproval;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use App\Http\Traits\CreditMemoXml;
+use Illuminate\Support\Facades\Storage;
 
 class Approvals extends Component
 {
-    public $rud;
-    public $status_arr = ['draft' => 'secondary', 'submitted' => 'info', 'returned' => 'danger', 'approved' => 'success'];
+    use WithCreditMemoStatus, CreditMemoXml;
 
-    public function mount($credit_memo)
+    public $creditMemo;
+    public $canReview;
+    public $canApprove;
+    public $message;
+
+    public function mount($creditMemo)
     {
-        $this->rud = $credit_memo;
+        $this->creditMemo = $creditMemo;
+        $this->canReview = Gate::allows('cm review');
+        $this->canApprove = Gate::allows('cm approve');
     }
 
     public function approve($status)
     {
         DB::transaction(function () use ($status) {
-            $old = $this->rud->getOriginal();
-            $this->rud->update(['status' => $status]);
+            $old = $this->creditMemo->getOriginal();
+            $this->creditMemo->update(['status' => $status]);
 
             CreditMemoApproval::create([
-                'credit_memo_id' => $this->rud->id,
+                'credit_memo_id' => $this->creditMemo->id,
                 'user_id' => auth()->id(),
                 'status' => $status,
             ]);
 
-            activity('updated')->performedOn($this->rud)
-                ->log(':causer.firstname has ' . $status . ' RUD invoice ' . $this->rud->invoice_number);
+            if ($status === 'approved') {
+                $this->rud = $this->creditMemo;
+                $xmls = $this->generateCreditMemoXmls();
+
+                $directory = 'credit_memos/rud_' . $this->rud->id;
+                foreach ($xmls as $key => $xmlContent) {
+                    // Convert keys like 'sortci_xml' to 'SORTCI.xml'
+                    $fileName = strtoupper(str_replace('_xml', '', $key)) . '.xml';
+
+                    // Save the file to the local disk (storage/app/...)
+                    Storage::disk('local')->put($directory . '/' . $fileName, $xmlContent);
+                }
+            }
+
+            activity('updated')->performedOn($this->creditMemo)
+                ->log(':causer.firstname has ' . $status . ' RUD invoice ' . $this->creditMemo->invoice_number);
         });
 
         $this->emit('updateHistory');
     }
 
-    // Note: XML Generation Logic removed for brevity.
-    // It should be moved to a Service class (e.g., CreditMemoXmlService)
-    // and called here rather than bloating the component.
+    public function saveRemarks() {
+        $this->validate([
+            'message' => [
+                'required'
+            ]
+        ]);
+
+        $cm_remark = new CreditMemoRemarks([
+            'credit_memo_id' => $this->creditMemo->id,
+            'user_id' => auth()->user()->id,
+            'message' => $this->message,
+            'seen_by' => NULL
+        ]);
+        $cm_remark->save();
+
+        $this->reset('message');
+
+        $this->emit('remarkAdded');
+    }
 
     public function render()
     {
