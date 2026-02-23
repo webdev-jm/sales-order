@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\RudSubmitted;
 
 trait HandlesCreditMemo
 {
@@ -275,11 +278,18 @@ trait HandlesCreditMemo
 
             // Only create approval if submitted, or just log update
              if($status == 'submitted') {
-                CreditMemoApproval::create([
+                $approval = CreditMemoApproval::create([
                     'credit_memo_id' => $rud->id,
                     'user_id' => auth()->id(),
                     'status' => $status,
                 ]);
+
+                // notifications
+                $users = User::whereHas('permissions', function($query) {
+                    $query->where('name', 'cm review');
+                })->get();
+
+                Notification::send($users, new RudSubmitted($rud, $approval));
              }
 
             activity($status == 'submitted' ? 'submitted' : 'updated')

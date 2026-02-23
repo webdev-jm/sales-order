@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Traits\CreditMemoXml;
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\RudApproved;
+use App\Notifications\RudRejected;
+use App\Notifications\RudReturned;
+use App\Notifications\RudForReview;
+
 class Approvals extends Component
 {
     use WithCreditMemoStatus, CreditMemoXml;
@@ -33,13 +40,14 @@ class Approvals extends Component
             $old = $this->creditMemo->getOriginal();
             $this->creditMemo->update(['status' => $status]);
 
-            CreditMemoApproval::create([
+            $rud_approval = new CreditMemoApproval([
                 'credit_memo_id' => $this->creditMemo->id,
                 'user_id' => auth()->id(),
                 'status' => $status,
             ]);
+            $rud_approval->save();
 
-            if ($status === 'approved') {
+            if($status === 'approved') {
                 $this->rud = $this->creditMemo;
                 $xmls = $this->generateCreditMemoXmls();
 
@@ -51,6 +59,36 @@ class Approvals extends Component
                     // Save the file to the local disk (storage/app/...)
                     Storage::disk('local')->put($directory . '/' . $fileName, $xmlContent);
                 }
+
+                // get rud reviewer
+                $users = User::whereHas('permissions', function($query) {
+                    $query->where('name', 'cm review');
+                })->get();
+
+                $user = $this->rud->user;
+                $users->push($user);
+
+                Notification::send($users, new RudApproved($this->creditMemo, $rud_approval));
+            } else if($status === 'rejected') {
+                $users = User::whereHas('permissions', function($query) {
+                    $query->where('name', 'cm review');
+                })->get();
+
+                $user = $this->rud->user;
+                $users->push($user);
+
+                Notification::send($users, new RudRejected($this->creditMemo, $rud_approval));
+
+            } else if($status === 'returned') {
+
+                Notification::send($this->rud->user, new RudReturned($this->creditMemo, $rud_approval));
+
+            } else if($status == 'for approval') {
+                $users = User::whereHas('permissions', function($query) {
+                    $query->where('name', 'cm approve');
+                })->get();
+
+                Notification::send($users, new RudForReview($this->creditMemo, $rud_approval));
             }
 
             activity('updated')->performedOn($this->creditMemo)
