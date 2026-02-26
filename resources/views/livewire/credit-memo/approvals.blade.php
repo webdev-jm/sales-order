@@ -7,6 +7,11 @@
                     {{ strtoupper($creditMemo->status) }}
                 </span>
             </h3>
+            @if($creditMemo->status == 'approved')
+                <div class="card-tools">
+                    <button class="btn btn-sm btn-success" wire:click.prevent="downloadXml">DOWNLOAD XML</button>
+                </div>
+            @endif
             @if($canReview && ($creditMemo->status == 'submitted' || $creditMemo->status == 'rejected'))
                 <div class="card-tools">
                     <button class="btn btn-sm btn-warning" wire:click.prevent="approve('returned')">RETURN</button>

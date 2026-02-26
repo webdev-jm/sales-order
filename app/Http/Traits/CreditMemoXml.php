@@ -138,7 +138,7 @@ trait CreditMemoXml
         }
 
         return [
-            'CreditNoteNumber' => $soNumber,
+            'CreditNoteNumber' => '',
             'InvoiceNumber'    => $this->rud->invoice_number ?? '',
             'Customer'         => $this->rud->account->account_code ?? '',
             'SalesOrder'       => $soNumber,
@@ -159,7 +159,7 @@ trait CreditMemoXml
     {
         return [
             'Customer'             => $this->rud->account->account_code ?? '',
-            'CreditNoteNumber'     => $soNumber,
+            'CreditNoteNumber'     => '',
             'CustomerPoNumber'     => $this->rud->po_number ?? '',
             'CreditNoteDate'       => $this->rud->cm_date ?? '',
             'InvoiceNumber'        => $this->rud->invoice_number ?? '',

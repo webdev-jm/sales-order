@@ -18,6 +18,9 @@ use App\Notifications\RudRejected;
 use App\Notifications\RudReturned;
 use App\Notifications\RudForReview;
 
+use ZipArchive;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class Approvals extends Component
 {
     use WithCreditMemoStatus, CreditMemoXml;
@@ -32,6 +35,35 @@ class Approvals extends Component
         $this->creditMemo = $creditMemo;
         $this->canReview = Gate::allows('cm review');
         $this->canApprove = Gate::allows('cm approve');
+    }
+
+    public function downloadXml()    {
+        // get xml file
+        $directory = 'credit_memos/rud_' . $this->creditMemo->id;
+        $files = Storage::disk('local')->files($directory);
+
+        if (empty($files)) {
+            session()->flash('error', 'No XML files found in this directory.');
+            return null;
+        }
+
+        $zipFileName = "credit_memo_files_{$this->creditMemo->id}.zip";
+
+        return response()->streamDownload(function () use ($files) {
+            $zip = new ZipArchive();
+            $zipPath = tempnam(sys_get_temp_dir(), 'zip');
+
+            if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
+                foreach ($files as $file) {
+                    // Add each file using its absolute path on the local disk
+                    $zip->addFile(Storage::disk('local')->path($file), basename($file));
+                }
+                $zip->close();
+
+                readfile($zipPath);
+                unlink($zipPath); // Clean up the system temp file
+            }
+        }, $zipFileName);
     }
 
     public function approve($status)

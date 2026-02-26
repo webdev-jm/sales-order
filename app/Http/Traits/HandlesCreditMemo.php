@@ -34,8 +34,8 @@ trait HandlesCreditMemo
 
     public function initializeCommonData()
     {
-        $this->accounts = Cache::remember('accounts_list', 3600, fn() => Account::orderBy('account_code', 'ASC')->get());
-        $this->reasons = Cache::remember('credit_memo_reasons', 3600, fn() => CreditMemoReason::orderBy('reason_code', 'DESC')->get());
+        $this->accounts = Account::orderBy('account_code', 'ASC')->get();
+        $this->reasons =  CreditMemoReason::orderBy('reason_code', 'DESC')->get();
 
         if (!$this->year) $this->year = date('Y');
         if (!$this->month) $this->month = (int)date('m');
