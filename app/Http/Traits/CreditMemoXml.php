@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Http;
 trait CreditMemoXml
 {
     public $rud;
-    protected $api_base_url = '192.168.11.240/refreshable/public/api/credit-memo/';
 
     /**
      * Generates and returns the required XML documents for Syspro Integration.
@@ -244,7 +243,7 @@ trait CreditMemoXml
                 'sales_order' => $so_number,
                 'account_code' => $account->account_code ?? null,
                 'po_number' => $po_number,
-            ])->timeout(30)->get($this->api_base_url . 'getInvoiceData');
+            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoiceData');
 
             if ($response->failed()) {
                 if (method_exists($this, 'addError')) {

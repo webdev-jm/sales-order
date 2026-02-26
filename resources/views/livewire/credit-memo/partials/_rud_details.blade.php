@@ -126,16 +126,28 @@
                 @elseif(!empty($invoice_data))
                     <div class="col-lg-12 table-responsive">
                         <table class="table table-bordered table-hover table-sm text-xs">
-                            <thead><tr><th>Invoice</th><th>Sales Order</th><th>Customer</th><th>Date</th></tr></thead>
+                            <thead>
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Sales Order</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 @foreach($invoice_data as $key => $data)
-                                    <tr wire:click.prevent="selectSalesOrder({{$key}})" style="cursor: pointer;">
+                                    <tr wire:loading.remove wire:click.prevent="selectSalesOrder({{$key}})" style="cursor: pointer;">
                                         <td>{{ $data['InvoiceNumber'] }}</td>
                                         <td>{{ $data['SalesOrder'] }}</td>
                                         <td>{{ $data['Customer'] }}</td>
                                         <td>{{ $data['OrderDate'] }}</td>
                                     </tr>
                                 @endforeach
+                                <tr wire:loading>
+                                    <td colspan="4" class="text-center" >
+                                        Loading data from Syspro... <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

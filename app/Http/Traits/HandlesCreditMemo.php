@@ -30,7 +30,6 @@ trait HandlesCreditMemo
     public $cm_details;
     public $show_summary = false;
 
-    protected $api_base_url = '192.168.11.240/refreshable/public/api/credit-memo/';
 
     public function initializeCommonData()
     {
@@ -63,7 +62,7 @@ trait HandlesCreditMemo
                 'sales_order' => $this->so_number,
                 'account_code' => $this->account->account_code ?? null,
                 'po_number' => $this->po_number,
-            ])->timeout(30)->get($this->api_base_url . 'getInvoiceData');
+            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoiceData');
 
             if ($response->failed()) {
                 $this->addError('load_details', 'Failed to fetch invoice details from Syspro.');
@@ -101,7 +100,7 @@ trait HandlesCreditMemo
                 'so_number' => $this->so_number,
                 'po_number' => $this->po_number,
                 'account_code' => $this->account->account_code,
-            ])->timeout(30)->get($this->api_base_url . 'getInvoice');
+            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoice');
 
             if ($response->failed()) return $this->addError('search', 'Failed to fetch invoice data.');
 
@@ -246,12 +245,13 @@ trait HandlesCreditMemo
             ]);
             $rud->save();
 
-            $rud->cm_details()->each(fn($d) => $d->cm_bins()->delete());
-            $rud->cm_details()->delete();
+            $rud->cm_details()->each(fn($d) => $d->cm_bins()->forceDelete());
+            $rud->cm_details()->forceDelete();
 
             foreach ($this->cm_details as $detail) {
-                if (empty($detail['product'])) continue;
-                $rudDetail = $rud->cm_details()->create([
+
+                $rudDetail = new CreditMemoDetail([
+                    'credit_memo_id' => $rud->id,
                     'product_id' => $detail['product']['id'],
                     'warehouse' => $detail['row_data']['warehouse'] ?? null,
                     'order_quantity' => $detail['row_data']['order_quantity'] ?? 0,
@@ -263,6 +263,7 @@ trait HandlesCreditMemo
                     'stock_quantity_to_ship' => $detail['row_data']['stock_quantity_to_ship'] ?? 0,
                     'stocking_uom' => $detail['row_data']['stocking_uom'] ?? null,
                 ]);
+                $rudDetail->save();
 
                 foreach ($detail['data'] as $binData) {
                     foreach ($binData['conversion'] ?? [] as $uom => $qty) {
