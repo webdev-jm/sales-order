@@ -203,7 +203,7 @@ class SalesOrderController extends Controller
 
     // resubmit sales order
     public function resubmit($id) {
-        $control_number = $this->generateControlNumber();
+        $control_number = $this->salesOrderService->generateControlNumber();
 
         $sales_order = SalesOrder::findOrFail($id);
         // change status to cancelled

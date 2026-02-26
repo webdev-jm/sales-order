@@ -57,7 +57,7 @@
                     {!! Form::hidden('control_number', $sales_order->control_number, ['form' => 'update_sales_order']) !!}
                     <span class="badge float-right {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
                     @if($sales_order->status == 'draft')
-                    <livewire:sales-order.autosave :sales_order_id="$sales_order->id"/>
+                    {{-- <livewire:sales-order.autosave :sales_order_id="$sales_order->id"/> --}}
                     @endif
                 </h3>
             </div>
@@ -119,7 +119,7 @@
                             <p class="text-danger">{{$errors->first('ship_date')}}</p>
                         </div>
                     </div>
-                    
+
                     <div class="col-12">
                         <div class="form-group">
                             {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
@@ -178,7 +178,7 @@
                     </div>
 
                 </div>
-                
+
             </div>
         </div>
         <livewire:sales-order.sales-order-products />
@@ -216,7 +216,7 @@
             e.preventDefault();
             $('#address-modal').modal('show');
         });
-            
+
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
             var status = $(this).val();
@@ -227,7 +227,7 @@
                     'po_number' : $('#po_number').val(),
                     'paf_number' : $('#paf_number').val(),
                     'order_date' : $('#order_date').val(),
-                    'ship_date' : $('#ship_date').val(), 
+                    'ship_date' : $('#ship_date').val(),
                     'shipping_instruction' : $('#shipping_instruction').val(),
                     'shipping_address_id' : $('#shipping_address_id').val()
                 }

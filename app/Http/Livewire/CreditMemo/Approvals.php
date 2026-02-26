@@ -80,10 +80,10 @@ class Approvals extends Component
             $rud_approval->save();
 
             if($status === 'approved') {
-                $this->rud = $this->creditMemo;
+                $this->rud = $this->creditMemo; // Set the credit memo for XML generation
                 $xmls = $this->generateCreditMemoXmls();
 
-                $directory = 'credit_memos/rud_' . $this->rud->id;
+                $directory = 'credit_memos/rud_' . $this->creditMemo->id;
                 foreach ($xmls as $key => $xmlContent) {
                     // Convert keys like 'sortci_xml' to 'SORTCI.xml'
                     $fileName = strtoupper(str_replace('_xml', '', $key)) . '.xml';
@@ -106,14 +106,14 @@ class Approvals extends Component
                     $query->where('name', 'cm review');
                 })->get();
 
-                $user = $this->rud->user;
+                $user = $this->creditMemo->user;
                 $users->push($user);
 
                 Notification::send($users, new RudRejected($this->creditMemo, $rud_approval));
 
             } else if($status === 'returned') {
 
-                Notification::send($this->rud->user, new RudReturned($this->creditMemo, $rud_approval));
+                Notification::send($this->creditMemo->user, new RudReturned($this->creditMemo, $rud_approval));
 
             } else if($status == 'for approval') {
                 $users = User::whereHas('permissions', function($query) {
