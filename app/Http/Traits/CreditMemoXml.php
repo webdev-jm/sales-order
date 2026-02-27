@@ -72,10 +72,8 @@ trait CreditMemoXml
         // 2. Count total bins available in the API response ONLY for the selected Stock Codes
         $apiBinCount = 0;
         foreach ($apiData['details'] as $line) {
-            if (isset($line['StockCode']) && in_array($line['StockCode'], $selectedStockCodes)) {
-                if (isset($line['bin_data']) && is_array($line['bin_data'])) {
-                    $apiBinCount += count($line['bin_data']);
-                }
+            if (isset($line['bin_data']) && is_array($line['bin_data'])) {
+                $apiBinCount += count($line['bin_data']);
             }
         }
 
@@ -190,7 +188,7 @@ trait CreditMemoXml
 
             foreach ($detail->cm_bins as $bin) {
                 $lines[] = [
-                    'CreditNoteNumber'           => $soNumber,
+                    'CreditNoteNumber'           => '',
                     'CreditReason'               => $this->rud->reason->reason_code ?? '',
                     'StockCode'                  => $detail->product->stock_code ?? '',
                     'Description'                => $detail->product->description ?? '',

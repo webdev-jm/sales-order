@@ -253,15 +253,15 @@ trait HandlesCreditMemo
                 $rudDetail = new CreditMemoDetail([
                     'credit_memo_id' => $rud->id,
                     'product_id' => $detail['product']['id'],
-                    'warehouse' => $detail['row_data']['warehouse'] ?? null,
-                    'order_quantity' => $detail['row_data']['order_quantity'] ?? 0,
-                    'order_uom' => $detail['row_data']['order_uom'] ?? null,
-                    'price' => $detail['row_data']['price'] ?? 0,
-                    'price_uom' => $detail['row_data']['price_uom'] ?? null,
-                    'unit_cost' => $detail['row_data']['unit_cost'] ?? 0,
-                    'ship_quantity' => $detail['row_data']['ship_quantity'] ?? 0,
-                    'stock_quantity_to_ship' => $detail['row_data']['stock_quantity_to_ship'] ?? 0,
-                    'stocking_uom' => $detail['row_data']['stocking_uom'] ?? null,
+                    'warehouse' => $detail['row_data']['Warehouse'] ?? null,
+                    'order_quantity' => $detail['row_data']['OrderQty'] ?? 0,
+                    'order_uom' => $detail['row_data']['OrderUom'] ?? null,
+                    'price' => $detail['row_data']['Price'] ?? 0,
+                    'price_uom' => $detail['row_data']['PriceUom'] ?? null,
+                    'unit_cost' => $detail['row_data']['UnitCost'] ?? 0,
+                    'ship_quantity' => $detail['row_data']['ShipQty'] ?? 0,
+                    'stock_quantity_to_ship' => $detail['row_data']['StockQtyToShip'] ?? 0,
+                    'stocking_uom' => $detail['row_data']['StockingUom'] ?? null,
                 ]);
                 $rudDetail->save();
 
