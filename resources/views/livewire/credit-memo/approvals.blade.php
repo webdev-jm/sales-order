@@ -7,23 +7,23 @@
                     {{ strtoupper($creditMemo->status) }}
                 </span>
             </h3>
-            @if($creditMemo->status == 'approved')
-                <div class="card-tools">
+            <div class="card-tools">
+                <a href="{{ route('cm.print', $creditMemo->id) }}" class="btn btn-sm btn-danger" target="_blank">
+                    <i class="fa fa-file-pdf"></i>
+                    PRINT
+                </a>
+                @if($creditMemo->status == 'approved')
                     <button class="btn btn-sm btn-success" wire:click.prevent="downloadXml">DOWNLOAD XML</button>
-                </div>
-            @endif
-            @if($canReview && ($creditMemo->status == 'submitted' || $creditMemo->status == 'rejected'))
-                <div class="card-tools">
+                @endif
+                @if($canReview && ($creditMemo->status == 'submitted' || $creditMemo->status == 'rejected'))
                     <button class="btn btn-sm btn-warning" wire:click.prevent="approve('returned')">RETURN</button>
                     <button class="btn btn-sm btn-primary" wire:click.prevent="approve('for approval')">FOR APPROVAL</button>
-                </div>
-            @endif
-            @if($canApprove && $creditMemo->status == 'for approval')
-                <div class="card-tools">
+                @endif
+                @if($canApprove && $creditMemo->status == 'for approval')
                     <button class="btn btn-sm btn-danger" wire:click.prevent="approve('rejected')">RETURN</button>
                     <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">APPROVE</button>
-                </div>
-            @endif
+                @endif
+            </div>
         </div>
         <div class="card-body">
             <div class="row">
