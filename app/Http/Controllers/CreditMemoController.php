@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Session;
 use App\Models\Account;
 use App\Models\CreditMemoReason;
 
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class CreditMemoController extends Controller
 {
     use GlobalTrait;
@@ -110,26 +112,13 @@ class CreditMemoController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\CreditMemo  $creditMemo
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, CreditMemo $creditMemo)
-    {
-        //
-    }
+    public function printPDF($id) {
+        $credit_memo = CreditMemo::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\CreditMemo  $creditMemo
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(CreditMemo $creditMemo)
-    {
-        //
+        $pdf = PDF::loadView('credit-memos.pdf', [
+            'credit_memo' => $credit_memo
+        ])->setPaper('a4');
+
+        return $pdf->stream('credit-memo-'.$credit_memo->invoice_number.'-'.time().'.pdf');
     }
 }

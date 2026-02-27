@@ -82,6 +82,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('credit-memo/{id}/edit', [CreditMemoController::class, 'edit'])->name('cm.edit')->middleware('permission:cm edit');
         Route::post('credit-memo/{id}', [CreditMemoController::class, 'update'])->name('cm.update')->middleware('permission:cm edit');
+
+        Route::get('credit-memo/{id}/print', [CreditMemoController::class, 'printPDF'])->name('cm.print')->middleware('permission:cm print');
     });
 
     // CREDIT MEMO REASON

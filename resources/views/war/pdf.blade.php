@@ -109,7 +109,7 @@
             padding-top: 3px;
             padding-bottom: 3px;
         }
-        
+
         .status-approved {
             color: white;
             background-color: green;
@@ -129,7 +129,7 @@
     </style>
 </head>
 <body>
-    
+
     <table class="table table-sm">
         <thead>
             <tr>
@@ -208,7 +208,7 @@
                     <th class="text-center align-middle">AREA COVERED</th>
                     <th class="text-center align-middle" colspan="2">REMARKS</th>
                 </tr>
-                <tr>   
+                <tr>
                     <td class="text-center align-middle">
                         {{$area->date}}
                     </td>
@@ -352,7 +352,7 @@
         <tr>
             <th class="text-danger">Tuesday of the ff. week</th>
             <td class="bb-0">
-                
+
             </td>
         </tr>
         <tr>

@@ -57,4 +57,8 @@ class CreditMemo extends Model
     public function reason() {
         return $this->belongsTo('App\Models\CreditMemoReason', 'credit_memo_reason_id', 'id');
     }
+
+    public function approvals() {
+        return $this->hasMany('App\Models\CreditMemoApproval', 'credit_memo_id', 'id');
+    }
 }

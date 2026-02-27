@@ -71,8 +71,7 @@
                                         <table class="table table-borderless table-sm mb-0">
                                             @foreach($detail['data'] as $bin_key => $bin)
                                                 @php
-                                                    // Extract current UOM key (e.g., 'EA') and Qty value
-                                                    $currentUom = array_key_first($bin['conversion']);
+                                                    $currentUom = $detail['row_data']['OrderUom'] ?? array_key_first($bin['conversion']);
                                                     $currentQty = $bin['conversion'][$currentUom];
                                                 @endphp
                                                 <tr>
