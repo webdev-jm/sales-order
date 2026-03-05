@@ -34,6 +34,8 @@ class PPUFormController extends Controller
     {
         $logged_account = Session::get('logged_account');
         $search = trim($request->get('search'));
+        $status = trim($request->get('status'));
+        $date_prepared = trim($request->get('date_prepared'));
 
 
         // $this->checkSalesOrderStatus();
@@ -47,6 +49,7 @@ class PPUFormController extends Controller
                     $query->where(function ($q) use ($search) {
                         // Search on SalesOrder fields
                         $q->where('control_number', 'like', "%{$search}%")
+                            ->orWhere('date_prepared', 'like', "%{$search}%")
                             ->orWhere('status', 'like', "%{$search}%");
                         // Search on related account/user
                         $q->orWhereHas('account_login.account', function ($subQ) use ($search) {
@@ -57,6 +60,20 @@ class PPUFormController extends Controller
                                 ->orWhere('lastname', 'like', "%{$search}%");
                         });
                     });
+                })
+                // Filter by order date
+                ->when(!empty($date_prepared), function ($query) use ($date_prepared) {
+                    $query->whereDate('date_prepared', $date_prepared);
+                })
+                // Filter by upload or order status
+                ->when(!empty($status), function ($query) use ($status) {
+                    if ($status === 'draft') {
+                        $query->where('status', 'draft');
+                    } elseif ($status === 'finalized') {
+                        $query->where('status', 'finalized');
+                    } else {
+                        $query->where('status', $status)->whereNull('status');
+                    }
                 })
                 ->when(!auth()->user()->hasRole('superadmin'), function ($query) {
                     $accountIds = auth()->user()->accounts()->pluck('id');
@@ -72,7 +89,9 @@ class PPUFormController extends Controller
 
                 return view('ppu-forms.index')->with([
                 'search' => $search,
-                'ppu_form' => $ppu_form
+                'ppu_form' => $ppu_form,
+                'status' => $status,
+                'date_prepared' => $date_prepared,
             ]);
         } else {
             return redirect()->route('home')->with([
