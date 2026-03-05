@@ -38,7 +38,7 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['sales-order.index'], 'id' => 'search_form']) !!}
+{!! Form::open(['method' => 'GET', 'route' => ['ppu.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
 
@@ -47,6 +47,35 @@
     <div class="card-header">
         <h3 class="card-title">List of PPU Forms</h3>
         <div class="card-tools">
+            <div class="row">
+                <div class="col-md-3 my-2">
+                    <div class="input-group input-group-sm">
+                        {!! Form::date('date_prepared', $date_prepared, ['class' => 'form-control', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 my-2">
+                    <div class="input-group input-group-sm">
+                        @php
+                            $status_arr = [
+                                '' => 'All status',
+                                'draft' => 'Draft',
+                                'finalized' => 'Finalized',
+                            ];
+                        @endphp
+                        {!! Form::select('status', $status_arr, $status, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 my-2">
+                    <div class="input-group input-group-sm">
+                        {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+                <div class="col-md-3 my-2">
+                    <div class="input-group input-group-sm">
+                        {!! Form::submit('Filter', ['class' => 'btn btn-primary btn-sm btn-block', 'form' => 'search_form']) !!}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card-body table-responsive p-0">
