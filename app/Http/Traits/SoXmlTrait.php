@@ -4,15 +4,19 @@ namespace App\Http\Traits;
 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\Product;
 use App\Models\SalesOrder;
+use App\Models\ShippingAddress;
 
 use Carbon\Carbon;
 
+use App\Jobs\CheckSalesOrderStatus;
+
 Trait SoXmlTrait {
 
-    public $url_link = 'api.bevi.com.ph/refreshable/public/api';
 
     public function generateXml($sales_order) {
         $parts = $this->convertData($sales_order);
@@ -23,18 +27,25 @@ Trait SoXmlTrait {
             $filename = $sales_order->po_number.'-'.$part.'.xml';
 
             // $ftp = Storage::disk('DFM');
+            $ftp = Storage::disk('ftp_bevi');
 
-            // change connection for each accounts
-            if($sales_order->account_login->account->company->name == 'BEVI') {
-                $ftp = Storage::disk('ftp_bevi');
-                $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
-            } else if($sales_order->account_login->account->company->name == 'BEVA') {
-                $ftp = Storage::disk('ftp_beva');
-                $ftp->put('BEVA-test/Incoming/SalesOrder/'.$filename, $xml);
+            switch($sales_order->account_login->account->company->name) {
+                case 'BEVI':
+                    // $ftp = Storage::disk('ftp_bevi');
+                    $ftp->put('BEVI-test/Incoming/SalesOrder/'.$filename, $xml);
+                    break;
+                case 'BEVA':
+                    // $ftp = Storage::disk('ftp_beva');
+                    $ftp->put('BEVA-test/Incoming/SalesOrder/'.$filename, $xml);
+                    break;
+                case 'BIGI':
+                    // $ftp = Storage::disk('ftp_bigi');
+                    $ftp->put('BIGI-test/Incoming/SalesOrder/'.$filename, $xml);
+                    break;
             }
         }
 
-        return $sales_order->po_number.'-'.$part.'.xml file created successfully.';
+        return $sales_order->po_number.'.xml file created successfully.';
     }
 
     private function arrayToXml($data) {
@@ -77,14 +88,32 @@ Trait SoXmlTrait {
 
         $company = $sales_order->account_login->account->company->name;
 
-        $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
-                'account_code' => $sales_order->account_login->account->account_code,
-                'company' => $company
-            ])
-            ->get($this->url_link.'/so/ar_customer');
+        $cacheKey = 'syspro_customer_' . $sales_order->account_login->account->account_code . '_' . $company;
 
-        $customer = $response->json()['data'];
+        try {
+            $customer = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($sales_order, $company) {
+                $response = Http::withHeaders([
+                        'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                        'account_code' => $sales_order->account_login->account->account_code,
+                        'company' => $company
+                    ])
+                    ->timeout(60)
+                    ->get(env('API_URL_SYSPRO').'/so/ar_customer');
+
+                if ($response->failed() || empty($response->json()['data'])) {
+                    throw new \RuntimeException(
+                        'Failed to fetch customer for account: ' . $sales_order->account_login->account->account_code .
+                        ' - Status: ' . $response->status()
+                    );
+                }
+
+                return $response->json()['data'];
+            });
+        } catch(\Exception $e) {
+            throw new \RuntimeException('Connection timeout while fetching customer: ' . $e->getMessage());
+        }
+
+        $shipping_address = ShippingAddress::find($sales_order->shipping_address_id ?? 0);
 
         $details = $sales_order->order_products;
         $parts = array_unique($details->pluck('part')->toArray());
@@ -98,7 +127,7 @@ Trait SoXmlTrait {
             $data = [
                 'Orders' => [
                     'OrderHeader' => [
-                        'CustomerPoNumber'              => $sales_order->po_number.'-'.$part,
+                        'CustomerPoNumber'              => $sales_order->po_number.($part > 1 ? '-'.$part : ''),
                         'Customer'                      => $sales_order->account_login->account->account_code,
                         'OrderDate'                     => $sales_order->order_date,
                         'ShippingInstrs'                => $sales_order->shipping_instruction ?? '',
@@ -109,7 +138,7 @@ Trait SoXmlTrait {
                         'OrderDiscPercent3'             => $trade_discounts[0] ?? '',
                         'SalesOrderPromoQualityAction'  => 'W',
                         'SalesOrderPromoSelectAction'   => 'A',
-                        'MultiShipCode'                 => $sales_order->shipping_address ?? '',
+                        'MultiShipCode'                 => $shipping_address->address_code ?? '',
                     ],
                 ]
             ];
@@ -189,7 +218,8 @@ Trait SoXmlTrait {
                 'stock_code' => $stock_code,
                 'company' => $company
             ])
-            ->get($this->url_link.'/so/inv_master');
+            ->timeout(30)
+            ->get(env('API_URL_SYSPRO').'/so/inv_master');
 
             $product = $response->json()['data'];
             if(!empty($product)) {
@@ -226,40 +256,60 @@ Trait SoXmlTrait {
             })
             ->where('status', 'finalized')
             ->whereBetween('order_date', [
-                Carbon::now()->subDays(3)->startOfDay(),
+                Carbon::now()->subDays(1)->startOfDay(),
                 Carbon::now()->endOfDay()
             ])
             ->get();
 
         foreach($sales_orders as $sales_order) {
-            $this->salesOrderStatus($sales_order);
+            // $this->salesOrderStatus($sales_order);
+            CheckSalesOrderStatus::dispatch($sales_order);
         }
 
     }
 
     public function salesOrderStatus($sales_order) {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
-            'po_number' => $sales_order->po_number,
-            'company' => $sales_order->account_login->account->company->name
-        ])
-        ->get($this->url_link.'/so/sor_master');
+        try {
+            $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                    'po_number'     => $sales_order->po_number,
+                    'company'       => $sales_order->account_login->account->company->name
+                ])
+                ->timeout(30)
+                ->get(env('API_URL_SYSPRO') . '/so/sor_master');
 
-        if(!empty($response->json())) {
-            $so_data = $response->json()['data'];
-
-            $so_arr = [];
-            foreach($so_data as $data) {
-                $so_arr[] = ltrim($data['sales_order'], 0);
+            if ($response->failed()) {
+                activity('error')->log('Request failed for PO: ' . $sales_order->po_number . ' - ' . $response->status());
+                return;
             }
-            $reference = implode(', ', $so_arr);
 
-            if(!empty($reference)) {
-                $sales_order->update([
-                    'upload_status' => 1,
-                    'reference' => $reference ?? NULL
-                ]);
+            if (!empty($response->json())) {
+                $so_data = $response->json()['data'];
+
+                $so_arr = [];
+                foreach ($so_data as $data) {
+                    $so_arr[] = ltrim($data['sales_order'], 0);
+                }
+                $reference = implode(', ', $so_arr);
+
+                activity('info')->log('Reference for PO Number: ' . $sales_order->po_number . ' is ' . $reference);
+
+                if (!empty($reference)) {
+                    $sales_order->update([
+                        'upload_status' => 1,
+                        'reference'     => $reference ?? NULL
+                    ]);
+                }
+            } else {
+                activity('info')->log('No data found for PO Number: ' . $sales_order->po_number . ' ' . $response->body());
             }
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // Catches timeout & connection errors specifically
+            activity('error')->log('Connection failed for PO: ' . $sales_order->po_number . ' - ' . $e->getMessage());
+
+        } catch (\Exception $e) {
+            activity('error')->log($e->getMessage());
         }
     }
 }

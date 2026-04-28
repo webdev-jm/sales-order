@@ -16,6 +16,7 @@ use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\PurchaseOrderNumber;
 use App\Models\ShippingAddress;
+use App\Jobs\GenerateSalesOrderXml;
 
 use App\Services\SalesOrderService;
 
@@ -318,6 +319,10 @@ class Upload extends Component
                 activity('create')
                     ->performedOn($sales_order)
                     ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number [ :subject.po_number ]');
+
+                if($status == 'finalized') {
+                    GenerateSalesOrderXml::dispatch($sales_order);
+                }
 
                 $this->success_data[$po_number] = [
                     'message' => 'Sales Order '.$sales_order->control_number.' has been created.',

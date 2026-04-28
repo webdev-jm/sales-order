@@ -51,6 +51,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('generateXML', [SalesOrderController::class, 'generateXML']);
 
+    Route::get('get-xml', [SalesOrderController::class, 'getXml'])->name('sales-order.xml');
+
     // SYSTEM LOGS
     Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs')->middleware('permission:system logs');
 

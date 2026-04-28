@@ -286,9 +286,7 @@ trait HandlesCreditMemo
                 ]);
 
                 // notifications
-                $users = User::whereHas('permissions', function($query) {
-                    $query->where('name', 'cm review');
-                })->get();
+                $users = User::permission('cm review')->get();
 
                 Notification::send($users, new RudSubmitted($rud, $approval));
              }

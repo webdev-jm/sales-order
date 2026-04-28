@@ -93,21 +93,22 @@ class Approvals extends Component
                 }
 
                 // get rud reviewer
-                $users = User::whereHas('permissions', function($query) {
-                    $query->where('name', 'cm review');
-                })->get();
-
+                $users = User::permission('cm review')->get();
                 $user = $this->rud->user;
-                $users->push($user);
+                // check if not exists in collection then add to collection
+                if (!$users->contains($user)) {
+                    $users->push($user);
+                }
 
                 Notification::send($users, new RudApproved($this->creditMemo, $rud_approval));
             } else if($status === 'rejected') {
-                $users = User::whereHas('permissions', function($query) {
-                    $query->where('name', 'cm review');
-                })->get();
+                $users = User::permission('cm review')->get();
 
                 $user = $this->creditMemo->user;
-                $users->push($user);
+                // check if not exists in collection then add to collection
+                if (!$users->contains($user)) {
+                    $users->push($user);
+                }
 
                 Notification::send($users, new RudRejected($this->creditMemo, $rud_approval));
 
@@ -116,9 +117,7 @@ class Approvals extends Component
                 Notification::send($this->creditMemo->user, new RudReturned($this->creditMemo, $rud_approval));
 
             } else if($status == 'for approval') {
-                $users = User::whereHas('permissions', function($query) {
-                    $query->where('name', 'cm approve');
-                })->get();
+                $users = User::permission('cm approve')->get();
 
                 Notification::send($users, new RudForReview($this->creditMemo, $rud_approval));
             }
