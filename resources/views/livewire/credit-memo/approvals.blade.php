@@ -13,15 +13,15 @@
                     PRINT
                 </a>
                 @if($creditMemo->status == 'approved')
-                    <button class="btn btn-sm btn-success" wire:click.prevent="downloadXml">DOWNLOAD XML</button>
+                    <button class="btn btn-sm btn-success" wire:click.prevent="downloadXml" wire:loading.attr="disabled">DOWNLOAD XML</button>
                 @endif
                 @if($canReview && ($creditMemo->status == 'submitted' || $creditMemo->status == 'rejected'))
-                    <button class="btn btn-sm btn-warning" wire:click.prevent="approve('returned')">RETURN</button>
-                    <button class="btn btn-sm btn-primary" wire:click.prevent="approve('for approval')">FOR APPROVAL</button>
+                    <button class="btn btn-sm btn-warning" wire:click.prevent="approve('returned')" wire:loading.attr="disabled">RETURN</button>
+                    <button class="btn btn-sm btn-primary" wire:click.prevent="approve('for approval')" wire:loading.attr="disabled">FOR APPROVAL</button>
                 @endif
                 @if($canApprove && $creditMemo->status == 'for approval')
-                    <button class="btn btn-sm btn-danger" wire:click.prevent="approve('rejected')">RETURN</button>
-                    <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')">APPROVE</button>
+                    <button class="btn btn-sm btn-danger" wire:click.prevent="approve('rejected')" wire:loading.attr="disabled">RETURN</button>
+                    <button class="btn btn-sm btn-success" wire:click.prevent="approve('approved')" wire:loading.attr="disabled">APPROVE</button>
                 @endif
             </div>
         </div>

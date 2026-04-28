@@ -16,6 +16,9 @@
         @can('sales order list')
         <a href="{{route('sales-order.dashboard')}}" class="btn btn-primary"><i class="fas fa-chart-line mr-1"></i>Dashboard</a>
         @endcan
+        @can('sales order change status')
+            <a href="{{route('sales-order.xml')}}" class="btn btn-success"><i class="fas fa-upload mr-1"></i>Generate XML</a>
+        @endcan
     </div>
 </div>
 @endsection

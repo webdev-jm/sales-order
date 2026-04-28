@@ -24,6 +24,8 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use App\Http\Traits\SoXmlTrait;
 use App\Services\SalesOrderService;
+use App\Jobs\GenerateSalesOrderXml;
+use App\Jobs\CheckSalesOrderStatus;
 
 ini_set('memory_limit', '-1');
 ini_set('max_execution_time', 0);
@@ -297,6 +299,10 @@ class SalesOrderController extends Controller
                 ->performedOn($sales_order)
                 ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number :subject.po_number');
 
+            if($request->status == 'finalized') {
+                GenerateSalesOrderXml::dispatch($sales_order);
+            }
+
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales Order '.$sales_order->control_number.' was created'
             ]);
@@ -319,6 +325,7 @@ class SalesOrderController extends Controller
         $reference_arr = explode(' ,', $sales_order->reference);
 
         // $this->salesOrderStatus($sales_order);
+        CheckSalesOrderStatus::dispatch($sales_order);
 
         return view('sales-orders.show')->with([
             'sales_order' => $sales_order,
@@ -445,7 +452,9 @@ class SalesOrderController extends Controller
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
             ]);
         } else {
-            // $this->generateXml($sales_order);
+            if($sales_order->status == 'finalized') {
+                GenerateSalesOrderXml::dispatch($sales_order);
+            }
 
             return redirect()->route('sales-order.index')->with([
                 'message_success' => 'Sales order '.$sales_order->control_number.' was updated.'
@@ -594,5 +603,20 @@ class SalesOrderController extends Controller
         $account = $logged_account->account;
 
         return Excel::download(new SalesOrderExport($account, $date_from, $date_to, $search), 'sales-orders-'.time().'.xlsx');
+    }
+
+    public function getXml() {
+        // $sales_order = SalesOrder::where('control_number', 'like', 'SO-20260211%')
+        //     ->whereNull('upload_status')
+        //     ->get();
+
+        $sales_orders = SalesOrder::where('id', 60045)
+            ->get();
+
+        foreach($sales_orders as $order) {
+            GenerateSalesOrderXml::dispatch($order);
+        }
+
+        return back()->with('message_success', 'XML generated for SO-20260413%');
     }
 }

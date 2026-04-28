@@ -9,9 +9,6 @@ use App\Http\Traits\GlobalTrait;
 
 use Illuminate\Support\Facades\Session;
 
-use App\Models\Account;
-use App\Models\CreditMemoReason;
-
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class CreditMemoController extends Controller

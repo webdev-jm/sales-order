@@ -64,7 +64,7 @@ return [
             'password' => 'bevidfm1234',
             'port' => 1017,
             'transfer_mode' => 2,
-         
+
             // Optional FTP Settings...
             // 'port'     => 21,
             // 'root'     => '',
@@ -75,19 +75,32 @@ return [
 
         'ftp_bevi' => [
             'driver'   => 'ftp',
+            'host'     => '188.239.61.230',
+            'username' => 'admin',
+            'password' => '8o7ie21N?!',
+            'port' => 21,
+            'timeout'  => 60,
+            'ssl'      => true,
+            'passive'  => true,
+            'transfer_mode' => 2,
+            'use_agent' => false,
+            // 'privateKey' => '/path/to/privateKey',
+
+            // Optional FTP Settings...
+            // 'port'     => 21,
+            // 'root'     => '',
+            // 'passive'  => true,
+            // 'ssl'      => true,
+            // 'timeout'  => 30,
+        ],
+
+        'ftp_bigi' => [
+            'driver'   => 'ftp',
             'host'     => 'ftp.bevi.com.ph',
             'username' => 'smstest',
             'password' => 'bevidfm1234',
             'port' => 1017,
             'transfer_mode' => 2,
-            'use_agent' => false,
-         
-            // Optional FTP Settings...
-            // 'port'     => 21,
-            // 'root'     => '',
-            // 'passive'  => true,
-            // 'ssl'      => false,
-            // 'timeout'  => 30,
         ],
 
         'sftp' => [
@@ -97,11 +110,11 @@ return [
             'password' => 'sms1234',
             'port' => 1015,
             'transferMode' => 2,
-         
+
             // Settings for SSH key based authentication...
             // 'privateKey' => '/path/to/privateKey',
             // 'password' => 'encryption-password',
-         
+
             // Optional SFTP Settings...
             // 'port' => 22,
             // 'root' => '',

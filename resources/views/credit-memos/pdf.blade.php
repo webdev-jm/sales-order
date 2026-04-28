@@ -270,13 +270,13 @@
     <table class="table table-sm mt-5">
         <thead>
             <tr>
-                <th class="text-left sub-title border-0">PREPARED BY: {{ $submitted->user->fullName() ?? '-' }}</th>
+                <th class="text-left sub-title border-0">PREPARED BY: {{ !empty($submitted) ? $submitted->user->fullName() : '-' }}</th>
             </tr>
             <tr>
-                <th class="text-left sub-title border-0">NOTED BY: {{ $noted->user->fullName() ?? '-' }}</th>
+                <th class="text-left sub-title border-0">NOTED BY: {{ !empty($noted) ? $noted->user->fullName() : '-' }}</th>
             </tr>
             <tr>
-                <th class="text-left sub-title border-0">APPROVED BY: {{ $approved->user->fullName() ?? '-' }}</th>
+                <th class="text-left sub-title border-0">APPROVED BY: {{ !empty($approved) ? $approved->user->fullName() : '-' }}</th>
             </tr>
         </thead>
     </table>

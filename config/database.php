@@ -94,7 +94,7 @@ return [
                 'max_idle_time' => 30,
             ],
         ],
-        
+
         'mysql_master' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL_MASTER'),
@@ -194,6 +194,20 @@ return [
             'database' => env('DB_DATABASE_BEVA', 'forge'),
             'username' => env('DB_USERNAME_BEVA', 'forge'),
             'password' => env('DB_PASSWORD_BEVA', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            // 'encrypt' => env('DB_ENCRYPT', 'yes'),
+            // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
+        ],
+
+        'bigi_db' => [
+            'driver' => 'sqlsrv',
+            'host' => env('DB_HOST_BIGI', 'localhost'),
+            'port' => env('DB_PORT_BIGI', '1433'),
+            'database' => env('DB_DATABASE_BIGI', 'forge'),
+            'username' => env('DB_USERNAME_BIGI', 'forge'),
+            'password' => env('DB_PASSWORD_BIGI', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
