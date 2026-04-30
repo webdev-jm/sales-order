@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Cache;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\ShippingAddress;
+use App\Models\Company;
+use App\Models\Account;
 
 use Carbon\Carbon;
 
@@ -122,7 +124,7 @@ Trait SoXmlTrait {
         foreach($parts as $part) {
             $so_details = $details->where('part', $part);
 
-            $trade_discounts = $this->getTradeDiscounts($company, $details, $sales_order->account_login->account->account_code);
+            $trade_discounts = $this->getTradeDiscounts($company, $so_details, $sales_order->account_login->account->account_code);
 
             $data = [
                 'Orders' => [
@@ -134,8 +136,8 @@ Trait SoXmlTrait {
                         'RequestedShipDate'             => $sales_order->ship_date ?? '',
                         'OrderComments'                 => $sales_order->control_number,
                         'OrderDiscPercent1'             => $trade_discounts[0] ?? '',
-                        'OrderDiscPercent2'             => $trade_discounts[0] ?? '',
-                        'OrderDiscPercent3'             => $trade_discounts[0] ?? '',
+                        'OrderDiscPercent2'             => $trade_discounts[1] ?? '',
+                        'OrderDiscPercent3'             => $trade_discounts[2] ?? '',
                         'SalesOrderPromoQualityAction'  => 'W',
                         'SalesOrderPromoSelectAction'   => 'A',
                         'MultiShipCode'                 => $shipping_address->address_code ?? '',
@@ -189,6 +191,17 @@ Trait SoXmlTrait {
                     $trade_disc1 = 12;
                     $trade_disc2 = 0;
                     $trade_disc3 = 0;
+                } else {
+                    $company_model = Company::where('name', $company)->first();
+                    $account = Account::where('account_code', $customer)
+                        ->where('company_id', $company_model->id)
+                        ->first();
+                    $discount = $account ? $account->discount : null;
+                    if($discount) {
+                        $trade_disc1 = $discount->discount_1 ?? 0;
+                        $trade_disc2 = $discount->discount_2 ?? 0;
+                        $trade_disc3 = $discount->discount_3 ?? 0;
+                    }
                 }
             }
         } else {

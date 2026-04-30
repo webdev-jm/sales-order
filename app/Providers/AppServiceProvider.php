@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\HubUserResolver;
+use BeviWebdevJm\HubAuthClient\Contracts\ResolvesHubUser;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Validator;
@@ -16,9 +18,9 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
-        //
+        $this->app->bind(ResolvesHubUser::class, HubUserResolver::class);
     }
 
     /**

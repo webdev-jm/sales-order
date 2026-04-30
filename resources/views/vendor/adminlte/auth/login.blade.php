@@ -101,4 +101,11 @@
         </div>
 
     </form>
+
+    <div class="mt-3">
+        <a href="{{ route('hub.login') }}" class="btn btn-block btn-outline-secondary">
+            <span class="fas fa-sign-in-alt"></span>
+            Login via Hub SSO
+        </a>
+    </div>
 @stop
