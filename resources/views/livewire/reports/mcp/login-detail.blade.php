@@ -7,7 +7,7 @@
             @if(!empty($branch_login))
                 <p class="text-uppercase">
                     <b>BRANCH:</b>
-                    {{$branch_login->branch->account->short_name.' - ['.$branch_login->branch->branch_code.'] '.$branch_login->branch->branch_name}}
+                    {{($branch_login->branch->account->short_name ?? 'N/A').' - ['.$branch_login->branch->branch_code.'] '.$branch_login->branch->branch_name}}
                 </p>
 
                 <p class="text-uppercase">
@@ -210,7 +210,7 @@
                     </div>
 
                     {{-- TRADE DISPLAY --}}
-                    @php 
+                    @php
                     $trade_displays = $channel_operation->trade_displays()->first();
                     @endphp
                     <div class="card card-outline card-primary">
@@ -289,7 +289,7 @@
                                     if(!empty($trade_displays->osa_body_actual) && !empty($trade_displays->osa_body_target)) {
                                         $percent = ($trade_displays->osa_body_actual / $trade_displays->osa_body_target) * 100;
                                     }
-                                @endphp 
+                                @endphp
                                 <b>PERCENT: {{number_format($percent, 1)}} %</b>
                             </p>
                         </div>
@@ -475,7 +475,7 @@
                             <p class="text-muted">
                                 {{$extra_displays->amount}}
                             </p>
-                            
+
                         </div>
                     </div>
 
@@ -516,7 +516,7 @@
                                     </table>
                                 </div>
                             </div>
-                            
+
                             {{-- TOTAL FINDINGS --}}
                             <hr>
                             <strong>
@@ -526,7 +526,7 @@
                             <p class="text-muted">
                                 {{$channel_operation->total_findings}}
                             </p>
-                            
+
                         </div>
                     </div>
                 @endif
@@ -540,7 +540,7 @@
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
+
         <script>
             document.addEventListener('livewire:load', function () {
             });

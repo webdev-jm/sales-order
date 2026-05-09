@@ -13,7 +13,7 @@
                     </li>
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
-                            [{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
+                            [{{$schedule->branch->account->short_name ?? 'N/A'}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
                         </span>
                     </li>
                     <li class="list-group-item py-2">
@@ -150,7 +150,7 @@
                     </li>
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
-                            [{{$branch_login->branch->account->short_name}}] {{$branch_login->branch->branch_code}} - {{$branch_login->branch->branch_name}}
+                            [{{$branch_login->branch->account->short_name ?? 'N/A'}}] {{$branch_login->branch->branch_code}} - {{$branch_login->branch->branch_name}}
                         </span>
                     </li>
                     <li class="list-group-item py-2">
