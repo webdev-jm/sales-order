@@ -8,7 +8,7 @@
                             <h3 class="card-title">Filter Report</h3>
                         </div>
                         <div class="card-body">
-        
+
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="form-group">
@@ -22,7 +22,7 @@
                                     </div>
                                 </div>
                             </div>
-        
+
                             <div class="row">
                                 <div class="col-lg-6">
                                     <div class="form-group">
@@ -30,7 +30,7 @@
                                         <input type="date" class="form-control" wire:model.lazy="date_from" wire:change="filter">
                                     </div>
                                 </div>
-        
+
                                 <div class="col-lg-6">
                                     <div class="form-group">
                                         <label for="date_from">Date To</label>
@@ -38,7 +38,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                     </div>
                 </form>
@@ -64,15 +64,15 @@
                                 <span class="ml-2">Deviated</span>
                             </div>
                         </div>
-                    </div>  
+                    </div>
                 </div>
             </div>
         </div>
-        
+
     </div>
 
     <div class="col-xl-12">
-        
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">MCP Reports</h3>
@@ -86,7 +86,7 @@
                 </div>
             </div>
             <div class="card-body table-responsive p-0">
-                
+
                 <table class="table table-bordered table-sm">
                     <thead>
                         <tr class="text-center">
@@ -131,7 +131,7 @@
                                                 <td class="align-middle text-center">
                                                     {{$schedule->date}}
                                                 </td>
-                                                <td class="align-middle">[{{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
+                                                <td class="align-middle">[{{$schedule->branch->account->short_name ?? ''}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
                                                 @if(isset($actuals[$schedule->id]))
                                                     <td class="text-left">
                                                         @foreach($actuals[$schedule->id] as $actual)
@@ -174,7 +174,7 @@
                                             </tr>
                                         @endforeach
                                         {{-- DEVIATIONS --}}
-                                        
+
                                         @isset($deviations[$date][$user_id])
                                             @foreach($deviations[$date][$user_id] as $branch_id => $deviation)
                                                 <tr>
@@ -236,12 +236,12 @@
                                     <td colspan="7" class="font-weight-bold text-uppercase">NO AVAILABLE DATA</td>
                                 </tr>
                                 @endif
-                                
+
                             @endforeach
                         @endif
                     </tbody>
                 </table>
-        
+
             </div>
             <div class="card-footer pb-0">
                 @if(!empty($paginatedData))
