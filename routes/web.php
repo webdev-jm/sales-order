@@ -601,7 +601,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // ROLES
     Route::group(['middleware' => 'permission:role access'], function() {
-        Route::get('role', 'App\Http\Controllers\RoleController@index')->name('role.index');
+        Route::get('role', [RoleController::class, 'index'])->name('role.index');
         Route::get('role/create', 'App\Http\Controllers\RoleController@create')->name('role.create')->middleware('permission:role create');
         Route::post('role', 'App\Http\Controllers\RoleController@store')->name('role.store')->middleware('permission:role create');
 
