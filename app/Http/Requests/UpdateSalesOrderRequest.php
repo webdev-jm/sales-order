@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
@@ -16,7 +16,7 @@ class UpdateSalesOrderRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         $sales_order = SalesOrder::findOrFail($this->id);
         return auth()->user()->can('sales order edit') && $sales_order->status == 'draft';
@@ -27,7 +27,7 @@ class UpdateSalesOrderRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $logged_account = Session::get('logged_account');
 
@@ -102,7 +102,7 @@ class UpdateSalesOrderRequest extends FormRequest
         ];
     }
 
-    public function messages() {
+    public function messages(): array {
         return [
             'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".'
         ];

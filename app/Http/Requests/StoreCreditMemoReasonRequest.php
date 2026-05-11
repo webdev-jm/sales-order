@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
@@ -13,7 +13,7 @@ class StoreCreditMemoReasonRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->user()->can('cm reason create');
     }
@@ -23,7 +23,7 @@ class StoreCreditMemoReasonRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             'reason_code' => [

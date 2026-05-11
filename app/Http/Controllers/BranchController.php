@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -11,6 +11,10 @@ use App\Models\BranchUpload;
 use App\Http\Requests\StoreBranchRequest;
 use App\Http\Requests\UpdateBranchRequest;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\BranchImport;
@@ -19,10 +23,6 @@ use App\Imports\BranchUploadImport;
 
 use App\Http\Traits\GlobalTrait;
 
-ini_set('memory_limit', '-1');
-ini_set('max_execution_time', 0);
-ini_set('sqlsrv.ClientBufferMaxKBSize','1000000'); // Setting to 512M
-ini_set('pdo_sqlsrv.client_buffer_max_kb_size','1000000');
 
 class BranchController extends Controller
 {
@@ -38,7 +38,7 @@ class BranchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
 
         $search = trim($request->get('search'));
@@ -59,7 +59,7 @@ class BranchController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         $regions = Region::orderBy('region_name', 'ASC')->get();
         $regions_arr = [];
@@ -92,7 +92,7 @@ class BranchController extends Controller
      * @param  \App\Http\Requests\StoreBranchRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreBranchRequest $request)
+    public function store(StoreBranchRequest $request): RedirectResponse
     {
         $branch = new Branch([
             'account_id' => $request->account_id,
@@ -120,7 +120,7 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function show(Branch $branch)
+    public function show(Branch $branch): void
     {
         //
     }
@@ -131,7 +131,7 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $branch = Branch::findOrFail($id);
 
@@ -168,7 +168,7 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateBranchRequest $request, $id)
+    public function update(UpdateBranchRequest $request, int $id): RedirectResponse
     {
         $branch = Branch::findOrFail($id);
 
@@ -203,12 +203,13 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Branch $branch)
+    public function destroy(Branch $branch): void
     {
         //
     }
 
-    public function upload(Request $request) {
+    public function upload(Request $request): RedirectResponse
+    {
         $request->validate([
             'upload_file' => [
                 'mimes:xlsx'
@@ -226,7 +227,8 @@ class BranchController extends Controller
         ]);
     }
 
-    public function mergeUploads() {
+    public function mergeUploads(): RedirectResponse
+    {
         BranchUpload::whereNull('status')->chunk(500, function($data) {
             foreach($data as $row) {
                 $account = Account::where('account_code', $row['account_code'])->first();
@@ -312,13 +314,15 @@ class BranchController extends Controller
         ]);
     }
 
-    public function ajax(Request $request) {
+    public function ajax(Request $request): JsonResponse
+    {
         $search = $request->search;
         $response = Branch::BranchAjax($search);
         return response()->json($response);
     }
 
-    public function export(Request $request) {
+    public function export(Request $request): BinaryFileResponse
+    {
         $search = trim($request->get('search'));
 
         return Excel::download(new BranchExport($search), 'SMS Branch List'.time().'.xlsx');

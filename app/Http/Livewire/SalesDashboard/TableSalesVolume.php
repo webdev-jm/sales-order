@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Livewire\SalesDashboard;
 
@@ -11,7 +11,7 @@ class TableSalesVolume extends Component
 
     public function fetchData() {
         $headers = [
-            'Authorization' => 'Bearer '.env('API_TOKEN'),
+            'Authorization' => 'Bearer '.config('syspro.dashboard.token'),
             'Accept' => 'application/json', // Adjust the content type as needed
             'Content-Type' => 'application/json', // Set the content type for POST data
         ];

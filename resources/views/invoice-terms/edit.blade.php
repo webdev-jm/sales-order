@@ -24,7 +24,7 @@
       <h3 class="card-title">Edit Invoice Term</h3>
     </div>
     <div class="card-body">
-        {!! Form::open(['method' => 'POST', 'route' => ['invoice-term.udpate', $invoice_term->id], 'id' => 'update_invoice_term']) !!}
+        {!! Form::open(['method' => 'POST', 'route' => ['invoice-term.update', $invoice_term->id], 'id' => 'update_invoice_term']) !!}
         {!! Form::close() !!}
 
         <div class="row">

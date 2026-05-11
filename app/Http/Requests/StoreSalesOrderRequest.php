@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
@@ -16,7 +16,7 @@ class StoreSalesOrderRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->user()->can('sales order create');
     }
@@ -26,7 +26,7 @@ class StoreSalesOrderRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $logged_account = Session::get('logged_account');
 
@@ -100,7 +100,7 @@ class StoreSalesOrderRequest extends FormRequest
         ];
     }
 
-    public function messages() {
+    public function messages(): array {
         return [
             'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".',
         ];

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
@@ -12,7 +12,7 @@ class StorePPUFormRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         return auth()->user()->can('ppu form create');
 
@@ -23,7 +23,7 @@ class StorePPUFormRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
         $logged_account = Session::get('logged_account');
 

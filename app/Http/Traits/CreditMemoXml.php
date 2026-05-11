@@ -233,7 +233,7 @@ trait CreditMemoXml
         try {
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                'Authorization' => 'Bearer ' . config('syspro.token'),
                 'year' => $year,
                 'month' => $month,
                 'invoice_number' => $invoice_number,
@@ -241,7 +241,7 @@ trait CreditMemoXml
                 'sales_order' => $so_number,
                 'account_code' => $account->account_code ?? null,
                 'po_number' => $po_number,
-            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoiceData');
+            ])->timeout(30)->get(config('syspro.data_url') . 'getInvoiceData');
 
             if ($response->failed()) {
                 if (method_exists($this, 'addError')) {

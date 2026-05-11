@@ -8,6 +8,9 @@ use App\Http\Requests\StoreSalesmanRequest;
 use App\Http\Requests\UpdateSalesmanRequest;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\SalesmanImport;
 
@@ -18,7 +21,7 @@ class SalesmanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): View
     {
         $salesmen = Salesman::where('user_id', auth()->user()->id)
             ->paginate(10)->onEachSide(1);
@@ -33,7 +36,7 @@ class SalesmanController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         return view('salesmen.create');
     }
@@ -44,7 +47,7 @@ class SalesmanController extends Controller
      * @param  \App\Http\Requests\StoreSalesmanRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreSalesmanRequest $request)
+    public function store(StoreSalesmanRequest $request): RedirectResponse
     {
         $salesman = new Salesman([
             'code' => $request->code, 
@@ -69,7 +72,7 @@ class SalesmanController extends Controller
      * @param  \App\Models\Salesman  $salesman
      * @return \Illuminate\Http\Response
      */
-    public function show(Salesman $salesman)
+    public function show(Salesman $salesman): void
     {
         //
     }
@@ -80,7 +83,7 @@ class SalesmanController extends Controller
      * @param  \App\Models\Salesman  $salesman
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): View
     {
         $salesman = Salesman::findOrFail($id);
 
@@ -96,7 +99,7 @@ class SalesmanController extends Controller
      * @param  \App\Models\Salesman  $salesman
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateSalesmanRequest $request, $id)
+    public function update(UpdateSalesmanRequest $request, int $id): RedirectResponse
     {
         $salesman = Salesman::findOrFail($id);
         $changes_arr['old'] = $salesman->getOriginal();
@@ -125,18 +128,20 @@ class SalesmanController extends Controller
      * @param  \App\Models\Salesman  $salesman
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Salesman $salesman)
+    public function destroy(Salesman $salesman): void
     {
         //
     }
 
-    public function ajax(Request $request) {
+    public function ajax(Request $request): JsonResponse
+    {
         $search = $request->search;
         $response = Salesman::SalesmanAjax($search);
         return response()->json($response);
     }
 
-    public function upload(Request $request) {
+    public function upload(Request $request): RedirectResponse
+    {
         $imports = Excel::toArray(new SalesmanImport, $request->upload_file);
         foreach($imports[0] as $row) {
             $code = trim($row[0]);

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Livewire\SalesDashboard;
 
@@ -11,7 +11,7 @@ class TableFastMoving extends Component
 
     public function fetchData() {
         $headers = [
-            'Authorization' => 'Bearer '.env('API_TOKEN'),
+            'Authorization' => 'Bearer '.config('syspro.dashboard.token'),
             'Accept' => 'application/json', // Adjust the content type as needed
             'Content-Type' => 'application/json', // Set the content type for POST data
         ];
@@ -22,7 +22,7 @@ class TableFastMoving extends Component
 
         try {
             $client = new Client();
-            $response = $client->post(env('API_URL').'table-bevi-fast-moving-sku', [
+            $response = $client->post(config('syspro.dashboard.url').'table-bevi-fast-moving-sku', [
                 'headers' => $headers,
                 'json' => $data,
             ]);
