@@ -95,12 +95,12 @@ Trait SoXmlTrait {
         try {
             $customer = Cache::remember($cacheKey, now()->addMinutes(30), function () use ($sales_order, $company) {
                 $response = Http::withHeaders([
-                        'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                        'Authorization' => 'Bearer '.config('syspro.token'),
                         'account_code' => $sales_order->account_login->account->account_code,
                         'company' => $company
                     ])
                     ->timeout(60)
-                    ->get(env('API_URL_SYSPRO').'/so/ar_customer');
+                    ->get(config('syspro.url').'/so/ar_customer');
 
                 if ($response->failed() || empty($response->json()['data'])) {
                     throw new \RuntimeException(
@@ -227,12 +227,12 @@ Trait SoXmlTrait {
         try {
 
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer '.env('API_TOKEN_SYSPRODATA'),
+                'Authorization' => 'Bearer '.config('syspro.token'),
                 'stock_code' => $stock_code,
                 'company' => $company
             ])
             ->timeout(30)
-            ->get(env('API_URL_SYSPRO').'/so/inv_master');
+            ->get(config('syspro.url').'/so/inv_master');
 
             $product = $response->json()['data'];
             if(!empty($product)) {
@@ -284,12 +284,12 @@ Trait SoXmlTrait {
     public function salesOrderStatus($sales_order) {
         try {
             $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                    'Authorization' => 'Bearer ' . config('syspro.token'),
                     'po_number'     => $sales_order->po_number,
                     'company'       => $sales_order->account_login->account->company->name
                 ])
                 ->timeout(30)
-                ->get(env('API_URL_SYSPRO') . '/so/sor_master');
+                ->get(config('syspro.url') . '/so/sor_master');
 
             if ($response->failed()) {
                 activity('error')->log('Request failed for PO: ' . $sales_order->po_number . ' - ' . $response->status());

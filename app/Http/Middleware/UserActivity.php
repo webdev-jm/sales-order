@@ -3,9 +3,11 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Cache;
-use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
 class UserActivity
@@ -17,7 +19,7 @@ class UserActivity
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response|RedirectResponse
     {
         if(Auth::check()) {
             $expiresAt = now()->addMinutes(2); /* keep online for 2 min */

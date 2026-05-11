@@ -3,12 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-use Illuminate\Support\Facades\DB;
-use App\Models\UserBranchSchedule;
-use App\Models\User;
-
-// use Milon\Barcode\DNS2D;
+use Illuminate\View\View;
 
 set_time_limit(300);
 class DashboardController extends Controller
@@ -18,20 +13,8 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request): View
     {
-
-        // $d = new DNS2D();
-
-        // // Generate the barcode SVG content
-        // $barcodeSVG = $d->getBarcodeSVG('https://sales-order.bevi.ph/public/images/KS%20LIFE/LIFE%20BY%20KOJIESAN%20INFOS-DESKTOP-RENEW+%20(1).jpg', 'QRCODE', 10, 10, 'black');
-
-        // // Define the path where the SVG file will be saved
-        // $filePath = 'barcode-renew.svg';
-
-        // // Save the SVG content to a file
-        // file_put_contents($filePath, $barcodeSVG);
-
         return view('dashboard');
     }
 
@@ -40,7 +23,7 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): void
     {
         //
     }
@@ -51,7 +34,7 @@ class DashboardController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): void
     {
         //
     }
@@ -62,7 +45,7 @@ class DashboardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(int $id): void
     {
         //
     }
@@ -73,7 +56,7 @@ class DashboardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id): void
     {
         //
     }
@@ -85,7 +68,7 @@ class DashboardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): void
     {
         //
     }
@@ -96,7 +79,7 @@ class DashboardController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(int $id): void
     {
         //
     }

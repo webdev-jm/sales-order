@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Livewire\SalesDashboard;
 
@@ -12,7 +12,7 @@ class Stats extends Component
 
     public function fetchData($url, $method = 'post') {
         $headers = [
-            'Authorization' => 'Bearer '.env('API_TOKEN'),
+            'Authorization' => 'Bearer '.config('syspro.dashboard.token'),
             'Accept' => 'application/json', // Adjust the content type as needed
             'Content-Type' => 'application/json', // Set the content type for POST data
         ];
@@ -26,12 +26,12 @@ class Stats extends Component
         try {
             $client = new Client();
             if(strtolower($method)== 'post') {
-                $response = $client->post(env('API_URL').$url, [
+                $response = $client->post(config('syspro.dashboard.url').$url, [
                     'headers' => $headers,
                     'json' => $data,
                 ]);
             } else if(strtolower($method)== 'get') {
-                $response = $client->get(env('API_URL').$url, [
+                $response = $client->get(config('syspro.dashboard.url').$url, [
                     'headers' => $headers,
                 ]);
             }

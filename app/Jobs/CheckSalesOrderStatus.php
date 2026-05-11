@@ -30,12 +30,12 @@ class CheckSalesOrderStatus implements ShouldQueue
     {
         try {
             $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . env(),
+                    'Authorization' => 'Bearer ' . config('syspro.token'),
                     'po_number'     => $this->order->po_number,
                     'company'       => $this->order->account_login->account->company->name,
                 ])
                 ->timeout(30)
-                ->get(env('API_URL_SYSPRO') . '/so/sor_master');
+                ->get(config('syspro.url') . '/so/sor_master');
 
             if ($response->failed()) {
                 activity('error')->log('Request failed for PO: ' . $this->order->po_number . ' - ' . $response->status());

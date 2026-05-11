@@ -9,8 +9,6 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 
-use Illuminate\Support\Facades\DB;
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -28,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         Validator::extend('yyyy_a_number', 'App\Providers\CustomValidationRules@validateYyyyANumber');
         Paginator::useBootstrap();

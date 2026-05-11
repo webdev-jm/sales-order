@@ -54,7 +54,7 @@ trait HandlesCreditMemo
         try {
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                'Authorization' => 'Bearer ' . config('syspro.token'),
                 'year' => $this->year,
                 'month' => $this->month,
                 'invoice_number' => $this->invoice_number,
@@ -62,7 +62,7 @@ trait HandlesCreditMemo
                 'sales_order' => $this->so_number,
                 'account_code' => $this->account->account_code ?? null,
                 'po_number' => $this->po_number,
-            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoiceData');
+            ])->timeout(30)->get(config('syspro.data_url') . 'getInvoiceData');
 
             if ($response->failed()) {
                 $this->addError('load_details', 'Failed to fetch invoice details from Syspro.');
@@ -92,7 +92,7 @@ trait HandlesCreditMemo
 
             $response = Http::withHeaders([
                 'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . env('API_TOKEN_SYSPRODATA'),
+                'Authorization' => 'Bearer ' . config('syspro.token'),
                 'year' => $this->year,
                 'month' => $this->month,
                 'invoice_number' => $this->invoice_number,
@@ -100,7 +100,7 @@ trait HandlesCreditMemo
                 'so_number' => $this->so_number,
                 'po_number' => $this->po_number,
                 'account_code' => $this->account->account_code,
-            ])->timeout(30)->get(env('API_URL_SYSPRODATA') . 'getInvoice');
+            ])->timeout(30)->get(config('syspro.data_url') . 'getInvoice');
 
             if ($response->failed()) return $this->addError('search', 'Failed to fetch invoice data.');
 

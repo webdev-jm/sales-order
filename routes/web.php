@@ -470,7 +470,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('invoice-term/upload', [InvoiceTermController::class, 'upload'])->name('invoice-term.upload')->middleware('permission:invoice term create');
 
         Route::get('invoice-term/{id}/edit', [InvoiceTermController::class, 'edit'])->name('invoice-term.edit')->middleware('permission:invoice term edit');
-        Route::post('invoice-term/{id}', [InvoiceTermController::class, 'update'])->name('invoice-term.udpate')->middleware('permission:invoice term edit');
+        Route::post('invoice-term/{id}', [InvoiceTermController::class, 'update'])->name('invoice-term.update')->middleware('permission:invoice term edit');
     });
 
     // PRODUCTS

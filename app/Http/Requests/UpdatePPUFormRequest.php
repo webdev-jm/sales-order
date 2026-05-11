@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Requests;
 
@@ -13,7 +13,7 @@ class UpdatePPUFormRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
         $ppu_form = PPUForm::findOrFail($this->id);
         return auth()->user()->can('ppu form edit') && $ppu_form->status == 'draft';
@@ -24,7 +24,7 @@ class UpdatePPUFormRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(): array
     {
 
         return [
