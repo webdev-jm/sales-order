@@ -109,7 +109,7 @@ class Header extends Component
     {
         $months_arr = [
             '01' => 'January',
-            '02' => 'february',
+            '02' => 'February',
             '03' => 'March',
             '04' => 'April',
             '05' => 'May',

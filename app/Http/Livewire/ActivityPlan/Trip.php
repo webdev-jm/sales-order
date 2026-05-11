@@ -229,7 +229,7 @@ class Trip extends Component
                     }
 
                     if(!empty($this->departure) && !empty($value) && $departureDate > $returnDate) {
-                        $fail('The return date must be on or before the departure date.');
+                        $fail('The return date must be on or after the departure date.');
                     }
                 }
             ],
