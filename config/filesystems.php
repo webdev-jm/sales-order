@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -63,14 +63,6 @@ return [
             'username' => 'smstest',
             'password' => 'bevidfm1234',
             'port' => 1017,
-            'transfer_mode' => 2,
-
-            // Optional FTP Settings...
-            // 'port'     => 21,
-            // 'root'     => '',
-            // 'passive'  => true,
-            // 'ssl'      => false,
-            // 'timeout'  => 30,
         ],
 
         'ftp_bevi' => [
@@ -82,16 +74,6 @@ return [
             'timeout'  => 60,
             'ssl'      => true,
             'passive'  => true,
-            'transfer_mode' => 2,
-            'use_agent' => false,
-            // 'privateKey' => '/path/to/privateKey',
-
-            // Optional FTP Settings...
-            // 'port'     => 21,
-            // 'root'     => '',
-            // 'passive'  => true,
-            // 'ssl'      => true,
-            // 'timeout'  => 30,
         ],
 
         'ftp_bigi' => [
@@ -100,7 +82,6 @@ return [
             'username' => 'smstest',
             'password' => 'bevidfm1234',
             'port' => 1017,
-            'transfer_mode' => 2,
         ],
 
         'sftp' => [
@@ -109,16 +90,6 @@ return [
             'username' => 'SMS_SO',
             'password' => 'sms1234',
             'port' => 1015,
-            'transferMode' => 2,
-
-            // Settings for SSH key based authentication...
-            // 'privateKey' => '/path/to/privateKey',
-            // 'password' => 'encryption-password',
-
-            // Optional SFTP Settings...
-            // 'port' => 22,
-            // 'root' => '',
-            // 'timeout' => 30,
         ],
 
     ],
