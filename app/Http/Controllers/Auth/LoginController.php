@@ -41,12 +41,12 @@ class LoginController extends Controller
     }
 
     protected function authenticated(Request $request, $user)
-    { 
+    {
         // Get the type from the login form request
         $type = $request->input('type');
 
         // Determine the database connection based on type
-        $connection = ($type === 'live') ? 'mysql' : 'mysql_test';
+        $connection = ($type === 'test') ? 'mysql_test' : 'mysql';
 
         // Store selected database connection in session
         Session::put('db_connection', $connection);

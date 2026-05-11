@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -25,8 +27,12 @@ class EventServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        //
+        Event::listen(Login::class, function (): void {
+            if (! Session::has('db_connection')) {
+                Session::put('db_connection', 'mysql');
+            }
+        });
     }
 }
