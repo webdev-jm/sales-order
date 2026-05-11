@@ -14,8 +14,8 @@ class CreateBrandUserTable extends Migration
     public function up()
     {
         Schema::create('brand_user', function (Blueprint $table) {
-            $table->unsignedBigInteger('brand_id')->nullable();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('brand_id');
+            $table->unsignedBigInteger('user_id');
 
             $table->primary(['brand_id', 'user_id']);
 

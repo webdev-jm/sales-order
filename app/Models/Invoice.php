@@ -13,6 +13,8 @@ class Invoice extends Model
     
     protected $table = 'invoices';
 
+    public $timestamps = false;
+
     /**
      * Dynamically set the database connection based on the session.
      */

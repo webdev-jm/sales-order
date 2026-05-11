@@ -14,7 +14,8 @@ class SalesmanFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'name' => fake()->name(),
+            'code' => fake()->unique()->numerify('SM#####'),
         ];
     }
 }

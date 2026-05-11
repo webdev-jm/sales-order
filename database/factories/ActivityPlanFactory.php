@@ -13,8 +13,13 @@ class ActivityPlanFactory extends Factory
      */
     public function definition()
     {
+        $date = fake()->dateTimeBetween('-6 months', '+3 months');
+
         return [
-            //
+            'month' => $date->format('m'),
+            'year' => (int) $date->format('Y'),
+            'objectives' => fake()->paragraph(),
+            'status' => fake()->randomElement(['draft', 'submitted', 'approved', 'rejected']),
         ];
     }
 }

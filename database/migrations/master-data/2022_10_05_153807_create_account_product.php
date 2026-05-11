@@ -14,8 +14,8 @@ class CreateAccountProduct extends Migration
     public function up()
     {
         Schema::create('account_product', function (Blueprint $table) {
-            $table->unsignedBigInteger('account_id')->nullable();
-            $table->unsignedBigInteger('product_id')->nullable();
+            $table->unsignedBigInteger('account_id');
+            $table->unsignedBigInteger('product_id');
             $table->string('price_code');
 
             $table->primary(['account_id', 'product_id']);

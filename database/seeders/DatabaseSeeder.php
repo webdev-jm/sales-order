@@ -29,5 +29,21 @@ class DatabaseSeeder extends Seeder
         $this->call([BrandSeeder::class]);
 
         $this->call([CreditMemoReasonSeeder::class]);
+
+        $this->call([CategorySeeder::class]);
+        $this->call([RemittanceReasonSeeder::class]);
+        $this->call([UploadTemplateSeeder::class]);
+
+        $this->call([BranchSeeder::class]);
+        $this->call([ProductSeeder::class]);
+        $this->call([PriceCodeSeeder::class]);
+        $this->call([AccountLoginSeeder::class]);
+        $this->call([SalesOrderSeeder::class]);
+        $this->call([PPUFormSeeder::class]);
+        $this->call([CreditMemoSeeder::class]);
+        $this->call([InvoiceSeeder::class]);
+        $this->call([RemittanceSeeder::class]);
+        $this->call([ActivityPlanSeeder::class]);
+        $this->call([WeeklyActivityReportSeeder::class]);
     }
 }

@@ -14,8 +14,8 @@ class CreateAccountSalesPerson extends Migration
     public function up()
     {
         Schema::create('account_sales_person', function (Blueprint $table) {
-            $table->unsignedBigInteger('sales_person_id')->nullable();
-            $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('sales_person_id');
+            $table->unsignedBigInteger('account_id');
 
             $table->primary(['sales_person_id', 'account_id']);
 

@@ -9,7 +9,7 @@ trait GlobalTrait {
     public function getSettings() 
     {
         // Fetch all the settings from the 'settings' table.
-        $setting = Setting::find(1);
+        $setting = Setting::first();
         return $setting;
     }
 }

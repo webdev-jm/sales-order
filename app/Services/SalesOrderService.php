@@ -437,7 +437,11 @@ class SalesOrderService {
                 ->first();
             if(!empty($sales_order)) {
                 $latest_control_number = $sales_order->control_number;
-                list(, $prev_date, $last_number) = explode('-', $latest_control_number);
+                $parts = explode('-', $latest_control_number);
+                if (count($parts) < 3) {
+                    break;
+                }
+                [, $prev_date, $last_number] = $parts;
 
                 // Increment the number based on the date
                 $number = ($date_code == $prev_date) ? ((int)$last_number + 1) : 1;

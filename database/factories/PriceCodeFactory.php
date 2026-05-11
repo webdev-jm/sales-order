@@ -11,14 +11,12 @@ class PriceCodeFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'company_id',
-            'product_id',
-            'code',
-            'selling_price',
-            'price_basis',
+            'code' => fake()->randomElement(['P1', 'P2', 'P3', 'P4']),
+            'selling_price' => fake()->randomFloat(3, 50, 5000),
+            'price_basis' => fake()->randomElement(['S', 'A', 'O']),
         ];
     }
 }
