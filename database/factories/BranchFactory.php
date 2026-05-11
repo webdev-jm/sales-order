@@ -13,17 +13,16 @@ class BranchFactory extends Factory
      */
     public function definition()
     {
+        $provinces = ['Metro Manila', 'Cebu', 'Davao del Sur', 'Laguna', 'Cavite', 'Bulacan', 'Rizal', 'Pampanga'];
+        $province = fake()->randomElement($provinces);
+
         return [
-            'account_id',
-            'region_id',
-            'classification_id',
-            'area_id',
-            'branch_code',
-            'branch_name',
-            'province',
-            'city',
-            'barangay',
-            'address'
+            'branch_code' => fake()->unique()->numerify('BR#####'),
+            'branch_name' => fake()->company().' - '.fake()->city(),
+            'province' => $province,
+            'city' => fake()->city(),
+            'barangay' => 'Brgy. '.fake()->lastName(),
+            'address' => fake()->buildingNumber().' '.fake()->streetName().', '.fake()->city(),
         ];
     }
 }

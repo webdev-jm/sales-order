@@ -13,15 +13,19 @@ class BranchLoginFactory extends Factory
      */
     public function definition()
     {
+        $timeIn = fake()->dateTimeBetween('-30 days', 'now');
+        $timeOut = fake()->optional(0.8)->dateTimeBetween($timeIn, '+8 hours');
+
         return [
-            'user_id',
-            'branch_id',
-            'operation_process_id',
-            'longitude',
-            'latitude',
-            'accuracy',
-            'time_in',
-            'time_out',
+            'longitude' => fake()->longitude(116, 126),
+            'latitude' => fake()->latitude(5, 20),
+            'accuracy' => (string) fake()->randomFloat(2, 5, 50),
+            'action_points' => fake()->optional()->sentence(),
+            'time_in' => $timeIn->format('Y-m-d H:i:s'),
+            'time_out' => $timeOut ? $timeOut->format('Y-m-d H:i:s') : null,
+            'time_out_longitude' => $timeOut ? fake()->longitude(116, 126) : null,
+            'time_out_latitude' => $timeOut ? fake()->latitude(5, 20) : null,
+            'time_out_accuracy' => $timeOut ? (string) fake()->randomFloat(2, 5, 50) : null,
         ];
     }
 }

@@ -30,10 +30,16 @@ class SalesOrderProducts extends Component
         $this->resetPage();
     }
 
-    public function mount() {
+    public function mount(): void
+    {
+        $this->brands = collect();
+
         $logged_account = auth()->user()->logged_account();
+        if (empty($logged_account)) {
+            return;
+        }
         $account = $logged_account->account;
-        
+
         $this->account = $account;
         $this->brand = 'ALL';
 
@@ -92,6 +98,13 @@ class SalesOrderProducts extends Component
 
     public function render()
     {
+        if (empty($this->account)) {
+            return view('livewire.sales-order.sales-order-products')->with([
+                'products' => collect(),
+                'brands' => collect(),
+            ]);
+        }
+
         $special_products = $this->account->products;
         $references = $this->account->references;
         $hasReferences = $references->count() > 0;

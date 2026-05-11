@@ -14,8 +14,8 @@ class CreateBranchUser extends Migration
     public function up()
     {
         Schema::create('branch_user', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('branch_id')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('branch_id');
 
             $table->primary(['user_id', 'branch_id']);
 

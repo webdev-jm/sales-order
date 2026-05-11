@@ -3,16 +3,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Product;
+use App\Models\Brand;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        //
+        $brandIds = Brand::pluck('id')->toArray();
+
+        Product::factory()->count(50)->create([
+            'brand_id' => !empty($brandIds) ? fake()->randomElement($brandIds) : 1,
+        ]);
     }
 }

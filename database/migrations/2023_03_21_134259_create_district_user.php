@@ -14,8 +14,8 @@ class CreateDistrictUser extends Migration
     public function up()
     {
         Schema::create('district_user', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('district_id')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('district_id');
 
             $table->primary(['user_id', 'district_id']);
 

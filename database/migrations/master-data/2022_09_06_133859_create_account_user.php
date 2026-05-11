@@ -14,8 +14,8 @@ class CreateAccountUser extends Migration
     public function up()
     {
         Schema::create('account_user', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable();
-            $table->unsignedBigInteger('account_id')->nullable();
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('account_id');
 
             $table->primary(['user_id', 'account_id']);
 

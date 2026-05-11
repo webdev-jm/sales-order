@@ -14,8 +14,8 @@ class CreateTerritoryBranch extends Migration
     public function up()
     {
         Schema::create('territory_branch', function (Blueprint $table) {
-            $table->unsignedBigInteger('branch_id')->nullable();
-            $table->unsignedBigInteger('territory_id')->nullable();
+            $table->unsignedBigInteger('branch_id');
+            $table->unsignedBigInteger('territory_id');
 
             $table->primary(['branch_id', 'territory_id']);
 
