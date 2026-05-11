@@ -76,14 +76,14 @@ class Approval extends Component
                             $detail->trip->update([
                                 'status' => 'for revision'
                             ]);
-    
+
                             // trip approval history
-                            $approval = new ActivityPlanDetailTripApproval([
+                            $trip_approval = new ActivityPlanDetailTripApproval([
                                 'user_id' => auth()->user()->id,
                                 'activity_plan_detail_trip_id' => $detail->trip->id,
                                 'status' => 'for revision',
                             ]);
-                            $approval->save();
+                            $trip_approval->save();
                         }
 
                         if(!empty($detail->trip->user)) {
@@ -136,7 +136,7 @@ class Approval extends Component
                         ]);
                         $schedule->save();
 
-                        if(!empty($detail->trip) && $detail->trip->trasportation_type == 'AIR') {
+                        if(!empty($detail->trip) && $detail->trip->transportation_type == 'AIR') {
                             // logs
                             activity('create')
                                 ->performedOn($detail->trip)
@@ -156,14 +156,14 @@ class Approval extends Component
                             $detail->trip->update([
                                 'status' => 'approved by imm. superior'
                             ]);
-    
+
                             // trip approval history
-                            $approval = new ActivityPlanDetailTripApproval([
+                            $trip_approval = new ActivityPlanDetailTripApproval([
                                 'user_id' => auth()->user()->id,
                                 'activity_plan_detail_trip_id' => $detail->trip->id,
                                 'status' => 'approved by imm. superior',
                             ]);
-                            $approval->save();
+                            $trip_approval->save();
                         }
 
                         // notify department admin
