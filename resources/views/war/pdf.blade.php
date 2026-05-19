@@ -217,7 +217,13 @@
                     <td class="align-middle mw-30d0" colspan="2">{{$area->remarks}}</td>
                 </tr>
 
-                @if(!empty($area->war_branches->count()))
+                @if(!empty($on_leave_dates[$area->date] ?? null))
+                    <tr>
+                        <td colspan="5" class="text-center bg-danger" style="color:#fff; font-weight:bold;">
+                            &#127958; ON LEAVE
+                        </td>
+                    </tr>
+                @elseif(!empty($area->war_branches->count()))
                     <tr class="table-sub-menu">
                         <th class="align-middle text-center">BRANCHES</th>
                         <th class="align-middle text-center">STATUS</th>

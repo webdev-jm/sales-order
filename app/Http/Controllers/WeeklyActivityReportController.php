@@ -12,6 +12,7 @@ use App\Models\WeeklyActivityReportObjective;
 use App\Models\WeeklyActivityReportApproval;
 use App\Models\WeeklyActivityReportAttachment;
 
+use App\Models\ActivityPlanDetail;
 use App\Models\UserBranchSchedule;
 
 
@@ -495,9 +496,19 @@ class WeeklyActivityReportController extends Controller
             'DEVIATION' => 'warning',
         ];
 
+        $on_leave_dates = ActivityPlanDetail::where('is_on_leave', true)
+            ->whereHas('activity_plan', function ($q) use ($weekly_activity_report) {
+                $q->where('status', 'approved')
+                  ->where('user_id', $weekly_activity_report->user_id);
+            })
+            ->pluck('date')
+            ->flip()
+            ->all();
+
         $pdf = PDF::loadView('war.pdf', [
             'weekly_activity_report' => $weekly_activity_report,
-            'area_status_arr' => $area_status_arr
+            'area_status_arr'        => $area_status_arr,
+            'on_leave_dates'         => $on_leave_dates,
         ])->setPaper('a4', 'landscape');
 
         if(auth()->user()->id !== 1) {

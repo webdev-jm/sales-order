@@ -224,17 +224,29 @@ class Detail2 extends Component
     // SCHEDULE METHODS
     // ---
 
-    public function addSheduleLine($date)
+    public function toggleOnLeave(string $date): void
     {
+        $current = $this->month_days[$this->month][$date]['on_leave'] ?? false;
+        $this->month_days[$this->month][$date]['on_leave'] = !$current;
+        $this->setSession();
+    }
+
+    public function addScheduleLine($date)
+    {
+        if (!empty($this->month_days[$this->month][$date]['on_leave'])) {
+            return;
+        }
+
         $this->month_days[$this->month][$date]['lines'][] = [
-            'location' => '',
-            'account_id' => '',
+            'location'     => '',
+            'account_id'   => '',
             'account_name' => '',
-            'branch_id' => '',
-            'branch_name' => '',
-            'purpose' => '',
-            'user_id' => '',
-            'work_with' => '',
+            'branch_id'    => '',
+            'branch_name'  => '',
+            'purpose'      => '',
+            'user_id'      => '',
+            'work_with'    => '',
+            'trip'         => [],
         ];
 
         $this->setSession();
@@ -316,12 +328,14 @@ class Detail2 extends Component
 
             // Always initialize with an empty lines array to ensure consistency
             $lines = $session_details[$this->month][$date]['lines'] ?? [];
+            $on_leave = $session_details[$this->month][$date]['on_leave'] ?? false;
 
             $days[$date] = [
                 'day' => $day_of_week,
                 'date' => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
                 'class' => $class,
                 'lines' => $lines,
+                'on_leave' => $on_leave,
             ];
 
             // Initialize expand state, default to false.

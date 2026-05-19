@@ -15,3 +15,5 @@ yarn-error.log
 /.idea
 /.vscode
 /storage/DFM
+.claude
+CLAUDE.md

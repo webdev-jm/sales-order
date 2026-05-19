@@ -132,6 +132,12 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">Calendar</h3>
+        <div class="card-tools">
+            <span class="badge mr-1" style="background-color:#09599e; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; Schedule</span>
+            <span class="badge mr-1" style="background-color:#0CA1A4; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; With Trip</span>
+            <span class="badge mr-1" style="background-color:#1CA40C; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; Trip Approved</span>
+            <span class="badge" style="background-color:#dc3545; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; On Leave</span>
+        </div>
     </div>
     <div class="card-body">
         <div id="calendar-container"></div>
@@ -200,17 +206,12 @@ $(function() {
         // dayMaxEvents: 5,
         eventClick: function(info) {
             var eventObj = info.event;
-            var date = eventObj.start;
+
+            if (eventObj.extendedProps.on_leave) {
+                return; // on-leave entries have no schedule detail
+            }
+
             var id = eventObj.id;
-
-            console.log(eventObj);
-
-            var year = date.getFullYear();
-            var month = date.getMonth() + 1;
-            var day = date.getDate();
-            var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
-
-
             Livewire.emit('setDetail', id);
             $('#modal-detail').modal('show');
         },

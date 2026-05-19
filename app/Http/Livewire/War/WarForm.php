@@ -6,6 +6,7 @@ use Livewire\Component;
 
 use App\Models\User;
 use App\Models\Area;
+use App\Models\ActivityPlanDetail;
 use App\Models\BranchLogin;
 use App\Models\WeeklyActivityReport;
 use App\Models\WeeklyActivityReportBranch;
@@ -111,16 +112,25 @@ class WarForm extends Component
             // clean array
             $area_arr = array_unique(array_filter($area_arr));
 
+            $is_on_leave = ActivityPlanDetail::where('is_on_leave', true)
+                ->where('date', $start_date)
+                ->whereHas('activity_plan', function ($q) {
+                    $q->where('status', 'approved')
+                      ->where('user_id', $this->user->id);
+                })
+                ->exists();
+
             $this->area_lines[] = [
-                'date' => $start_date,
-                'day' => date('l', strtotime($start_date)),
-                'area' => implode(', ', $area_arr),
-                'activities' => $activities,
-                'schedules' => $schedules_data,
+                'date'             => $start_date,
+                'day'              => date('l', strtotime($start_date)),
+                'area'             => implode(', ', $area_arr),
+                'activities'       => $activities,
+                'schedules'        => $schedules_data,
                 'schedules_visited' => $schedules_visited,
-                'deviations' => $deviations,
+                'deviations'       => $deviations,
                 'action_points_arr' => $action_points_arr,
-                'attachments_arr' => $attachments_arr,
+                'attachments_arr'  => $attachments_arr,
+                'on_leave'         => $is_on_leave,
             ];
 
             $start_date = date('Y-m-d', strtotime($start_date.' + 1 days'));
