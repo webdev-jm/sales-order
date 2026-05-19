@@ -41,7 +41,7 @@
                 <div class="card-body p-2">
                     <div class="row">
                         @foreach($users as $user)
-                        <div class="col-lg-6">
+                        <div class="col-lg-6" wire:key="coe-user-{{ $user->id }}">
                             @php
                             $btn_class = 'btn-default';
                             if(!empty($user_data) && in_array($user->id, $user_data)) {

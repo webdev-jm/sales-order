@@ -1056,6 +1056,7 @@ class ActivityPlanController extends Controller
                 $branch = Branch::where('branch_code', $line['branch_code'])
                 ->where('branch_code', '<>', '')
                 ->first();
+                if ($branch === null) { continue; }
                 // account
                 $account = Account::where('account_code', $line['account_code'])->first();
                 if(empty($account)) {

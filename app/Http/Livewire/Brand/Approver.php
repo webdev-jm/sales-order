@@ -35,7 +35,8 @@ class Approver extends Component
         $this->brand->users()->attach($this->approver_id);
     }
 
-    public function deleteApprover($approver_id) {
+    public function deleteApprover($approver_id): void {
+        abort_if(!auth()->user()->can('brand edit'), 403);
         $this->brand->users()->detach($approver_id);
     }
 

@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     @foreach($submit_users as $user)
-                    <tr>
+                    <tr wire:key="submit-user-{{ $user->id }}">
                         <td>{{$user->fullName()}}</td>
                         <td class="{{$submission_arr[$user->id]['status'] == 'submitted' ? 'text-success' : 'text-danger'}}">{{$submission_arr[$user->id]['status']}}</td>
                     </tr>
