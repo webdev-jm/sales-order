@@ -137,7 +137,7 @@ class SalesOrderService {
                             if($product->order_uom_operator == 'M') { // Multiply
                                 $uom_total += ($quantity * $product->order_uom_conversion) * $selling_price;
                             }
-                            if($product->order_uom_operator == '') { // Divide
+                            if($product->order_uom_operator == 'D') { // Divide
                                 $uom_total += ($quantity / $product->order_uom_conversion) * $selling_price;
                             }
                         } else if($uom == $product->other_uom) { // other UOM

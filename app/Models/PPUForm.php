@@ -23,7 +23,7 @@ class PPUForm extends Model
     protected $fillable = [
         'account_login_id',
         'control_number',
-        'status',
+        'upload_status',
         'date_prepared',
         'date_submitted',
         'pickup_date',

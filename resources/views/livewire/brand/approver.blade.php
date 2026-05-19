@@ -40,7 +40,7 @@
             
             <ul class="list-group">
                 @foreach($users as $user)
-                    <li class="list-group-item py-1 pr-1">
+                    <li class="list-group-item py-1 pr-1" wire:key="approver-{{ $user->id }}">
                         {{$user->fullName()}}
                         <span class="float-right">
                             <button class="btn btn-xs btn-danger" wire:click.prevent="deleteApprover({{$user->id}})">

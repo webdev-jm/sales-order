@@ -84,7 +84,7 @@ class Product extends Model
     }
 
     public function scopeProductAjax($query, $search) {
-        if($search != '') {
+        if($search == '') {
             $products = $query->select('id', 'stock_code', 'description', 'size')
             ->limit(5)
             ->get();

@@ -27,8 +27,8 @@ class UpdateUserRequest extends FormRequest
     {
         return [
             'department_id' => [
-                'max:20',
-                'required'
+                'required',
+                'exists:departments,id'
             ],
             'firstname' => [
                 'required', 'max:255'

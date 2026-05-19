@@ -37,7 +37,7 @@ class Salesman extends Model
     public function scopeSalesmanAjax($query, $search) {
 
         $salesmen = $query->select('id', 'code', 'name')
-            ->when($search == '', function($qry) use($search) {
+            ->when($search != '', function($qry) use($search) {
                 $qry->where('code', 'like', '%'.$search.'%')
                     ->orWhere('name', 'like', '%'.$search.'%');
             })

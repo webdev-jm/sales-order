@@ -134,8 +134,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::get('pre-plan/{id}', [PafPrePlanController::class, 'show'])->name('pre-plan.show');
 
-        Route::get('pre-plan/{id}/edit', [PafPrePlanController::class, 'edit'])->name('pre-plan.edit')->permission('permission:pre plan edit');
-        Route::post('pre-plan/{id}', [PafPrePlanController::class, 'update'])->name('pre-plan.update')->permission('permission:pre plan edit');
+        Route::get('pre-plan/{id}/edit', [PafPrePlanController::class, 'edit'])->name('pre-plan.edit')->middleware('permission:pre plan edit');
+        Route::post('pre-plan/{id}', [PafPrePlanController::class, 'update'])->name('pre-plan.update')->middleware('permission:pre plan edit');
     });
 
     // SALES ORDER
