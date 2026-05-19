@@ -94,24 +94,45 @@ Activity Plan - Edit
             $('#modal-trip').modal('show');
         });
         
+        function getOnLeaveDatesWithSchedules() {
+            var $el = $('#on-leave-warnings');
+            if (!$el.length) { return []; }
+            try { return JSON.parse($el.data('dates') || '[]'); } catch(e) { return []; }
+        }
+
+        function confirmOnLeaveWarning(onConfirm, onCancel) {
+            var dates = getOnLeaveDatesWithSchedules();
+            if (dates.length > 0) {
+                var list = dates.map(function(d) { return '  - ' + d; }).join('\n');
+                if (!confirm('The following on-leave dates have schedules that will be discarded:\n' + list + '\n\nDo you want to continue?')) {
+                    if (onCancel) { onCancel(); }
+                    return;
+                }
+            }
+            onConfirm();
+        }
+
         // change status base on button clicked
         $('body').on('click', '.btn-submit', function(e) {
             e.preventDefault();
-            $(this).prop('disabled', true);
-            
-            var status = $(this).val();
-            var status_val = '';
-            if(status == 'Submit for Approval') {
-                if(confirm('Are you sure to submit this mcp?')) {
-                    status_val = 'submitted';
-                    $('#status').val(status_val);
-                    $('#'+$(this).attr('form')).submit();
+            var $btn = $(this);
+            $btn.prop('disabled', true);
+            confirmOnLeaveWarning(function() {
+                var status = $btn.val();
+                if (status == 'Submit for Approval') {
+                    if (confirm('Are you sure to submit this mcp?')) {
+                        $('#status').val('submitted');
+                        $('#' + $btn.attr('form')).submit();
+                    } else {
+                        $btn.prop('disabled', false);
+                    }
+                } else {
+                    $('#status').val('draft');
+                    $('#' + $btn.attr('form')).submit();
                 }
-            } else {
-                status_val = 'draft';
-                $('#status').val(status_val);
-                $('#'+$(this).attr('form')).submit();
-            }
+            }, function() {
+                $btn.prop('disabled', false);
+            });
         });
     })
 </script>

@@ -1,4 +1,23 @@
 <div>
+    @php
+        $on_leave_dates_with_schedules = [];
+        foreach($month_days[$month] as $date => $day) {
+            if(!empty($day['on_leave'])) {
+                $has_visible_lines = false;
+                foreach($day['lines'] as $line) {
+                    if(empty($line['deleted']) || $line['deleted'] == false) {
+                        $has_visible_lines = true;
+                        break;
+                    }
+                }
+                if($has_visible_lines) {
+                    $on_leave_dates_with_schedules[] = $day['day'] . ' - ' . $day['date'];
+                }
+            }
+        }
+    @endphp
+    <div id="on-leave-warnings" data-dates="{{ json_encode($on_leave_dates_with_schedules) }}" class="d-none"></div>
+
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">ACTIVITY PLAN DETAILS</h3>
@@ -21,18 +40,34 @@
                         <td class="text-uppercase font-weight-bold">
                             <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                             {{$day['day']}} - {{$day['date']}}
-                            <span class="badge badge-warning float-right">
-                                @php
-                                    $count = count(array_filter($day['lines'], function($item) {
-                                        return empty($item['deleted']) || (!empty($item['deleted']) && $item['deleted'] == false);
-                                    }));
-                                @endphp
-                                {{$count}} schedule/s
+                            <span class="float-right">
+                                <button class="btn btn-xs {{$day['on_leave'] ? 'btn-danger' : 'btn-outline-danger'}} mr-2"
+                                    wire:click.stop="toggleOnLeave('{{$date}}')"
+                                    title="{{$day['on_leave'] ? 'Click to remove on leave' : 'Mark as on leave'}}">
+                                    <i class="fa fa-umbrella-beach mr-1"></i>
+                                    {{$day['on_leave'] ? 'ON LEAVE' : 'Set On Leave'}}
+                                </button>
+                                @if(!$day['on_leave'])
+                                <span class="badge badge-warning">
+                                    @php
+                                        $count = count(array_filter($day['lines'], function($item) {
+                                            return empty($item['deleted']) || (!empty($item['deleted']) && $item['deleted'] == false);
+                                        }));
+                                    @endphp
+                                    {{$count}} {{$count == 1 ? 'schedule' : 'schedules'}}
+                                </span>
+                                @endif
                             </span>
                         </td>
                     </tr>
                     <tr class="expandable-body{{$expand_dates[$date] ? '' : ' d-none'}}" wire:key="date-body-{{$date}}">
                         <td class="text-right">
+                            @if($day['on_leave'])
+                                <div class="alert alert-danger text-center my-2 mx-3">
+                                    <i class="fa fa-umbrella-beach mr-2"></i>
+                                    <strong>ON LEAVE</strong> — No schedule required for this date.
+                                </div>
+                            @else
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered">
                                     <thead class="bg-info">
@@ -52,10 +87,8 @@
                                             $num = 0;
                                         @endphp
                                         @foreach($day['lines'] as $line_key => $data)
-                                            @php
-                                                $num++;
-                                            @endphp
                                             @if(empty($data['deleted']) || (!empty($data['deleted']) && !$data['deleted']))
+                                            @php $num++; @endphp
                                                 <tr wire:key="line-{{$date}}-{{$line_key}}">
                                                     {{-- number --}}
                                                     <th class="text-center px-1">
@@ -69,7 +102,7 @@
                                                     <td class="p-0 align-middle">
                                                         {{-- search input --}}
                                                         <div class="input-group input-group-sm">
-                                                            <input type="text" class="form-control border-0" 
+                                                            <input type="text" class="form-control border-0"
                                                                 wire:model="account_query.{{$date}}.{{$line_key}}"
                                                                 wire:keyup="setAccountQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetAccountQuery"
@@ -86,6 +119,7 @@
                                                         </div>
 
                                                         {{-- search results --}}
+                                                        <span wire:loading wire:target="setAccountQuery"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         @if(isset($account_query[$date][$line_key]) && !empty($account_query[$date][$line_key]))
                                                             <div class="list-group position-absolute search-branch" wire:loading.remove wire:key="account-results-{{$date}}-{{$line_key}}">
                                                                 @if($accounts->count() > 0)
@@ -103,8 +137,8 @@
                                                     <td class="p-0 align-middle">
                                                         {{-- search input --}}
                                                         <div class="input-group input-group-sm">
-                                                            <input type="text" class="form-control border-0" 
-                                                                wire:model="branch_query.{{$date}}.{{$line_key}}" 
+                                                            <input type="text" class="form-control border-0"
+                                                                wire:model="branch_query.{{$date}}.{{$line_key}}"
                                                                 wire:keyup="setBranchQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetBranchQuery"
                                                                 wire:keydown.tab.prevent="resetBranchQuery"
@@ -118,14 +152,15 @@
                                                                 </span>
                                                             @endif
                                                         </div>
-                                                        
+
                                                         {{-- search results --}}
+                                                        <span wire:loading wire:target="setBranchQuery"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         @if(isset($branch_query[$date][$line_key]) && !empty($branch_query[$date][$line_key]))
                                                             {{-- show results --}}
                                                             <div class="list-group position-absolute search-branch" wire:loading.remove>
                                                                 @if($branches->count() > 0)
                                                                     @foreach($branches as $branch)
-                                                                        <button class="list-group-item text-left" 
+                                                                        <button class="list-group-item text-left"
                                                                             wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}})"
                                                                         >
                                                                             [{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}
@@ -172,10 +207,11 @@
                             </div>
 
                             {{-- Add schedule line --}}
-                            <button class="btn btn-primary btn-xs mb-2 mr-3" wire:click.prevent="addSheduleLine('{{$date}}')">
+                            <button class="btn btn-primary btn-xs mb-2 mr-3" wire:click.prevent="addScheduleLine('{{$date}}')">
                                 <i class="fa fa-plus mr-1"></i>
                                 ADD SCHEDULE
                             </button>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

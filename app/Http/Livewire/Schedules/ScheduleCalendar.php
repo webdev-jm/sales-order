@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\UserBranchSchedule;
+use App\Models\ActivityPlanDetail;
 
 class ScheduleCalendar extends Component
 {
@@ -268,6 +269,40 @@ class ScheduleCalendar extends Component
                 }
 
             }
+        }
+
+        // On-leave entries from approved activity plans
+        $is_admin = auth()->user()->hasRole('superadmin')
+            || auth()->user()->hasRole('admin')
+            || auth()->user()->hasRole('sales');
+
+        if ($is_admin) {
+            $on_leave_details = ActivityPlanDetail::where('is_on_leave', true)
+                ->whereHas('activity_plan', function ($q) use ($user_id) {
+                    $q->where('status', 'approved');
+                    if (!empty($user_id)) {
+                        $q->where('user_id', $user_id);
+                    }
+                })
+                ->get();
+        } else {
+            $on_leave_details = ActivityPlanDetail::where('is_on_leave', true)
+                ->whereHas('activity_plan', function ($q) {
+                    $q->where('status', 'approved')
+                      ->where('user_id', auth()->user()->id);
+                })
+                ->get();
+        }
+
+        foreach ($on_leave_details as $on_leave) {
+            $schedule_data[] = [
+                'title'           => '🏖 On Leave',
+                'start'           => $on_leave->date,
+                'allDay'          => true,
+                'backgroundColor' => '#dc3545',
+                'borderColor'     => '#a71d2a',
+                'type'            => 'on_leave',
+            ];
         }
 
         $this->schedule_data = $schedule_data;

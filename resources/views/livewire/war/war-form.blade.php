@@ -113,7 +113,17 @@
                             </td>
                         </tr>
                     </thead>
-                    @if(!empty($line['schedules']) || !empty($line['deviations']))
+                    @if(!empty($line['on_leave']))
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center py-2">
+                                    <span class="badge badge-danger px-3 py-2" style="font-size:0.9rem;">
+                                        <i class="fa fa-umbrella-beach mr-1"></i> ON LEAVE
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    @elseif(!empty($line['schedules']) || !empty($line['deviations']))
                         <tbody>
                             <tr class="sub-line-row">
                                 <th>BRANCHES</th>

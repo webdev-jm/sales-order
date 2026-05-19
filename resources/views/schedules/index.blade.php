@@ -147,6 +147,10 @@
                         <i class="fa fa-square deviation-request mr-1"></i>
                         <span>Deviation Request</span>
                     </div>
+                    <div class="col-lg-2 col-md-3">
+                        <i class="fa fa-square mr-1" style="color:#dc3545;"></i>
+                        <span>On Leave</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -308,7 +312,9 @@
                 var day = date.getDate();
                 var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
-                if(type == 'schedule') {
+                if(type == 'on_leave') {
+                    return; // on-leave entries have no detail to show
+                } else if(type == 'schedule') {
                     Livewire.emit('showEvents', date_format, id);
                     $('#event-modal').modal('show');
                 } else if(type == 'reschedule') {

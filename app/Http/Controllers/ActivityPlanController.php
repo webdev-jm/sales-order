@@ -174,6 +174,17 @@ class ActivityPlanController extends Controller
                                 ->log(':causer.firstname :causer.lastname has created activity plan for :subject.year :subject.month');
 
                             foreach($data['details'][$data['month']] as $date => $details) {
+                                if(!empty($details['on_leave']) && $details['on_leave'] === true) {
+                                    $activity_plan_detail = new ActivityPlanDetail([
+                                        'activity_plan_id' => $activity_plan->id,
+                                        'day'              => $details['day'],
+                                        'date'             => $date,
+                                        'is_on_leave'      => true,
+                                    ]);
+                                    $activity_plan_detail->save();
+                                    continue;
+                                }
+
                                 if(!empty($details['lines'])) {
                                     foreach($details['lines'] as $val) {
                                         if(!empty($val['branch_id'])) {
@@ -251,6 +262,19 @@ class ActivityPlanController extends Controller
         $chart_data = [];
         $branch_activities = [];
         foreach($activity_plan->details as $detail) {
+            if(!empty($detail->is_on_leave)) {
+                $schedule_data[] = [
+                    'title'           => '🏖 ON LEAVE',
+                    'start'           => $detail->date,
+                    'allDay'          => true,
+                    'backgroundColor' => '#dc3545',
+                    'borderColor'     => '#a71d2a',
+                    'id'              => $detail->id,
+                    'on_leave'        => true,
+                ];
+                continue;
+            }
+
             if(isset($detail->branch->branch_name)) {
                 $title = '['.strtoupper($detail->branch->branch_name).'] '.(!empty($detail->activity) ? '- '.$detail->activity : '');
                 $bg_color = '#09599e';
@@ -286,6 +310,7 @@ class ActivityPlanController extends Controller
                     'backgroundColor' => $bg_color,
                     'borderColor' => '#024d4d',
                     'id' => $detail->id,
+                    'on_leave' => false,
                 ];
 
                 $branch_address = $detail->branch->addresses->first();
@@ -436,6 +461,16 @@ class ActivityPlanController extends Controller
                 $details[$detail->date]['day'] = $detail->day;
                 $details[$detail->date]['date'] = date('M. d', strtotime($detail->date));
                 $details[$detail->date]['class'] = $class;
+
+                if(!empty($detail->is_on_leave)) {
+                    $details[$detail->date]['on_leave'] = true;
+                    continue;
+                }
+
+                if(!isset($details[$detail->date]['on_leave'])) {
+                    $details[$detail->date]['on_leave'] = false;
+                }
+
                 if(!empty($detail->branch_id)) {
                     $details[$detail->date]['lines'][] = [
                         'id' => $detail->id,
@@ -533,6 +568,27 @@ class ActivityPlanController extends Controller
 
                             // details
                             foreach($data['details'][$data['month']] as $date => $details) {
+                                if(!empty($details['on_leave']) && $details['on_leave'] === true) {
+                                    // Remove any existing non-leave lines for this date
+                                    ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
+                                        ->where('date', $date)
+                                        ->where('is_on_leave', false)
+                                        ->forceDelete();
+
+                                    // Upsert the on-leave sentinel row
+                                    ActivityPlanDetail::updateOrCreate(
+                                        ['activity_plan_id' => $activity_plan->id, 'date' => $date, 'is_on_leave' => true],
+                                        ['day' => $details['day']]
+                                    );
+                                    continue;
+                                }
+
+                                // Date was previously on leave but now has schedule lines — remove sentinel
+                                ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
+                                    ->where('date', $date)
+                                    ->where('is_on_leave', true)
+                                    ->forceDelete();
+
                                 if(!empty($details['lines'])) {
                                     foreach($details['lines'] as $val) {
 
@@ -672,6 +728,11 @@ class ActivityPlanController extends Controller
         $date_branch_arr = [];
 
         foreach ($month_details as $date => $details) {
+            if (!empty($details['on_leave']) && $details['on_leave'] === true) {
+                $line_empty = 0;
+                continue;
+            }
+
             if (empty($details['lines'])) {
                 $line_empty = 0;
                 continue;
@@ -836,31 +897,42 @@ class ActivityPlanController extends Controller
             }
 
             // check details
-            $details = $activity_plan->details()->where('date', $date)
-            ->get();
+            $details = $activity_plan->details()->where('date', $date)->get();
             $data = [];
             if(!empty($details->count())) {
-                foreach($details as $detail) {
-                    $branch_name = '';
-                    $account_name = '';
-                    if(!empty($detail->branch_id)) {
-                        $branch_name = $detail->branch->branch_code.' - '.$detail->branch->branch_name;
-                        $account_name = $detail->branch->account->short_name;
-                    }
-
-                    $trip = '';
-                    if(!empty($detail->trip)) {
-                        $trip = $detail->trip->trip_number;
-                    }
-
+                $on_leave_detail = $details->firstWhere('is_on_leave', true);
+                if(!empty($on_leave_detail)) {
                     $data[] = [
-                        'location' => $detail->exact_location,
-                        'account_name' => $account_name,
-                        'branch_name' => $branch_name,
-                        'purpose' => $detail->activity,
-                        'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : $detail->work_with,
-                        'trip' => $trip,
+                        'location' => '',
+                        'account_name' => '',
+                        'branch_name' => '',
+                        'purpose' => 'ON LEAVE',
+                        'work_with' => '',
+                        'trip' => '',
                     ];
+                } else {
+                    foreach($details as $detail) {
+                        $branch_name = '';
+                        $account_name = '';
+                        if(!empty($detail->branch_id)) {
+                            $branch_name = $detail->branch->branch_code.' - '.$detail->branch->branch_name;
+                            $account_name = $detail->branch->account->short_name;
+                        }
+
+                        $trip = '';
+                        if(!empty($detail->trip)) {
+                            $trip = $detail->trip->trip_number;
+                        }
+
+                        $data[] = [
+                            'location' => $detail->exact_location,
+                            'account_name' => $account_name,
+                            'branch_name' => $branch_name,
+                            'purpose' => $detail->activity,
+                            'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : $detail->work_with,
+                            'trip' => $trip,
+                        ];
+                    }
                 }
             } else {
                 $data[] = [

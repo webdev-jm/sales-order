@@ -21,6 +21,7 @@ class ActivityPlanDetail extends Model
         'exact_location',
         'activity',
         'work_with',
+        'is_on_leave',
     ];
 
     /**
