@@ -4,6 +4,13 @@
     </div>
     <div class="modal-body">
 
+        @if($is_on_leave)
+            <div class="alert alert-danger text-center py-3 mb-3">
+                <i class="fa fa-umbrella-beach mr-2"></i>
+                <strong>ON LEAVE</strong> — No schedules for this date.
+            </div>
+        @endif
+
         @if(!empty($schedule_data))
             <div class="row">
                 <div class="col-12">

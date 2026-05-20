@@ -87,6 +87,9 @@
                     } else if(type == 'reschedule') {
                         Livewire.emit('setDate', date_format);
                         $('#reschedule-modal').modal('show');
+                    } else if(type == 'on_leave') {
+                        Livewire.emit('showEvents', date_format);
+                        $('#event-modal').modal('show');
                     }
                 },
                 themeSystem: 'bootstrap',

@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use AccountLoginModel;
 use App\Models\User;
 use App\Models\BranchLogin;
+use App\Models\ActivityPlanDetail;
 use App\Models\UserBranchSchedule;
 use App\Models\UserBranchScheduleApproval;
 use App\Models\ActivityPlanDetailTrip;
@@ -35,6 +36,7 @@ class ScheduleEvent extends Component
     ];
     
     public $date, $schedule_data;
+    public bool $is_on_leave = false;
     public $action;
     public $status, $reschedule_date, $remarks;
 
@@ -378,22 +380,21 @@ class ScheduleEvent extends Component
         $this->reset('schedule_data');
     }
 
-    public function setDate($date, $schedule_id) {
+    public function setDate($date, $schedule_id = null) {
         $this->date = $date;
-        if(!empty($schedule_id)) {
+        if (!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
 
-            if(!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
+            if (!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
                 $this->reference_number_edit = 1;
             } else {
                 $this->reference_number_edit = 0;
             }
 
             $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
+        } else {
+            $this->reset('schedule_data');
         }
-
-
-        // $this->reset('schedule_data');
     }
 
     public function render()
@@ -441,13 +442,24 @@ class ScheduleEvent extends Component
             }
         }
 
+        $this->is_on_leave = !empty($this->date) && ActivityPlanDetail::where('is_on_leave', true)
+            ->where('date', $this->date)
+            ->whereHas('activity_plan', function ($q) {
+                $q->where('status', 'approved');
+                if (!empty($this->user_id)) {
+                    $q->where('user_id', $this->user_id);
+                }
+            })
+            ->exists();
+
         $transportation_types = [
             'AIR',
         ];
 
         return view('livewire.schedules.schedule-event')->with([
             'branch_schedules' => $branch_schedules,
-            'transportation_types' => $transportation_types
+            'transportation_types' => $transportation_types,
+            'is_on_leave' => $this->is_on_leave,
         ]);
     }
 }
