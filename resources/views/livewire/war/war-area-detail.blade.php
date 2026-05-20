@@ -5,7 +5,14 @@
             <span wire:loading class="float-right"><i class="fa fa-spinner fa-spin"></i></span>
         </div>
         <div class="modal-body">
-            
+
+            @if($is_on_leave)
+                <div class="alert alert-danger text-center py-2">
+                    <i class="fa fa-umbrella-beach mr-2"></i>
+                    <strong>ON LEAVE</strong>
+                </div>
+            @endif
+
             <h3 class="badge badge-success text-lg">{{$date}}</h3>
             
             @if(!empty($schedules->count()))

@@ -229,7 +229,17 @@
                                     </td>
                                 </tr>
                             </thead>
-                            @if(!empty($area->war_branches->count()))
+                            @if(isset($on_leave_dates[$area->date]))
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-2">
+                                            <span class="badge badge-danger px-3 py-2" style="font-size:0.9rem;">
+                                                <i class="fa fa-umbrella-beach mr-1"></i> ON LEAVE
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            @elseif(!empty($area->war_branches->count()))
                                 <tbody>
                                     <tr class="sub-line-row">
                                         <th>BRANCHES</th>

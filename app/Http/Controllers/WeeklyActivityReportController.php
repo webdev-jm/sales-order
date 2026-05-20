@@ -294,11 +294,22 @@ class WeeklyActivityReportController extends Controller
                 ->log(':causer.firstname :causer.lastname has viewed weekly productivity report of [ :subject.user.firstname :subject.user.lastname ] period covered: :subject.date_from to :subject.date_to');
         }
 
+        $on_leave_dates = ActivityPlanDetail::where('is_on_leave', true)
+            ->whereBetween('date', [$weekly_activity_report->date_from, $weekly_activity_report->date_to])
+            ->whereHas('activity_plan', function ($q) use ($weekly_activity_report) {
+                $q->where('status', 'approved')
+                  ->where('user_id', $weekly_activity_report->user_id);
+            })
+            ->pluck('date')
+            ->flip()
+            ->all();
+
         return view('war.show')->with([
             'weekly_activity_report' => $weekly_activity_report,
             'status_arr' => $this->status_arr,
             'supervisor_id' => $supervisor_id,
-            'area_status_arr' => $area_status_arr
+            'area_status_arr' => $area_status_arr,
+            'on_leave_dates' => $on_leave_dates,
         ]);
     }
 
@@ -433,7 +444,7 @@ class WeeklyActivityReportController extends Controller
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -475,7 +486,7 @@ class WeeklyActivityReportController extends Controller
             ]);
         }
     }
- 
+
     /**
      * Remove the specified resource from storage.
      *
@@ -497,6 +508,7 @@ class WeeklyActivityReportController extends Controller
         ];
 
         $on_leave_dates = ActivityPlanDetail::where('is_on_leave', true)
+            ->whereBetween('date', [$weekly_activity_report->date_from, $weekly_activity_report->date_to])
             ->whereHas('activity_plan', function ($q) use ($weekly_activity_report) {
                 $q->where('status', 'approved')
                   ->where('user_id', $weekly_activity_report->user_id);
@@ -556,7 +568,7 @@ class WeeklyActivityReportController extends Controller
             } catch(\Exception $e) {
                 Log::error('Notification failed: '.$e->getMessage());
             }
-            
+
         } else {
             try {
                 $user = $war->user;

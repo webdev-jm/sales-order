@@ -5,6 +5,7 @@ namespace App\Http\Livewire\War;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+use App\Models\ActivityPlanDetail;
 use App\Models\User;
 use App\Models\BranchLogin;
 use App\Models\UserBranchSchedule;
@@ -39,9 +40,18 @@ class WarAreaDetail extends Component
             ->where('date', $this->date)
             ->paginate(5, ['*'], 'war-planned-activities');
 
+        $is_on_leave = !empty($this->date) && ActivityPlanDetail::where('is_on_leave', true)
+            ->where('date', $this->date)
+            ->whereHas('activity_plan', function ($q) {
+                $q->where('status', 'approved')
+                  ->where('user_id', $this->user->id);
+            })
+            ->exists();
+
         return view('livewire.war.war-area-detail')->with([
             'branch_logins' => $branch_logins,
             'schedules' => $schedules,
+            'is_on_leave' => $is_on_leave,
         ]);
     }
 }

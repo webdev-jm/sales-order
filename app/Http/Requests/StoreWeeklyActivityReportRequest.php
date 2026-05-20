@@ -28,7 +28,7 @@ class StoreWeeklyActivityReportRequest extends FormRequest
                 'required'
             ],
             'accounts_visited' => [
-                'required'
+                'max:255'
             ],
             'date_from' => [
                 'required'

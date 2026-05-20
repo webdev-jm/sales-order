@@ -217,10 +217,10 @@
                     <td class="align-middle mw-30d0" colspan="2">{{$area->remarks}}</td>
                 </tr>
 
-                @if(!empty($on_leave_dates[$area->date] ?? null))
+                @if(isset($on_leave_dates[$area->date]))
                     <tr>
                         <td colspan="5" class="text-center bg-danger" style="color:#fff; font-weight:bold;">
-                            &#127958; ON LEAVE
+                            ON LEAVE
                         </td>
                     </tr>
                 @elseif(!empty($area->war_branches->count()))
