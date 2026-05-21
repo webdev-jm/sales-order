@@ -1,7 +1,4 @@
 @extends('adminlte::page')
-@php
-    use Collective\Html\FormFacade as Form;
-@endphp
 
 @section('title')
     CM Reasons - Edit
