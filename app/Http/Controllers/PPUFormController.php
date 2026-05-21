@@ -133,7 +133,7 @@ class PPUFormController extends Controller
     }
 
     private function generateControlNumber() {
-        $date_code = date('Ymd');
+        $date_code = date('Y');
 
         do {
             $control_number = 'PPU-'.$date_code.'-001';
