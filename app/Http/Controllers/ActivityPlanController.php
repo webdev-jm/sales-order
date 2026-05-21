@@ -714,6 +714,15 @@ class ActivityPlanController extends Controller
         //
     }
 
+    private function isOnLeaveValue(string $value): bool
+    {
+        $normalized = strtolower(trim($value));
+        return in_array($normalized, [
+            'on leave', 'on-leave', 'leave',
+            'vl', 'sl', 'sick-leave', 'sick leave',
+        ], true);
+    }
+
     /**
      * Validate the line items in an activity plan month's detail array.
      *
@@ -1014,13 +1023,17 @@ class ActivityPlanController extends Controller
                 if(!empty($row[0])) {
                     $date_key = $year.'-'.$month.'-'.($row[0] < 10 ? '0'.$row[0] : $row[0]);
 
-                    $data[$date_key][] = [
-                        'account_code' => trim($row[2] ?? ''),
-                        'branch_code' => trim($row[3]),
-                        'location' => trim($row[4] ?? ''),
-                        'purpose' => trim($row[5] ?? ''),
-                        'work_with' => trim($row[6] ?? ''),
-                    ];
+                    if($this->isOnLeaveValue((string) ($row[5] ?? ''))) {
+                        $data[$date_key]['on_leave'] = true;
+                    } else {
+                        $data[$date_key]['lines'][] = [
+                            'account_code' => trim($row[2] ?? ''),
+                            'branch_code' => trim($row[3] ?? ''),
+                            'location' => trim($row[4] ?? ''),
+                            'purpose' => trim($row[5] ?? ''),
+                            'work_with' => trim($row[6] ?? ''),
+                        ];
+                    }
                 }
             }
         }
@@ -1033,7 +1046,7 @@ class ActivityPlanController extends Controller
         ];
 
         $details = [];
-        foreach($data as $date => $lines) {
+        foreach($data as $date => $date_data) {
             $day = $week_days_arr[date('w', strtotime($date))];
             $date_name = date('F. d', strtotime($date));
 
@@ -1049,9 +1062,14 @@ class ActivityPlanController extends Controller
                 'day' => $day,
                 'date' => $date_name,
                 'class' => $class,
+                'on_leave' => !empty($date_data['on_leave']),
             ];
 
-            foreach($lines as $line) {
+            if(!empty($date_data['on_leave'])) {
+                continue;
+            }
+
+            foreach($date_data['lines'] ?? [] as $line) {
                 // branch
                 $branch = Branch::where('branch_code', $line['branch_code'])
                 ->where('branch_code', '<>', '')
@@ -1074,7 +1092,8 @@ class ActivityPlanController extends Controller
                         'branch_name' => $branch->branch_name ?? '',
                         'purpose' => $line['purpose'],
                         'user_id' => $user->id ?? '',
-                        'work_with' => $line['work_with'],                    ];
+                        'work_with' => $line['work_with'],
+                    ];
                 }
             }
 
@@ -1104,7 +1123,7 @@ class ActivityPlanController extends Controller
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
         $bar_code = new DNS2D();
-        $bar_code = $bar_code->getBarcodeHTML(route('trip.user', encrypt($trip->user_id, 'user-id')), 'QRCODE', 2, 2);
+        $bar_code = $bar_code->getBarcodeHTML(route('trip.user', encrypt($trip->user_id)), 'QRCODE', 2, 2);
 
         $pdf = PDF::loadView('mcp.trip-detail', [
             'trip' => $trip,

@@ -389,4 +389,94 @@ class ActivityPlanOnLeaveTest extends TestCase
             'war-form.blade.php must display an "ON LEAVE" label for on-leave dates.'
         );
     }
+
+    // ── Controller: upload / isOnLeaveValue ───────────────────────────────────
+
+    /**
+     * isOnLeaveValue() must return true for all accepted leave keywords,
+     * regardless of case.
+     */
+    public function test_is_on_leave_value_returns_true_for_all_accepted_keywords(): void
+    {
+        $controller = new ActivityPlanController();
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('isOnLeaveValue');
+        $method->setAccessible(true);
+
+        $accepted = [
+            'on leave', 'ON LEAVE', 'On Leave',
+            'on-leave', 'ON-LEAVE',
+            'leave', 'LEAVE',
+            'vl', 'VL', 'Vl',
+            'sl', 'SL', 'Sl',
+            'sick-leave', 'SICK-LEAVE',
+            'sick leave', 'SICK LEAVE',
+        ];
+
+        foreach ($accepted as $keyword) {
+            $this->assertTrue(
+                $method->invoke($controller, $keyword),
+                "isOnLeaveValue() must return true for \"{$keyword}\"."
+            );
+        }
+    }
+
+    /**
+     * isOnLeaveValue() must return false for normal purpose values.
+     */
+    public function test_is_on_leave_value_returns_false_for_regular_purposes(): void
+    {
+        $controller = new ActivityPlanController();
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('isOnLeaveValue');
+        $method->setAccessible(true);
+
+        $regular = ['Visit', 'Demo', 'Meeting', 'Training', '', 'site visit'];
+
+        foreach ($regular as $value) {
+            $this->assertFalse(
+                $method->invoke($controller, $value),
+                "isOnLeaveValue() must return false for \"{$value}\"."
+            );
+        }
+    }
+
+    /**
+     * The upload() method must detect on-leave rows via the isOnLeaveValue helper.
+     */
+    public function test_upload_uses_is_on_leave_value_helper(): void
+    {
+        $source = file_get_contents(
+            app_path('Http/Controllers/ActivityPlanController.php')
+        );
+
+        $this->assertStringContainsString(
+            'isOnLeaveValue',
+            $source,
+            'upload() must call isOnLeaveValue() to detect on-leave rows.'
+        );
+    }
+
+    /**
+     * The upload() method must set on_leave = true in session data and skip
+     * line processing for dates marked as on leave.
+     */
+    public function test_upload_sets_on_leave_in_session_and_skips_line_processing(): void
+    {
+        $source = file_get_contents(
+            app_path('Http/Controllers/ActivityPlanController.php')
+        );
+
+        $this->assertStringContainsString(
+            "'on_leave' => !empty(\$date_data['on_leave'])",
+            $source,
+            'upload() must set on_leave in session details using the date_data on_leave flag.'
+        );
+
+        $this->assertMatchesRegularExpression(
+            '/on_leave.*?continue;/s',
+            $source,
+            'upload() must continue past line processing when a date is on leave.'
+        );
+    }
 }
