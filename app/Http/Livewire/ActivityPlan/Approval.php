@@ -42,7 +42,7 @@ class Approval extends Component
             activity('rejected')
             ->performedOn($this->activity_plan)
             ->log(':causer.firstname :causer.lastname has rejected activity plan of '.$this->activity_plan->user->fullName());
-            
+
         } else if($this->action == 'approve') {
             $status = 'approved';
 
@@ -51,7 +51,7 @@ class Approval extends Component
             ->performedOn($this->activity_plan)
             ->log(':causer.firstname :causer.lastname has approved activity plan of '.$this->activity_plan->user->fullName());
         }
-        
+
         $this->activity_plan->update([
             'status' => $status,
         ]);
@@ -123,7 +123,7 @@ class Approval extends Component
                         ->where('date', $detail->date)
                         ->whereNull('status')
                         ->first();
-                    
+
                     if(empty($schedule)) {
 
                         $schedule = new UserBranchSchedule([
@@ -176,7 +176,7 @@ class Approval extends Component
                         } catch(\Exception $e) {
                             Log::error('Notification failed: '.$e->getMessage());
                         }
-                        
+
                     }
 
                 }

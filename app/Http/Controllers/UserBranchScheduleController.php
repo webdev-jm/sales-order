@@ -18,362 +18,112 @@ use App\Imports\ScheduleImport;
 
 use App\Http\Traits\GlobalTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
-
 use Carbon\Carbon;
 
 class UserBranchScheduleController extends Controller
 {
     use GlobalTrait;
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\View\View
     {
-        // Set date range for schedules
-        $date_from = date('Y-m', strtotime('last month')).'-01';
+        $date_from = date('Y-m', strtotime('last month')) . '-01';
         $date_to = date('Y-m-d', strtotime('last day of next month'));
 
-        // Extract user and account IDs from the request
-        $user_id = trim($request->get('user_id'));
-        $account_id = trim($request->get('account_id'));
+        $user_id = trim((string) $request->input('user_id'));
+        $account_id = trim((string) $request->input('account_id'));
 
-        // Define colors for schedule types
         $colors = [
-            'schedule' => '#25b8b5',
+            'schedule'   => '#25b8b5',
             'reschedule' => '#f37206',
-            'delete' => '#c90518',
-            'request' => '#32a852',
-            'deviation' => '#0e16ad',
+            'delete'     => '#c90518',
+            'request'    => '#32a852',
+            'deviation'  => '#0e16ad',
         ];
 
-        // Assign colors to variables for better readability
-        $schedule_color = $colors['schedule'];
-        $reschedule_color = $colors['reschedule'];
-        $delete_color = $colors['delete'];
-        $request_color = $colors['request'];
-        $deviation_color = $colors['deviation'];
+        $subordinate_ids = collect(auth()->user()->getSubordinateIds())->flatten()->toArray();
 
-        // Get subordinate IDs for the current user
-        $subordinates = auth()->user()->getSubordinateIds();
-        $subordinate_ids = [];
-        foreach ($subordinates as $level => $ids) {
-            foreach ($ids as $id) {
-                $subordinate_ids[] = $id;
-            }
-        }
+        $is_privileged = auth()->user()->hasRole('superadmin')
+            || auth()->user()->hasRole('admin')
+            || auth()->user()->hasRole('sales');
 
-        // Initialize schedule data array
-        $schedule_data = [];
+        if ($is_privileged) {
+            $schedule_data = (!empty($user_id) || !empty($account_id))
+                ? $this->buildScheduleData($date_from, $date_to, $user_id, $account_id, $colors)
+                : [];
 
-        // Check user roles for permission to view all schedules
-        if (auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales')) {
+            // Resolve all schedule users in one query instead of findOrFail per row
+            $user_ids = UserBranchSchedule::select('user_id')->distinct()
+                ->whereBetween('date', [$date_from, $date_to])
+                ->pluck('user_id');
 
-            // Check for user or account filters
-            if (!empty($user_id) || !empty($account_id)) {
-
-                // Define schedule types and their corresponding status
-                $schedule_statuses = [
-                    'schedule' => null,
-                    'request' => 'schedule request',
-                    'deviation' => 'submitted',
-                ];
-
-                // Loop through schedule types
-                foreach ($schedule_statuses as $schedule_type => $status) {
-                    if($schedule_type != 'deviation') {
-                        // Fetch distinct schedule dates based on status, user, and account filters
-                        $schedules_date = UserBranchSchedule::select('date')->distinct()
-                            ->where('status', $status)
-                            ->where('date', '>=', $date_from)
-                            ->where('date', '<=', $date_to)
-                            ->when(!empty($user_id), function ($query) use ($user_id) {
-                                $query->where('user_id', $user_id);
-                            })
-                            ->get();
-    
-                        // Loop through schedule dates
-                        foreach ($schedules_date as $schedule) {
-                            // Fetch schedules based on date, status, user, and account filters
-                            $schedules = UserBranchSchedule::where('date', $schedule->date)
-                                ->when($status !== null, function ($query) use ($status) {
-                                    $query->where('status', $status);
-                                })
-                                ->when(!empty($account_id), function ($query) use ($account_id) {
-                                    $query->whereHas('branch', function ($qry) use ($account_id) {
-                                        $qry->where('account_id', $account_id);
-                                    });
-                                })
-                                ->when(!empty($user_id), function ($query) use ($user_id) {
-                                    $query->where('user_id', $user_id);
-                                })
-                                ->get();
-    
-                            // Loop through fetched schedules
-                            foreach ($schedules as $sched) {
-                                $icon = '';
-    
-                                // Check login status for schedule type 'schedule'
-                                if ($status == null) {
-                                    $branch_login = BranchLogin::where('user_id', $user_id)
-                                        ->where('branch_id', $sched->branch_id)
-                                        ->where(DB::raw('DATE(time_in)'), $schedule->date)
-                                        ->first();
-    
-                                    if (!empty($branch_login)) {
-                                        $icon = 'fa fa-check';
-                                    }
-                                }
-    
-                                // Assign background and border colors based on schedule type
-                                $backgroundColor = $colors[$schedule_type];
-                                $borderColor = $colors[$schedule_type];
-    
-                                // Add schedule data to the array
-                                $schedule_data[] = [
-                                    'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
-                                    'start' => $schedule->date,
-                                    'allDay' => true,
-                                    'backgroundColor' => $backgroundColor,
-                                    'borderColor' => $borderColor,
-                                    'type' => 'schedule',
-                                    'id' => $sched->id,
-                                    'icon' => $icon,
-                                ];
-                            }
-                        }
-                    } else {
-                        // for deviation
-                        $deviation_dates = Deviation::select('date')->distinct()
-                            ->where('status', $status)
-                            ->where('date', '>=', $date_from)
-                            ->where('date', '<=', $date_to)
-                            ->get();
-
-                        foreach($deviation_dates as $deviation) {
-                            $deviations = Deviation::where('date', $deviation->date)
-                            ->where('status', $status)
-                            ->when(!empty($user_id), function($query) use($user_id) {
-                                $query->where('user_id', $user_id);
-                            })
-                            ->get();
-
-                            foreach($deviations as $data) {
-
-                                $schedule_data[] = [
-                                    'title' => '['.$data->user->fullName().' - deviation] - '.$data->reason_for_deviation,
-                                    'start' => $data->date,
-                                    'allDay' => true,
-                                    'backgroundColor' => $deviation_color,
-                                    'borderColor' => $deviation_color,
-                                    'type' => $schedule_type,
-                                    'id' => $data->id,
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-
-            // SET USER FILTER
-            $users = UserBranchSchedule::select('user_id')->distinct()
-                ->where('date', '>=', $date_from)
-                ->where('date', '<=', $date_to)
-                ->get('user_id');
-
-            $users_arr = [
-                '' => 'select'
-            ];
-
-            // Build user filter options
-            foreach ($users as $user) {
-                $user_data = User::findOrFail($user->user_id);
-                $users_arr[$user_data->id] = $user_data->fullName();
-            }
-
+            $users_arr = ['' => 'select'] + User::whereIn('id', $user_ids)
+                ->get()
+                ->mapWithKeys(fn(User $u) => [$u->id => $u->fullName()])
+                ->all();
         } else {
-
-            // If user_id is not provided, use the current user's ID
             if (empty($user_id)) {
-                $user_id = auth()->user()->id;
+                $user_id = (string) auth()->user()->id;
             }
 
-            // Define schedule types and their corresponding status
-            $schedule_statuses = [
-                'schedule' => null,
-                'schedule_request' => 'schedule request',
-                'deviation' => 'submitted',
-            ];
+            $schedule_data = $this->buildScheduleData($date_from, $date_to, $user_id, $account_id, $colors);
 
-            // Loop through schedule types
-            foreach ($schedule_statuses as $schedule_type => $status) {
-                if($schedule_type != 'deviation') {
-                    // Fetch distinct schedule dates based on status, user, and account filters
-                    $schedules_date = UserBranchSchedule::select('date')->distinct()
-                        ->where('status', $status)
-                        ->where('date', '>=', $date_from)
-                        ->where('date', '<=', $date_to)
-                        ->when(!empty($user_id), function ($query) use ($user_id) {
-                            $query->where('user_id', $user_id);
-                        })
-                        ->get();
+            $users_arr = [auth()->user()->id => auth()->user()->fullName()];
 
-                    // Loop through schedule dates
-                    foreach ($schedules_date as $schedule) {
-                        // Fetch schedules based on date, status, user, and account filters
-                        $schedules = UserBranchSchedule::with('branch', 'branch.account')
-                            ->where('date', $schedule->date)
-                            ->when($status !== null, function ($query) use ($status) {
-                                $query->where('status', $status);
-                            })
-                            ->when(!empty($account_id), function ($query) use ($account_id) {
-                                $query->whereHas('branch', function ($qry) use ($account_id) {
-                                    $qry->where('account_id', $account_id);
-                                });
-                            })
-                            ->when(!empty($user_id), function ($query) use ($user_id) {
-                                $query->where('user_id', $user_id);
-                            })
-                            ->get();
-
-                        // Loop through fetched schedules
-                        foreach ($schedules as $sched) {
-                            $icon = '';
-
-                            // Check login status for schedule type 'schedule'
-                            if ($status == null) {
-                                $branch_login = BranchLogin::where('user_id', $user_id)
-                                    ->where('branch_id', $sched->branch_id)
-                                    ->where(DB::raw('DATE(time_in)'), $schedule->date)
-                                    ->first();
-
-                                if (!empty($branch_login)) {
-                                    $icon = 'fa fa-check';
-                                }
-                            }
-
-                            // Assign background and border colors based on schedule type
-                            $backgroundColor = $colors[$schedule_type];
-                            $borderColor = $colors[$schedule_type];
-
-                            // Add schedule data to the array
-                            $schedule_data[] = [
-                                'title' => '['.$sched->branch->account->short_name.' - '.$sched->branch->branch_code.' - '.$sched->branch->branch_name.'] '.$sched->objective,
-                                'start' => $schedule->date,
-                                'allDay' => true,
-                                'backgroundColor' => $backgroundColor,
-                                'borderColor' => $borderColor,
-                                'type' => 'schedule',
-                                'id' => $sched->id,
-                                'icon' => $icon,
-                            ];
-                        }
-                    }
-                } else {
-                    // for deviation
-                    $deviation_dates = Deviation::select('date')->distinct()
-                        ->where('status', $status)
-                        ->where('date', '>=', $date_from)
-                        ->where('date', '<=', $date_to)
-                        ->get();
-
-                    foreach($deviation_dates as $deviation) {
-                        $deviations = Deviation::where('date', $deviation->date)
-                            ->where('status', $status)
-                            ->when(!empty($user_id), function($query) use($user_id) {
-                                $query->where('user_id', $user_id);
-                            })
-                            ->get();
-
-                        foreach($deviations as $data) {
-                            $schedule_data[] = [
-                                'title' => '['.$data->user->fullName().' - deviation] - '.$data->reason_for_deviation,
-                                'start' => $data->date,
-                                'allDay' => true,
-                                'backgroundColor' => $deviation_color,
-                                'borderColor' => $deviation_color,
-                                'type' => $schedule_type,
-                                'id' => $data->id,
-                            ];
-                        }
-                    }
-                }
-            }
-
-            // user filter options
-            $users_arr = [
-                auth()->user()->id => auth()->user()->fullName()
-            ];
-
-            // If subordinate IDs are available, add them to user filter options
             if (!empty($subordinate_ids)) {
-                $users = User::whereIn('id', $subordinate_ids)->get();
+                $subordinate_users = User::whereIn('id', $subordinate_ids)
+                    ->get()
+                    ->mapWithKeys(fn(User $u) => [$u->id => $u->fullName()])
+                    ->all();
 
-                foreach ($users as $user) {
-                    $users_arr[$user->id] = $user->fullName();
-                }
+                $users_arr = $users_arr + $subordinate_users;
             }
         }
 
-        // Fetch branches and accounts based on schedule data
-        $branches = UserBranchSchedule::select('branch_id')->distinct()
+        $branch_ids = UserBranchSchedule::select('branch_id')->distinct()
             ->whereNull('status')
-            ->where('date', '>=', $date_from)
-            ->where('date', '<=', $date_to)
-            ->get('branch_id');
+            ->whereBetween('date', [$date_from, $date_to])
+            ->pluck('branch_id');
 
-        $accounts = Account::orderBy('account_code', 'ASC')
-            ->whereHas('branches', function ($query) use ($branches) {
-                $query->whereIn('id', $branches->pluck('branch_id'));
-            })->get();
+        $accounts_arr = ['' => 'select'] + Account::orderBy('account_code')
+            ->whereHas('branches', fn($q) => $q->whereIn('id', $branch_ids))
+            ->get()
+            ->mapWithKeys(fn(Account $a) => [$a->id => $a->account_code . ' - ' . $a->short_name])
+            ->all();
 
-        $accounts_arr = [
-            '' => 'select'
-        ];
-
-        // Build account filter options
-        foreach ($accounts as $account) {
-            $accounts_arr[$account->id] = $account->account_code.' - '.$account->short_name;
-        }
-
-        // Return view with necessary data
         return view('schedules.index')->with([
-            'user_id' => $user_id,
-            'account_id' => $account_id,
-            'users' => $users_arr,
-            'accounts' => $accounts_arr,
-            'schedule_data' => $schedule_data
+            'user_id'       => $user_id,
+            'account_id'    => $account_id,
+            'users'         => $users_arr,
+            'accounts'      => $accounts_arr,
+            'schedule_data' => $schedule_data,
         ]);
     }
 
-    // List
-    public function list(Request $request) {
-        $search = trim($request->get('search'));
+    public function list(Request $request): \Illuminate\View\View
+    {
+        $search = trim($request->input('search'));
 
         $schedules = UserBranchSchedule::orderBy('updated_at', 'DESC')
-        ->where(function($query) {
-            $query->whereNotNull('status')
-            ->orWhereHas('approvals');
-        })
-        ->paginate(10)->onEachSide(1);
+            ->where(function ($query) {
+                $query->whereNotNull('status')
+                    ->orWhereHas('approvals');
+            })
+            ->paginate(10)->onEachSide(1);
 
         return view('schedules.list')->with([
-            'search' => $search,
-            'schedules' => $schedules
+            'search'    => $search,
+            'schedules' => $schedules,
         ]);
     }
 
-    // deviations
-    public function deviations(Request $request) {
-        $search = trim($request->get('search'));
+    public function deviations(Request $request): \Illuminate\View\View
+    {
+        $search = trim($request->input('search'));
 
         $status_arr = [
             'submitted' => 'warning',
-            'approved' => 'success',
-            'rejected' => 'danger'
+            'approved'  => 'success',
+            'rejected'  => 'danger',
         ];
 
         $settings = $this->getSettings();
@@ -381,68 +131,129 @@ class UserBranchScheduleController extends Controller
         $deviations = Deviation::DeviationSearch($search, $settings->data_per_page);
 
         return view('schedules.deviations')->with([
-            'search' => $search,
+            'search'     => $search,
             'deviations' => $deviations,
-            'status_arr' => $status_arr
+            'status_arr' => $status_arr,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreUserBranchScheduleRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreUserBranchScheduleRequest $request)
+    public function store(StoreUserBranchScheduleRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $schedule = new UserBranchSchedule([
-            'user_id' => $request->user_id,
+        UserBranchSchedule::create([
+            'user_id'   => $request->user_id,
             'branch_id' => $request->branch_id,
-            'date' => $request->date,
-            'source' => 'create'
+            'date'      => $request->date,
+            'source'    => 'create',
         ]);
-        $schedule->save();
 
-        return back()->with([
-            'message_success' => 'Schedule was created'
-        ]);
+        return back()->with(['message_success' => 'Schedule was created']);
     }
 
-    public function upload(Request $request) {
-        $request->validate([
-            'upload_file' => [
-                'mimes:xlsx'
-            ]
-        ]);
+    public function upload(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate(['upload_file' => ['mimes:xlsx']]);
 
         Excel::import(new ScheduleImport, $request->upload_file);
 
-        // logs
-        activity('upload')
-        ->log(':causer.firstname :causer.lastname has uploaded schedules');
+        activity('upload')->log(':causer.firstname :causer.lastname has uploaded schedules');
 
-        return back()->with([
-            'message_success' => 'Schedule has been uploaded.'
-        ]);
+        return back()->with(['message_success' => 'Schedule has been uploaded.']);
     }
 
-    public function printDeviationForm($id) {
+    public function printDeviationForm(int $id): \Illuminate\Http\Response
+    {
         $deviation = Deviation::findOrFail($id);
-        $original_schedules = $deviation->schedules()->where('type', 'original')->get();
-        $new_schedules = $deviation->schedules()->where('type', 'new')->get();
+
+        // Single query instead of two separate where('type', ...) calls
+        $schedules_by_type = $deviation->schedules()->get()->groupBy('type');
 
         $pdf = PDF::loadView('schedules.deviation-pdf', [
-            'deviation' => $deviation,
-            'original_schedules' => $original_schedules,
-            'new_schedules' => $new_schedules
+            'deviation'          => $deviation,
+            'original_schedules' => $schedules_by_type->get('original', collect()),
+            'new_schedules'      => $schedules_by_type->get('new', collect()),
         ]);
 
-        return $pdf->stream('deviation-form-'.$deviation->date.'-'.time().'.pdf');
+        return $pdf->stream('deviation-form-' . $deviation->date . '-' . time() . '.pdf');
+    }
 
-        // return view('schedules.deviation-pdf')->with([
-        //     'deviation' => $deviation,
-        //     'original_schedules' => $original_schedules,
-        //     'new_schedules' => $new_schedules
-        // ]);
+    /**
+     * Build calendar event data for schedules, schedule requests, and deviations.
+     *
+     * Eliminates the date-first N+1 pattern by fetching all records at once with
+     * eager loading, and pre-fetches BranchLogins to avoid per-schedule queries.
+     */
+    private function buildScheduleData(
+        string $date_from,
+        string $date_to,
+        string $user_id,
+        string $account_id,
+        array $colors
+    ): array {
+        $schedule_data = [];
+
+        // Pre-fetch all branch logins for this user/range to avoid a query per schedule
+        $branch_logins_by_key = collect();
+        if (!empty($user_id)) {
+            $branch_logins_by_key = BranchLogin::where('user_id', $user_id)
+                ->whereRaw('DATE(time_in) BETWEEN ? AND ?', [$date_from, $date_to])
+                ->get()
+                ->groupBy(fn(BranchLogin $bl) => $bl->branch_id . '_' . Carbon::parse($bl->time_in)->toDateString());
+        }
+
+        $schedule_types = [
+            ['status' => null,               'type' => 'schedule'],
+            ['status' => 'schedule request', 'type' => 'request'],
+        ];
+
+        foreach ($schedule_types as ['status' => $status, 'type' => $type]) {
+            // Single query per type with eager loading — replaces the date-loop N+1 pattern
+            $schedules = UserBranchSchedule::with('branch.account')
+                ->when($status === null, fn($q) => $q->whereNull('status'))
+                ->when($status !== null, fn($q) => $q->where('status', $status))
+                ->whereBetween('date', [$date_from, $date_to])
+                ->when(!empty($user_id), fn($q) => $q->where('user_id', $user_id))
+                ->when(!empty($account_id), fn($q) => $q->whereHas('branch', fn($q) => $q->where('account_id', $account_id)))
+                ->get();
+
+            foreach ($schedules as $sched) {
+                $icon = '';
+                if ($status === null) {
+                    $login_key = $sched->branch_id . '_' . Carbon::parse($sched->date)->toDateString();
+                    $icon = $branch_logins_by_key->has($login_key) ? 'fa fa-check' : '';
+                }
+
+                $schedule_data[] = [
+                    'title'           => '[' . $sched->branch->account->short_name . ' - ' . $sched->branch->branch_code . ' - ' . $sched->branch->branch_name . '] ' . $sched->objective,
+                    'start'           => Carbon::parse($sched->date)->toDateString(),
+                    'allDay'          => true,
+                    'backgroundColor' => $colors[$type],
+                    'borderColor'     => $colors[$type],
+                    'type'            => 'schedule',
+                    'id'              => $sched->id,
+                    'icon'            => $icon,
+                ];
+            }
+        }
+
+        // Single query with eager-loaded user — replaces date-loop + N+1 on $data->user
+        $deviations = Deviation::with('user')
+            ->where('status', 'submitted')
+            ->whereBetween('date', [$date_from, $date_to])
+            ->when(!empty($user_id), fn($q) => $q->where('user_id', $user_id))
+            ->get();
+
+        foreach ($deviations as $deviation) {
+            $schedule_data[] = [
+                'title'           => '[' . $deviation->user->fullName() . ' - deviation] - ' . $deviation->reason_for_deviation,
+                'start'           => Carbon::parse($deviation->date)->toDateString(),
+                'allDay'          => true,
+                'backgroundColor' => $colors['deviation'],
+                'borderColor'     => $colors['deviation'],
+                'type'            => 'deviation',
+                'id'              => $deviation->id,
+            ];
+        }
+
+        return $schedule_data;
     }
 }
