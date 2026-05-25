@@ -55,6 +55,9 @@ class Dashboard extends Component
             ->join('users as u', 'u.id', '=', 'user_branch_schedules.user_id')
             ->where(DB::raw('MONTH(date)'), $this->month)
             ->where(DB::raw('YEAR(date)'), $this->year)
+            ->where(function ($q) {
+                $q->whereNull('objective')->orWhere('objective', '!=', 'on-leave');
+            })
             ->orderBy('name')
             ->groupBy(['uid', 'name']);
 
@@ -74,6 +77,9 @@ class Dashboard extends Component
                     ->where('branch_id', $branch_login->branch_id)
                     ->where('date', $branch_login->date)
                     ->whereNull('status')
+                    ->where(function ($q) {
+                        $q->whereNull('objective')->orWhere('objective', '!=', 'on-leave');
+                    })
                     ->exists();
             })->count();
 
