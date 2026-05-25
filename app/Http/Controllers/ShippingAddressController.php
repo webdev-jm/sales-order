@@ -29,7 +29,7 @@ class ShippingAddressController extends Controller
      */
     public function index(Request $request, $id)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $account = Account::findOrFail(decrypt($id));
 
         $shipping_addresses = ShippingAddress::ShippingAddressSearch($search, $account->id, $this->settings->data_per_page);

@@ -28,7 +28,7 @@ class SalesOrderController extends Controller
                     $qry1->whereIn('product_id', $this->product_ids);
                 });
             });
-        })->paginate($request->get('limit'), ['*'], 'page', $request->get('page'));
+        })->paginate($request->input('limit'), ['*'], 'page', $request->input('page'));
 
         return response()->json($data, 200);
     }
@@ -46,7 +46,7 @@ class SalesOrderController extends Controller
             $query->where('account_id', $account->id);
         })
         ->get();
-        // ->paginate($request->get('limit'), ['*'], 'page', $request->get('page'));
+        // ->paginate($request->input('limit'), ['*'], 'page', $request->input('page'));
 
         foreach($sales_orders as $sales_order) {
 

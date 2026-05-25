@@ -29,7 +29,7 @@ class TerritoryController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $territories = Territory::TerritorySearch($search, $this->setting->data_per_page);
 
         return view('territories.index')->with([

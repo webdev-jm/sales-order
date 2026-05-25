@@ -33,7 +33,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $products = Product::ProductSearch($search, $this->setting->data_per_page);
         return view('products.index')->with([
             'products' => $products,

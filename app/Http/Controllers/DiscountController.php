@@ -31,7 +31,7 @@ class DiscountController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $discounts = Discount::DiscountSearch($search, $this->setting->data_per_page);
         return view('discounts.index')->with([
             'discounts' => $discounts,

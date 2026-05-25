@@ -26,10 +26,11 @@ class CreditMemoDetailBin extends Model
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default')); // Default to 'mysql' if not set
     }
 
     public function cm_detail() {
         return $this->belongsTo('App\Models\CreditMemoDetail', 'credit_memo_detail_id', 'id');
     }
 }
+

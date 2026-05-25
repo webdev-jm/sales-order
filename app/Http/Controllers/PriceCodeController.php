@@ -32,9 +32,9 @@ class PriceCodeController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
-        $code = trim($request->get('code'));
+        $code = trim($request->input('code'));
         
         $codes = PriceCode::select('code')->distinct()->get('code');
         $code_arr[''] = 'ALL';

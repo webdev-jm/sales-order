@@ -34,8 +34,8 @@ class UserBranchScheduleController extends Controller
         $date_from = date('Y-m', strtotime('last month')).'-01';
         $date_to = date('Y-m-t');
         
-        $user_id = trim($request->get('user_id'));
-        $account_id = trim($request->get('account_id'));
+        $user_id = trim($request->input('user_id'));
+        $account_id = trim($request->input('account_id'));
 
         $schedule_color = '#25b8b5';
         $reschedule_color = '#f37206';
@@ -584,7 +584,7 @@ class UserBranchScheduleController extends Controller
 
     // List
     public function list(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $schedules = UserBranchSchedule::orderBy('updated_at', 'DESC')
         ->where(function($query) {
@@ -601,7 +601,7 @@ class UserBranchScheduleController extends Controller
 
     // deviations
     public function deviations(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $status_arr = [
             'submitted' => 'warning',

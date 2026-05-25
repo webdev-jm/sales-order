@@ -17,7 +17,7 @@ class Department extends Model
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default')); // Default to 'mysql' if not set
     }
 
     protected $fillable = [
@@ -39,3 +39,4 @@ class Department extends Model
         return $this->hasMany('App\Models\User')->withTrashed();
     }
 }
+

@@ -17,7 +17,7 @@ class SalesPerson extends Model
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default')); // Default to 'mysql' if not set
     }
 
     protected $fillable = [
@@ -33,3 +33,4 @@ class SalesPerson extends Model
         return $this->belongsToMany('App\Models\Account');
     }
 }
+

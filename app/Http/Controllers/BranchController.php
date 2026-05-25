@@ -41,7 +41,7 @@ class BranchController extends Controller
     public function index(Request $request): View
     {
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('sales') || auth()->user()->hasRole('finance')) {
             $branches = Branch::BranchSearch($search, $this->settings->data_per_page);
@@ -323,7 +323,7 @@ class BranchController extends Controller
 
     public function export(Request $request): BinaryFileResponse
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         return Excel::download(new BranchExport($search), 'SMS Branch List'.time().'.xlsx');
     }

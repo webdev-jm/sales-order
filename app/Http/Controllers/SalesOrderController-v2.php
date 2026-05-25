@@ -44,9 +44,9 @@ class SalesOrderController extends Controller
     }
 
     public function list(Request $request) {
-        $search = trim($request->get('search'));
-        $status = trim($request->get('status'));
-        $order_date = trim($request->get('order-date'));
+        $search = trim($request->input('search'));
+        $status = trim($request->input('status'));
+        $order_date = trim($request->input('order-date'));
 
         $sales_orders = SalesOrder::query()
             ->orderByDesc('control_number')
@@ -118,9 +118,9 @@ class SalesOrderController extends Controller
      */
     public function index(Request $request) {
         $logged_account = Session::get('logged_account');
-        $search = trim($request->get('search'));
-        $date_from = trim($request->get('date_from'));
-        $date_to = trim($request->get('date_to'));
+        $search = trim($request->input('search'));
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
 
         // $this->checkSalesOrderStatus();
 
@@ -1445,9 +1445,9 @@ class SalesOrderController extends Controller
 
     public function export(Request $request) {
         $logged_account = Session::get('logged_account');
-        $date_from = trim($request->get('date_from'));
-        $date_to = trim($request->get('date_to'));
-        $search = trim($request->get('search'));
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
+        $search = trim($request->input('search'));
 
         $account = $logged_account->account;
 

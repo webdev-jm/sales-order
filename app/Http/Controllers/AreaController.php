@@ -30,7 +30,7 @@ class AreaController extends Controller
      */
     public function index(Request $request): View
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $areas = Area::AreaSearch($search, $this->settings->data_per_page);
 

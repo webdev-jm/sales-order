@@ -65,15 +65,15 @@ class TripController extends Controller
     }
 
     public function index(Request $request) {
-        $date_from = trim($request->get('date_from'));
-        $date_to = trim($request->get('date_to'));
-        $user_id = trim($request->get('user'));
-        $search = trim($request->get('search'));
-        $company = trim($request->get('company'));
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
+        $user_id = trim($request->input('user'));
+        $search = trim($request->input('search'));
+        $company = trim($request->input('company'));
 
         $query_arr = [];
         foreach (['date_from', 'date_to', 'user', 'search', 'company'] as $param) {
-            $val = trim($request->get($param));
+            $val = trim($request->input($param));
             if (!empty($val)) {
                 $query_arr[] = $param . '=' . $val;
             }
@@ -212,9 +212,9 @@ class TripController extends Controller
     }
 
     public function list(Request $request) {
-        $date = trim($request->get('date'));
-        $user = trim($request->get('user'));
-        $search = trim($request->get('search'));
+        $date = trim($request->input('date'));
+        $user = trim($request->input('user'));
+        $search = trim($request->input('search'));
 
         $subordinates = auth()->user()->getSubordinateIds();
         $subordinate_ids = [];
@@ -738,11 +738,11 @@ class TripController extends Controller
     }
 
     public function export(Request $request) {
-        $search = trim($request->get('search'));
-        $date_from = trim($request->get('date_from'));
-        $date_to = trim($request->get('date_to'));
-        $user_id = trim($request->get('user'));
-        $company = trim($request->get('company'));
+        $search = trim($request->input('search'));
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
+        $user_id = trim($request->input('user'));
+        $company = trim($request->input('company'));
 
         return Excel::download(new TripExport($search, $date_from, $date_to, $user_id, $company), 'SMS Trip Request List'.time().'.xlsx');
     }

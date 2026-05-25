@@ -127,6 +127,49 @@ class SalesOrderCreationTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function test_sales_order_edit_accessible_with_logged_account(): void
+    {
+        $user = $this->createSuperadmin();
+        $account = Account::factory()->create();
+        $accountLogin = AccountLogin::factory()->create([
+            'user_id'    => $user->id,
+            'account_id' => $account->id,
+            'time_out'   => null,
+        ]);
+
+        // A draft SO can be edited; 'for optimization' is the only blocked status.
+        $salesOrder = \App\Models\SalesOrder::factory()->create([
+            'account_login_id' => $accountLogin->id,
+            'status'           => 'draft',
+        ]);
+
+        $this->actingAs($user)
+            ->withSession(['logged_account' => $accountLogin])
+            ->get('/sales-order/' . $salesOrder->id . '/edit')
+            ->assertStatus(200);
+    }
+
+    public function test_sales_order_edit_blocked_when_finalized(): void
+    {
+        $user = $this->createSuperadmin();
+        $account = Account::factory()->create();
+        $accountLogin = AccountLogin::factory()->create([
+            'user_id'    => $user->id,
+            'account_id' => $account->id,
+            'time_out'   => null,
+        ]);
+
+        $salesOrder = \App\Models\SalesOrder::factory()->create([
+            'account_login_id' => $accountLogin->id,
+            'status'           => 'for optimization',
+        ]);
+
+        $this->actingAs($user)
+            ->withSession(['logged_account' => $accountLogin])
+            ->get('/sales-order/' . $salesOrder->id . '/edit')
+            ->assertRedirect('/sales-order/' . $salesOrder->id);
+    }
+
     public function test_full_flow_login_then_account_then_sales_order_create(): void
     {
         $this->withoutExceptionHandling();

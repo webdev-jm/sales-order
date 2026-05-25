@@ -30,7 +30,7 @@ class InvoiceTermController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $invoice_terms = InvoiceTerm::InvoiceTermSearch($search, $this->setting->data_per_page);
         return view('invoice-terms.index')->with([
             'invoice_terms' => $invoice_terms,

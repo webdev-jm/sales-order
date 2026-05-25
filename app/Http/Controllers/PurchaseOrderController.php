@@ -13,7 +13,7 @@ use App\Models\SalesOrderCutOff;
 class PurchaseOrderController extends Controller
 {
     public function index(Request $request) {
-        $search = $request->get('search');
+        $search = $request->input('search');
         Session::forget('selectedPO');
         $logged_account = Session::get('logged_account');
         if(isset($logged_account)) {
