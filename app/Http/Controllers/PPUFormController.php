@@ -33,9 +33,9 @@ class PPUFormController extends Controller
     public function index(Request $request)
     {
         $logged_account = Session::get('logged_account');
-        $search = trim($request->get('search'));
-        $status = trim($request->get('status'));
-        $date_prepared = trim($request->get('date_prepared'));
+        $search = trim($request->input('search'));
+        $status = trim($request->input('status'));
+        $date_prepared = trim($request->input('date_prepared'));
 
 
         // $this->checkSalesOrderStatus();
@@ -110,7 +110,7 @@ class PPUFormController extends Controller
     public function create(Request $request)
     {
         $logged_account = Session::get('logged_account');
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         if(isset($logged_account)) {
 

@@ -14,10 +14,11 @@ class SalesOrder extends Model
 
     /**
      * Dynamically set the database connection based on the session.
+     * This supports multi-tenant deployments where each client has a separate database.
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default'));
     }
 
     protected $fillable = [
@@ -41,90 +42,73 @@ class SalesOrder extends Model
         'total_quantity',
         'total_sales',
         'grand_total',
-        'po_value'
+        'po_value',
     ];
 
-    public function account_login() {
-        return $this->belongsTo('App\Models\AccountLogin');
+    public function account_login()
+    {
+        return $this->belongsTo(AccountLogin::class);
     }
 
-    public function order_products() {
-        return $this->hasMany('App\Models\SalesOrderProduct');
+    public function order_products()
+    {
+        return $this->hasMany(SalesOrderProduct::class);
     }
 
-    public function scopeSalesOrderSearch($query, $search, $logged_account,$limit) {
-        if($search != '') {
-            $sales_orders = $query->orderBy('id', 'DESC')
-            ->whereHas('account_login', function($qry) use($logged_account) {
+    /**
+     * Scope for the account-facing index page. Filters by the logged-in account
+     * and optionally by a search string across common SO fields.
+     */
+    public function scopeSalesOrderSearch($query, $search, $logged_account, $limit)
+    {
+        return $query
+            ->orderBy('id', 'DESC')
+            ->whereHas('account_login', function ($qry) use ($logged_account) {
                 $qry->where('account_id', $logged_account->account_id);
             })
-            ->where(function($qry) use($search) {
-                $qry->where('control_number', 'like', '%'.$search.'%')
-                ->orWhere('po_number', 'like', '%'.$search.'%')
-                ->orWhere('order_date', 'like', '%'.$search.'%')
-                ->orWhere('ship_date', 'like', '%'.$search.'%')
-                ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-                ->orWhere('status', 'like', '%'.$search.'%');
+            ->when($search != '', function ($qry) use ($search) {
+                $qry->where(function ($q) use ($search) {
+                    $q->where('control_number', 'like', '%' . $search . '%')
+                        ->orWhere('po_number', 'like', '%' . $search . '%')
+                        ->orWhere('order_date', 'like', '%' . $search . '%')
+                        ->orWhere('ship_date', 'like', '%' . $search . '%')
+                        ->orWhere('ship_to_name', 'like', '%' . $search . '%')
+                        ->orWhere('status', 'like', '%' . $search . '%');
+                });
             })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        } else {
-            $sales_orders = $query->orderBy('id', 'DESC')
-            ->whereHas('account_login', function($qry) use($logged_account) {
-                $qry->where('account_id', $logged_account->account_id);
-            })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        }
-
-        return $sales_orders;
+            ->paginate($limit)
+            ->onEachSide(1)
+            ->appends(request()->query());
     }
 
-    public function scopeSalesOrderListSearch($query, $search, $limit) {
-        if($search != '') {
-            $sales_orders = $query->orderBy('control_number', 'DESC')
-            ->where(function($qry) use ($search) {
-                $qry->where('control_number', 'like', '%'.$search.'%')
-                ->orWhere('po_number', 'like', '%'.$search.'%')
-                ->orWhere('order_date', 'like', '%'.$search.'%')
-                ->orWhere('ship_date', 'like', '%'.$search.'%')
-                ->orWhere('ship_to_name', 'like', '%'.$search.'%')
-                ->orWhere('status', 'like', '%'.$search.'%');
-            })
-            ->orWhereHas('account_login', function($qry) use($search) {
-                $qry->whereHas('account', function($qry1) use($search) {
-                    // if(auth()->user()->id == 1) { // admin
-    
-                    // } else {
-                    //     $qry1->whereHas('users', function($qry2) {
-                    //         $qry2->where('id', auth()->user()->id);
-                    //     });
-                    // }
-                    $qry1->where('account_code', 'like', '%'.$search.'%')
-                    ->orWhere('short_name', 'like', '%'.$search.'%')
-                    ->orWhereHas('users', function($qry2) use ($search) {
-                        $qry2->where('firstname', 'like', '%'.$search.'%')
-                        ->orWhere('lastname', 'like', '%'.$search.'%');
-                    });
+    /**
+     * Scope for the admin list page. Searches across SO fields and related
+     * account/user names. No account filter â€” shows orders for all accounts.
+     */
+    public function scopeSalesOrderListSearch($query, $search, $limit)
+    {
+        return $query
+            ->orderBy('control_number', 'DESC')
+            ->when($search != '', function ($q) use ($search) {
+                $q->where(function ($qry) use ($search) {
+                    $qry->where('control_number', 'like', '%' . $search . '%')
+                        ->orWhere('po_number', 'like', '%' . $search . '%')
+                        ->orWhere('order_date', 'like', '%' . $search . '%')
+                        ->orWhere('ship_date', 'like', '%' . $search . '%')
+                        ->orWhere('ship_to_name', 'like', '%' . $search . '%')
+                        ->orWhere('status', 'like', '%' . $search . '%');
+                })->orWhereHas('account_login.account', function ($qry) use ($search) {
+                    $qry->where('account_code', 'like', '%' . $search . '%')
+                        ->orWhere('short_name', 'like', '%' . $search . '%')
+                        ->orWhereHas('users', function ($qry2) use ($search) {
+                            $qry2->where('firstname', 'like', '%' . $search . '%')
+                                ->orWhere('lastname', 'like', '%' . $search . '%');
+                        });
                 });
             })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        } else {
-            $sales_orders = $query->orderBy('control_number', 'DESC')
-            ->whereHas('account_login', function($qry) use($search) {
-                $qry->whereHas('account', function($qry1) use($search) {
-                    // if(auth()->user()->id == 1) { // admin
-    
-                    // } else {
-                    //     $qry1->whereHas('users', function($qry2) {
-                    //         $qry2->where('id', auth()->user()->id);
-                    //     });
-                    // }
-                });
-            })
-            ->paginate($limit)->onEachSide(1)->appends(request()->query());
-        }
-
-        return $sales_orders;
+            ->paginate($limit)
+            ->onEachSide(1)
+            ->appends(request()->query());
     }
 }
 
-//2022-11-17 14:41:01 // SO-20221117-006

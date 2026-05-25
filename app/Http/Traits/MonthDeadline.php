@@ -9,7 +9,7 @@ trait MonthDeadline {
 
     public function __construct() {
         $setting = Setting::find(1);
-        $this->days_deadline = $setting->mcp_deadline;
+        $this->days_deadline = $setting->mcp_deadline ?? 2;
     }
 
     // get the deadline of the month

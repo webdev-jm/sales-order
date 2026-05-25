@@ -22,9 +22,9 @@ class ChannelOperationController extends Controller
 
     public function list(Request $request) {
 
-        $search = trim($request->get('search'));
-        $start_date = trim($request->get('start-date'));
-        $end_date = trim($request->get('end-date'));
+        $search = trim($request->input('search'));
+        $start_date = trim($request->input('start-date'));
+        $end_date = trim($request->input('end-date'));
 
         $channel_operations = ChannelOperation::orderBy('date', 'DESC') 
             ->when(!empty($search), function($query) use($search) {

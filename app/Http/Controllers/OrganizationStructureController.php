@@ -25,7 +25,7 @@ class OrganizationStructureController extends Controller
             'PRIVATE LABEL',
         ];
 
-        $type = trim($request->get('type')) ?: 'NKAG';
+        $type = trim($request->input('type')) ?: 'NKAG';
 
         $structures = OrganizationStructure::orderBy('reports_to_id', 'DESC')->where('type', $type)->get();
 

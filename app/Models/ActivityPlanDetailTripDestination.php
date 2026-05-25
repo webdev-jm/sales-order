@@ -27,7 +27,7 @@ class ActivityPlanDetailTripDestination extends Model
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default')); // Default to 'mysql' if not set
     }
 
     public function trip() {
@@ -38,3 +38,4 @@ class ActivityPlanDetailTripDestination extends Model
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 }
+

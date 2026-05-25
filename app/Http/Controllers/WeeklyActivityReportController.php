@@ -48,7 +48,7 @@ class WeeklyActivityReportController extends Controller
     public function list(Request $request, $id) {
         $settings = $this->getSettings();
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $subordinate_ids = auth()->user()->getSubordinateIds();
 
@@ -106,7 +106,7 @@ class WeeklyActivityReportController extends Controller
     {
         $settings = $this->getSettings();
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $subordinate_ids = auth()->user()->getSubordinateIds();
 

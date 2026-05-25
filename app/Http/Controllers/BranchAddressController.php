@@ -18,7 +18,7 @@ class BranchAddressController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get("search"));
+        $search = trim($request->input("search"));
 
         $branch_address = BranchAddress::orderBy('created_at', 'DESC')
             ->when(!empty($search), function($query) use ($search) {

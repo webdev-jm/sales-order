@@ -10,7 +10,7 @@ use App\Http\Requests\UpdateBrandRequest;
 class BrandController extends Controller
 {
     public function index(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $brands = Brand::orderBy('id', 'DESC')
             ->when(!empty($search), function($query) use($search) {
                 $query->where('brand', 'LIKE', '%' . $search . '%');

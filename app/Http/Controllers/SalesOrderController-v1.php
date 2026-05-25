@@ -36,9 +36,9 @@ class SalesOrderController extends Controller
     }
 
     public function list(Request $request) {
-        $search = trim($request->get('search'));
-        $status = trim($request->get('status'));
-        $order_date = trim($request->get('order-date'));
+        $search = trim($request->input('search'));
+        $status = trim($request->input('status'));
+        $order_date = trim($request->input('order-date'));
 
         if($search != '' || $status != '' || $order_date != '') {
             $query = SalesOrder::orderBy('control_number', 'DESC');
@@ -109,7 +109,7 @@ class SalesOrderController extends Controller
     public function index(Request $request)
     {
         $logged_account = Session::get('logged_account');
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         if(isset($logged_account)) {
 
             Session::forget('order_data');

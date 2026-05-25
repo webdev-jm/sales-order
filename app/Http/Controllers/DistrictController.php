@@ -27,7 +27,7 @@ class DistrictController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $districts = District::DistrictSearch($search, $this->setting->data_per_page);
 

@@ -30,7 +30,7 @@ class AccountProductReferenceController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $account_product_references = AccountProductReference::AccountProductReferenceSearch($search, $this->settings->data_per_page);
 

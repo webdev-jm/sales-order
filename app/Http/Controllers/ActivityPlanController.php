@@ -61,7 +61,7 @@ class ActivityPlanController extends Controller
         // clear session data
         Session::forget('activity_plan_data');
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $settings = $this->getSettings();
 
@@ -264,7 +264,7 @@ class ActivityPlanController extends Controller
         foreach($activity_plan->details as $detail) {
             if(!empty($detail->is_on_leave)) {
                 $schedule_data[] = [
-                    'title'           => '🏖 ON LEAVE',
+                    'title'           => 'ðŸ– ON LEAVE',
                     'start'           => $detail->date,
                     'allDay'          => true,
                     'backgroundColor' => '#dc3545',
@@ -338,8 +338,8 @@ class ActivityPlanController extends Controller
 
             foreach ($branch_activity['activities'] as $i => $activity) {
                 $activities_html .= "
-                    📅 <b>Schedule ".($i + 1).":</b> " . e($activity['schedule_date']) . " <br>
-                    🎯 <b>Objective ".($i + 1).":</b> " . e($activity['objective']) . " <br>
+                    ðŸ“… <b>Schedule ".($i + 1).":</b> " . e($activity['schedule_date']) . " <br>
+                    ðŸŽ¯ <b>Objective ".($i + 1).":</b> " . e($activity['objective']) . " <br>
                 ";
                 // Add a separator between activities
                 if ($i < count($branch_activity['activities']) - 1) {
@@ -583,7 +583,7 @@ class ActivityPlanController extends Controller
                                     continue;
                                 }
 
-                                // Date was previously on leave but now has schedule lines — remove sentinel
+                                // Date was previously on leave but now has schedule lines â€” remove sentinel
                                 ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
                                     ->where('date', $date)
                                     ->where('is_on_leave', true)

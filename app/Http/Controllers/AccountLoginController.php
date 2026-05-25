@@ -19,7 +19,7 @@ class AccountLoginController extends Controller
     }
 
     public function index(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $accounts = Account::LoginAccountSearch($search, $this->setting->data_per_page);
         return view('account-logins.index')->with([
             'accounts' => $accounts,
@@ -28,7 +28,7 @@ class AccountLoginController extends Controller
     }
 
     public function show(Request $request, $id) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $account = Account::findOrFail($id);
 
         if($search != '') {

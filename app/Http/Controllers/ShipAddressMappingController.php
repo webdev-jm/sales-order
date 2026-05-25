@@ -8,7 +8,7 @@ use App\Models\AccountShipAddressMapping;
 class ShipAddressMappingController extends Controller
 {
     public function index(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $ship_address_mappings = AccountShipAddressMapping::orderBy('id', 'desc')
             ->paginate(10);

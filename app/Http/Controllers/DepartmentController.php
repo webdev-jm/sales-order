@@ -18,7 +18,7 @@ class DepartmentController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $departments = Department::orderBy('id', 'DESC')
             ->when(!empty($search), function($query) use($search) {

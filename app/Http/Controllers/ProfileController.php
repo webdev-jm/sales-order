@@ -16,7 +16,7 @@ class ProfileController extends Controller
     
     public function notifications(Request $request) {
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $notifications = auth()->user()->notifications()->orderBy('created_at', 'DESC')->paginate(10)->onEachSide(1);
 

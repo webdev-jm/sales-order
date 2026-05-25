@@ -39,7 +39,7 @@ class CreditMemo extends Model
      */
     public function getConnectionName()
     {
-        return Session::get('db_connection', 'mysql'); // Default to 'mysql' if not set
+        return Session::get('db_connection', config('database.default')); // Default to 'mysql' if not set
     }
 
     public function cm_details() {
@@ -62,3 +62,4 @@ class CreditMemo extends Model
         return $this->hasMany('App\Models\CreditMemoApproval', 'credit_memo_id', 'id');
     }
 }
+

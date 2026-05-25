@@ -36,7 +36,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         $users = User::UserSearch($search, $this->setting->data_per_page);
         return view('users.index')->with([
             'users' => $users,

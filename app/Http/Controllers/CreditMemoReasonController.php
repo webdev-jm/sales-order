@@ -27,7 +27,7 @@ class CreditMemoReasonController extends Controller
      */
     public function index(Request $request): View
     {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $cm_reasons = CreditMemoReason::orderBy('created_at', 'DESC')
             ->paginate($this->setting->item_per_page)

@@ -24,238 +24,146 @@ class AccountController extends Controller
 
     public $setting;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->setting = $this->getSettings();
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request): View
     {
-        $search = trim($request->get('search'));
+        $search   = trim($request->input('search'));
         $accounts = Account::AccountSearch($search, $this->setting->data_per_page);
+
         return view('accounts.index')->with([
             'accounts' => $accounts,
-            'search' => $search
+            'search'   => $search,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create(): View
     {
-        $discounts = Discount::orderBy('company_id', 'ASC')->get();
-        $discount_arr = [];
-        foreach($discounts as $discount) {
-            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code.' - '.$discount->description;
-        }
-
-        $companies = Company::orderBy('name', 'DESC')->get();
-        $companies_arr = [];
-        foreach($companies as $company) {
-            $companies_arr[$company->id] = $company->name;
-        }
-
-        $price_codes = PriceCode::select('code')->distinct()->get();
-        $price_codes_arr = [];
-        foreach($price_codes as $price_code) {
-            $price_codes_arr[$price_code->code] = $price_code->code;
-        }
-
-        $invoice_terms = InvoiceTerm::orderBy('term_code', 'ASC')->get();
-        $invoice_terms_arr = [];
-        foreach($invoice_terms as $invoice_term) {
-            $invoice_terms_arr[$invoice_term->id] = '['.$invoice_term->term_code.'] '.$invoice_term->description;
-        }
-
-        return view('accounts.create')->with([
-            'discounts' => $discount_arr,
-            'companies' => $companies_arr,
-            'price_codes' => $price_codes_arr,
-            'invoice_terms' => $invoice_terms_arr,
-        ]);
+        return view('accounts.create')->with($this->getAccountFormData());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreAccountRequest  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(StoreAccountRequest $request): RedirectResponse
     {
-        $account = new Account([
-            'invoice_term_id' => $request->invoice_term_id,
-            'company_id' => $request->company_id,
-            'discount_id' => $request->discount_id,
-            'account_code' => $request->account_code,
-            'account_name' => $request->account_name,
-            'short_name' => $request->short_name,
-            'price_code' => $request->price_code,
-            'ship_to_address1' => $request->ship_to_address1,
-            'ship_to_address2' => $request->ship_to_address2,
-            'ship_to_address3' => $request->ship_to_address3,
-            'postal_code' => $request->postal_code,
-            'tax_number' => $request->tax_number,
-            'on_hold' => $request->on_hold,
-            'po_process_date' => $request->po_process_date,
-            'po_prefix' => $request->po_prefix
-        ]);
-        $account->save();
+        $account = Account::create($request->validated());
 
-        // logs
         activity('create')
-        ->performedOn($account)
-        ->log(':causer.firstname :causer.lastname has created account [ :subject.account_code ] :subject.account_name');
+            ->performedOn($account)
+            ->log(':causer.firstname :causer.lastname has created account [ :subject.account_code ] :subject.account_name');
 
         return redirect()->route('account.index')->with([
-            'message_success' => 'Account '.$account->account_code.' was created.'
+            'message_success' => 'Account ' . $account->account_code . ' was created.',
         ]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Account  $account
-     * @return \Illuminate\Http\Response
-     */
     public function show($id): View
     {
         $account = Account::findOrFail(decrypt($id));
 
         return view('accounts.show')->with([
-            'account' => $account
+            'account' => $account,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Account  $account
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id): View
     {
         $account = Account::findOrFail(decrypt($id));
-        $discounts = Discount::orderBy('company_id', 'ASC')->get();
-        $discount_arr = [];
-        foreach($discounts as $discount) {
-            $discount_arr[$discount->id] = '['.$discount->company->name.'] '.$discount->discount_code.' - '.$discount->description;
-        }
 
-        $companies = Company::orderBy('name', 'DESC')->get();
-        $companies_arr = [];
-        foreach($companies as $company) {
-            $companies_arr[$company->id] = $company->name;
-        }
-
-        $price_codes = PriceCode::select('code')->distinct()->get();
-        $price_codes_arr = [];
-        foreach($price_codes as $price_code) {
-            $price_codes_arr[$price_code->code] = $price_code->code;
-        }
-
-        $invoice_terms = InvoiceTerm::orderBy('term_code', 'ASC')->get();
-        $invoice_terms_arr = [];
-        foreach($invoice_terms as $invoice_term) {
-            $invoice_terms_arr[$invoice_term->id] = '['.$invoice_term->term_code.'] '.$invoice_term->description;
-        }
-
-        return view('accounts.edit')->with([
-            'account' => $account,
-            'discounts' => $discount_arr,
-            'companies' => $companies_arr,
-            'price_codes' => $price_codes_arr,
-            'invoice_terms' => $invoice_terms_arr
-        ]);
+        return view('accounts.edit')->with(
+            array_merge(['account' => $account], $this->getAccountFormData())
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateAccountRequest  $request
-     * @param  \App\Models\Account  $account
-     * @return \Illuminate\Http\Response
-     */
     public function update(UpdateAccountRequest $request, $id): RedirectResponse
     {
-        $account = Account::findOrFail(decrypt($id));
-        $account_name = '['.$account->account_code.'] '.$account->account_name;
+        $account      = Account::findOrFail(decrypt($id));
+        $account_name = '[' . $account->account_code . '] ' . $account->account_name;
 
         $changes_arr['old'] = $account->getOriginal();
-
-        $account->update([
-            'invoice_term_id' => $request->invoice_term_id,
-            'company_id' => $request->company_id,
-            'discount_id' => $request->discount_id,
-            'account_code' => $request->account_code,
-            'account_name' => $request->account_name,
-            'short_name' => $request->short_name,
-            'price_code' => $request->price_code,
-            'ship_to_address1' => $request->ship_to_address1,
-            'ship_to_address2' => $request->ship_to_address2,
-            'ship_to_address3' => $request->ship_to_address3,
-            'postal_code' => $request->postal_code,
-            'tax_number' => $request->tax_number,
-            'on_hold' => $request->on_hold,
-            'po_process_date' => $request->po_process_date,
-            'po_prefix' => $request->po_prefix
-        ]);
-
+        $account->update($request->validated());
         $changes_arr['changes'] = $account->getChanges();
 
-        // logs
         activity('update')
-        ->performedOn($account)
-        ->withProperties($changes_arr)
-        ->log(':causer.firstname :causer.lastname has updated account [ :subject.account_code ] :subject.account_name .');
+            ->performedOn($account)
+            ->withProperties($changes_arr)
+            ->log(':causer.firstname :causer.lastname has updated account [ :subject.account_code ] :subject.account_name .');
 
         return back()->with([
-            'message_success' => 'Account '.$account_name.' was updated'
+            'message_success' => 'Account ' . $account_name . ' was updated',
         ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Account  $account
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Account $account): void
     {
         //
     }
 
-    public function upload(Request $request): RedirectResponse {
+    public function upload(Request $request): RedirectResponse
+    {
         $request->validate([
-            'upload_file' => [
-                'mimes:xlsx'
-            ]
+            'upload_file' => ['required', 'mimes:xlsx'],
         ]);
 
         Excel::import(new AccountImport, $request->upload_file);
 
         activity('upload')
-        ->log(':causer.firstname :causer.lastname has uploaded accounts');
+            ->log(':causer.firstname :causer.lastname has uploaded accounts');
 
         return back()->with([
-            'message_success' => 'Accounts has been uploaded.'
+            'message_success' => 'Accounts has been uploaded.',
         ]);
     }
 
-    public function ajax(Request $request) {
-        $search = $request->search;
-        $response = Account::AccountAjax($search);
+    public function ajax(Request $request)
+    {
+        $response = Account::AccountAjax($request->search);
         return response()->json($response);
     }
 
-    public function getAjax($id) {
+    public function getAjax($id)
+    {
         $account = Account::findOrFail($id);
         return response()->json($account);
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Build the dropdown option arrays shared by create() and edit().
+     * Returns an associative array ready to be passed directly to view()->with().
+     */
+    private function getAccountFormData(): array
+    {
+        $discount_arr = Discount::orderBy('company_id', 'ASC')
+            ->get()
+            ->mapWithKeys(fn($d) => [$d->id => '[' . $d->company->name . '] ' . $d->discount_code . ' - ' . $d->description])
+            ->all();
+
+        $companies_arr = Company::orderBy('name', 'DESC')
+            ->get()
+            ->mapWithKeys(fn($c) => [$c->id => $c->name])
+            ->all();
+
+        $price_codes_arr = PriceCode::select('code')
+            ->distinct()
+            ->get()
+            ->mapWithKeys(fn($p) => [$p->code => $p->code])
+            ->all();
+
+        $invoice_terms_arr = InvoiceTerm::orderBy('term_code', 'ASC')
+            ->get()
+            ->mapWithKeys(fn($t) => [$t->id => '[' . $t->term_code . '] ' . $t->description])
+            ->all();
+
+        return [
+            'discounts'     => $discount_arr,
+            'companies'     => $companies_arr,
+            'price_codes'   => $price_codes_arr,
+            'invoice_terms' => $invoice_terms_arr,
+        ];
     }
 }

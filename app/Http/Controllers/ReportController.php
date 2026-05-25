@@ -96,9 +96,9 @@ class ReportController extends Controller
     }
 
     public function map(Request $request) {
-        $date_from = trim($request->get('date_from'));
-        $date_to = trim($request->get('date_to'));
-        $user_id = trim($request->get('user_id'));
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
+        $user_id = trim($request->input('user_id'));
 
         $chart_data = [];
         $branch_data = [];

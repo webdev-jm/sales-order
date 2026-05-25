@@ -38,7 +38,7 @@ class CreditMemoController extends Controller
         Session::forget('cm_data');
         Session::forget('cm_details');
 
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
 
         $credit_memos = CreditMemo::orderBy('created_at', 'DESC')
             ->when($search, function ($query, $search) {

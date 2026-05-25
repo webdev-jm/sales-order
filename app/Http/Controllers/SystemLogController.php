@@ -18,7 +18,7 @@ class SystemLogController extends Controller
     }
 
     public function index(Request $request) {
-        $search = trim($request->get('search'));
+        $search = trim($request->input('search'));
         if($search != '') {
             $activities = Activity::orderBy('created_at', 'DESC')
             ->where('log_name', 'like', '%'.$search.'%')
