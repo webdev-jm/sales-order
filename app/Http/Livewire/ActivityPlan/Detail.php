@@ -268,17 +268,7 @@ class Detail extends Component
             })
             ->limit(10)->get();
         } else {
-            $branches = Branch::orderBy('branch_code')
-            ->whereHas('account', function($query) {
-                if(!empty($this->account_id)) {
-                    $query->where('id', $this->account_id);
-                } else {
-                    $query->whereHas('users', function($qry) {
-                        $qry->where('id', auth()->user()->id);
-                    });
-                }
-            })
-            ->limit(10)->get();
+            $branches = collect();
         }
         
         $users = User::orderBy('firstname', 'ASC')
@@ -297,11 +287,7 @@ class Detail extends Component
             ->limit(10)
             ->get();
         } else {
-            $accounts = Account::whereHas('users', function($query) {
-                $query->where('id', auth()->user()->id);
-            })
-            ->limit(10)
-            ->get();
+            $accounts = collect();
         }
 
         return view('livewire.activity-plan.detail')->with([

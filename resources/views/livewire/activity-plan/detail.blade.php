@@ -1,14 +1,14 @@
 <div>
-    <div class="card">
+    <div class="card card-outline card-secondary">
         <div class="card-header">
-            <h3 class="card-title">Activity Plan Details</h3>
-            <div class="card-tools text-sm" wire:loading>
-                <i class="fa fa-spinner fa-spin"></i>
+            <h3 class="card-title"><i class="fas fa-table mr-1"></i> Activity Plan Details</h3>
+            <div class="card-tools">
+                <span class="text-sm" wire:loading wire:target="addLine,removeLine,setDate,selectBranch,selectAccount,clearBranch,clearAccount"><i class="fa fa-spinner fa-spin"></i></span>
             </div>
         </div>
         <div class="card-body p-1 table-responsive">
-            <table class="table table-bordered table-sm">
-                <thead>
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="thead-light">
                     <tr class="text-center text-uppercase">
                         <th>Day</th>
                         <th>Date</th>
@@ -22,7 +22,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+
                     @foreach($lines[$month] as $date => $line)
                         <tr class="text-center {{$line['class']}}">
                             <td class="align-middle text-uppercase font-weight-bold" rowspan="{{count($line['lines']) + 1}}">
@@ -47,36 +47,36 @@
                             {{-- account --}}
                             <td class="p-0">
                                 <div class="input-group">
-                                    <input type="text" class="form-control border-0 {{$line['class']}}" 
-                                        wire:model="account_query.{{$date}}.{{$key}}" 
-                                        wire:keyup="setAccountQuery('{{$date}}', {{$key}})"
+                                    <input type="text" class="form-control border-0 {{$line['class']}}"
+                                        wire:model="account_query.{{$date}}.{{$key}}"
+                                        wire:keyup.debounce.400ms="setAccountQuery('{{$date}}', {{$key}})"
                                         wire:keydown.escape="resetAccountQuery"
                                         wire:keydown.tab.prevent="resetAccountQuery"
-                                        
+
                                         @if(!empty($row['account_name']))
                                             placeholder="{{$row['account_name']}}"
                                         @endif
                                     />
                                     @if(!empty($row['account_id']))
                                     <span class="input-group-append">
-                                        <button class="btn text-danger" wire:click.prevent="clearAccount('{{$date}}', '{{$key}}')"><i class="fa fa-times"></i></button>
+                                        <button class="btn text-danger border-0" wire:click.prevent="clearAccount('{{$date}}', '{{$key}}')"><i class="fa fa-times"></i></button>
                                     </span>
                                     @endif
                                 </div>
-                                
+
                                 @if(isset($account_query[$date][$key]) && !empty($account_query[$date][$key]))
 
-                                <div class="list-group position-absolute search-branch" wire:loading>
-                                    <button class="list-group-item">Searching...</button>
+                                <div class="list-group position-absolute search-branch" wire:loading wire:target="setAccountQuery">
+                                    <button class="list-group-item list-group-item-action disabled">Searching...</button>
                                 </div>
 
-                                <div class="list-group position-absolute search-branch" wire:loading.remove>
+                                <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setAccountQuery">
                                     @if($accounts->count() > 0)
                                         @foreach($accounts as $account)
-                                            <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                            <button class="list-group-item list-group-item-action text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
                                         @endforeach
                                     @else
-                                        <button class="list-group-item">No Results</button>
+                                        <button class="list-group-item disabled">No Results</button>
                                     @endif
                                 </div>
                                 @endif
@@ -84,36 +84,36 @@
                             {{-- branches --}}
                             <td class="p-0">
                                 <div class="input-group">
-                                    <input type="text" class="form-control border-0 {{$line['class']}}" 
-                                        wire:model="branch_query.{{$date}}.{{$key}}" 
-                                        wire:keyup="setQuery('{{$date}}', '{{$key}}')"
+                                    <input type="text" class="form-control border-0 {{$line['class']}}"
+                                        wire:model="branch_query.{{$date}}.{{$key}}"
+                                        wire:keyup.debounce.400ms="setQuery('{{$date}}', '{{$key}}')"
                                         wire:keydown.escape="resetQuery"
                                         wire:keydown.tab.prevent="resetQuery"
-                                        
+
                                         @if(!empty($row['branch_name']))
                                             placeholder="{{$row['branch_name']}}"
                                         @endif
                                     />
                                     @if(!empty($row['branch_id']))
                                     <span class="input-group-append">
-                                        <button class="btn text-danger" wire:click.prevent="clearBranch('{{$date}}', '{{$key}}')"><i class="fa fa-times"></i></button>
+                                        <button class="btn text-danger border-0" wire:click.prevent="clearBranch('{{$date}}', '{{$key}}')"><i class="fa fa-times"></i></button>
                                     </span>
                                     @endif
                                 </div>
-                                
+
                                 @if(isset($branch_query[$date][$key]) && !empty($branch_query[$date][$key]))
 
-                                <div class="list-group position-absolute search-branch" wire:loading>
-                                    <button class="list-group-item">Searching...</button>
+                                <div class="list-group position-absolute search-branch" wire:loading wire:target="setQuery">
+                                    <button class="list-group-item list-group-item-action disabled">Searching...</button>
                                 </div>
 
-                                <div class="list-group position-absolute search-branch" wire:loading.remove>
+                                <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setQuery">
                                     @if($branches->count() > 0)
                                         @foreach($branches as $branch)
-                                            <button class="list-group-item text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{str_replace("'", "",$branch->branch_name)}}')">[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}</button>
+                                            <button class="list-group-item list-group-item-action text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{str_replace("'", "",$branch->branch_name)}}')">[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}</button>
                                         @endforeach
                                     @else
-                                        <button class="list-group-item">No Results</button>
+                                        <button class="list-group-item disabled">No Results</button>
                                     @endif
                                 </div>
                                 @endif
@@ -122,15 +122,6 @@
                             <td class="p-0 align-middle">
                                 <textarea class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.purpose"></textarea>
                             </td>
-                            {{-- work with --}}
-                            {{-- <td class="p-0">
-                                <select class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.user_id">
-                                    <option value=""></option>
-                                    @foreach($users as $user)
-                                    <option value="{{$user->id}}">{{$user->fullName()}}</option>
-                                    @endforeach
-                                </select>
-                            </td> --}}
                             {{-- work with --}}
                             <td class="p-0">
                                 <input type="text" class="form-control border-0 {{$line['class']}}" wire:model.lazy="lines.{{$month}}.{{$date}}.lines.{{$key}}.work_with">
@@ -150,7 +141,7 @@
 
     <script>
         document.addEventListener('livewire:load', function() {
-            
+
         });
     </script>
 </div>

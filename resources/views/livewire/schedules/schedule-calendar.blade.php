@@ -81,15 +81,14 @@
                     var day = date.getDate();
                     var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
-                    if(type == 'schedule') {
+                    if(type == 'on_leave') {
+                        return;
+                    } else if(type == 'schedule') {
                         Livewire.emit('showEvents', date_format);
                         $('#event-modal').modal('show');
                     } else if(type == 'reschedule') {
                         Livewire.emit('setDate', date_format);
                         $('#reschedule-modal').modal('show');
-                    } else if(type == 'on_leave') {
-                        Livewire.emit('showEvents', date_format);
-                        $('#event-modal').modal('show');
                     }
                 },
                 themeSystem: 'bootstrap',

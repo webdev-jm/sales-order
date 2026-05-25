@@ -179,6 +179,26 @@ class Approval extends Component
 
                     }
 
+                } else if($detail->is_on_leave) {
+                    // check if already exist
+                    $schedule = UserBranchSchedule::where('user_id', $this->activity_plan->user_id)
+                        ->whereNull('branch_id')
+                        ->whereNull('status')
+                        ->where('date', $detail->date)
+                        ->where('objective', 'on-leave')
+                        ->first();
+
+                    if(empty($schedule)) {
+                        $schedule = new UserBranchSchedule([
+                            'user_id' => $this->activity_plan->user_id,
+                            'branch_id' => NULL,
+                            'date' => $detail->date,
+                            'status' => NULL,
+                            'objective' => 'on-leave',
+                            'source' => 'activity-plan'
+                        ]);
+                        $schedule->save();
+                    }
                 }
             }
 

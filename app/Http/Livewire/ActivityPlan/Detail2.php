@@ -63,40 +63,34 @@ class Detail2 extends Component
 
     public function render()
     {
-        $accounts = Account::whereHas('users', function ($query) {
-            $query->where('id', auth()->user()->id);
-        })
-            ->when(!empty($this->searchAccountQuery), function ($query) {
-                $query->where(function ($qry) {
-                    $qry->where('account_code', 'like', '%' . $this->searchAccountQuery . '%')
-                        ->orWhere('short_name', 'like', '%' . $this->searchAccountQuery . '%');
-                });
-            })
-            ->limit(10)
-            ->get();
+        if (!empty($this->searchAccountQuery)) {
+            $accounts = Account::whereHas('users', fn ($q) => $q->where('id', auth()->user()->id))
+                ->where(fn ($q) => $q
+                    ->where('account_code', 'like', '%' . $this->searchAccountQuery . '%')
+                    ->orWhere('short_name', 'like', '%' . $this->searchAccountQuery . '%')
+                )
+                ->limit(10)->get();
+        } else {
+            $accounts = collect();
+        }
 
-        $branches = Branch::orderBy('branch_name')
-            ->whereHas('account', function ($query) {
-                $query->when(!empty($this->account_id), function ($qry) {
-                    $qry->where('id', $this->account_id);
+        if (!empty($this->searchBranchQuery)) {
+            $branches = Branch::orderBy('branch_name')
+                ->whereHas('account', function ($query) {
+                    $query->when(!empty($this->account_id), fn ($q) => $q->where('id', $this->account_id))
+                        ->whereHas('users', fn ($q) => $q->where('id', auth()->user()->id));
                 })
-                    ->whereHas('users', function ($qry) {
-                        $qry->where('id', auth()->user()->id);
-                    });
-            })
-            ->when(!empty($this->searchBranchQuery), function ($query) {
-                $query->where(function ($query) {
+                ->where(function ($query) {
                     $query->where('branch_code', 'like', '%' . $this->searchBranchQuery . '%')
                         ->orWhere('branch_name', 'like', '%' . $this->searchBranchQuery . '%')
-                        ->when(empty($this->account_id), function ($qry) {
-                            $qry->orWhereHas('account', function ($qry1) {
-                                $qry1->where('short_name', 'like', '%' . $this->searchBranchQuery . '%');
-                            });
-                        });
-                });
-            })
-            ->limit(10)
-            ->get();
+                        ->when(empty($this->account_id), fn ($q) => $q->orWhereHas('account',
+                            fn ($q1) => $q1->where('short_name', 'like', '%' . $this->searchBranchQuery . '%')
+                        ));
+                })
+                ->limit(10)->get();
+        } else {
+            $branches = collect();
+        }
 
         return view('livewire.activity-plan.detail2')->with([
             'accounts' => $accounts,

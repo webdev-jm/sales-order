@@ -9,7 +9,6 @@ Activity Plan - Edit
     .select2.select2-container.select2-container--default {
         width: 100% !important;
     }
-
     .select2-selection.select2-selection--single {
         border: 0;
     }
@@ -23,13 +22,14 @@ Activity Plan - Edit
 @endsection
 
 @section('content_header')
-<div class="row">
-    <div class="col-lg-6">
-        <h1>Activity Plan / Edit <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span></h1>
-    </div>
-    <div class="col-lg-6 text-right">
-        <a href="{{route('mcp.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
-    </div>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="mb-0">
+        Activity Plan <small class="text-muted">/ Edit</small>
+        <span class="badge badge-{{$status_arr[$activity_plan->status]}} ml-1">{{$activity_plan->status}}</span>
+    </h1>
+    <a href="{{route('mcp.index')}}" class="btn btn-default btn-sm">
+        <i class="fa fa-arrow-left mr-1"></i> Back
+    </a>
 </div>
 @endsection
 
@@ -37,29 +37,29 @@ Activity Plan - Edit
 {!! Form::open(['method' => 'POST', 'route' => ['mcp.update', $activity_plan->id], 'id' => 'update_mcp']) !!}
 {!! Form::close() !!}
 
-<div class="card sticky-top">
-    <div class="card-header">
-        
-        <div class="row">
+<div class="card sticky-top shadow-sm">
+    <div class="card-body py-2">
+        <div class="row align-items-center">
             <div class="col-lg-8 col-md-6">
-                <b>NAME:</b> {{$activity_plan->user->fullName()}}<br>
+                <div class="text-sm">
+                    <span class="text-muted">Name:</span>
+                    <strong class="ml-1">{{$activity_plan->user->fullName()}}</strong>
+                </div>
                 @if(!empty($position))
-                <b>POSITION:</b> {{implode(', ', $position)}}
+                <div class="text-sm">
+                    <span class="text-muted">Position:</span>
+                    <strong class="ml-1">{{implode(', ', $position)}}</strong>
+                </div>
                 @endif
             </div>
-            <div class="col-lg-4 col-md-6 text-right">
-                <div class="row">
-                    <div class="col-lg-6">
-                        {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-block btn-submit mb-1', 'form' => 'update_mcp', 'type' => 'button']) !!}
-                    </div>
-                    <div class="col-lg-6">
-                        {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-block btn-submit', 'form' => 'update_mcp', 'type' => 'button']) !!}
-                    </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="d-flex justify-content-end">
+                    {!! Form::submit('Save as Draft', ['class' => 'btn btn-secondary btn-sm mr-1 btn-submit', 'form' => 'update_mcp', 'type' => 'button']) !!}
+                    {!! Form::submit('Submit for Approval', ['class' => 'btn btn-primary btn-sm btn-submit', 'form' => 'update_mcp', 'type' => 'button']) !!}
                     {!! Form::hidden('status', $activity_plan->status, ['form' => 'update_mcp', 'id' => 'status']) !!}
                 </div>
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -67,7 +67,6 @@ Activity Plan - Edit
     <div class="col-12">
         <livewire:activity-plan.header/>
     </div>
-    
     <div class="col-12">
         <livewire:activity-plan.detail2/>
     </div>
@@ -93,7 +92,7 @@ Activity Plan - Edit
             Livewire.emit('setTrip', year, month, date, key);
             $('#modal-trip').modal('show');
         });
-        
+
         function getOnLeaveDatesWithSchedules() {
             var $el = $('#on-leave-warnings');
             if (!$el.length) { return []; }

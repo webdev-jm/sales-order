@@ -15,7 +15,7 @@
             <div class="row">
                 <div class="col-12">
                     <label class="text-uppercase">{{$schedule_data->user->fullName()}}</label>
-                    <h3>[{{$schedule_data->branch->branch_code}}] {{$schedule_data->branch->branch_name}}</h3>
+                    <h3>{{ $schedule_data->branch ? '[' . $schedule_data->branch->branch_code . '] ' . $schedule_data->branch->branch_name : 'On Leave' }}</h3>
                     <p>
                         <b>Objective</b><br>
                         {{$schedule_data->objective}}
@@ -322,7 +322,7 @@
             <div class="list-group">
                 @foreach($branch_schedules as $schedule)
                 <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="viewSchedule({{$schedule->id}})"  wire:loading.attr="disabled">
-                    {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                    {{ $schedule->branch ? $schedule->branch->branch_code . ' ' . $schedule->branch->branch_name : 'On Leave' }}
                     <span class="float-right">{{$schedule->user->fullName()}}</span>
                 </a>
                 @endforeach
