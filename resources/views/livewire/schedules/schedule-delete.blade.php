@@ -2,6 +2,9 @@
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Delete Requests ({{$date}})</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="modal-body">
             @if(!empty($schedules))
@@ -94,10 +97,5 @@
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
-        <script>
-            document.addEventListener('livewire:load', function () {
-            });
-        </script>
     </div>
 </div>

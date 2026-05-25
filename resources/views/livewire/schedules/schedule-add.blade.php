@@ -2,6 +2,9 @@
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Schedule Request</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="modal-body">
 
@@ -64,12 +67,12 @@
         </div>
         <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button class="btn btn-primary" wire:click.prevent="submitRequest" wire:loading.attr="disabled">Add Schedule</button>
+            <div class="d-flex align-items-center">
+                <span wire:loading wire:target="submitRequest" class="mr-2">
+                    <i class="fa fa-spinner fa-spin"></i>
+                </span>
+                <button class="btn btn-primary" wire:click.prevent="submitRequest" wire:loading.attr="disabled">Add Schedule</button>
+            </div>
         </div>
-    
-        <script>
-            document.addEventListener('livewire:load', function () {
-            });
-        </script>
     </div>
 </div>

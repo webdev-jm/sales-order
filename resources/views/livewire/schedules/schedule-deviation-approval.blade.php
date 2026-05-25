@@ -5,11 +5,17 @@
                 <span class="badge badge-{{$status_arr[$deviation->status]}}">{{$deviation->status}}</span>
             @endif
         </h4>
-        @if(!empty($deviation))
-        <div class="card-tools">
-            <a href="{{route('schedule.deviation-print', $deviation->id)}}" target="_blank" class="btn btn-primary"><i class="fa fa-print mr-1"></i>Print</a>
+        <div class="d-flex align-items-center">
+            @if(!empty($deviation))
+            <a href="{{route('schedule.deviation-print', $deviation->id)}}" target="_blank"
+               class="btn btn-sm btn-primary mr-2">
+                <i class="fa fa-print mr-1"></i>Print
+            </a>
+            @endif
+            <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
-        @endif
     </div>
     <div class="modal-body">
 
@@ -54,7 +60,7 @@
                             <th>ACCOUNT AND AREA</th>
                             <th>ACTIVITY</th>
                         </tr>
-                        @if(!empty($original_schedules)) 
+                        @if(!empty($original_schedules))
                             @foreach($original_schedules as $schedule)
                             <tr class="text-center">
                                 <td></td>
@@ -106,7 +112,7 @@
                         <tr>
                             <th colspan="2">DATE FILED:</th>
                             <td class="text-center">{{$deviation->created_at}}</td>
-                            
+
                             <th class="text-left">DATE APPROVED:</th>
                         </tr>
                         <tr>
@@ -134,16 +140,16 @@
             @else
                 {{-- approval history --}}
                 @if(!empty($approvals))
-                    <div class="row">
+                    <div class="row mt-3">
                         <div class="col-12">
-                            <u>APPROVAL HISTORY</u>
-                            <table class="table table-sm table-bordered">
+                            <p class="font-weight-bold mb-1">APPROVAL HISTORY</p>
+                            <table class="table table-sm table-bordered table-striped">
                                 <thead>
                                     <tr>
                                         <th>User</th>
                                         <th>Status</th>
                                         <th>Remarks</th>
-                                        <th>Date</th>
+                                        <th class="text-nowrap">Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -154,7 +160,7 @@
                                             <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
                                         </td>
                                         <td>{{$approval->remarks}}</td>
-                                        <td>{{date('Y-m-d H:i:s a', strtotime($approval->created_at))}}</td>
+                                        <td class="text-nowrap">{{date('Y-m-d H:i:s a', strtotime($approval->created_at))}}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -178,5 +184,5 @@
             </div>
         @endif
     </div>
-    
+
 </div>

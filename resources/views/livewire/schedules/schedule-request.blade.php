@@ -2,10 +2,13 @@
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Schedule Requests {{$date ?? ''}}</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="modal-body">
 
-            @if(!empty($schedules)) 
+            @if(!empty($schedules))
                 @if(!empty($schedule_data))
                     {{-- Request Data --}}
                     <div class="row">
@@ -52,7 +55,7 @@
                                                 <p class="text-danger">{{$message}}</p>
                                                 @enderror
                                             </div>
-    
+
                                             <div class="col-lg-12 mt-2">
                                                 <button class="btn btn-default" wire:click.prevent="cancel" wire:loading.attr="disabled"><i class="fa fa-arrow-left mr-1"></i>Cancel</button>
                                                 <button type="submit" class="btn btn-danger"><i class="fa fa-ban mr-1"></i>Reject</button>
@@ -77,15 +80,11 @@
 
                 @endif
             @endif
-    
+
         </div>
         <div class="modal-footer justify-content-between">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
+
     </div>
-    <script>
-        document.addEventListener('livewire:load', function () {
-        });
-    </script>
 </div>

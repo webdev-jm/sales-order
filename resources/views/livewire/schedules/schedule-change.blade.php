@@ -2,6 +2,9 @@
     <div class="modal-content">
         <div class="modal-header">
             <h4 class="modal-title">Reschedule Requests ({{$date}})</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="modal-body">
             @if(!empty($schedules))
@@ -26,7 +29,7 @@
                                 <b>Remarks:</b> {{$approval->remarks}}
                             </p>
                         </div>
-                       
+
                         @can('schedule approve reschedule')
                             @if(empty($action))
                             <div class="col-12">
@@ -61,7 +64,7 @@
                                 <form wire:submit.prevent="submitApprove">
                                     <div class="col-12">
                                         <p>
-                                            <b>Are you sure to appove this reschedule?</b>
+                                            <b>Are you sure to approve this reschedule?</b>
                                             <br>
                                             This schedule will be moved to {{$schedule_data->reschedule_date}}
                                         </p>
@@ -91,16 +94,11 @@
                         </div>
                     </div>
                 @endif
-                
+
             @endif
         </div>
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
-        <script>
-            document.addEventListener('livewire:load', function () {
-            });
-        </script>
     </div>
 </div>

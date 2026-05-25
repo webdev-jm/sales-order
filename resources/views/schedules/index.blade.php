@@ -10,13 +10,6 @@
         cursor: pointer;
     }
 
-    /* @media (min-width: 768px) {
-        .fc-event-time, .fc-event-title {
-            padding: 0 1px;
-            white-space: normal;
-        }
-    } */
-
     .fc-event-time, .fc-event-title {
         padding: 0 1px;
         white-space: normal;
@@ -37,20 +30,20 @@
     .deviation-request {
         color: rgb(14, 22, 173);
     }
+    .on-leave {
+        color: #fd7e14;
+    }
 
     .w100 {
         width: 100px !important;
     }
-    
+
     .trip-icon {
         font-size: 60px !important;
         margin-bottom: 0;
     }
     .middle {
         line-height: 100% !important;
-    }
-    .w-100 {
-        width: 100% !important;
     }
 </style>
 @endsection
@@ -61,12 +54,6 @@
         <h1>Schedules</h1>
     </div>
     <div class="col-md-6 text-right">
-        {{-- @can('trip access')
-        <a href="{{route('trip.list')}}" class="btn btn-info">
-            <i class="fa fa-plane mr-1"></i>
-            TRIPS
-        </a>
-        @endif --}}
         <a href="{{route('schedule.deviations')}}" class="btn btn-warning"><i class="fa fa-calendar mr-1"></i>DEVIATIONS</a>
         @can('schedule list')
         <a href="{{route('schedule.list')}}" class="btn btn-primary"><i class="fa fa-list mr-1"></i>SCHEDULE REQUEST</a>
@@ -86,12 +73,11 @@
 
     {{-- Filter --}}
     <div class="col-12">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
                 <h3 class="card-title">Filter</h3>
             </div>
-            <div class="card-header">
-                
+            <div class="card-body">
                 <div class="row">
 
                     {{-- account --}}
@@ -111,7 +97,6 @@
                     </div>
 
                 </div>
-
             </div>
             <div class="card-footer text-right">
                 {!! Form::submit('Filter', ['class' => 'btn btn-primary', 'form' => 'search_form']) !!}
@@ -119,46 +104,34 @@
         </div>
     </div>
 
-    {{-- color codes --}}
+    {{-- Color codes --}}
     <div class="col-lg-12">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
                 <h3 class="card-title">Color Codes</h3>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square schedule mr-1"></i>
-                        <span>Schedules</span>
-                    </div>
-                    {{-- <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square reschedule"></i>
-                        <span>Reschedule Request</span>
-                    </div>
-                    <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square delete-request"></i>
-                        <span>Delete Request</span>
-                    </div> --}}
-                    <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square schedule-request mr-1"></i>
-                        <span>Schedule Request</span>
-                    </div>
-                    <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square deviation-request mr-1"></i>
-                        <span>Deviation Request</span>
-                    </div>
-                    <div class="col-lg-2 col-md-3">
-                        <i class="fa fa-square mr-1" style="color:#fd7e14;"></i>
-                        <span>On Leave</span>
-                    </div>
+            <div class="card-body py-2">
+                <div class="d-flex flex-wrap" style="gap: 8px;">
+                    <span class="badge badge-pill px-3 py-2" style="background-color:rgb(37,184,181);color:#fff;">
+                        <i class="fa fa-calendar-check mr-1"></i>Schedule
+                    </span>
+                    <span class="badge badge-pill px-3 py-2" style="background-color:rgb(50,168,82);color:#fff;">
+                        <i class="fa fa-plus-circle mr-1"></i>Schedule Request
+                    </span>
+                    <span class="badge badge-pill px-3 py-2" style="background-color:rgb(14,22,173);color:#fff;">
+                        <i class="fa fa-random mr-1"></i>Deviation Request
+                    </span>
+                    <span class="badge badge-pill px-3 py-2" style="background-color:#fd7e14;color:#fff;">
+                        <i class="fa fa-umbrella-beach mr-1"></i>On Leave
+                    </span>
                 </div>
             </div>
         </div>
     </div>
-    
+
     {{-- Calendar --}}
     <div class="col-lg-12">
-        <div class="card">
+        <div class="card shadow-sm">
             <div class="card-header">
                 <h3 class="card-title">Calendar</h3>
                 <div class="card-tools">
@@ -177,6 +150,9 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Upload Schedule</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 {!! Form::open(['method' => 'POST', 'route' => ['schedule.upload'], 'id' => 'upload_form', 'enctype' => 'multipart/form-data']) !!}
@@ -251,7 +227,6 @@
     </div>
 </div>
 
-
 <div class="modal fade" id="add-modal">
     <div class="modal-dialog modal-lg">
         <livewire:schedules.schedule-add/>
@@ -278,11 +253,6 @@
 <script>
     $(function () {
 
-        $('#btn-upload').on('click', function(e){
-            e.preventDefault();
-            $('#modal-upload').modal('show');
-        });
-
         $('#upload_form').on('submit', function() {
             $('#modal-upload').modal('hide');
             $('#loadingModal').modal('show');
@@ -291,6 +261,12 @@
         $('#btn-request-schedule').on('click', function(e) {
             e.preventDefault();
             $('#add-modal').modal('show');
+        });
+
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
         });
 
         var calendarEl = document.getElementById('calendar');
@@ -313,7 +289,7 @@
                 var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
                 if(type == 'on-leave') {
-                    return; // on-leave entries have no detail to show
+                    return;
                 } else if(type == 'schedule') {
                     Livewire.emit('showEvents', date_format, id);
                     $('#event-modal').modal('show');
@@ -330,7 +306,7 @@
                     Livewire.emit('setDeviationApproval', id);
                     $('#deviation-approval-modal').modal('show');
                 }
-                
+
             },
             dateClick: function(info) {
                 var date = info.dateStr;
@@ -350,30 +326,13 @@
                                     (arg.event.extendedProps.icon ? '<i class="fa ' + arg.event.extendedProps.icon + ' text-lime mx-1"></i> '+arg.event.title : arg.event.title) +
                                 '</div>'+
                             '</div>'+
-                        '</div>' 
+                        '</div>'
                 }
             },
             themeSystem: 'bootstrap',
-            events: @php echo json_encode($schedule_data); @endphp
+            events: {!! json_encode($schedule_data) !!}
         });
         calendar.render();
     });
-
-    // select options
-    $(function () {
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        
-    });
 </script>
-@endsection
-
-@section('footer')
-@endsection
-
-@section('right-sidebar')
-sidebar
 @endsection

@@ -16,30 +16,31 @@ use App\Notifications\DeviationRejected;
 
 use Illuminate\Support\Facades\Log;
 
+/** Modal component for viewing and approving/rejecting deviation requests. */
 class ScheduleDeviationApproval extends Component
 {
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
-    
+
     public $deviation, $original_schedules, $new_schedules;
     public $remarks, $supervisor_ids;
     public $status_arr = [
         'submitted' => 'warning',
-        'approved' => 'success',
-        'rejected' => 'danger'
+        'approved'  => 'success',
+        'rejected'  => 'danger'
     ];
 
     protected $listeners = [
         'setDeviationApproval' => 'setDeviation'
     ];
 
-    public function approve() {
-        // change status
+    public function approve(): \Illuminate\Http\RedirectResponse
+    {
         $this->deviation->update([
             'status' => 'approved'
         ]);
 
-        foreach($this->original_schedules as $original) {
+        foreach ($this->original_schedules as $original) {
             $schedule = UserBranchSchedule::find($original->user_branch_schedule_id);
             if (!empty($schedule) && $schedule->objective !== 'on-leave') {
                 $schedule->update([
@@ -47,22 +48,21 @@ class ScheduleDeviationApproval extends Component
                 ]);
             }
         }
-        // create new schedule
-        foreach($this->new_schedules as $new) {
-            // check if existed
+
+        foreach ($this->new_schedules as $new) {
             $branch_schedule = UserBranchSchedule::where('user_id', $this->deviation->user_id)
                 ->where('branch_id', $new->branch_id)
                 ->where('date', $new->date)
                 ->whereNull('status')
                 ->where('source', 'deviation')
                 ->first();
-            if(empty($branch_schedule)) {
-                // create request if approved
+
+            if (empty($branch_schedule)) {
                 $branch_schedule = new UserBranchSchedule([
                     'user_id' => $this->deviation->user_id,
                     'branch_id' => $new->branch_id,
                     'date' => $new->date,
-                    'status' => NULL,
+                    'status' => null,
                     'objective' => $new->activity,
                     'source' => 'deviation'
                 ]);
@@ -74,7 +74,6 @@ class ScheduleDeviationApproval extends Component
             }
         }
 
-        // record approval
         $approvals = new DeviationApproval([
             'deviation_id' => $this->deviation->id,
             'user_id' => auth()->user()->id,
@@ -83,20 +82,17 @@ class ScheduleDeviationApproval extends Component
         ]);
         $approvals->save();
 
-        // logs
         activity('approved')
-        ->performedOn($this->deviation)
-        ->log(':causer.firstname :causer.lastname has approved schedule deviation :subject.reason_for_deviation');
+            ->performedOn($this->deviation)
+            ->log(':causer.firstname :causer.lastname has approved schedule deviation :subject.reason_for_deviation');
 
-        // notifications
         try {
             $user = $this->deviation->user;
             Notification::send($user, new DeviationApproved($this->deviation));
-        } catch(\Exception $e) {
-            Log::error('Notification failed: '.$e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Notification failed: ' . $e->getMessage());
         }
 
-        // update reminders
         $this->deviation->reminders()->whereNull('status')->update([
             'status' => 'done'
         ]);
@@ -104,26 +100,25 @@ class ScheduleDeviationApproval extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function reject() {
+    public function reject(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
             'remarks' => 'required'
         ]);
 
-        // update status
         $this->deviation->update([
             'status' => 'rejected'
         ]);
 
-        foreach($this->original_schedules as $original) {
+        foreach ($this->original_schedules as $original) {
             $schedule = UserBranchSchedule::find($original->user_branch_schedule_id);
             if (!empty($schedule) && $schedule->objective !== 'on-leave') {
                 $schedule->update([
-                    'status' => NULL
+                    'status' => null
                 ]);
             }
         }
 
-        // record approval
         $approvals = new DeviationApproval([
             'deviation_id' => $this->deviation->id,
             'user_id' => auth()->user()->id,
@@ -132,20 +127,17 @@ class ScheduleDeviationApproval extends Component
         ]);
         $approvals->save();
 
-        // logs
         activity('rejected')
-        ->performedOn($this->deviation)
-        ->log(':causer.firstname :causer.lastname has rejected schedule deviation :subject.reason_for_deviation');
+            ->performedOn($this->deviation)
+            ->log(':causer.firstname :causer.lastname has rejected schedule deviation :subject.reason_for_deviation');
 
-        // notifications
         try {
             $user = $this->deviation->user;
             Notification::send($user, new DeviationRejected($this->deviation));
-        } catch(\Exception $e) {
-            Log::error('Notification failed: '.$e->getMessage());
+        } catch (\Exception $e) {
+            Log::error('Notification failed: ' . $e->getMessage());
         }
 
-        // update reminders
         $this->deviation->reminders()->whereNull('status')->update([
             'status' => 'done'
         ]);
@@ -153,20 +145,28 @@ class ScheduleDeviationApproval extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function setDeviation($deviation_id) {
+    public function setDeviation($deviation_id): void
+    {
         $this->deviation = Deviation::find($deviation_id);
+
+        if (empty($this->deviation)) {
+            return;
+        }
+
         $this->supervisor_ids = $this->deviation->user->getSupervisorIds();
 
-        $this->original_schedules = $this->deviation->schedules()->where('type', 'original')->get();
-        $this->new_schedules = $this->deviation->schedules()->where('type', 'new')->get();
+        $schedules_by_type = $this->deviation->schedules()->get()->groupBy('type');
+        $this->original_schedules = $schedules_by_type->get('original', collect());
+        $this->new_schedules = $schedules_by_type->get('new', collect());
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $approvals = [];
-        if(!empty($this->deviation)) {
-            $approvals = $this->deviation->approvals()->orderBy('created_at', 'DESC')
-            ->paginate(5, ['*'], 'approval-page')->onEachSide(1);
+        if (!empty($this->deviation)) {
+            $approvals = $this->deviation->approvals()
+                ->orderBy('created_at', 'DESC')
+                ->paginate(5, ['*'], 'approval-page')->onEachSide(1);
         }
 
         return view('livewire.schedules.schedule-deviation-approval')->with([

@@ -24,6 +24,7 @@ use App\Notifications\TripSubmitted;
 
 use Illuminate\Support\Facades\Log;
 
+/** Modal component for viewing and acting on a calendar day's schedules — supports sign-in, reschedule, delete, and trip submission. */
 class ScheduleEvent extends Component
 {
     use WithPagination;
@@ -34,7 +35,7 @@ class ScheduleEvent extends Component
         'user_id',
         'account_id'
     ];
-    
+
     public $date, $schedule_data;
     public bool $is_on_leave = false;
     public $action;
@@ -45,7 +46,7 @@ class ScheduleEvent extends Component
     public $trip_reference_number, $reference_number_edit = 0;
     public $trip_number;
     public $departure, $arrival, $reference_number, $transportation_type;
-    
+
     public $status_arr = [
         'draft'                     => 'secondary',
         'submitted'                 => 'indigo',
@@ -61,24 +62,19 @@ class ScheduleEvent extends Component
         'showEvents' => 'setDate'
     ];
 
-    public function updatingSearch() {
+    public function updatingSearch(): void
+    {
         $this->resetPage();
     }
 
-    // update trip reference number
-    public function updatedTripReferenceNumber() {
-        // check if theres changes
-        if($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
+    public function updatedTripReferenceNumber(): void
+    {
+        if ($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
             $changes_arr = [
-                'old' => [
-                    'reference_number' => $this->schedule_data->trip->reference_number
-                ],
-                'changes' => [
-                    'reference_number' => $this->trip_reference_number
-                ]
+                'old'     => ['reference_number' => $this->schedule_data->trip->reference_number],
+                'changes' => ['reference_number' => $this->trip_reference_number],
             ];
 
-            // systemlog
             activity('update')
                 ->performedOn($this->schedule_data->trip)
                 ->withProperties($changes_arr)
@@ -92,24 +88,20 @@ class ScheduleEvent extends Component
         $this->reference_number_edit = 0;
     }
 
-    public function editReference() {
+    public function editReference(): void
+    {
         $this->reference_number_edit = 1;
         $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
     }
 
-    public function saveEditReference() {
-        // check if theres changes
-        if($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
+    public function saveEditReference(): void
+    {
+        if ($this->schedule_data->trip->reference_number != trim($this->trip_reference_number)) {
             $changes_arr = [
-                'old' => [
-                    'reference_number' => $this->schedule_data->trip->reference_number
-                ],
-                'changes' => [
-                    'reference_number' => $this->trip_reference_number
-                ]
+                'old'     => ['reference_number' => $this->schedule_data->trip->reference_number],
+                'changes' => ['reference_number' => $this->trip_reference_number],
             ];
 
-            // systemlog
             activity('update')
                 ->performedOn($this->schedule_data->trip)
                 ->withProperties($changes_arr)
@@ -123,41 +115,39 @@ class ScheduleEvent extends Component
         $this->reference_number_edit = 0;
     }
 
-    // Sign In
-    public function sign_in() {
+    public function sign_in(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
-            'accuracy' => 'required',
+            'accuracy'  => 'required',
             'longitude' => 'required',
-            'latitude' => 'required',
+            'latitude'  => 'required',
         ]);
 
-        // check if logged in to account or branch
         $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
-        ->whereNull('time_out')
-        ->first();
+            ->whereNull('time_out')
+            ->first();
 
         $logged_branch = BranchLogin::where('user_id', auth()->user()->id)
-        ->whereNull('time_out')
-        ->first();
+            ->whereNull('time_out')
+            ->first();
 
-        if(empty($logged_account) && empty($logged_branch)) {
+        if (empty($logged_account) && empty($logged_branch)) {
             $branch_login = new BranchLogin([
-                'user_id' => auth()->user()->id,
+                'user_id'   => auth()->user()->id,
                 'branch_id' => $this->schedule_data->branch_id,
                 'longitude' => $this->longitude,
-                'latitude' => $this->latitude,
-                'accuracy' => $this->accuracy,
-                'time_in' => now(),
+                'latitude'  => $this->latitude,
+                'accuracy'  => $this->accuracy,
+                'time_in'   => now(),
             ]);
             $branch_login->save();
 
             Session::put('logged_branch', $branch_login);
 
-            // logs
             activity('login')
-            ->performedOn($branch_login)
-            ->log(':causer.firstname :causer.lastname has logged in to branch '.$this->schedule_data->branch->branch_name);
-            
+                ->performedOn($branch_login)
+                ->log(':causer.firstname :causer.lastname has logged in to branch ' . $this->schedule_data->branch->branch_name);
+
             return redirect()->to('/home')->with([
                 'message_success' => 'You are logged in.'
             ]);
@@ -166,31 +156,24 @@ class ScheduleEvent extends Component
                 'message_error' => 'Your are currently logged in to a branch.'
             ]);
         }
-        
     }
 
-    // save trip
-    public function submitTrip() {
+    public function submitTrip(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
-            'departure' => [
-                'required'
-            ],
-            'arrival' => [
-                'required'
-            ],
-            'transportation_type' => [
-                'required'
-            ]
+            'departure'           => ['required'],
+            'arrival'             => ['required'],
+            'transportation_type' => ['required'],
         ]);
 
         $trip = new ActivityPlanDetailTrip([
-            'activity_plan_detail_id' => NULL,
-            'trip_number' => $this->trip_number,
-            'departure' => $this->departure,
-            'arrival' => $this->arrival,
-            'reference_number' => $this->reference_number ?? '',
-            'transportation_type' => $this->transportation_type,
-            'source' => 'schedule'
+            'activity_plan_detail_id' => null,
+            'trip_number'             => $this->trip_number,
+            'departure'               => $this->departure,
+            'arrival'                 => $this->arrival,
+            'reference_number'        => $this->reference_number ?? '',
+            'transportation_type'     => $this->transportation_type,
+            'source'                  => 'schedule',
         ]);
         $trip->save();
 
@@ -198,54 +181,50 @@ class ScheduleEvent extends Component
             'activity_plan_detail_trip_id' => $trip->id
         ]);
 
-        // record to approvals
         $approval = new ActivityPlanDetailTripApproval([
-            'user_id' => auth()->user()->id,
-            'activity_plan_detail_trip_id' => $trip->id,
-            'status' => 'submitted',
+            'user_id'                       => auth()->user()->id,
+            'activity_plan_detail_trip_id'  => $trip->id,
+            'status'                        => 'submitted',
         ]);
         $approval->save();
 
-        // systemlog
         activity('created')
             ->performedOn($trip)
             ->log(':causer.firstname :causer.lastname added a new trip :subject.trip_number');
 
-        // notification
-
         return redirect(request()->header('Referer'))->with([
-            'message_success' => 'Trip '.$trip->trip_number.' has been created.'
+            'message_success' => 'Trip ' . $trip->trip_number . ' has been created.'
         ]);
     }
 
-    public function loadLocation() {
+    public function loadLocation(): void
+    {
         $this->dispatchBrowserEvent('reloadLocation');
     }
 
-    // Re-schedule && Delete Request
-    public function submit() {
-        if($this->action == 'reschedule-request') {
+    public function submit(): ?\Illuminate\Http\RedirectResponse
+    {
+        if ($this->action == 'reschedule-request') {
             $this->validate([
                 'reschedule_date' => 'required',
-                'remarks' => 'required'
+                'remarks'         => 'required',
             ]);
 
             $changes_arr['old'] = $this->schedule_data->getOriginal();
 
             $this->schedule_data->update([
                 'reschedule_date' => $this->reschedule_date,
-                'status' => 'for reschedule'
+                'status'          => 'for reschedule',
             ]);
 
             $approval = new UserBranchScheduleApproval([
                 'user_branch_schedule_id' => $this->schedule_data->id,
-                'user_id' => auth()->user()->id,
-                'status' => 'for reschedule',
-                'remarks' => $this->remarks
+                'user_id'                 => auth()->user()->id,
+                'status'                  => 'for reschedule',
+                'remarks'                 => $this->remarks,
             ]);
             $approval->save();
 
-            // notifications
             // $user_ids = auth()->user()->getSupervisorIds();
             // foreach($user_ids as $user_id) {
             //     if(auth()->user()->id != $user_id) {
@@ -255,48 +234,46 @@ class ScheduleEvent extends Component
             // }
 
             $supervisor_id = auth()->user()->getImmediateSuperiorId();
-            if(auth()->user()->id != $supervisor_id) {
+            if (auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
-                if(!empty($user)) {
+                if (!empty($user)) {
                     try {
                         Notification::send($user, new ScheduleRescheduleRequest($this->schedule_data));
-                    } catch(\Exception $e) {
-                        Log::error('Notification failed: '.$e->getMessage());
+                    } catch (\Exception $e) {
+                        Log::error('Notification failed: ' . $e->getMessage());
                     }
                 }
             }
 
             $changes_arr['changes'] = $this->schedule_data->getChanges();
 
-            // logs
             activity('update')
-            ->performedOn($this->schedule_data)
-            ->withProperties($changes_arr)
-            ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
+                ->performedOn($this->schedule_data)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
 
             return redirect(request()->header('Referer'));
         }
 
-        if($this->action == 'delete-request') {
+        if ($this->action == 'delete-request') {
             $this->validate([
-                'remarks' => 'required'
+                'remarks' => 'required',
             ]);
 
             $changes_arr['old'] = $this->schedule_data->getOriginal();
 
             $this->schedule_data->update([
-                'status' => 'for deletion'
+                'status' => 'for deletion',
             ]);
 
             $approval = new UserBranchScheduleApproval([
                 'user_branch_schedule_id' => $this->schedule_data->id,
-                'user_id' => auth()->user()->id,
-                'status' => 'for deletion',
-                'remarks' => $this->remarks
+                'user_id'                 => auth()->user()->id,
+                'status'                  => 'for deletion',
+                'remarks'                 => $this->remarks,
             ]);
             $approval->save();
 
-            // notifications
             // $user_ids = auth()->user()->getSupervisorIds();
             // foreach($user_ids as $user_id) {
             //     if(auth()->user()->id != $user_id) {
@@ -306,68 +283,65 @@ class ScheduleEvent extends Component
             // }
 
             $supervisor_id = auth()->user()->getImmediateSuperiorId();
-            if(auth()->user()->id != $supervisor_id) {
+            if (auth()->user()->id != $supervisor_id) {
                 $user = User::find($supervisor_id);
-                if(!empty($user)) {
+                if (!empty($user)) {
                     Notification::send($user, new ScheduleDeleteRequest($this->schedule_data));
                 }
             }
 
             $changes_arr['changes'] = $this->schedule_data->getChanges();
 
-            // logs
             activity('update')
-            ->performedOn($this->schedule_data)
-            ->withProperties($changes_arr)
-            ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
+                ->performedOn($this->schedule_data)
+                ->withProperties($changes_arr)
+                ->log(':causer.firstname :causer.lastname has updated schedule [ :subject.date ] .');
 
             return redirect(request()->header('Referer'));
         }
+
+        return null;
     }
 
-    public function setAction($action) {
+    public function setAction($action): void
+    {
         $this->action = $action;
         $this->dispatchBrowserEvent('reloadLocation');
-        if($action == 'reschedule-request') {
+        if ($action == 'reschedule-request') {
             $this->reschedule_date = $this->date;
         }
 
-        // set trip number
-        if($action == 'add-trip') {
+        if ($action == 'add-trip') {
             $this->reset('trip_number');
             $this->generateTripNumber();
         }
     }
 
-    private function generateTripNumber() {
-        // Check if a trip number already exists
+    private function generateTripNumber(): void
+    {
         if (empty($this->trip_number)) {
             $new_trip_number = null;
 
             do {
-                /// Generate a random letter
-                $random_letter = chr(65 + rand(0, 25)); // A-Z
-
-                // Generate the remaining part of the trip number (alphanumeric)
+                $random_letter = chr(65 + rand(0, 25));
                 $random_alphanumeric = strtoupper(substr(sha1(uniqid()), 0, 5));
-
-                // Combine the letter and alphanumeric characters
                 $new_trip_number = $random_letter . $random_alphanumeric;
             } while (ActivityPlanDetailTrip::where('trip_number', $new_trip_number)->exists());
 
-            // Set the new trip number
             $this->trip_number = $new_trip_number;
         }
     }
 
-    public function backAction() {
+    public function backAction(): void
+    {
         $this->reset(['action', 'reschedule_date']);
     }
 
-    public function viewSchedule($schedule_id) {
+    public function viewSchedule($schedule_id): void
+    {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
 
-        if(!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
+        if (!empty($this->schedule_data->trip) && empty($this->schedule_data->trip->reference_number) && $this->schedule_data->trip->type_of_transportation == 'AIR') {
             $this->reference_number_edit = 1;
         } else {
             $this->reference_number_edit = 0;
@@ -376,11 +350,13 @@ class ScheduleEvent extends Component
         $this->trip_reference_number = $this->schedule_data->trip->reference_number ?? '';
     }
 
-    public function back() {
+    public function back(): void
+    {
         $this->reset('schedule_data');
     }
 
-    public function setDate($date, $schedule_id = null) {
+    public function setDate($date, $schedule_id = null): void
+    {
         $this->date = $date;
         if (!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
@@ -397,19 +373,19 @@ class ScheduleEvent extends Component
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
-        if(!empty($this->user_id) || !empty($this->account_id)) {
-            if(auth()->user()->hasRole('superadmin')) {
+        if (!empty($this->user_id) || !empty($this->account_id)) {
+            if (auth()->user()->hasRole('superadmin')) {
                 $branch_schedules = UserBranchSchedule::where('date', $this->date)
-                ->whereNull('status');
+                    ->whereNull('status');
 
-                if(!empty($this->user_id)) {
+                if (!empty($this->user_id)) {
                     $branch_schedules->where('user_id', $this->user_id);
                 }
 
-                if(!empty($this->account_id)) {
-                    $branch_schedules->whereHas('branch', function($query) {
+                if (!empty($this->account_id)) {
+                    $branch_schedules->whereHas('branch', function ($query) {
                         $query->where('account_id', $this->account_id);
                     });
                 }
@@ -417,28 +393,27 @@ class ScheduleEvent extends Component
                 $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);
             } else {
                 $branch_schedules = UserBranchSchedule::where('date', $this->date)
-                ->whereNull('status')
-                ->where('user_id', auth()->user()->id);
-                
-                if(!empty($this->account_id)) {
-                    $branch_schedules->whereHas('branch', function($query) {
+                    ->whereNull('status')
+                    ->where('user_id', auth()->user()->id);
+
+                if (!empty($this->account_id)) {
+                    $branch_schedules->whereHas('branch', function ($query) {
                         $query->where('account_id', $this->account_id);
                     });
                 }
 
                 $branch_schedules = $branch_schedules->paginate(10)->onEachSide(1);
             }
-
         } else {
-            if(auth()->user()->hasRole('superadmin')) {
+            if (auth()->user()->hasRole('superadmin')) {
                 $branch_schedules = UserBranchSchedule::where('date', $this->date)
-                ->whereNull('status')
-                ->paginate(10)->onEachSide(1);
+                    ->whereNull('status')
+                    ->paginate(10)->onEachSide(1);
             } else {
                 $branch_schedules = UserBranchSchedule::where('date', $this->date)
-                ->whereNull('status')
-                ->where('user_id', auth()->user()->id)
-                ->paginate(10)->onEachSide(1);
+                    ->whereNull('status')
+                    ->where('user_id', auth()->user()->id)
+                    ->paginate(10)->onEachSide(1);
             }
         }
 
@@ -457,9 +432,9 @@ class ScheduleEvent extends Component
         ];
 
         return view('livewire.schedules.schedule-event')->with([
-            'branch_schedules' => $branch_schedules,
+            'branch_schedules'    => $branch_schedules,
             'transportation_types' => $transportation_types,
-            'is_on_leave' => $this->is_on_leave,
+            'is_on_leave'         => $this->is_on_leave,
         ]);
     }
 }

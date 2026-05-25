@@ -4,9 +4,6 @@
     Schedules - Requests
 @endsection
 
-@section('css')
-@endsection
-
 @section('content_header')
 <div class="row">
     <div class="col-md-6">
@@ -22,11 +19,11 @@
 {!! Form::open(['method' => 'GET', 'route' => ['schedule.list'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
-<div class="card">
+<div class="card shadow-sm">
     <div class="card-header">
         <h3 class="card-title">List of Requests</h3>
         <div class="card-tools">
-            <div class="input-group input-group-sm" style="width: 150px;">
+            <div class="input-group input-group-sm">
                 {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-default" form="search_form">
@@ -37,44 +34,44 @@
         </div>
     </div>
     <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap table-sm">
+        <table class="table table-hover align-middle">
             <thead>
                 <tr>
                     <th>User</th>
                     <th>Branch</th>
-                    <th>Date</th>
-                    <th>Reschedule Date</th>
+                    <th class="text-nowrap">Date</th>
+                    <th class="text-nowrap">Reschedule Date</th>
                     <th>Status</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $status_colors = [
+                        'for reschedule'             => 'bg-warning',
+                        'for deletion'               => 'bg-danger',
+                        'reschedule rejected'        => 'bg-orange',
+                        'rescheduled'                => 'bg-teal',
+                        'deletion rejected'          => 'bg-maroon',
+                        'deletion approved'          => 'bg-olive',
+                        'schedule request rejected'  => 'bg-purple',
+                        'schedule request approved'  => 'bg-lime',
+                        'schedule request'           => 'bg-success',
+                        'for deviation'              => 'bg-primary',
+                        'deviated'                   => 'bg-warning',
+                    ];
+                @endphp
                 @foreach($schedules as $schedule)
-                    @php
-                        $status_colors = [
-                            'for reschedule' => 'bg-warning',
-                            'for deletion' => 'bg-danger',
-                            'reschedule rejected' => 'bg-orange',
-                            'rescheduled' => 'bg-teal',
-                            'deletion rejected' => 'bg-maroon',
-                            'deletion approved' => 'bg-olive',
-                            'schedule request rejected' => 'bg-purple',
-                            'schedule request approved' => 'bg-lime',
-                            'schedule request' => 'bg-success',
-                            'for deviation' => 'bg-primary',
-                            'deviated' => 'bg-warning'
-                        ];
-                    @endphp
                     <tr>
                         <td>{{$schedule->user->fullName()}}</td>
                         <td>{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
-                        <td>{{$schedule->date}}</td>
-                        <td>{{$schedule->reschedule_date}}</td>
+                        <td class="text-nowrap">{{$schedule->date}}</td>
+                        <td class="text-nowrap">{{$schedule->reschedule_date}}</td>
                         <td>
                             @if(!empty($schedule->status))
-                            <span class="badge {{$status_colors[$schedule->status]}}">
-                                {{$schedule->status}}
-                            </span>
+                                <span class="badge {{$status_colors[$schedule->status]}}">
+                                    {{$schedule->status}}
+                                </span>
                             @else
                                 @php
                                     $status = $schedule->approvals()->orderBy('id', 'DESC')->first()->status;
@@ -84,16 +81,33 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="text-right">
+                        <td class="text-right text-nowrap">
                             @if($schedule->status == 'for deletion')
-                                <a href="#" title="approvals" class="btn-delete" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete mr-1"
+                                        data-id="{{$schedule->id}}" title="Approve Deletion">
+                                    <i class="fa fa-wrench"></i>
+                                </button>
                             @elseif($schedule->status == 'for reschedule')
-                                <a href="#" title="approvals" class="btn-reschedule" data-id="{{$schedule->id}}"><i class="fa fa-wrench text-secondary mr-1"></i></a>
+                                <button type="button" class="btn btn-sm btn-outline-warning btn-reschedule mr-1"
+                                        data-id="{{$schedule->id}}" title="Approve Reschedule">
+                                    <i class="fa fa-wrench"></i>
+                                </button>
                             @endif
-                            <a href="#" title="details" class="btn-detail" data-id="{{$schedule->id}}"><i class="fa fa-info-circle text-primary"></i></a>
+                            <button type="button" class="btn btn-sm btn-outline-primary btn-detail"
+                                    data-id="{{$schedule->id}}" title="View History">
+                                <i class="fa fa-info-circle"></i>
+                            </button>
                         </td>
                     </tr>
                 @endforeach
+                @if($schedules->isEmpty())
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+                            No schedule requests found.
+                        </td>
+                    </tr>
+                @endif
             </tbody>
         </table>
     </div>
@@ -144,11 +158,4 @@
         });
     })
 </script>
-@endsection
-
-@section('footer')
-@endsection
-
-@section('right-sidebar')
-sidebar
 @endsection
