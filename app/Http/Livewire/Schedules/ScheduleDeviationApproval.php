@@ -41,9 +41,11 @@ class ScheduleDeviationApproval extends Component
 
         foreach($this->original_schedules as $original) {
             $schedule = UserBranchSchedule::find($original->user_branch_schedule_id);
-            $schedule->update([
-                'status' => 'deviated'
-            ]);
+            if (!empty($schedule) && $schedule->objective !== 'on-leave') {
+                $schedule->update([
+                    'status' => 'deviated'
+                ]);
+            }
         }
         // create new schedule
         foreach($this->new_schedules as $new) {
@@ -114,9 +116,11 @@ class ScheduleDeviationApproval extends Component
 
         foreach($this->original_schedules as $original) {
             $schedule = UserBranchSchedule::find($original->user_branch_schedule_id);
-            $schedule->update([
-                'status' => NULL
-            ]);
+            if (!empty($schedule) && $schedule->objective !== 'on-leave') {
+                $schedule->update([
+                    'status' => NULL
+                ]);
+            }
         }
 
         // record approval

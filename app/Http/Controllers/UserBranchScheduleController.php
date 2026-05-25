@@ -38,6 +38,7 @@ class UserBranchScheduleController extends Controller
             'delete'     => '#c90518',
             'request'    => '#32a852',
             'deviation'  => '#0e16ad',
+            'on-leave'   => '#fd7e14',
         ];
 
         $subordinate_ids = collect(auth()->user()->getSubordinateIds())->flatten()->toArray();
@@ -205,7 +206,7 @@ class UserBranchScheduleController extends Controller
             ['status' => 'schedule request', 'type' => 'request'],
         ];
 
-        foreach ($schedule_types as ['status' => $status, 'type' => $type]) {
+        foreach ($schedule_types as ['status' => $status, 'type' => $base_type]) {
             // Single query per type with eager loading — replaces the date-loop N+1 pattern
             $schedules = UserBranchSchedule::with('branch.account')
                 ->when($status === null, fn($q) => $q->whereNull('status'))
@@ -222,13 +223,24 @@ class UserBranchScheduleController extends Controller
                     $icon = $branch_logins_by_key->has($login_key) ? 'fa fa-check' : '';
                 }
 
+                $sched_type = $base_type;
+
+                // check if on leave
+                if($sched->objective === 'on-leave') {
+                    $icon = 'fa fa-umbrella-beach';
+                    $title = '[' . $sched->objective . ']';
+                    $sched_type = 'on-leave';
+                } else {
+                    $title = '[' . $sched->branch->account->short_name . ' - ' . $sched->branch->branch_code . ' - ' . $sched->branch->branch_name . '] ' . $sched->objective;
+                }
+
                 $schedule_data[] = [
-                    'title'           => '[' . $sched->branch->account->short_name . ' - ' . $sched->branch->branch_code . ' - ' . $sched->branch->branch_name . '] ' . $sched->objective,
+                    'title'           => $title,
                     'start'           => Carbon::parse($sched->date)->toDateString(),
                     'allDay'          => true,
-                    'backgroundColor' => $colors[$type],
-                    'borderColor'     => $colors[$type],
-                    'type'            => 'schedule',
+                    'backgroundColor' => $colors[$sched_type],
+                    'borderColor'     => $colors[$sched_type],
+                    'type'            => $sched_type,
                     'id'              => $sched->id,
                     'icon'            => $icon,
                 ];

@@ -1,9 +1,12 @@
 <div>
     <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title">TRIP<i wire:loading class="fa fa-spinner fa-spin ml-2 fa-sm"></i></h4>
-            <div class="card-tools align-middle">
-                <h5 class="font-weight-bold px-2 py-1 mb-0 bg-primary">{{$date ?? ''}}</h5>
+        <div class="modal-header bg-light">
+            <h4 class="modal-title">
+                <i class="fas fa-route mr-2"></i>Trip
+                <i wire:loading class="fa fa-spinner fa-spin ml-2 fa-sm"></i>
+            </h4>
+            <div class="ml-auto mr-3">
+                <span class="badge badge-primary px-3 py-1">{{$date ?? ''}}</span>
             </div>
         </div>
         <div class="modal-body">
@@ -17,9 +20,10 @@
                 </div>
             @enderror
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-12">
-                    <h4>TRIP CODE: <strong class="d-inline">{{$trip_number}}</strong>
+                    <h5 class="mb-0">
+                        Trip Code: <strong class="d-inline">{{$trip_number}}</strong>
                         <button class="btn btn-info btn-xs ml-1" wire:click.prevent="selectTicket">
                             <i class="fa fa-search"></i>
                         </button>
@@ -28,7 +32,7 @@
                                 <i class="fa fa-times mr-1"></i>Remove trip ticket
                             </button>
                         @endif
-                    </h4>
+                    </h5>
                 </div>
             </div>
 
@@ -36,12 +40,12 @@
                 {{-- MANUAL ADD --}}
                 <div class="row">
 
-                    <div class="col-12 mb-2">
-                        <button class="btn {{$type == 'one_way' ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="changeType('one_way')">
-                            ONE WAY
+                    <div class="col-12 mb-3">
+                        <button class="btn btn-sm {{$type == 'one_way' ? 'btn-primary' : 'btn-outline-secondary'}}" wire:click.prevent="changeType('one_way')">
+                            One Way
                         </button>
-                        <button class="btn {{$type == 'round_trip' ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="changeType('round_trip')">
-                            ROUND TRIP
+                        <button class="btn btn-sm {{$type == 'round_trip' ? 'btn-primary' : 'btn-outline-secondary'}}" wire:click.prevent="changeType('round_trip')">
+                            Round Trip
                         </button>
                     </div>
 
@@ -66,7 +70,7 @@
 
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label>FROM <i class="fa fa-plane-departure text-primary"></i></label>
+                            <label><i class="fa fa-plane-departure text-primary mr-1"></i>From</label>
                             <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="From" wire:model="from" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('from')}}</p>
                         </div>
@@ -74,7 +78,7 @@
 
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label>TO <i class="fa fa-plane-arrival text-primary"></i></label>
+                            <label><i class="fa fa-plane-arrival text-primary mr-1"></i>To</label>
                             <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="To" wire:model="to" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('to')}}</p>
                         </div>
@@ -82,7 +86,7 @@
 
                     <div class="col-lg-6">
                         <div class="form-group">
-                            <label for="departure">DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
+                            <label><i class="fa fa-calendar-alt mr-1"></i>Departure</label>
                             <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model="departure" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('departure')}}</p>
                         </div>
@@ -91,7 +95,7 @@
                     @if($type == 'round_trip')
                         <div class="col-lg-6">
                             <div class="form-group">
-                                <label for="departure">RETURN<i class="fa fa-calendar-alt ml-1"></i></label>
+                                <label><i class="fa fa-calendar-alt mr-1"></i>Return</label>
                                 <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model="return" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                                 <p class="text-danger">{{$errors->first('return')}}</p>
                             </div>
@@ -102,21 +106,20 @@
             @else
                 {{-- SELECT EXISTING --}}
                 <div class="row">
-                    <div class="col-12">
-                        <button class="btn btn-secondary btn-sm mb-1" wire:click.prevent="cancelSelect">
-                            <i class="fa fa-times mr-1"></i>
-                            CANCEL
+                    <div class="col-12 mb-2">
+                        <button class="btn btn-secondary btn-sm" wire:click.prevent="cancelSelect">
+                            <i class="fa fa-times mr-1"></i> Cancel
                         </button>
                     </div>
                     <div class="col-lg-12 table-responsive">
                         <table class="table table-bordered table-sm">
-                            <thead>
+                            <thead class="thead-light">
                                 <tr>
-                                    <th>TRIP NUMBER</th>
-                                    <th class="text-center">FROM</th>
-                                    <th class="text-center">TO</th>
-                                    <th class="text-center">DEPARTURE</th>
-                                    <th class="text-center">RETURN</th>
+                                    <th>Trip Number</th>
+                                    <th class="text-center">From</th>
+                                    <th class="text-center">To</th>
+                                    <th class="text-center">Departure</th>
+                                    <th class="text-center">Return</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -128,18 +131,10 @@
                                                 {{$trip_ticket->trip_number}}
                                             </a>
                                         </td>
-                                        <td class="text-center">
-                                            {{$trip_ticket->from}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{$trip_ticket->to}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{$trip_ticket->departure}}
-                                        </td>
-                                        <td class="text-center">
-                                            {{$trip_ticket->return ?? '-'}}
-                                        </td>
+                                        <td class="text-center">{{$trip_ticket->from}}</td>
+                                        <td class="text-center">{{$trip_ticket->to}}</td>
+                                        <td class="text-center">{{$trip_ticket->departure}}</td>
+                                        <td class="text-center">{{$trip_ticket->return ?? '-'}}</td>
                                     </tr>
                                     @endforeach
                                 @else
@@ -151,24 +146,16 @@
                                                         {{$ticket->trip->trip_number}}
                                                     </a>
                                                 </td>
-                                                <td class="text-center">
-                                                    {{$ticket->from}}
-                                                </td>
-                                                <td class="text-center">
-                                                    {{$ticket->to}}
-                                                </td>
-                                                <td class="text-center">
-                                                    {{$ticket->departure}}
-                                                </td>
-                                                <td class="text-center">
-                                                    {{$ticket->return ?? '-'}}
-                                                </td>
+                                                <td class="text-center">{{$ticket->from}}</td>
+                                                <td class="text-center">{{$ticket->to}}</td>
+                                                <td class="text-center">{{$ticket->departure}}</td>
+                                                <td class="text-center">{{$ticket->return ?? '-'}}</td>
                                             </tr>
                                         @endforeach
                                     @else
                                         <tr>
-                                            <td colspan="5" class="text-center">
-                                                - no data available -
+                                            <td colspan="5" class="text-center text-muted py-3">
+                                                <i class="fas fa-inbox mr-1"></i> No data available
                                             </td>
                                         </tr>
                                     @endif
@@ -180,11 +167,13 @@
             @endif
 
         </div>
-        <div class="modal-footer text-right">
-            <button type="button" class="btn btn-primary" wire:click.prevent="updateSession" data-dismiss="modal"><i class="fa fa-save mr-1"></i>SAVE TRIP</button>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" wire:click.prevent="updateSession" data-dismiss="modal">
+                <i class="fa fa-save mr-1"></i> Save Trip
+            </button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
-    
+
         <script>
             document.addEventListener('livewire:load', function () {
             });

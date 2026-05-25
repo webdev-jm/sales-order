@@ -60,7 +60,7 @@
                                 <td></td>
                                 <td>{{$schedule->date}}</td>
                                 <td>
-                                    {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                                    {{ $schedule->branch ? $schedule->branch->branch_code . ' ' . $schedule->branch->branch_name : 'On Leave' }}
                                 </td>
                                 <td class="text-left">
                                     {{$schedule->activity}}
@@ -92,7 +92,7 @@
                                     {{$schedule->date}}
                                 </td>
                                 <td>
-                                    [{{$schedule->branch->account->account_code}} {{$schedule->branch->account->short_name}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                                    {{ $schedule->branch ? '[' . $schedule->branch->account->account_code . ' ' . $schedule->branch->account->short_name . '] ' . $schedule->branch->branch_code . ' ' . $schedule->branch->branch_name : 'On Leave' }}
                                 </td>
                                 <td class="text-left">
                                     {{$schedule->activity}}

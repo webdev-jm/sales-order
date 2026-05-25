@@ -1,7 +1,7 @@
 <div>
     <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title">Approval History</h4>
+        <div class="modal-header bg-light">
+            <h4 class="modal-title"><i class="fas fa-history mr-2"></i>Approval History</h4>
         </div>
         <div class="modal-body">
 
@@ -29,7 +29,7 @@
 
                                 @if(!empty($approval->remarks))
                                     <div class="timeline-body">
-                                        <label class="mb-0">REMARKS:</label>
+                                        <label class="mb-0 text-muted">Remarks:</label>
                                         <p class="mb-0 ml-2">{{$approval->remarks}}</p>
                                     </div>
                                 @endif
@@ -51,7 +51,7 @@
             </div>
 
         </div>
-        <div class="modal-footer text-right">
+        <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
 

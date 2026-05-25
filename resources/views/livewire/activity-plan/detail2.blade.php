@@ -18,19 +18,23 @@
     @endphp
     <div id="on-leave-warnings" data-dates="{{ json_encode($on_leave_dates_with_schedules) }}" class="d-none"></div>
 
-    <div class="card">
+    <div class="card card-outline card-primary">
         <div class="card-header">
-            <h3 class="card-title">ACTIVITY PLAN DETAILS</h3>
+            <h3 class="card-title"><i class="fas fa-table mr-1"></i> Activity Plan Details</h3>
             <div class="card-tools">
-                <button class="btn btn-sm btn-secondary" wire:click.prevent="minimizeAll"><i class="fa fa-minus mr-1"></i>Minimize All</button>
-                <button class="btn btn-sm btn-secondary" wire:click.prevent="expandAll"><i class="fa fa-chevron-down mr-1"></i>Expand All</button>
+                <button class="btn btn-sm btn-outline-secondary mr-1" wire:click.prevent="minimizeAll">
+                    <i class="fa fa-minus mr-1"></i> Minimize All
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" wire:click.prevent="expandAll">
+                    <i class="fa fa-chevron-down mr-1"></i> Expand All
+                </button>
             </div>
         </div>
         <div class="card-body p-0 table-responsive">
-            <table class="table table-bordered table-sm">
-                <thead>
+            <table class="table table-bordered table-sm mb-0">
+                <thead class="thead-light">
                     <tr class="text-uppercase">
-                        <th>DATE</th>
+                        <th>Date</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,7 +74,7 @@
                             @else
                             <div class="table-responsive">
                                 <table class="table table-sm table-bordered">
-                                    <thead class="bg-info">
+                                    <thead class="thead-light">
                                         <tr class="text-center">
                                             <th class="p-0 text-center align-middle">#</th>
                                             <th>Location</th>
@@ -104,7 +108,7 @@
                                                         <div class="input-group input-group-sm">
                                                             <input type="text" class="form-control border-0"
                                                                 wire:model="account_query.{{$date}}.{{$line_key}}"
-                                                                wire:keyup="setAccountQuery('{{$date}}', '{{$line_key}}')"
+                                                                wire:keyup.debounce.400ms="setAccountQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetAccountQuery"
                                                                 wire:keydown.tab.prevent="resetAccountQuery"
                                                                 @if(!empty($data['account_name']))
@@ -113,22 +117,23 @@
                                                             />
                                                             @if(!empty($data['account_id']))
                                                                 <span class="input-group-append">
-                                                                    <button class="btn text-danger" wire:click.prevent="clearAccount('{{$date}}', '{{$line_key}}')"><i class="fa fa-times"></i></button>
+                                                                    <button class="btn text-danger border-0" wire:click.prevent="clearAccount('{{$date}}', '{{$line_key}}')"><i class="fa fa-times"></i></button>
                                                                 </span>
                                                             @endif
+
+                                                            <span wire:loading wire:target="setAccountQuery" class="input-group-append"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         </div>
 
                                                         {{-- search results --}}
-                                                        <span wire:loading wire:target="setAccountQuery"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         @if(isset($account_query[$date][$line_key]) && !empty($account_query[$date][$line_key]))
                                                             <div class="list-group position-absolute search-branch" wire:loading.remove wire:key="account-results-{{$date}}-{{$line_key}}">
                                                                 @if($accounts->count() > 0)
                                                                     @foreach($accounts as $account)
                                                                         {{-- Pass only the ID to the Livewire method --}}
-                                                                        <button class="list-group-item text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}', {{$account->id}})">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                                                        <button class="list-group-item list-group-item-action text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$line_key}}', {{$account->id}})">[{{$account->account_code}}], {{$account->short_name}}</button>
                                                                     @endforeach
                                                                 @else
-                                                                    <button class="list-group-item">No Results</button>
+                                                                    <button class="list-group-item disabled">No Results</button>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -139,7 +144,7 @@
                                                         <div class="input-group input-group-sm">
                                                             <input type="text" class="form-control border-0"
                                                                 wire:model="branch_query.{{$date}}.{{$line_key}}"
-                                                                wire:keyup="setBranchQuery('{{$date}}', '{{$line_key}}')"
+                                                                wire:keyup.debounce.400ms="setBranchQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetBranchQuery"
                                                                 wire:keydown.tab.prevent="resetBranchQuery"
                                                                 @if(!empty($data['branch_name']))
@@ -148,26 +153,27 @@
                                                             />
                                                             @if(!empty($data['branch_id']))
                                                                 <span class="input-group-append">
-                                                                    <button class="btn text-danger" wire:click.prevent="clearBranch('{{$date}}', '{{$line_key}}')"><i class="fa fa-times"></i></button>
+                                                                    <button class="btn text-danger border-0" wire:click.prevent="clearBranch('{{$date}}', '{{$line_key}}')"><i class="fa fa-times"></i></button>
                                                                 </span>
                                                             @endif
+
+                                                            <span wire:loading wire:target="setBranchQuery" class="input-group-append"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         </div>
 
                                                         {{-- search results --}}
-                                                        <span wire:loading wire:target="setBranchQuery"><i class="fa fa-spinner fa-spin fa-sm text-muted mx-1"></i></span>
                                                         @if(isset($branch_query[$date][$line_key]) && !empty($branch_query[$date][$line_key]))
                                                             {{-- show results --}}
-                                                            <div class="list-group position-absolute search-branch" wire:loading.remove>
+                                                            <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setBranchQuery">
                                                                 @if($branches->count() > 0)
                                                                     @foreach($branches as $branch)
-                                                                        <button class="list-group-item text-left"
+                                                                        <button class="list-group-item list-group-item-action text-left"
                                                                             wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}})"
                                                                         >
                                                                             [{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}
                                                                         </button>
                                                                     @endforeach
                                                                 @else
-                                                                    <button class="list-group-item">No Results</button>
+                                                                    <button class="list-group-item disabled">No Results</button>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -197,7 +203,7 @@
                                                     </td>
                                                     {{-- remove row --}}
                                                     <td class="text-center align-middle p-0">
-                                                        <a href="#" class="text-danger" wire:click.prevent="removeLine('{{$date}}', {{$line_key}})"><i class="fa fa-trash-alt"></i></a>
+                                                        <a href="#" class="btn btn-xs btn-outline-danger" wire:click.prevent="removeLine('{{$date}}', {{$line_key}})"><i class="fa fa-trash-alt"></i></a>
                                                     </td>
                                                 </tr>
                                             @endif
@@ -209,7 +215,7 @@
                             {{-- Add schedule line --}}
                             <button class="btn btn-primary btn-xs mb-2 mr-3" wire:click.prevent="addScheduleLine('{{$date}}')">
                                 <i class="fa fa-plus mr-1"></i>
-                                ADD SCHEDULE
+                                Add Schedule
                             </button>
                             @endif
                         </td>

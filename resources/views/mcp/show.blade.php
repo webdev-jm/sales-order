@@ -6,13 +6,6 @@
 
 @section('css')
 <style>
-    /* @media (min-width: 768px) {
-        .fc-event-time, .fc-event-title {
-            padding: 0 1px;
-            white-space: normal;
-        }
-    } */
-
     .fc-event-time, .fc-event-title {
         padding: 0 1px;
         white-space: normal;
@@ -68,23 +61,31 @@
 @endsection
 
 @section('content_header')
-<div class="row">
-    <div class="col-lg-6">
-        <h1>Activity Plan / Details <span class="badge badge-{{$status_arr[$activity_plan->status]}}">{{$activity_plan->status}}</span></h1>
-    </div>
-    <div class="col-lg-6 text-right">
-        <a href="{{route('mcp.index')}}" class="btn btn-default"><i class="fa fa-arrow-left mr-1"></i>Back</a>
-        <a href="{{route('mcp.print-pdf', $activity_plan->id)}}" class="btn btn-primary" target="_blank"><i class="fa fa-print mr-1"></i>Print</a>
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="mb-0">
+        Activity Plan <small class="text-muted">/ Details</small>
+        <span class="badge badge-{{$status_arr[$activity_plan->status]}} ml-1">{{$activity_plan->status}}</span>
+    </h1>
+    <div>
+        <a href="{{route('mcp.index')}}" class="btn btn-default btn-sm mr-1">
+            <i class="fa fa-arrow-left mr-1"></i> Back
+        </a>
+        <a href="{{route('mcp.print-pdf', $activity_plan->id)}}" class="btn btn-primary btn-sm" target="_blank">
+            <i class="fa fa-print mr-1"></i> Print
+        </a>
     </div>
 </div>
 @endsection
 
 @section('content')
-<div class="card">
+
+{{-- Info & Approval Card --}}
+<div class="card card-outline card-primary">
     <div class="card-header">
         <h3 class="card-title">
-            Activity Plan for the Month of:
-            <span class="font-weight-bold text-uppercase">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</span>
+            <i class="fas fa-calendar-alt mr-1"></i>
+            Activity Plan for
+            <strong class="text-uppercase ml-1">{{date('F', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'))}} {{$activity_plan->year}}</strong>
         </h3>
         <div class="card-tools">
             @if($activity_plan->status == 'submitted' && (
@@ -93,57 +94,73 @@
                 auth()->user()->hasRole('admin') ||
                 auth()->user()->can('mcp approval')
             ))
-                <button class="btn btn-danger" id="btn-reject">Reject</button>
-                <button class="btn btn-success" id="btn-approve">Approve</button>
+                <button class="btn btn-sm btn-danger mr-1" id="btn-reject">
+                    <i class="fa fa-times mr-1"></i> Reject
+                </button>
+                <button class="btn btn-sm btn-success mr-1" id="btn-approve">
+                    <i class="fa fa-check mr-1"></i> Approve
+                </button>
             @endif
-            <button class="btn btn-warning" id="btn-approval-history"><i class="fa fa-clock mr-1"></i>Approval History</button>
+            <button class="btn btn-sm btn-warning" id="btn-approval-history">
+                <i class="fa fa-clock mr-1"></i> Approval History
+            </button>
         </div>
     </div>
     <div class="card-body">
-        <p>
-            <b>NAME:</b> {{$activity_plan->user->fullName()}}<br>
-            @if(!empty($position))
-            <b>POSITION:</b> {{implode(', ', $position)}}
-            @endif
-        </p>
-
         <div class="row">
-            <div class="col-lg-12">
-                <label class="mb-0">Objectives for the month:</label>
-                <pre>{{$activity_plan->objectives}}</pre>
+            <div class="col-md-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted">Name</dt>
+                    <dd class="col-sm-8 font-weight-bold">{{$activity_plan->user->fullName()}}</dd>
+                    @if(!empty($position))
+                    <dt class="col-sm-4 text-muted">Position</dt>
+                    <dd class="col-sm-8">{{implode(', ', $position)}}</dd>
+                    @endif
+                </dl>
+            </div>
+            <div class="col-md-8">
+                <label class="text-muted mb-1"><strong>Objectives for the month:</strong></label>
+                <pre class="bg-light rounded p-2">{{$activity_plan->objectives}}</pre>
             </div>
         </div>
     </div>
 </div>
 
-{{-- map view --}}
-<div class="card">
+{{-- Map View --}}
+<div class="card card-outline card-secondary">
     <div class="card-header">
-        <h3 class="card-title">MCP MAP PREVIEW</h3>
+        <h3 class="card-title"><i class="fas fa-map-marked-alt mr-1"></i> MCP Map Preview</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
+        </div>
     </div>
-    <div class="card-body">
-        <figure class="highcharts-figure">
+    <div class="card-body p-0">
+        <figure class="highcharts-figure mb-0">
             <div id="container"></div>
         </figure>
     </div>
 </div>
 
-{{-- calendar --}}
-<div class="card">
+{{-- Calendar --}}
+<div class="card card-outline card-secondary">
     <div class="card-header">
-        <h3 class="card-title">Calendar</h3>
+        <h3 class="card-title"><i class="fas fa-calendar mr-1"></i> Schedule Calendar</h3>
         <div class="card-tools">
-            <span class="badge mr-1" style="background-color:#09599e; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; Schedule</span>
-            <span class="badge mr-1" style="background-color:#0CA1A4; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; With Trip</span>
-            <span class="badge mr-1" style="background-color:#1CA40C; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; Trip Approved</span>
-            <span class="badge" style="background-color:#dc3545; color:#fff; font-size:0.8rem; padding:4px 8px;">&#9632; On Leave</span>
+            <span class="badge mr-1" style="background-color:#09599e; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; Schedule</span>
+            <span class="badge mr-1" style="background-color:#0CA1A4; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; With Trip</span>
+            <span class="badge mr-1" style="background-color:#1CA40C; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; Trip Approved</span>
+            <span class="badge" style="background-color:#dc3545; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; On Leave</span>
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                <i class="fas fa-minus"></i>
+            </button>
         </div>
     </div>
     <div class="card-body">
         <div id="calendar-container"></div>
     </div>
 </div>
-
 
 <div class="modal fade" id="modal-detail">
     <div class="modal-dialog modal-lg">

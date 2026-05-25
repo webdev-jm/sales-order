@@ -58,7 +58,7 @@
                             <td></td>
                             <td>{{$schedule->date}}</td>
                             <td>
-                                {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}
+                                {{ $schedule->branch ? $schedule->branch->branch_code . ' ' . $schedule->branch->branch_name : 'On Leave' }}
                             </td>
                             <td class="text-left">
                                 {{$schedule->objective}}

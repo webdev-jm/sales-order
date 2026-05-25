@@ -299,8 +299,8 @@ class ScheduleCalendar extends Component
                 'title'           => '🏖 On Leave',
                 'start'           => $on_leave->date,
                 'allDay'          => true,
-                'backgroundColor' => '#dc3545',
-                'borderColor'     => '#a71d2a',
+                'backgroundColor' => '#fd7e14',
+                'borderColor'     => '#c96200',
                 'type'            => 'on_leave',
             ];
         }

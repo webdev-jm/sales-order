@@ -264,7 +264,7 @@ class ActivityPlanController extends Controller
         foreach($activity_plan->details as $detail) {
             if(!empty($detail->is_on_leave)) {
                 $schedule_data[] = [
-                    'title'           => 'ðŸ– ON LEAVE',
+                    'title'           => 'ON LEAVE',
                     'start'           => $detail->date,
                     'allDay'          => true,
                     'backgroundColor' => '#dc3545',
@@ -338,8 +338,8 @@ class ActivityPlanController extends Controller
 
             foreach ($branch_activity['activities'] as $i => $activity) {
                 $activities_html .= "
-                    ðŸ“… <b>Schedule ".($i + 1).":</b> " . e($activity['schedule_date']) . " <br>
-                    ðŸŽ¯ <b>Objective ".($i + 1).":</b> " . e($activity['objective']) . " <br>
+                    <b>Schedule ".($i + 1).":</b> " . e($activity['schedule_date']) . " <br>
+                    <b>Objective ".($i + 1).":</b> " . e($activity['objective']) . " <br>
                 ";
                 // Add a separator between activities
                 if ($i < count($branch_activity['activities']) - 1) {
