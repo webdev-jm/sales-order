@@ -85,6 +85,10 @@ class Header extends Component
                         ->first());
                 })->count();
 
+            $visited_count += $results->filter(function($schedule) {
+                return $schedule->status == null && $schedule->objective == 'on-leave';
+            })->count();
+
             $unscheduled_count = $branch_logins->count() - $visited_count;
             $deviation_count = $unscheduled_count;
         }

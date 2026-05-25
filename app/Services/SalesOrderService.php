@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Session;
 
 use App\Http\Traits\GlobalTrait;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 class SalesOrderService {
 
@@ -461,26 +462,16 @@ class SalesOrderService {
     {
         $date_code = date('Ymd');
 
-        do {
-            $control_number = 'SO-' . $date_code . '-001';
+        return DB::transaction(function () use ($date_code) {
+            $latest = SalesOrder::withTrashed()
+                ->where('control_number', 'like', "SO-{$date_code}-%")
+                ->lockForUpdate()
+                ->orderByDesc('control_number')
+                ->value('control_number');
 
-            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
+            $next = $latest ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1 : 1;
 
-            if (!empty($sales_order)) {
-                $latest = $sales_order->control_number;
-                $parts  = explode('-', $latest);
-
-                if (count($parts) >= 3) {
-                    [, $prev_date, $last_number] = $parts;
-
-                    $number           = ($date_code == $prev_date) ? ((int) $last_number + 1) : 1;
-                    $formatted_number = str_pad($number, 3, '0', STR_PAD_LEFT);
-                    $control_number   = "SO-{$date_code}-{$formatted_number}";
-                }
-            }
-
-        } while (SalesOrder::withTrashed()->where('control_number', $control_number)->exists());
-
-        return $control_number;
+            return \sprintf('SO-%s-%03d', $date_code, $next);
+        });
     }
 }

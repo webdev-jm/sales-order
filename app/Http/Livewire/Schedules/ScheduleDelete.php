@@ -28,7 +28,7 @@ class ScheduleDelete extends Component
         'showDetail' => 'viewDetail'
     ];
 
-    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    public function submitApprove()
     {
         $this->schedule_data->update([
             'status' => 'deletion approved'
@@ -65,7 +65,7 @@ class ScheduleDelete extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject(): \Illuminate\Http\RedirectResponse
+    public function submitReject()
     {
         $this->validate([
             'remarks' => 'required'
@@ -143,7 +143,7 @@ class ScheduleDelete extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $schedules = [];
         if (!empty($this->date)) {

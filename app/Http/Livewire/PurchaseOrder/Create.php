@@ -16,6 +16,7 @@ use App\Models\Product;
 use App\Models\PurchaseOrder;
 
 use App\Http\Traits\GlobalTrait;
+use Illuminate\Support\Facades\DB;
 
 class Create extends Component
 {
@@ -290,34 +291,21 @@ class Create extends Component
 
     }
 
-    public function generateControlNumber() {
-        $control_number = null;
-        do {
-            $date_code = date('Ymd');
-            $sales_order = SalesOrder::withTrashed()->orderBy('control_number', 'DESC')->first();
-            if (!empty($sales_order)) {
-                // increment control number
-                $control_number_arr = explode('-', $sales_order->control_number);
-                $last = end($control_number_arr);
-                array_pop($control_number_arr);
-                $prev_date = end($control_number_arr);
-                array_pop($control_number_arr);
-                if ($date_code == $prev_date) { // same day increment number
-                    $number = (int)$last + 1;
-                } else { // reset on different day
-                    $number = 1;
-                }
-                $number = str_pad($number, 3, '0', STR_PAD_LEFT); // ensure the number is 3 digits
-                array_push($control_number_arr, $date_code);
-                array_push($control_number_arr, $number);
-                $control_number = implode('-', $control_number_arr);
-            } else {
-                // First control number for the day
-                $control_number = $date_code . '-001';
-            }
-        } while (SalesOrder::withTrashed()->where('control_number', $control_number)->exists());
+    public function generateControlNumber(): string
+    {
+        $date_code = date('Ymd');
 
-        return $control_number;
+        return DB::transaction(function () use ($date_code) {
+            $latest = SalesOrder::withTrashed()
+                ->where('control_number', 'like', "SO-{$date_code}-%")
+                ->lockForUpdate()
+                ->orderByDesc('control_number')
+                ->value('control_number');
+
+            $next = $latest ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1 : 1;
+
+            return \sprintf('SO-%s-%03d', $date_code, $next);
+        });
     }
 
     public function clearAddress($po_id) {

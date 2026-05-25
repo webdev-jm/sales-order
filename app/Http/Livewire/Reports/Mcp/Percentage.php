@@ -153,8 +153,12 @@ class Percentage extends Component
                     ->first());
             })->count();
                 
-            $visited_count = $visited;
-        
+            $on_leave_count = $schedule_data->filter(function($schedule) {
+                return $schedule->status == null && $schedule->objective == 'on-leave';
+            })->count();
+
+            $visited_count = $visited + $on_leave_count;
+
             $unscheduled_count = $branch_logins->count() - $visited;
             $total_visit_count = $branch_logins->count();
 

@@ -26,7 +26,7 @@ class ScheduleRequest extends Component
 
     public $date, $schedule_data, $action, $remarks;
 
-    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    public function submitApprove()
     {
         $this->schedule_data->update([
             'status' => null
@@ -59,7 +59,7 @@ class ScheduleRequest extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject(): \Illuminate\Http\RedirectResponse
+    public function submitReject()
     {
         $this->validate([
             'remarks' => 'required'
@@ -129,7 +129,7 @@ class ScheduleRequest extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $schedules = UserBranchSchedule::orderBy('id', 'DESC')
             ->where('status', 'schedule request')

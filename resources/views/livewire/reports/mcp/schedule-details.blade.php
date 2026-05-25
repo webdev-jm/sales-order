@@ -13,7 +13,11 @@
                     </li>
                     <li class="list-group-item py-2">
                         <span class="font-weight-bold text-uppercase">
-                            [{{$schedule->branch->account->short_name ?? 'N/A'}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
+                            @if($schedule->branch && $schedule->branch->account)
+                                [{{$schedule->branch->account->short_name ?? 'N/A'}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
+                            @elseif($schedule->objective == 'on-leave')
+                                ON LEAVE
+                            @endif
                         </span>
                     </li>
                     <li class="list-group-item py-2">

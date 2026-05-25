@@ -28,7 +28,7 @@ class ScheduleChange extends Component
         'showChange' => 'showDetail'
     ];
 
-    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    public function submitApprove()
     {
         $this->schedule_data->update([
             'status' => 'rescheduled'
@@ -75,7 +75,7 @@ class ScheduleChange extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject(): \Illuminate\Http\RedirectResponse
+    public function submitReject()
     {
         $this->validate([
             'remarks' => 'required'
@@ -153,7 +153,7 @@ class ScheduleChange extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $schedules = [];
         if (!empty($this->date)) {

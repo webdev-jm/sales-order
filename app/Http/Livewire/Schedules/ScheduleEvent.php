@@ -115,7 +115,7 @@ class ScheduleEvent extends Component
         $this->reference_number_edit = 0;
     }
 
-    public function sign_in(): \Illuminate\Http\RedirectResponse
+    public function sign_in()
     {
         $this->validate([
             'accuracy'  => 'required',
@@ -158,7 +158,7 @@ class ScheduleEvent extends Component
         }
     }
 
-    public function submitTrip(): \Illuminate\Http\RedirectResponse
+    public function submitTrip()
     {
         $this->validate([
             'departure'           => ['required'],
@@ -202,7 +202,7 @@ class ScheduleEvent extends Component
         $this->dispatchBrowserEvent('reloadLocation');
     }
 
-    public function submit(): ?\Illuminate\Http\RedirectResponse
+    public function submit()
     {
         if ($this->action == 'reschedule-request') {
             $this->validate([
@@ -373,7 +373,7 @@ class ScheduleEvent extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         if (!empty($this->user_id) || !empty($this->account_id)) {
             if (auth()->user()->hasRole('superadmin')) {
