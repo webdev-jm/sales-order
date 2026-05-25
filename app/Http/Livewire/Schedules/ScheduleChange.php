@@ -14,6 +14,7 @@ use App\Notifications\ScheduleRescheduleRejected;
 
 use Illuminate\Support\Facades\Log;
 
+/** Modal component for approving or rejecting reschedule requests. */
 class ScheduleChange extends Component
 {
     use WithPagination;
@@ -27,7 +28,8 @@ class ScheduleChange extends Component
         'showChange' => 'showDetail'
     ];
 
-    public function submitApprove() {
+    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    {
         $this->schedule_data->update([
             'status' => 'rescheduled'
         ]);
@@ -43,33 +45,38 @@ class ScheduleChange extends Component
             'user_id' => $this->schedule_data->user_id,
             'branch_id' => $this->schedule_data->branch_id,
             'date'  => $this->schedule_data->reschedule_date,
-            'status' => NULL,
-            'reschedule_date' => NULL,
+            'status' => null,
+            'reschedule_date' => null,
             'objective' => $this->schedule_data->objective,
             'source' => 'reschedule'
         ]);
         $new_schedule->save();
 
-        // logs
         activity('approved')
-        ->performedOn($new_schedule)
-        ->log(':causer.firstname :causer.lastname has approved reschedule request :subject.date');
+            ->performedOn($new_schedule)
+            ->log(':causer.firstname :causer.lastname has approved reschedule request :subject.date');
 
-        // notification
-        $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
-        $user = $delete_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleRescheduleApproved($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        $reschedule_request = $this->schedule_data->approvals()
+            ->where('status', 'for reschedule')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($reschedule_request)) {
+            $user = $reschedule_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleRescheduleApproved($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject() {
+    public function submitReject(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
             'remarks' => 'required'
         ]);
@@ -86,66 +93,73 @@ class ScheduleChange extends Component
         ]);
         $approval->save();
 
-        // logs
         activity('rejected')
-        ->performedOn($this->schedule_data)
-        ->log(':causer.firstname :causer.lastname has rejected reschedule request :subject.date');
+            ->performedOn($this->schedule_data)
+            ->log(':causer.firstname :causer.lastname has rejected reschedule request :subject.date');
 
-        // notification
-        $delete_request = $this->schedule_data->approvals()->where('status', 'for reschedule')->orderBy('id', 'DESC')->first();
-        $user = $delete_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleRescheduleRejected($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        $reschedule_request = $this->schedule_data->approvals()
+            ->where('status', 'for reschedule')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($reschedule_request)) {
+            $user = $reschedule_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleRescheduleRejected($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function approve() {
+    public function approve(): void
+    {
         $this->action = 'approve';
     }
 
-    public function reject() {
+    public function reject(): void
+    {
         $this->action = 'reject';
     }
 
-    public function cancel() {
-        $this->reset('action');
-        $this->reset('remarks');
+    public function cancel(): void
+    {
+        $this->reset(['action', 'remarks']);
     }
 
-    public function back() {
-        $this->reset('schedule_data');
-        $this->reset('approvals');
-        $this->reset('action');
+    public function back(): void
+    {
+        $this->reset(['schedule_data', 'approvals', 'action']);
     }
 
-    public function showDetail($schedule_id) {
+    public function showDetail($schedule_id): void
+    {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
-        $this->approvals =  $this->schedule_data->approvals;
+        $this->approvals = $this->schedule_data->approvals;
         $this->date = $this->schedule_data->date;
     }
 
-    public function getDate($date, $schedule_id) {
+    public function getDate($date, $schedule_id): void
+    {
         $this->date = $date;
-        if(!empty($schedule_id)) {
+        if (!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
-            $this->approvals =  $this->schedule_data->approvals;
+            $this->approvals = $this->schedule_data->approvals;
             $this->date = $this->schedule_data->date;
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $schedules = [];
-        if(!empty($this->date)) {
+        if (!empty($this->date)) {
             $schedules = UserBranchSchedule::where('status', 'for reschedule')
-            ->where('date', $this->date)
-            ->paginate(10)->onEachSide(1);
+                ->where('date', $this->date)
+                ->paginate(10)->onEachSide(1);
         }
 
         return view('livewire.schedules.schedule-change')->with([

@@ -14,6 +14,7 @@ use App\Notifications\ScheduleRequestApproved;
 
 use Illuminate\Support\Facades\Log;
 
+/** Modal component for approving or rejecting schedule add requests. */
 class ScheduleRequest extends Component
 {
     use WithPagination;
@@ -25,34 +26,41 @@ class ScheduleRequest extends Component
 
     public $date, $schedule_data, $action, $remarks;
 
-    public function submitApprove() {
+    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    {
         $this->schedule_data->update([
-            'status' => NULL
+            'status' => null
         ]);
 
         $approval = new UserBranchScheduleApproval([
             'user_branch_schedule_id' => $this->schedule_data->id,
-            'user_id' => auth()->user()->id,
-            'status' => 'schedule request approved',
-            'remarks' => NULL
+            'user_id'                 => auth()->user()->id,
+            'status'                  => 'schedule request approved',
+            'remarks'                 => null,
         ]);
         $approval->save();
 
-        // notification
-        $schedule_request = $this->schedule_data->approvals()->where('status', 'schedule request')->orderBy('id', 'DESC')->first();
-        $user = $schedule_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleRequestApproved($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        $schedule_request = $this->schedule_data->approvals()
+            ->where('status', 'schedule request')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($schedule_request)) {
+            $user = $schedule_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleRequestApproved($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject() {
+    public function submitReject(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
             'remarks' => 'required'
         ]);
@@ -63,60 +71,71 @@ class ScheduleRequest extends Component
 
         $approval = new UserBranchScheduleApproval([
             'user_branch_schedule_id' => $this->schedule_data->id,
-            'user_id' => auth()->user()->id,
-            'status' => 'schedule request rejected',
-            'remarks' => $this->remarks
+            'user_id'                 => auth()->user()->id,
+            'status'                  => 'schedule request rejected',
+            'remarks'                 => $this->remarks,
         ]);
         $approval->save();
 
-        // notification
-        $schedule_request = $this->schedule_data->approvals()->where('status', 'schedule request')->orderBy('id', 'DESC')->first();
-        $user = $schedule_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleRequestRejected($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        $schedule_request = $this->schedule_data->approvals()
+            ->where('status', 'schedule request')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($schedule_request)) {
+            $user = $schedule_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleRequestRejected($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function cancel() {
+    public function cancel(): void
+    {
         $this->reset('action');
     }
 
-    public function approve() {
+    public function approve(): void
+    {
         $this->action = 'approve';
     }
 
-    public function reject() {
+    public function reject(): void
+    {
         $this->action = 'reject';
     }
 
-    public function back() {
+    public function back(): void
+    {
         $this->reset('schedule_data');
     }
 
-    public function selectSchedule($schedule_id) {
+    public function selectSchedule($schedule_id): void
+    {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
     }
 
-    public function setDate($date, $schedule_id) {
+    public function setDate($date, $schedule_id): void
+    {
         $this->date = $date;
-        if(!empty($schedule_id)) {
+        if (!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $schedules = UserBranchSchedule::orderBy('id', 'DESC')
-        ->where('status', 'schedule request')
-        ->where('date', $this->date)
-        ->paginate(10, ['*'], 'request-page')->onEachSide(1);
-        
+            ->where('status', 'schedule request')
+            ->where('date', $this->date)
+            ->paginate(10, ['*'], 'request-page')->onEachSide(1);
+
         return view('livewire.schedules.schedule-request')->with([
             'schedules' => $schedules
         ]);

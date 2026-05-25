@@ -26,8 +26,8 @@ class UserBranchScheduleController extends Controller
 
     public function index(Request $request): \Illuminate\View\View
     {
-        $date_from = date('Y-m', strtotime('last month')) . '-01';
-        $date_to = date('Y-m-d', strtotime('last day of next month'));
+        $date_from = now()->subMonth()->startOfMonth()->toDateString();
+        $date_to = now()->addMonth()->endOfMonth()->toDateString();
 
         $user_id = trim((string) $request->input('user_id'));
         $account_id = trim((string) $request->input('account_id'));
@@ -104,10 +104,19 @@ class UserBranchScheduleController extends Controller
     {
         $search = trim($request->input('search'));
 
-        $schedules = UserBranchSchedule::orderBy('updated_at', 'DESC')
+        $schedules = UserBranchSchedule::with(['user', 'branch'])
+            ->orderBy('updated_at', 'DESC')
             ->where(function ($query) {
                 $query->whereNotNull('status')
                     ->orWhereHas('approvals');
+            })
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('user', fn ($u) => $u->where('firstname', 'like', "%{$search}%")
+                        ->orWhere('lastname', 'like', "%{$search}%"))
+                      ->orWhereHas('branch', fn ($b) => $b->where('branch_code', 'like', "%{$search}%")
+                        ->orWhere('branch_name', 'like', "%{$search}%"));
+                });
             })
             ->paginate(10)->onEachSide(1);
 

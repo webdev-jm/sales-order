@@ -1,6 +1,9 @@
 <div class="modal-content">
     <div class="modal-header">
         <h4 class="modal-title">Schedule for [{{$date}}]</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
     <div class="modal-body">
 
@@ -52,7 +55,7 @@
                         <th>ACCOUNT AND AREA</th>
                         <th>ACTIVITY</th>
                     </tr>
-                    @if(!empty($original_schedules)) 
+                    @if(!empty($original_schedules))
                         @foreach($original_schedules as $schedule)
                         <tr class="text-center">
                             <td></td>
@@ -73,7 +76,7 @@
                     <tr class="bg-gray">
                         <th class="align-middle" colspan="4">
                             NEW PLAN
-                            <button class="btn btn-primary btn-xs float-right" wire:click.prevent="addLine" wire:loading.attr="disabled"><i class="fa fa-plus mr-1"></i>Add Line</button>
+                            <button class="btn btn-sm btn-primary float-right" wire:click.prevent="addLine" wire:loading.attr="disabled"><i class="fa fa-plus mr-1"></i>Add Line</button>
                         </th>
                     </tr>
                     <tr class="text-center">
@@ -92,12 +95,11 @@
                                 <input type="date" class="form-control border-0 text-center" wire:model.lazy="new_schedules.{{$key}}.date">
                             </td>
                             <td class="align-middle">
-                                <textarea class="form-control border-0 textarea{{$errors->has('new_schedules.'.$key.'.branch_id') ? ' is-invalid' : ''}}" 
+                                <textarea class="form-control border-0 textarea{{$errors->has('new_schedules.'.$key.'.branch_id') ? ' is-invalid' : ''}}"
                                 wire:model="branchQuery.{{$key}}"
                                 wire:keyup="setQuery('{{$key}}')"
                                 wire:keydown.escape="resetQuery"
                                 wire:keydown.tab.prevent="resetQuery"
-
                                 placeholder="{{$schedule['branch_name']}}" style="min-width: 250px"></textarea>
 
                                 @if(isset($branchQuery[$key]) && !empty($branchQuery[$key]))
@@ -128,7 +130,7 @@
                     <tr>
                         <th colspan="2">DATE FILED:</th>
                         <td class="text-center">{{date('Y-m-d')}}</td>
-                        
+
                         <th class="text-left">DATE APPROVED:</th>
                     </tr>
                     <tr>
@@ -150,8 +152,4 @@
         <button class="btn btn-primary" wire:loading><i class="fa fa-spinner fa-spin mr-1"></i>Loading</button>
     </div>
 
-    <script>
-        
-    </script>
-    
 </div>

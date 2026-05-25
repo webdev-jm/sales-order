@@ -14,9 +14,9 @@ use App\Notifications\ScheduleDeleteRejected;
 
 use Illuminate\Support\Facades\Log;
 
+/** Modal component for approving or rejecting schedule deletion requests. */
 class ScheduleDelete extends Component
 {
-
     use WithPagination;
     protected $paginationTheme = 'bootstrap';
 
@@ -24,123 +24,132 @@ class ScheduleDelete extends Component
     public $action, $remarks;
 
     protected $listeners = [
-        'getDate' => 'setDate',
+        'getDate'    => 'setDate',
         'showDetail' => 'viewDetail'
     ];
 
-    public function submitApprove() {
+    public function submitApprove(): \Illuminate\Http\RedirectResponse
+    {
         $this->schedule_data->update([
             'status' => 'deletion approved'
         ]);
 
         $approval = new UserBranchScheduleApproval([
             'user_branch_schedule_id' => $this->schedule_data->id,
-            'user_id' => auth()->user()->id,
-            'status' => 'deletion approved',
-            'remarks' => NULL
+            'user_id'                 => auth()->user()->id,
+            'status'                  => 'deletion approved',
+            'remarks'                 => null,
         ]);
         $approval->save();
-        
-        // logs
-        activity('approved')
-        ->performedOn($this->schedule_data)
-        ->log(':causer.firstname :causer.lastname approved schedule delete request :subject.date');
 
-        // notification
-        $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();
-        $user = $delete_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleDeleteApproved($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        activity('approved')
+            ->performedOn($this->schedule_data)
+            ->log(':causer.firstname :causer.lastname approved schedule delete request :subject.date');
+
+        $delete_request = $this->schedule_data->approvals()
+            ->where('status', 'for deletion')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($delete_request)) {
+            $user = $delete_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleDeleteApproved($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function submitReject() {
+    public function submitReject(): \Illuminate\Http\RedirectResponse
+    {
         $this->validate([
             'remarks' => 'required'
         ]);
 
         $this->schedule_data->update([
-            'status' => NULL
+            'status' => null
         ]);
 
         $approval = new UserBranchScheduleApproval([
             'user_branch_schedule_id' => $this->schedule_data->id,
-            'user_id' => auth()->user()->id,
-            'status' => 'deletion rejected',
-            'remarks' => $this->remarks
+            'user_id'                 => auth()->user()->id,
+            'status'                  => 'deletion rejected',
+            'remarks'                 => $this->remarks,
         ]);
         $approval->save();
 
-        // logs
         activity('rejected')
-        ->performedOn($this->schedule_data)
-        ->log(':causer.firstname :causer.lastname rejected schedule delete request :subject.date');
+            ->performedOn($this->schedule_data)
+            ->log(':causer.firstname :causer.lastname rejected schedule delete request :subject.date');
 
-        // notification
-        $delete_request = $this->schedule_data->approvals()->where('status', 'for deletion')->orderBy('id', 'DESC')->first();
-        $user = $delete_request->user;
-        if(!empty($user)) {
-            try {
-                Notification::send($user, new ScheduleDeleteRejected($this->schedule_data));
-            } catch(\Exception $e) {
-                Log::error('Notification failed: '.$e->getMessage());
+        $delete_request = $this->schedule_data->approvals()
+            ->where('status', 'for deletion')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!empty($delete_request)) {
+            $user = $delete_request->user;
+            if (!empty($user)) {
+                try {
+                    Notification::send($user, new ScheduleDeleteRejected($this->schedule_data));
+                } catch (\Exception $e) {
+                    Log::error('Notification failed: ' . $e->getMessage());
+                }
             }
         }
 
         return redirect(request()->header('Referer'));
     }
 
-    public function approve() {
+    public function approve(): void
+    {
         $this->action = 'approve';
     }
 
-    public function reject() {
+    public function reject(): void
+    {
         $this->action = 'reject';
     }
 
-    public function cancel() {
-        $this->reset([
-            'action',
-            'remarks',
-        ]);
+    public function cancel(): void
+    {
+        $this->reset(['action', 'remarks']);
     }
 
-    public function back() {
-        $this->reset([
-            'schedule_data',
-            'approvals',
-            'action',
-        ]);
+    public function back(): void
+    {
+        $this->reset(['schedule_data', 'approvals', 'action']);
     }
 
-    public function viewDetail($schedule_id) {
+    public function viewDetail($schedule_id): void
+    {
         $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
         $this->approvals = $this->schedule_data->approvals;
         $this->date = $this->schedule_data->date;
     }
 
-    public function setDate($date, $schedule_id) {
+    public function setDate($date, $schedule_id): void
+    {
         $this->date = $date;
-        if(!empty($schedule_id)) {
+        if (!empty($schedule_id)) {
             $this->schedule_data = UserBranchSchedule::findOrFail($schedule_id);
             $this->approvals = $this->schedule_data->approvals;
             $this->date = $this->schedule_data->date;
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $schedules = [];
-        if(!empty($this->date)) {
+        if (!empty($this->date)) {
             $schedules = UserBranchSchedule::where('status', 'for deletion')
-            ->where('date', $this->date)
-            ->paginate(10, ['*'], 'delete-page')->onEachSide(1);
+                ->where('date', $this->date)
+                ->paginate(10, ['*'], 'delete-page')->onEachSide(1);
         }
 
         return view('livewire.schedules.schedule-delete')->with([
