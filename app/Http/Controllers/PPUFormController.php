@@ -43,7 +43,7 @@ class PPUFormController extends Controller
         if(isset($logged_account)) {
 
             $ppu_form = PPUForm::query()
-                ->orderByDesc('control_number')
+                ->orderByDesc('id')
                 // Filter by related account or user using search
                 ->when(!empty($search), function ($query) use ($search) {
                     $query->where(function ($q) use ($search) {
@@ -120,7 +120,6 @@ class PPUFormController extends Controller
 
             $control_number = $this->generateControlNumber();
 
-            $sales_orders = SalesOrder::SalesOrderSearch($search, $logged_account,$this->setting->data_per_page);
             return view('ppu-forms.create')->with([
                 'control_number' => $control_number,
                 'logged_account' => $logged_account
@@ -132,31 +131,21 @@ class PPUFormController extends Controller
         }
     }
 
-    private function generateControlNumber() {
-        $date_code = date('Y');
+    private function generateControlNumber(): string
+    {
+        $year = date('Y');
 
-        do {
-            $control_number = 'PPU-'.$date_code.'-001';
-            // get the most recent sales order
-            $sales_order = PPUForm::withTrashed()->orderBy('control_number', 'DESC')
-                ->first();
-            if(!empty($sales_order)) {
-                $latest_control_number = $sales_order->control_number;
-                list(, $prev_date, $last_number) = explode('-', $latest_control_number);
+        return DB::transaction(function () use ($year) {
+            $latest = PPUForm::withTrashed()
+                ->where('control_number', 'like', "PPU-{$year}-%")
+                ->lockForUpdate()
+                ->orderByDesc('control_number')
+                ->value('control_number');
 
-                // Increment the number based on the date
-                $number = ($date_code == $prev_date) ? ((int)$last_number + 1) : 1;
+            $next = $latest ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1 : 1;
 
-                // Format the number with leading zeros
-                $formatted_number = str_pad($number, 3, '0', STR_PAD_LEFT);
-
-                // Construct the new control number
-                $control_number = "PPU-$date_code-$formatted_number";
-            }
-
-        } while(PPUForm::withTrashed()->where('control_number', $control_number)->exists());
-
-        return $control_number;
+            return sprintf('PPU-%s-%03d', $year, $next);
+        });
     }
 
     /**

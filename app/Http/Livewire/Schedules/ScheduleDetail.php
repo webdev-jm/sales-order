@@ -38,7 +38,7 @@ class ScheduleDetail extends Component
         $this->schedule = UserBranchSchedule::findOrFail($schedule_id);
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $approvals = [];
         if (!empty($this->schedule)) {

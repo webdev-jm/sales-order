@@ -89,7 +89,7 @@ class ScheduleAdd extends Component
         $this->resetPage('branch-page');
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $branches = Branch::whereHas('account', function ($query) {
                 $query->whereHas('users', fn ($q) => $q->where('id', auth()->user()->id));

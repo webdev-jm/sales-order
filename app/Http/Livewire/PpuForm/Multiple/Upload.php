@@ -145,31 +145,21 @@ class Upload extends Component
 
     }
 
-    private function generateControlNumber() {
-        $date_code = date('Y');
+    private function generateControlNumber(): string
+    {
+        $year = date('Y');
 
-        do {
-            $control_number = 'PPU-'.$date_code.'-001';
-            // get the most recent sales order
-            $ppu_form = PPUForm::withTrashed()->orderBy('control_number', 'DESC')
-                ->first();
-            if(!empty($ppu_form)) {
-                $latest_control_number = $ppu_form->control_number;
-                list(, $prev_date, $last_number) = explode('-', $latest_control_number);
+        return DB::transaction(function () use ($year) {
+            $latest = PPUForm::withTrashed()
+                ->where('control_number', 'like', "PPU-{$year}-%")
+                ->lockForUpdate()
+                ->orderByDesc('control_number')
+                ->value('control_number');
 
-                // Increment the number based on the date
-                $number = ($date_code == $prev_date) ? ((int)$last_number + 1) : 1;
+            $next = $latest ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1 : 1;
 
-                // Format the number with leading zeros
-                $formatted_number = str_pad($number, 3, '0', STR_PAD_LEFT);
-
-                // Construct the new control number
-                $control_number = "PPU-$date_code-$formatted_number";
-            }
-
-        } while(PPUForm::withTrashed()->where('control_number', $control_number)->exists());
-
-        return $control_number;
+            return \sprintf('PPU-%s-%03d', $year, $next);
+        });
     }
 
     public function savePPUForm($status) {

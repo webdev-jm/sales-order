@@ -34,7 +34,7 @@ class ScheduleDeviationApproval extends Component
         'setDeviationApproval' => 'setDeviation'
     ];
 
-    public function approve(): \Illuminate\Http\RedirectResponse
+    public function approve()
     {
         $this->deviation->update([
             'status' => 'approved'
@@ -100,7 +100,7 @@ class ScheduleDeviationApproval extends Component
         return redirect(request()->header('Referer'));
     }
 
-    public function reject(): \Illuminate\Http\RedirectResponse
+    public function reject()
     {
         $this->validate([
             'remarks' => 'required'
@@ -160,7 +160,7 @@ class ScheduleDeviationApproval extends Component
         $this->new_schedules = $schedules_by_type->get('new', collect());
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         $approvals = [];
         if (!empty($this->deviation)) {

@@ -41,7 +41,7 @@ class ScheduleDeviation extends Component
         'setDeviation' => 'setDate'
     ];
 
-    public function submitForm(): \Illuminate\Http\RedirectResponse
+    public function submitForm()
     {
         $this->validate([
             'reason_for_deviation' => 'required',
@@ -210,7 +210,7 @@ class ScheduleDeviation extends Component
         ];
     }
 
-    public function render(): \Illuminate\View\View
+    public function render()
     {
         if (!empty($this->searchQuery)) {
             $branches = Branch::orderBy('branch_code')

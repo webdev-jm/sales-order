@@ -131,7 +131,13 @@
                                                 <td class="align-middle text-center">
                                                     {{$schedule->date}}
                                                 </td>
-                                                <td class="align-middle">[{{$schedule->branch->account->short_name ?? ''}}] {{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</td>
+                                                <td class="align-middle">
+                                                    @if($schedule->branch && $schedule->branch->account)
+                                                        [{{$schedule->branch->account->short_name ?? ''}}] {{$schedule->branch->branch_code ?? ''}} {{$schedule->branch->branch_name ?? ''}}
+                                                    @elseif($schedule->objective == 'on-leave')
+                                                        ON LEAVE
+                                                    @endif
+                                                </td>
                                                 @if(isset($actuals[$schedule->id]))
                                                     <td class="text-left">
                                                         @foreach($actuals[$schedule->id] as $actual)
@@ -168,6 +174,15 @@
                                                         @else
                                                             <i class="fa fa-times text-danger" title="Not Visited"></i>
                                                         @endif
+                                                    </td>
+                                                    <td></td>
+                                                @elseif($schedule->objective == 'on-leave')
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td class="text-center align-middle p-0">
+                                                        @php $visited_count++; @endphp
+                                                        <i class="fa fa-check text-success" title="Visited"></i>
                                                     </td>
                                                     <td></td>
                                                 @endif
