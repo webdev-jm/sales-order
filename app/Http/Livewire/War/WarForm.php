@@ -83,7 +83,9 @@ class WarForm extends Component
                     $schedules_visited[$schedule->id] = null;
                 }
 
-                $this->accounts_arr[$schedule->branch->account->id] = $schedule->branch->account->short_name;
+                if ($schedule->branch_id !== null && $schedule->branch && $schedule->branch->account) {
+                    $this->accounts_arr[$schedule->branch->account->id] = $schedule->branch->account->short_name;
+                }
             }
 
             $action_points_arr = [];

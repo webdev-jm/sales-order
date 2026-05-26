@@ -166,11 +166,9 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $control_number   = $this->salesOrderService->generateControlNumber();
         $process_ship_date = $this->resolveShipDate($logged_account);
 
         return view('sales-orders.create')->with([
-            'control_number'    => $control_number,
             'logged_account'    => $logged_account,
             'process_ship_date' => $process_ship_date,
         ]);
@@ -193,11 +191,9 @@ class SalesOrderController extends Controller
         Session::put('order_data', $this->buildOrderDataFromSalesOrder($sales_order));
         session()->put('po_number', $sales_order->po_number);
 
-        $control_number    = $this->salesOrderService->generateControlNumber();
         $process_ship_date = $this->resolveShipDate($logged_account);
 
         return view('sales-orders.create')->with([
-            'control_number'    => $control_number,
             'logged_account'    => $logged_account,
             'process_ship_date' => $process_ship_date,
         ]);
@@ -242,7 +238,9 @@ class SalesOrderController extends Controller
         $parts         = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
         $reference_arr = explode(' ,', $sales_order->reference);
 
-        CheckSalesOrderStatus::dispatch($sales_order);
+        if (is_null($sales_order->upload_status) && empty($sales_order->reference)) {
+            CheckSalesOrderStatus::dispatch($sales_order);
+        }
 
         return view('sales-orders.show')->with([
             'sales_order'   => $sales_order,

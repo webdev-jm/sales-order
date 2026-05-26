@@ -78,14 +78,14 @@ class SalesOrderService {
                         // 'A' = price is per order UOM, 'O' = price is per other UOM.
                         // If the operator is Multiply (M): stock = price / conversion
                         // If the operator is Divide (D):    stock = price * conversion
-                        if ($price_basis == 'A') {
+                        if ($price_basis == 'A' && $product->order_uom_conversion != 0) {
                             if ($product->order_uom_operator == 'M') {
                                 $selling_price = $selling_price / $product->order_uom_conversion;
                             }
                             if ($product->order_uom_operator == 'D') {
                                 $selling_price = $selling_price * $product->order_uom_conversion;
                             }
-                        } elseif ($price_basis == 'O') {
+                        } elseif ($price_basis == 'O' && $product->other_uom_conversion != 0) {
                             if ($product->other_uom_operator == 'M') {
                                 $selling_price = $selling_price / $product->other_uom_conversion;
                             }
