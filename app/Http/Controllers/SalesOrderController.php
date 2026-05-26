@@ -220,7 +220,7 @@ class SalesOrderController extends Controller
                 ->performedOn($sales_order)
                 ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number :subject.po_number');
 
-            if ($request->status == 'finalized') {
+            if ($request->status == 'finalized' && config('sales-order.xml_generation_enabled')) {
                 GenerateSalesOrderXml::dispatch($sales_order);
             }
 
@@ -305,7 +305,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        if ($sales_order->status == 'finalized') {
+        if ($sales_order->status == 'finalized' && config('sales-order.xml_generation_enabled')) {
             GenerateSalesOrderXml::dispatch($sales_order);
         }
 
