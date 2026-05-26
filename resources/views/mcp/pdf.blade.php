@@ -70,6 +70,18 @@
             font-weight: 500;
             color: #454545
         }
+        .bg-holiday-nowork {
+            background-color: #fef3c7;
+        }
+        .bg-holiday-work {
+            background-color: #ffedd5;
+        }
+        .holiday-label {
+            font-size: 10px;
+            font-style: italic;
+            font-weight: bold;
+            text-align: left;
+        }
 
         /* table */
         .table {
@@ -93,6 +105,9 @@
             padding: 4px;
             font-size: 11px;
             text-align: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
         .table-sm td, th {
             padding: 0.3rem;
@@ -136,21 +151,28 @@
         </thead>
         <tbody>
             @foreach($lines as $date => $data)
+                @if(!empty($data['holiday']))
+                <tr class="{{ $data['holiday_work'] ? 'bg-holiday-work' : 'bg-holiday-nowork' }}">
+                    <td colspan="7" class="holiday-label">
+                        {{ $data['holiday'] }}{{ $data['holiday_work'] ? ' (Work Day)' : ' (No Work)' }}
+                    </td>
+                </tr>
+                @endif
                 @foreach($data['lines'] as $line)
-                <tr class="{{$data['class']}}">
-                    <td class="font-weight-bold">{{$data['day']}}</td>
+                <tr class="{{$data['class']}}{{ !empty($data['holiday']) ? ' ' . ($data['holiday_work'] ? 'bg-holiday-work' : 'bg-holiday-nowork') : '' }}">
+                    <td class="mw-50 font-weight-bold">{{$data['day']}}</td>
                     <td class="mw-50 font-weight-bold">{{date('M d', strtotime($date))}}</td>
                     <td>{{$line['location']}}</td>
                     <td>
                         {{$line['branch_name']}}
                         <br>
                         @if(!empty($line['account_name']))
-                            <span class="">[{{$line['account_name']}}]</span>
+                            <span class="font-weight-bold">[{{$line['account_name']}}]</span>
                         @endif
                     </td>
                     <td class="text-left">{{$line['purpose']}}</td>
-                    <td class="mw-100">{{$line['work_with']}}</td>
-                    <td class="mw-100">{{$line['trip']}}</td>
+                    <td class="mw-50">{{$line['work_with']}}</td>
+                    <td class="mw-50">{{$line['trip']}}</td>
                 </tr>
                 @endforeach
             @endforeach

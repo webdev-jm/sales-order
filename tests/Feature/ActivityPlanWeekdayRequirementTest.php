@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Http\Controllers\ActivityPlanController;
+use App\Models\Holiday;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Tests\TestCase;
 
 /**
  * Tests for the weekday coverage requirement on activity plan create/edit.
@@ -14,6 +17,8 @@ use App\Http\Controllers\ActivityPlanController;
  */
 class ActivityPlanWeekdayRequirementTest extends TestCase
 {
+    use RefreshDatabase;
+
     // ── validatePlanLines() ───────────────────────────────────────────────────
 
     /**
@@ -275,7 +280,7 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
     }
 
     /**
-     * store() and update() must query Holiday:: before calling validatePlanLines().
+     * store() and update() must delegate to getNoWorkHolidayDates() before calling validatePlanLines().
      */
     public function test_store_and_update_query_holidays_before_validation(): void
     {
@@ -286,7 +291,13 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
         $this->assertStringContainsString(
             'Holiday::',
             $source,
-            'ActivityPlanController must query the Holiday model to build the $holiday_dates set.'
+            'ActivityPlanController must query the Holiday model inside getNoWorkHolidayDates().'
+        );
+
+        $this->assertStringContainsString(
+            'getNoWorkHolidayDates(',
+            $source,
+            'store() and update() must call getNoWorkHolidayDates() to build the $holiday_dates set.'
         );
 
         $this->assertStringContainsString(
@@ -296,7 +307,91 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
         );
     }
 
-    // ── Helper ────────────────────────────────────────────────────────────────
+    // ── Work/no-work holiday exemption ────────────────────────────────────────
+
+    /**
+     * A Philippine holiday in the Google Calendar cache with no DB override must exempt the weekday.
+     */
+    public function test_philippine_no_work_holiday_exempts_weekday(): void
+    {
+        Cache::put('google_calendar_holidays_2026', [
+            ['summary' => 'Independence Day', 'start' => ['date' => '2026-06-12']],
+        ], now()->addDay());
+
+        $dates = $this->callGetNoWorkHolidayDates('2026');
+
+        $this->assertContains('2026-06-12', $dates,
+            'A Philippine holiday with no work-day override must appear in no-work dates.');
+    }
+
+    /**
+     * A Philippine holiday overridden to is_work_day=true must NOT appear in the no-work dates.
+     */
+    public function test_philippine_work_day_override_does_not_exempt_weekday(): void
+    {
+        Cache::put('google_calendar_holidays_2026', [
+            ['summary' => 'Independence Day', 'start' => ['date' => '2026-06-12']],
+        ], now()->addDay());
+
+        Holiday::create([
+            'source'      => 'philippine',
+            'year'        => 2026,
+            'month'       => 6,
+            'day'         => 12,
+            'title'       => 'Independence Day',
+            'repeat'      => false,
+            'is_work_day' => true,
+        ]);
+
+        $dates = $this->callGetNoWorkHolidayDates('2026');
+
+        $this->assertNotContains('2026-06-12', $dates,
+            'A Philippine holiday overridden to work-day must NOT appear in no-work dates.');
+    }
+
+    /**
+     * A custom holiday with is_work_day=false must exempt the weekday.
+     */
+    public function test_custom_no_work_holiday_exempts_weekday(): void
+    {
+        Holiday::create([
+            'source'      => 'custom',
+            'year'        => 2026,
+            'month'       => 3,
+            'day'         => 15,
+            'title'       => 'Company Day',
+            'repeat'      => false,
+            'is_work_day' => false,
+        ]);
+
+        $dates = $this->callGetNoWorkHolidayDates('2026');
+
+        $this->assertContains('2026-03-15', $dates,
+            'A custom no-work holiday must appear in no-work dates.');
+    }
+
+    /**
+     * A custom holiday with is_work_day=true must NOT exempt the weekday.
+     */
+    public function test_custom_work_day_holiday_does_not_exempt_weekday(): void
+    {
+        Holiday::create([
+            'source'      => 'custom',
+            'year'        => 2026,
+            'month'       => 3,
+            'day'         => 15,
+            'title'       => 'Company Work Day',
+            'repeat'      => false,
+            'is_work_day' => true,
+        ]);
+
+        $dates = $this->callGetNoWorkHolidayDates('2026');
+
+        $this->assertNotContains('2026-03-15', $dates,
+            'A custom work-day holiday must NOT appear in no-work dates.');
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private function callValidatePlanLines(array $month_details, array $holiday_dates = []): array
     {
@@ -305,5 +400,14 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
         $method->setAccessible(true);
 
         return $method->invoke($controller, $month_details, $holiday_dates);
+    }
+
+    private function callGetNoWorkHolidayDates(string $year): array
+    {
+        $controller = new ActivityPlanController();
+        $method = (new \ReflectionClass($controller))->getMethod('getNoWorkHolidayDates');
+        $method->setAccessible(true);
+
+        return $method->invoke($controller, $year);
     }
 }

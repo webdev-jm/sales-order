@@ -85,18 +85,25 @@ class ActivityPlanHolidayDisplayTest extends TestCase
         $component->year  = '2026';
         $component->month = '06';
         $component->month_days['06']['2026-06-01'] = [
-            'day'      => 'Mon',
-            'date'     => 'Jun. 01',
-            'class'    => 'bg-light',
-            'lines'    => [],
-            'on_leave' => false,
-            'holiday'  => null,
+            'day'          => 'Mon',
+            'date'         => 'Jun. 01',
+            'class'        => 'bg-light',
+            'lines'        => [],
+            'on_leave'     => false,
+            'holiday'      => null,
+            'holiday_work' => false,
         ];
 
         $this->assertArrayHasKey(
             'holiday',
             $component->month_days['06']['2026-06-01'],
             'Each date entry in month_days must have a "holiday" key.'
+        );
+
+        $this->assertArrayHasKey(
+            'holiday_work',
+            $component->month_days['06']['2026-06-01'],
+            'Each date entry in month_days must have a "holiday_work" key.'
         );
     }
 
@@ -121,6 +128,22 @@ class ActivityPlanHolidayDisplayTest extends TestCase
             "\$day['holiday']",
             $source,
             "detail2.blade.php must reference \$day['holiday'] to show the holiday name."
+        );
+    }
+
+    /**
+     * The view must reference holiday_work to differentiate work-day vs no-work holidays.
+     */
+    public function test_detail2_view_references_holiday_work_key(): void
+    {
+        $source = file_get_contents(
+            resource_path('views/livewire/activity-plan/detail2.blade.php')
+        );
+
+        $this->assertStringContainsString(
+            "\$day['holiday_work']",
+            $source,
+            "detail2.blade.php must reference \$day['holiday_work'] to show work-day vs no-work badge."
         );
     }
 }

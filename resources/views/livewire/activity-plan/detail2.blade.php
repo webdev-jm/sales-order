@@ -45,7 +45,11 @@
                             <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                             {{$day['day']}} - {{$day['date']}}
                             @if(!empty($day['holiday']))
-                            <span class="badge badge-success ml-1"><i class="fas fa-flag mr-1"></i>{{ $day['holiday'] }}</span>
+                                @if(!empty($day['holiday_work']))
+                                <span class="badge badge-warning ml-1"><i class="fas fa-briefcase mr-1"></i>{{ $day['holiday'] }} (Work Day)</span>
+                                @else
+                                <span class="badge badge-success ml-1"><i class="fas fa-flag mr-1"></i>{{ $day['holiday'] }}</span>
+                                @endif
                             @endif
                             <span class="float-right">
                                 <button class="btn btn-xs {{$day['on_leave'] ? 'btn-danger' : 'btn-outline-danger'}} mr-2"

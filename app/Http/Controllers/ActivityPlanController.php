@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Http\Requests\StoreActivityPlanRequest;
 use App\Http\Requests\UpdateActivityPlanRequest;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -147,13 +148,7 @@ class ActivityPlanController extends Controller
                     // details
                     if(!empty($data['details'][$data['month']])) {
                         // validate lines
-                        $holiday_dates = Holiday::where(function ($q) use ($data) {
-                            $q->where('year', $data['year'])->orWhere('repeat', 1);
-                        })->get()->map(fn(Holiday $h) => Carbon::createFromDate(
-                            $h->repeat ? $data['year'] : $h->year,
-                            $h->month,
-                            $h->day
-                        )->toDateString())->all();
+                        $holiday_dates = $this->getNoWorkHolidayDates((string) $data['year']);
 
                         $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
                         $line_error            = $validation['line_error'];
@@ -378,6 +373,20 @@ class ActivityPlanController extends Controller
             ];
         }
 
+        $holiday_map = $this->getHolidayMap((string) $activity_plan->year);
+        foreach ($holiday_map as $date => $holiday) {
+            $schedule_data[] = [
+                'title'           => $holiday['title'],
+                'start'           => $date,
+                'allDay'          => true,
+                'backgroundColor' => $holiday['is_work_day'] ? '#fd7e14' : '#28a745',
+                'borderColor'     => $holiday['is_work_day'] ? '#c96209' : '#1a7a32',
+                'textColor'       => '#ffffff',
+                'display'         => 'background',
+                'extendedProps'   => ['is_holiday' => true, 'is_work_day' => $holiday['is_work_day'], 'holiday_title' => $holiday['title']],
+            ];
+        }
+
         $position = [];
         $organizations = $activity_plan->user->organizations;
         if(!empty($organizations)) {
@@ -555,13 +564,7 @@ class ActivityPlanController extends Controller
                     // details
                     if(!empty($data['details'][$data['month']])) {
                         // validate lines
-                        $holiday_dates = Holiday::where(function ($q) use ($data) {
-                            $q->where('year', $data['year'])->orWhere('repeat', 1);
-                        })->get()->map(fn(Holiday $h) => Carbon::createFromDate(
-                            $h->repeat ? $data['year'] : $h->year,
-                            $h->month,
-                            $h->day
-                        )->toDateString())->all();
+                        $holiday_dates = $this->getNoWorkHolidayDates((string) $data['year']);
 
                         $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
                         $line_error            = $validation['line_error'];
@@ -762,6 +765,90 @@ class ActivityPlanController extends Controller
     }
 
     /**
+     * Build the list of "no-work" holiday dates for a given year.
+     *
+     * Includes Philippine public holidays from the Google Calendar cache (unless the user
+     * has overridden a specific date to is_work_day = true), plus custom holidays where
+     * is_work_day = false. Work-day holidays of either source are excluded so that
+     * validatePlanLines() still requires a schedule entry on those days.
+     *
+     * @return string[] ISO date strings (Y-m-d)
+     */
+    private function getNoWorkHolidayDates(string $year): array
+    {
+        $dates = [];
+
+        $googleItems = Cache::get("google_calendar_holidays_{$year}") ?? [];
+
+        $workDayDates = Holiday::where('source', 'philippine')
+            ->where('is_work_day', true)
+            ->where(fn ($q) => $q->where('year', (int) $year)->orWhere('repeat', true))
+            ->get()
+            ->map(fn (Holiday $h) => Carbon::createFromDate(
+                $h->repeat ? $year : $h->year, $h->month, $h->day
+            )->toDateString())
+            ->flip()
+            ->all();
+
+        foreach ($googleItems as $item) {
+            $date = $item['start']['date'] ?? null;
+            if ($date && ! isset($workDayDates[$date])) {
+                $dates[] = $date;
+            }
+        }
+
+        Holiday::where('source', 'custom')
+            ->where('is_work_day', false)
+            ->where(fn ($q) => $q->where('year', (int) $year)->orWhere('repeat', true)->orWhereNull('year'))
+            ->get()
+            ->each(function (Holiday $h) use (&$dates, $year) {
+                $dates[] = Carbon::createFromDate(
+                    $h->repeat || is_null($h->year) ? $year : $h->year, $h->month, $h->day
+                )->toDateString();
+            });
+
+        return array_values(array_unique($dates));
+    }
+
+    /**
+     * Return a map of all holidays (work + no-work) for the given year, keyed by ISO date string.
+     *
+     * @return array<string, array{title: string, is_work_day: bool}>
+     */
+    private function getHolidayMap(string $year): array
+    {
+        $map = [];
+
+        $googleItems = Cache::get("google_calendar_holidays_{$year}") ?? [];
+        foreach ($googleItems as $item) {
+            $date = $item['start']['date'] ?? null;
+            if ($date) {
+                $map[$date] = ['title' => $item['summary'] ?? '', 'is_work_day' => false];
+            }
+        }
+
+        Holiday::where('source', 'philippine')
+            ->where(fn ($q) => $q->where('year', (int) $year)->orWhere('repeat', true))
+            ->get()
+            ->each(function (Holiday $h) use (&$map, $year) {
+                $date = Carbon::createFromDate($h->repeat ? $year : $h->year, $h->month, $h->day)->toDateString();
+                if (isset($map[$date])) {
+                    $map[$date]['is_work_day'] = (bool) $h->is_work_day;
+                }
+            });
+
+        Holiday::where('source', 'custom')
+            ->where(fn ($q) => $q->where('year', (int) $year)->orWhere('repeat', true)->orWhereNull('year'))
+            ->get()
+            ->each(function (Holiday $h) use (&$map, $year) {
+                $date = Carbon::createFromDate($h->repeat || is_null($h->year) ? $year : $h->year, $h->month, $h->day)->toDateString();
+                $map[$date] = ['title' => $h->title, 'is_work_day' => (bool) $h->is_work_day];
+            });
+
+        return $map;
+    }
+
+    /**
      * Validate the line items in an activity plan month's detail array.
      *
      * @param  string[] $holiday_dates  ISO date strings (Y-m-d) of holidays to exempt from the weekday requirement.
@@ -955,6 +1042,7 @@ class ActivityPlanController extends Controller
         }
 
         $last_day = date('t', strtotime($activity_plan->year.'-'.$activity_plan->month.'-01'));
+        $holiday_map = $this->getHolidayMap((string) $activity_plan->year);
         $lines = [];
         for($i = 1; $i <= (int)$last_day; $i++) {
             $date = $activity_plan->year.'-'.$activity_plan->month.'-'.($i < 10 ? '0'.$i : $i);
@@ -1016,9 +1104,11 @@ class ActivityPlanController extends Controller
             }
 
             $lines[$date] = [
-                'day' => $day,
-                'class' => $class,
-                'lines' => $data
+                'day'          => $day,
+                'class'        => $class,
+                'lines'        => $data,
+                'holiday'      => $holiday_map[$date]['title'] ?? null,
+                'holiday_work' => $holiday_map[$date]['is_work_day'] ?? false,
             ];
         }
 
