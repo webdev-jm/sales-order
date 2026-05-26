@@ -13,18 +13,21 @@ class StoreHolidayRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
-            //
+            'title'       => ['required', 'string', 'max:255'],
+            'month'       => ['required', 'integer', 'between:1,12'],
+            'day'         => ['required', 'integer', 'between:1,31'],
+            'year'        => ['nullable', 'integer'],
+            'repeat'      => ['boolean'],
+            'is_work_day' => ['boolean'],
         ];
     }
 }

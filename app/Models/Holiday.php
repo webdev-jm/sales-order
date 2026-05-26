@@ -31,6 +31,8 @@ class Holiday extends Model
         'month',
         'day',
         'title',
-        'repeat'
+        'repeat',
+        'is_work_day',
+        'source',
     ];
 }
