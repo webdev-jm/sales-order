@@ -31,9 +31,7 @@ class StoreSalesOrderRequest extends FormRequest
         $logged_account = Session::get('logged_account');
 
         return [
-            'control_number' => [
-                'required', //Rule::unique((new SalesOrder)->getTable())
-            ],
+            'control_number' => [],
             'status' => [
                 'required'
             ],
@@ -50,8 +48,7 @@ class StoreSalesOrderRequest extends FormRequest
             ],
             'paf_number' => [
                 'nullable',
-                'max:12',
-                'min:12',
+                'size:12',
                 'yyyy_a_number'
             ],
             'order_date' => [

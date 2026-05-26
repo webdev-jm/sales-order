@@ -21,11 +21,14 @@ class UserActivity
     public function handle(Request $request, Closure $next): Response
     {
         if(Auth::check()) {
-            $expiresAt = now()->addMinutes(2); /* keep online for 2 min */
-            Cache::put('user-is-online-' . Auth::user()->id, true, $expiresAt);
+            $userId = Auth::id();
 
-            /* last activity */
-            User::where('id', Auth::user()->id)->update(['last_activity' => now()]);
+            Cache::put('user-is-online-' . $userId, true, now()->addMinutes(2));
+
+            if (!Cache::has('user-activity-written-' . $userId)) {
+                User::where('id', $userId)->update(['last_activity' => now()]);
+                Cache::put('user-activity-written-' . $userId, true, now()->addMinutes(1));
+            }
         }
 
         return $next($request);

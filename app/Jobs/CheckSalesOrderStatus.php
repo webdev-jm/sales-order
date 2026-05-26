@@ -9,7 +9,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class CheckSalesOrderStatus implements ShouldQueue
 {
@@ -39,8 +38,7 @@ class CheckSalesOrderStatus implements ShouldQueue
 
             if ($response->failed()) {
                 activity('error')->log('Request failed for PO: ' . $this->order->po_number . ' - ' . $response->status());
-                $this->failed(new \RuntimeException('HTTP request failed with status: ' . $response->status())); //
-                return;
+                throw new \RuntimeException('HTTP request failed with status: ' . $response->status());
             }
 
             $json = $response->json();

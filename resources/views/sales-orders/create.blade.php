@@ -43,16 +43,14 @@
 
 @section('content')
 {!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order']) !!}
-<input type="hidden" name="control_number" form="add_sales_order" value="{{$control_number}}">
+<input type="hidden" name="control_number" form="add_sales_order" value="">
 {!! Form::close() !!}
 
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h3 class="mb-1 align-middle">CONTROL NO: {{$control_number}}</h3>
-                <p class="text-danger m-0">{{$errors->first('control_number')}}</p>
-                {{-- {!! Form::hidden('control_number', $control_number, ['form' => 'add_sales_order']) !!} --}}
+                <h3 class="mb-1 align-middle">CONTROL NO: <em class="text-muted">Will be assigned on submit</em></h3>
             </div>
         </div>
     </div>
@@ -270,7 +268,7 @@
             if(status == 'Finalize') {
                 
                 var data = {
-                    'control_number' : '{{$control_number}}',
+                    'control_number' : '',
                     'po_number' : $('#po_number').val(),
                     'paf_number' : $('#paf_number').val(),
                     'order_date' : $('#order_date').val(),
