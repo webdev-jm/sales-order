@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\Account;
+use App\Models\Holiday;
 use App\Models\UserBranchSchedule;
 use App\Models\OrganizationStructure;
 use App\Models\Deviation;
@@ -19,6 +20,8 @@ use App\Imports\ScheduleImport;
 use App\Http\Traits\GlobalTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class UserBranchScheduleController extends Controller
 {
@@ -90,6 +93,8 @@ class UserBranchScheduleController extends Controller
             ->get()
             ->mapWithKeys(fn(Account $a) => [$a->id => $a->account_code . ' - ' . $a->short_name])
             ->all();
+
+        $schedule_data = array_merge($schedule_data, $this->buildHolidayEvents($date_from, $date_to));
 
         return view('schedules.index')->with([
             'user_id'       => $user_id,
@@ -184,6 +189,107 @@ class UserBranchScheduleController extends Controller
         ]);
 
         return $pdf->stream('deviation-form-' . $deviation->date . '-' . time() . '.pdf');
+    }
+
+    /**
+     * Build holiday calendar events for the given date range.
+     *
+     * Sources: Google Calendar API (Philippine holidays, cached 1 day) + custom holidays from DB.
+     * Uses the same cache key as HolidayIndex so a warm cache avoids redundant API calls.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildHolidayEvents(string $date_from, string $date_to): array
+    {
+        $events      = [];
+        $currentYear = now()->year;
+        $cacheKey    = "google_calendar_holidays_{$currentYear}";
+
+        $googleItems = Cache::get($cacheKey);
+
+        if ($googleItems === null) {
+            $calendarId = urlencode('en.philippines#holiday@group.v.calendar.google.com');
+            $response   = Http::withHeaders(['Referer' => config('app.url')])->get(
+                "https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events",
+                [
+                    'key'          => config('services.google_calendar.api_key'),
+                    'timeMin'      => Carbon::now()->startOfYear()->toRfc3339String(),
+                    'timeMax'      => Carbon::now()->endOfYear()->toRfc3339String(),
+                    'singleEvents' => 'true',
+                    'orderBy'      => 'startTime',
+                ]
+            );
+
+            if ($response->successful()) {
+                $googleItems = $response->json('items') ?? [];
+                Cache::put($cacheKey, $googleItems, now()->addDay());
+            }
+        }
+
+        $googleItems = $googleItems ?? [];
+
+        $overrides = Holiday::where('source', 'philippine')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)->orWhere('repeat', true);
+            })
+            ->get()
+            ->keyBy(fn (Holiday $h) => Carbon::createFromDate(
+                $h->repeat ? $currentYear : $h->year,
+                $h->month,
+                $h->day
+            )->toDateString());
+
+        foreach ($googleItems as $item) {
+            $date = $item['start']['date'] ?? ($item['start']['dateTime'] ?? '');
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            $override  = $overrides->get($date);
+            $isWorkDay = $override ? (bool) $override->is_work_day : false;
+            $color     = $isWorkDay ? '#27ae60' : '#3498db';
+
+            $events[] = [
+                'title'           => $item['summary'] ?? '',
+                'start'           => $date,
+                'allDay'          => true,
+                'display'         => 'background',
+                'backgroundColor' => $color,
+                'type'            => 'holiday',
+            ];
+        }
+
+        $customHolidays = Holiday::where('source', 'custom')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)
+                  ->orWhere('repeat', true)
+                  ->orWhereNull('year');
+            })
+            ->get();
+
+        foreach ($customHolidays as $holiday) {
+            $date = Carbon::createFromDate(
+                ($holiday->repeat || is_null($holiday->year)) ? $currentYear : $holiday->year,
+                $holiday->month,
+                $holiday->day
+            )->toDateString();
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            $events[] = [
+                'title'           => $holiday->title,
+                'start'           => $date,
+                'allDay'          => true,
+                'display'         => 'background',
+                'backgroundColor' => '#e74c3c',
+                'type'            => 'holiday',
+            ];
+        }
+
+        return $events;
     }
 
     /**

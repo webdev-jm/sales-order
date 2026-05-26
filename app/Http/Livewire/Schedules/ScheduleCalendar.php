@@ -4,10 +4,14 @@ namespace App\Http\Livewire\Schedules;
 
 use Livewire\Component;
 
+use App\Models\Holiday;
 use App\Models\User;
 use App\Models\Branch;
 use App\Models\UserBranchSchedule;
 use App\Models\ActivityPlanDetail;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class ScheduleCalendar extends Component
 {
@@ -305,11 +309,100 @@ class ScheduleCalendar extends Component
             ];
         }
 
+        $schedule_data = array_merge($schedule_data, $this->buildHolidayEvents());
+
         $this->schedule_data = $schedule_data;
 
         return view('livewire.schedules.schedule-calendar')->with([
             'users' => $users_arr,
             'branches' => $branches_arr,
         ]);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildHolidayEvents(): array
+    {
+        $events      = [];
+        $currentYear = Carbon::now()->year;
+        $cacheKey    = "google_calendar_holidays_{$currentYear}";
+
+        $googleItems = Cache::get($cacheKey);
+
+        if ($googleItems === null) {
+            $calendarId = urlencode('en.philippines#holiday@group.v.calendar.google.com');
+            $response   = Http::withHeaders(['Referer' => config('app.url')])->get(
+                "https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events",
+                [
+                    'key'          => config('services.google_calendar.api_key'),
+                    'timeMin'      => Carbon::now()->startOfYear()->toRfc3339String(),
+                    'timeMax'      => Carbon::now()->endOfYear()->toRfc3339String(),
+                    'singleEvents' => 'true',
+                    'orderBy'      => 'startTime',
+                ]
+            );
+
+            if ($response->successful()) {
+                $googleItems = $response->json('items') ?? [];
+                Cache::put($cacheKey, $googleItems, now()->addDay());
+            }
+        }
+
+        $googleItems = $googleItems ?? [];
+
+        $overrides = Holiday::where('source', 'philippine')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)->orWhere('repeat', true);
+            })
+            ->get()
+            ->keyBy(fn (Holiday $h) => Carbon::createFromDate(
+                $h->repeat ? $currentYear : $h->year,
+                $h->month,
+                $h->day
+            )->toDateString());
+
+        foreach ($googleItems as $item) {
+            $date      = $item['start']['date'] ?? ($item['start']['dateTime'] ?? '');
+            $override  = $overrides->get($date);
+            $isWorkDay = $override ? (bool) $override->is_work_day : false;
+            $color     = $isWorkDay ? '#27ae60' : '#3498db';
+
+            $events[] = [
+                'title'           => $item['summary'] ?? '',
+                'start'           => $date,
+                'allDay'          => true,
+                'display'         => 'background',
+                'backgroundColor' => $color,
+                'type'            => 'holiday',
+            ];
+        }
+
+        $customHolidays = Holiday::where('source', 'custom')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)
+                  ->orWhere('repeat', true)
+                  ->orWhereNull('year');
+            })
+            ->get();
+
+        foreach ($customHolidays as $holiday) {
+            $date = Carbon::createFromDate(
+                ($holiday->repeat || is_null($holiday->year)) ? $currentYear : $holiday->year,
+                $holiday->month,
+                $holiday->day
+            )->toDateString();
+
+            $events[] = [
+                'title'           => $holiday->title,
+                'start'           => $date,
+                'allDay'          => true,
+                'display'         => 'background',
+                'backgroundColor' => '#e74c3c',
+                'type'            => 'holiday',
+            ];
+        }
+
+        return $events;
     }
 }

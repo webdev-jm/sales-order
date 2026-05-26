@@ -113,6 +113,17 @@
                             </td>
                         </tr>
                     </thead>
+                    @if(!empty($line['holiday']))
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center py-2">
+                                    <span class="badge badge-pill px-3 py-2" style="background-color:#3498db;color:#fff;font-size:0.85rem;">
+                                        <i class="fa fa-calendar-times mr-1"></i> HOLIDAY &mdash; {{ $line['holiday'] }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    @endif
                     @if(!empty($line['on_leave']))
                         <tbody>
                             <tr>

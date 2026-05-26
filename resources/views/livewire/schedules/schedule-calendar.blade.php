@@ -1,4 +1,17 @@
 <div>
+    <style>
+        .fc-bg-event {
+            opacity: 0.55;
+        }
+        .fc-bg-event .fc-event-title {
+            font-size: 0.7em;
+            font-weight: 700;
+            color: #fff;
+            padding: 2px 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.55);
+        }
+    </style>
+
     <div class="card">
         {{-- <form wire:submit.prevent="filter"> --}}
             <div class="card-header">
@@ -81,7 +94,7 @@
                     var day = date.getDate();
                     var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
-                    if(type == 'on_leave') {
+                    if(type == 'holiday' || type == 'on_leave') {
                         return;
                     } else if(type == 'schedule') {
                         Livewire.emit('showEvents', date_format);
