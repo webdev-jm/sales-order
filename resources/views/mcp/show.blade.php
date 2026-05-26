@@ -118,7 +118,7 @@
                     @endif
                 </dl>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <label class="text-muted mb-1"><strong>Objectives for the month:</strong></label>
                 <pre class="bg-light rounded p-2">{{$activity_plan->objectives}}</pre>
             </div>
@@ -151,7 +151,9 @@
             <span class="badge mr-1" style="background-color:#09599e; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; Schedule</span>
             <span class="badge mr-1" style="background-color:#0CA1A4; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; With Trip</span>
             <span class="badge mr-1" style="background-color:#1CA40C; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; Trip Approved</span>
-            <span class="badge" style="background-color:#dc3545; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; On Leave</span>
+            <span class="badge mr-1" style="background-color:#dc3545; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; On Leave</span>
+            <span class="badge mr-1" style="background-color:#28a745; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; No-Work Holiday</span>
+            <span class="badge" style="background-color:#fd7e14; color:#fff; font-size:0.75rem; padding:4px 8px;">&#9632; Work-Day Holiday</span>
             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                 <i class="fas fa-minus"></i>
             </button>
@@ -223,6 +225,10 @@ $(function() {
         // dayMaxEvents: 5,
         eventClick: function(info) {
             var eventObj = info.event;
+
+            if (eventObj.extendedProps.is_holiday) {
+                return;
+            }
 
             if (eventObj.extendedProps.on_leave) {
                 return; // on-leave entries have no schedule detail

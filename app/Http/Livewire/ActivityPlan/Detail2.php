@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\ActivityPlanDetail;
+use App\Models\Holiday;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -333,13 +334,41 @@ class Detail2 extends Component
         }
 
         $monthPrefix = "{$this->year}-{$this->month}";
+
+        // 1. Google Calendar holidays (no-work by default)
         $holiday_map = [];
         foreach ($googleItems ?? [] as $item) {
             $itemDate = $item['start']['date'] ?? null;
             if ($itemDate && str_starts_with($itemDate, $monthPrefix)) {
-                $holiday_map[$itemDate] = $item['summary'] ?? '';
+                $holiday_map[$itemDate] = ['title' => $item['summary'] ?? '', 'is_work_day' => false];
             }
         }
+
+        // 2. Apply Philippine work-day overrides from DB
+        Holiday::where('source', 'philippine')
+            ->where(fn ($q) => $q->where('year', (int) $this->year)->orWhere('repeat', true))
+            ->get()
+            ->each(function (Holiday $h) use (&$holiday_map) {
+                $date = Carbon::createFromDate(
+                    $h->repeat ? $this->year : $h->year, $h->month, $h->day
+                )->toDateString();
+                if (isset($holiday_map[$date])) {
+                    $holiday_map[$date]['is_work_day'] = (bool) $h->is_work_day;
+                }
+            });
+
+        // 3. Custom holidays (override Google if same date)
+        Holiday::where('source', 'custom')
+            ->where(fn ($q) => $q->where('year', (int) $this->year)->orWhere('repeat', true)->orWhereNull('year'))
+            ->get()
+            ->each(function (Holiday $h) use (&$holiday_map, $monthPrefix) {
+                $date = Carbon::createFromDate(
+                    $h->repeat || is_null($h->year) ? $this->year : $h->year, $h->month, $h->day
+                )->toDateString();
+                if (str_starts_with($date, $monthPrefix)) {
+                    $holiday_map[$date] = ['title' => $h->title, 'is_work_day' => (bool) $h->is_work_day];
+                }
+            });
 
         for ($i = 1; $i <= (int)$this->last_day; $i++) {
             $date = $this->year . '-' . $this->month . '-' . ($i < 10 ? '0' . $i : $i);
@@ -357,12 +386,13 @@ class Detail2 extends Component
             $on_leave = $session_details[$this->month][$date]['on_leave'] ?? false;
 
             $days[$date] = [
-                'day'      => $day_of_week,
-                'date'     => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
-                'class'    => $class,
-                'lines'    => $lines,
-                'on_leave' => $on_leave,
-                'holiday'  => $holiday_map[$date] ?? null,
+                'day'          => $day_of_week,
+                'date'         => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
+                'class'        => $class,
+                'lines'        => $lines,
+                'on_leave'     => $on_leave,
+                'holiday'      => $holiday_map[$date]['title'] ?? null,
+                'holiday_work' => $holiday_map[$date]['is_work_day'] ?? false,
             ];
 
             // Initialize expand state, default to false.
