@@ -3,22 +3,21 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use App\Http\Controllers\HolidayController;
 use App\Models\Holiday;
 
 /**
- * Tests for HolidayController fixes:
- * - Uses config() instead of env() for API key and app URL
- * - Transforms Google Calendar items into FullCalendar format ($calendar_data)
- * - Merges local Holiday records into $calendar_data
- * - Always returns the view (never redirects back on API failure)
+ * Tests for the holiday module:
+ * - HolidayController delegates all Google Calendar / data logic to HolidayIndex Livewire component
+ * - HolidayIndex uses config() instead of env() for API key and app URL
+ * - HolidayIndex transforms Google Calendar items and merges local Holiday records
+ * - HolidayIndex caches API responses and never redirects on failure
  */
 class HolidayControllerTest extends TestCase
 {
-    // ── Config usage ──────────────────────────────────────────────────────────
+    // ── Controller simplification ─────────────────────────────────────────────
 
     /**
-     * The controller must not call env() directly for the API key or app URL.
+     * Google Calendar logic moved to HolidayIndex — the controller must not call env() directly.
      */
     public function test_controller_does_not_use_env_directly(): void
     {
@@ -38,22 +37,22 @@ class HolidayControllerTest extends TestCase
     }
 
     /**
-     * The controller must read the API key from config('services.google_calendar.api_key').
+     * HolidayIndex (Livewire) must read the API key from config(), never env().
      */
     public function test_controller_uses_config_for_api_key(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringContainsString(
             "config('services.google_calendar.api_key')",
             $source,
-            'HolidayController must use config(\'services.google_calendar.api_key\') for the Google Calendar API key.'
+            'HolidayIndex must use config(\'services.google_calendar.api_key\') for the Google Calendar API key.'
         );
 
         $this->assertStringContainsString(
             "config('app.url')",
             $source,
-            'HolidayController must use config(\'app.url\') instead of env(\'APP_URL\').'
+            'HolidayIndex must use config(\'app.url\') instead of env(\'APP_URL\').'
         );
     }
 
@@ -73,61 +72,60 @@ class HolidayControllerTest extends TestCase
     // ── Variable name ─────────────────────────────────────────────────────────
 
     /**
-     * The view must receive $calendar_data, not $holidays.
+     * HolidayIndex must build a $calendarData array (not $holidays) for FullCalendar.
      */
     public function test_controller_passes_calendar_data_to_view(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringContainsString(
-            'compact(\'calendar_data\')',
+            'calendarData',
             $source,
-            'index() must pass $calendar_data to the view, not $holidays.'
+            'HolidayIndex must build and pass $calendarData to the view for FullCalendar.'
         );
 
         $this->assertStringNotContainsString(
             'compact(\'holidays\')',
             $source,
-            'index() must not pass $holidays to the view.'
+            'HolidayIndex must not pass $holidays directly to the view.'
         );
     }
 
     // ── Data transformation ───────────────────────────────────────────────────
 
     /**
-     * The controller must map Google Calendar item 'summary' to 'title'
-     * for FullCalendar compatibility.
+     * HolidayIndex must map Google Calendar item 'summary' to 'title' for FullCalendar.
      */
     public function test_controller_maps_summary_to_title(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringContainsString(
             "'title'",
             $source,
-            'index() must map Google Calendar item summary to a title key for FullCalendar.'
+            'HolidayIndex must map Google Calendar item summary to a title key for FullCalendar.'
         );
 
         $this->assertStringContainsString(
             "['summary']",
             $source,
-            'index() must read the summary field from Google Calendar items.'
+            'HolidayIndex must read the summary field from Google Calendar items.'
         );
     }
 
     // ── Local holidays ────────────────────────────────────────────────────────
 
     /**
-     * The controller must query the Holiday model to include local holidays.
+     * HolidayIndex must query the Holiday model to include local holidays.
      */
     public function test_controller_includes_local_holidays(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringContainsString(
             'Holiday::',
             $source,
-            'index() must query the Holiday model to include locally-added holidays.'
+            'HolidayIndex must query the Holiday model to include locally-added holidays.'
         );
     }
 
@@ -141,7 +139,7 @@ class HolidayControllerTest extends TestCase
         $model = new Holiday();
         $fillable = $model->getFillable();
 
-        foreach (['year', 'month', 'day', 'title', 'repeat'] as $field) {
+        foreach (['year', 'month', 'day', 'title', 'repeat', 'is_work_day', 'source'] as $field) {
             $this->assertContains($field, $fillable, "Holiday model must have '{$field}' in \$fillable.");
         }
     }
@@ -149,40 +147,39 @@ class HolidayControllerTest extends TestCase
     // ── No redirect on API failure ────────────────────────────────────────────
 
     /**
-     * On API failure the controller must still return the view with an empty
-     * $calendar_data array, not redirect back (which would loop on the index page).
+     * HolidayIndex must not redirect back on API failure — it must still render the view.
      */
     public function test_controller_does_not_redirect_back_on_api_failure(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringNotContainsString(
             "return back()",
             $source,
-            'index() must not call back() — it would cause a redirect loop on the index page.'
+            'HolidayIndex must not call back() — it would cause a redirect loop on the index page.'
         );
     }
 
     // ── Caching ───────────────────────────────────────────────────────────────
 
     /**
-     * The controller must use Cache::get / Cache::put with a year-scoped key
-     * so successive page loads don't hit the Google Calendar API.
+     * HolidayIndex must use Cache::get / Cache::put with a year-scoped key
+     * so successive renders don't hit the Google Calendar API.
      */
     public function test_controller_caches_google_calendar_response(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertStringContainsString(
             'Cache::get(',
             $source,
-            'index() must read from the cache before calling the Google Calendar API.'
+            'HolidayIndex must read from the cache before calling the Google Calendar API.'
         );
 
         $this->assertStringContainsString(
             'Cache::put(',
             $source,
-            'index() must write the API response to the cache on a successful call.'
+            'HolidayIndex must write the API response to the cache on a successful call.'
         );
 
         $this->assertStringContainsString(
@@ -204,7 +201,7 @@ class HolidayControllerTest extends TestCase
      */
     public function test_controller_does_not_cache_api_failure(): void
     {
-        $source = file_get_contents(app_path('Http/Controllers/HolidayController.php'));
+        $source = file_get_contents(app_path('Http/Livewire/Holidays/HolidayIndex.php'));
 
         $this->assertMatchesRegularExpression(
             '/successful\(\).*?Cache::put/s',
@@ -213,9 +210,9 @@ class HolidayControllerTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            'if ($googleItems !== null)',
+            'if ($items === null)',
             $source,
-            'index() must guard the render loop with a null check to skip rendering when the API failed.'
+            'HolidayIndex must guard the API call with a null check so cached data is used when available.'
         );
     }
 }
