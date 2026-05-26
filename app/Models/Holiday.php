@@ -6,6 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Session;
 
+/**
+ * @property int         $id
+ * @property int|null    $year
+ * @property int         $month
+ * @property int         $day
+ * @property string      $title
+ * @property int         $repeat
+ */
 class Holiday extends Model
 {
     use HasFactory;

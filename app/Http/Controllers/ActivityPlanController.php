@@ -12,6 +12,8 @@ use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripApproval;
 use App\Models\ActivityPlanDetailTripDestination;
 use App\Models\OrganizationStructure;
+use App\Models\Holiday;
+use Carbon\Carbon;
 use App\Http\Requests\StoreActivityPlanRequest;
 use App\Http\Requests\UpdateActivityPlanRequest;
 
@@ -130,7 +132,7 @@ class ActivityPlanController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreActivityPlanRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function store(StoreActivityPlanRequest $request)
     {
@@ -145,15 +147,33 @@ class ActivityPlanController extends Controller
                     // details
                     if(!empty($data['details'][$data['month']])) {
                         // validate lines
-                        $validation      = $this->validatePlanLines($data['details'][$data['month']]);
-                        $line_error      = $validation['line_error'];
-                        $line_empty      = $validation['line_empty'];
-                        $duplicate_error = $validation['duplicate_error'];
-                        $duplicate_dates = $validation['duplicate_dates'];
+                        $holiday_dates = Holiday::where(function ($q) use ($data) {
+                            $q->where('year', $data['year'])->orWhere('repeat', 1);
+                        })->get()->map(fn(Holiday $h) => Carbon::createFromDate(
+                            $h->repeat ? $data['year'] : $h->year,
+                            $h->month,
+                            $h->day
+                        )->toDateString())->all();
+
+                        $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
+                        $line_error            = $validation['line_error'];
+                        $line_empty            = $validation['line_empty'];
+                        $duplicate_error       = $validation['duplicate_error'];
+                        $duplicate_dates       = $validation['duplicate_dates'];
+                        $missing_weekday_error = $validation['missing_weekday_error'];
+                        $missing_weekday_dates = $validation['missing_weekday_dates'];
 
                         if($duplicate_error) {
                             return back()->with([
                                 'message_error' => 'Duplicate entry detected for the same date and branch. Please check: ' . implode(', ', array_unique($duplicate_dates))
+                            ]);
+                        }
+
+                        if($missing_weekday_error) {
+                            $missing_month = date('M', strtotime($missing_weekday_dates[0]));
+                            $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
+                            return back()->with([
+                                'message_error' => "All weekdays must have an entry or be marked as on leave. Missing: {$missing_month} {$missing_days}"
                             ]);
                         }
 
@@ -518,7 +538,7 @@ class ActivityPlanController extends Controller
      *
      * @param  \App\Http\Requests\UpdateActivityPlanRequest  $request
      * @param  \App\Models\ActivityPlan  $activityPlan
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
     public function update(UpdateActivityPlanRequest $request, $id)
     {
@@ -535,15 +555,33 @@ class ActivityPlanController extends Controller
                     // details
                     if(!empty($data['details'][$data['month']])) {
                         // validate lines
-                        $validation      = $this->validatePlanLines($data['details'][$data['month']]);
-                        $line_error      = $validation['line_error'];
-                        $line_empty      = $validation['line_empty'];
-                        $duplicate_error = $validation['duplicate_error'];
-                        $duplicate_dates = $validation['duplicate_dates'];
+                        $holiday_dates = Holiday::where(function ($q) use ($data) {
+                            $q->where('year', $data['year'])->orWhere('repeat', 1);
+                        })->get()->map(fn(Holiday $h) => Carbon::createFromDate(
+                            $h->repeat ? $data['year'] : $h->year,
+                            $h->month,
+                            $h->day
+                        )->toDateString())->all();
+
+                        $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
+                        $line_error            = $validation['line_error'];
+                        $line_empty            = $validation['line_empty'];
+                        $duplicate_error       = $validation['duplicate_error'];
+                        $duplicate_dates       = $validation['duplicate_dates'];
+                        $missing_weekday_error = $validation['missing_weekday_error'];
+                        $missing_weekday_dates = $validation['missing_weekday_dates'];
 
                         if($duplicate_error) {
                             return back()->with([
                                 'message_error' => 'Duplicate entry detected for the same date and branch. Please check: ' . implode(', ', array_unique($duplicate_dates))
+                            ]);
+                        }
+
+                        if($missing_weekday_error) {
+                            $missing_month = date('M', strtotime($missing_weekday_dates[0]));
+                            $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
+                            return back()->with([
+                                'message_error' => "All weekdays must have an entry or be marked as on leave. Missing: {$missing_month} {$missing_days}"
                             ]);
                         }
 
@@ -726,15 +764,18 @@ class ActivityPlanController extends Controller
     /**
      * Validate the line items in an activity plan month's detail array.
      *
-     * @return array{line_error:int,line_empty:int,duplicate_error:int,duplicate_dates:array}
+     * @param  string[] $holiday_dates  ISO date strings (Y-m-d) of holidays to exempt from the weekday requirement.
+     * @return array{line_error:int,line_empty:int,duplicate_error:int,duplicate_dates:array,missing_weekday_error:int,missing_weekday_dates:string[]}
      */
-    private function validatePlanLines(array $month_details): array
+    private function validatePlanLines(array $month_details, array $holiday_dates = []): array
     {
-        $line_error      = 0;
-        $line_empty      = 1;
-        $duplicate_error = 0;
-        $duplicate_dates = [];
-        $date_branch_arr = [];
+        $line_error            = 0;
+        $line_empty            = 1;
+        $duplicate_error       = 0;
+        $duplicate_dates       = [];
+        $date_branch_arr       = [];
+        $missing_weekday_error = 0;
+        $missing_weekday_dates = [];
 
         foreach ($month_details as $date => $details) {
             if (!empty($details['on_leave']) && $details['on_leave'] === true) {
@@ -742,10 +783,20 @@ class ActivityPlanController extends Controller
                 continue;
             }
 
+            $is_weekday = !\in_array($details['day'] ?? '', ['Sat', 'Sun'], true);
+
             if (empty($details['lines'])) {
                 $line_empty = 0;
+
+                if ($is_weekday && !\in_array($date, $holiday_dates, true)) {
+                    $missing_weekday_error   = 1;
+                    $missing_weekday_dates[] = $date;
+                }
+
                 continue;
             }
+
+            $has_valid_line = false;
 
             foreach ($details['lines'] as $val) {
                 if (!empty($val['deleted']) && $val['deleted'] == true) {
@@ -771,6 +822,7 @@ class ActivityPlanController extends Controller
                 }
 
                 if (!empty($val['branch_id'])) {
+                    $has_valid_line = true;
                     $key = $date . '-' . $val['branch_id'];
                     if (isset($date_branch_arr[$key])) {
                         $duplicate_error = 1;
@@ -780,9 +832,18 @@ class ActivityPlanController extends Controller
                     }
                 }
             }
+
+            if ($is_weekday && !$has_valid_line && !\in_array($date, $holiday_dates, true)) {
+                $missing_weekday_error   = 1;
+                $missing_weekday_dates[] = $date;
+            }
         }
 
-        return compact('line_error', 'line_empty', 'duplicate_error', 'duplicate_dates');
+        return compact(
+            'line_error', 'line_empty',
+            'duplicate_error', 'duplicate_dates',
+            'missing_weekday_error', 'missing_weekday_dates'
+        );
     }
 
     /**

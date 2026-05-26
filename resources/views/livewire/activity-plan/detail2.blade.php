@@ -44,6 +44,9 @@
                         <td class="text-uppercase font-weight-bold">
                             <i class="expandable-table-caret fas fa-caret-right fa-fw"></i>
                             {{$day['day']}} - {{$day['date']}}
+                            @if(!empty($day['holiday']))
+                            <span class="badge badge-success ml-1"><i class="fas fa-flag mr-1"></i>{{ $day['holiday'] }}</span>
+                            @endif
                             <span class="float-right">
                                 <button class="btn btn-xs {{$day['on_leave'] ? 'btn-danger' : 'btn-outline-danger'}} mr-2"
                                     wire:click.stop="toggleOnLeave('{{$date}}')"
