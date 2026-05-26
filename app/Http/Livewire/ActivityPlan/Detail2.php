@@ -7,6 +7,9 @@ use Livewire\Component;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\ActivityPlanDetail;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use App\Models\ActivityPlanDetailTrip;
 use App\Models\ActivityPlanDetailTripDestination;
 
@@ -309,6 +312,35 @@ class Detail2 extends Component
         $activity_plan_data = Session::get('activity_plan_data');
         $session_details = $activity_plan_data[$this->year]['details'] ?? [];
 
+        $cacheKey    = "google_calendar_holidays_{$this->year}";
+        $googleItems = Cache::get($cacheKey);
+
+        if ($googleItems === null) {
+            $calendarId = urlencode('en.philippines#holiday@group.v.calendar.google.com');
+            $response   = Http::withHeaders(['Referer' => config('app.url')])
+                ->get("https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events", [
+                    'key'          => config('services.google_calendar.api_key'),
+                    'timeMin'      => Carbon::create($this->year, 1, 1)->startOfYear()->toRfc3339String(),
+                    'timeMax'      => Carbon::create($this->year, 12, 31)->endOfYear()->toRfc3339String(),
+                    'singleEvents' => 'true',
+                    'orderBy'      => 'startTime',
+                ]);
+
+            if ($response->successful()) {
+                $googleItems = $response->json('items') ?? [];
+                Cache::put($cacheKey, $googleItems, now()->addDay());
+            }
+        }
+
+        $monthPrefix = "{$this->year}-{$this->month}";
+        $holiday_map = [];
+        foreach ($googleItems ?? [] as $item) {
+            $itemDate = $item['start']['date'] ?? null;
+            if ($itemDate && str_starts_with($itemDate, $monthPrefix)) {
+                $holiday_map[$itemDate] = $item['summary'] ?? '';
+            }
+        }
+
         for ($i = 1; $i <= (int)$this->last_day; $i++) {
             $date = $this->year . '-' . $this->month . '-' . ($i < 10 ? '0' . $i : $i);
             $day_of_week = date('D', strtotime($date));
@@ -325,11 +357,12 @@ class Detail2 extends Component
             $on_leave = $session_details[$this->month][$date]['on_leave'] ?? false;
 
             $days[$date] = [
-                'day' => $day_of_week,
-                'date' => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
-                'class' => $class,
-                'lines' => $lines,
+                'day'      => $day_of_week,
+                'date'     => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
+                'class'    => $class,
+                'lines'    => $lines,
                 'on_leave' => $on_leave,
+                'holiday'  => $holiday_map[$date] ?? null,
             ];
 
             // Initialize expand state, default to false.
