@@ -4,6 +4,7 @@ namespace App\Http\Livewire\War;
 
 use Livewire\Component;
 
+use App\Models\Holiday;
 use App\Models\User;
 use App\Models\Area;
 use App\Models\ActivityPlanDetail;
@@ -11,6 +12,9 @@ use App\Models\BranchLogin;
 use App\Models\WeeklyActivityReport;
 use App\Models\WeeklyActivityReportBranch;
 use App\Models\UserBranchSchedule;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class WarForm extends Component
 {
@@ -37,12 +41,14 @@ class WarForm extends Component
 
     public function changeDate() {
         $this->reset('area_lines');
-        
+
         $from = new \DateTime($this->date_from);
         $to = new \DateTime($this->date_to);
         $interval = $from->diff($to);
 
         $days = $interval->d;
+
+        $holiday_map = $this->buildHolidayMap($this->date_from, $this->date_to);
 
         $start_date = $this->date_from;
         for($i = 0; $i <= $days; $i++) {
@@ -133,6 +139,7 @@ class WarForm extends Component
                 'action_points_arr' => $action_points_arr,
                 'attachments_arr'  => $attachments_arr,
                 'on_leave'         => $is_on_leave,
+                'holiday'          => $holiday_map[$start_date] ?? null,
             ];
 
             $start_date = date('Y-m-d', strtotime($start_date.' + 1 days'));
@@ -171,6 +178,91 @@ class WarForm extends Component
         $this->user = User::find($user_id);
 
         $this->changeDate();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function buildHolidayMap(string $date_from, string $date_to): array
+    {
+        $holidays    = [];
+        $currentYear = Carbon::parse($date_from)->year;
+        $cacheKey    = "google_calendar_holidays_{$currentYear}";
+
+        $googleItems = Cache::get($cacheKey);
+
+        if ($googleItems === null) {
+            $calendarId = urlencode('en.philippines#holiday@group.v.calendar.google.com');
+            $response   = Http::withHeaders(['Referer' => config('app.url')])->get(
+                "https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events",
+                [
+                    'key'          => config('services.google_calendar.api_key'),
+                    'timeMin'      => Carbon::now()->startOfYear()->toRfc3339String(),
+                    'timeMax'      => Carbon::now()->endOfYear()->toRfc3339String(),
+                    'singleEvents' => 'true',
+                    'orderBy'      => 'startTime',
+                ]
+            );
+
+            if ($response->successful()) {
+                $googleItems = $response->json('items') ?? [];
+                Cache::put($cacheKey, $googleItems, now()->addDay());
+            }
+        }
+
+        $googleItems = $googleItems ?? [];
+
+        $overrides = Holiday::where('source', 'philippine')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)->orWhere('repeat', true);
+            })
+            ->get()
+            ->keyBy(fn (Holiday $h) => Carbon::createFromDate(
+                $h->repeat ? $currentYear : $h->year,
+                $h->month,
+                $h->day
+            )->toDateString());
+
+        foreach ($googleItems as $item) {
+            $date = $item['start']['date'] ?? ($item['start']['dateTime'] ?? '');
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            $override  = $overrides->get($date);
+            $isWorkDay = $override ? (bool) $override->is_work_day : false;
+
+            if (! $isWorkDay) {
+                $holidays[$date] = $item['summary'] ?? '';
+            }
+        }
+
+        $customHolidays = Holiday::where('source', 'custom')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)
+                  ->orWhere('repeat', true)
+                  ->orWhereNull('year');
+            })
+            ->get();
+
+        foreach ($customHolidays as $holiday) {
+            $date = Carbon::createFromDate(
+                ($holiday->repeat || is_null($holiday->year)) ? $currentYear : $holiday->year,
+                $holiday->month,
+                $holiday->day
+            )->toDateString();
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            if (! $holiday->is_work_day) {
+                $holidays[$date] = $holiday->title;
+            }
+        }
+
+        return $holidays;
     }
 
     public function render()

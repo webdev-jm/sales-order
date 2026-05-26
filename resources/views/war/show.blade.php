@@ -229,6 +229,17 @@
                                     </td>
                                 </tr>
                             </thead>
+                            @if(isset($holiday_dates[$area->date]))
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-2">
+                                            <span class="badge badge-pill px-3 py-2" style="background-color:#3498db;color:#fff;font-size:0.85rem;">
+                                                <i class="fa fa-calendar-times mr-1"></i> HOLIDAY &mdash; {{ $holiday_dates[$area->date] }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            @endif
                             @if(isset($on_leave_dates[$area->date]))
                                 <tbody>
                                     <tr>

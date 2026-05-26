@@ -217,6 +217,13 @@
                     <td class="align-middle mw-30d0" colspan="2">{{$area->remarks}}</td>
                 </tr>
 
+                @if(isset($holiday_dates[$area->date]))
+                    <tr>
+                        <td colspan="5" class="text-center" style="background-color:#3498db;color:#fff;font-weight:bold;">
+                            HOLIDAY &mdash; {{ $holiday_dates[$area->date] }}
+                        </td>
+                    </tr>
+                @endif
                 @if(isset($on_leave_dates[$area->date]))
                     <tr>
                         <td colspan="5" class="text-center bg-danger" style="color:#fff; font-weight:bold;">

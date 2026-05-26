@@ -34,6 +34,17 @@
         color: #fd7e14;
     }
 
+    .fc-bg-event {
+        opacity: 0.55;
+    }
+    .fc-bg-event .fc-event-title {
+        font-size: 0.7em;
+        font-weight: 700;
+        color: #000000;
+        padding: 2px 4px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+    }
+
     .w100 {
         width: 100px !important;
     }
@@ -111,7 +122,8 @@
                 <h3 class="card-title">Color Codes</h3>
             </div>
             <div class="card-body py-2">
-                <div class="d-flex flex-wrap" style="gap: 8px;">
+                <small class="text-muted text-uppercase font-weight-bold d-block mb-1">Events</small>
+                <div class="d-flex flex-wrap mb-3" style="gap: 8px;">
                     <span class="badge badge-pill px-3 py-2" style="background-color:rgb(37,184,181);color:#fff;">
                         <i class="fa fa-calendar-check mr-1"></i>Schedule
                     </span>
@@ -123,6 +135,18 @@
                     </span>
                     <span class="badge badge-pill px-3 py-2" style="background-color:#fd7e14;color:#fff;">
                         <i class="fa fa-umbrella-beach mr-1"></i>On Leave
+                    </span>
+                </div>
+                <small class="text-muted text-uppercase font-weight-bold d-block mb-1">Holidays</small>
+                <div class="d-flex flex-wrap" style="gap: 8px;">
+                    <span class="badge badge-pill px-3 py-2" style="background-color:#3498db;color:#fff;">
+                        <i class="fa fa-calendar-times mr-1"></i>Holiday (No Work)
+                    </span>
+                    <span class="badge badge-pill px-3 py-2" style="background-color:#27ae60;color:#fff;">
+                        <i class="fa fa-calendar-check mr-1"></i>Holiday (Work Day)
+                    </span>
+                    <span class="badge badge-pill px-3 py-2" style="background-color:#e74c3c;color:#fff;">
+                        <i class="fa fa-star mr-1"></i>Custom Holiday
                     </span>
                 </div>
             </div>
@@ -288,7 +312,7 @@
                 var day = date.getDate();
                 var date_format = year+'-'+(month < 10 ? '0' : '')+month+'-'+(day < 10 ? '0' : '')+day;
 
-                if(type == 'on-leave') {
+                if(type == 'holiday' || type == 'on-leave') {
                     return;
                 } else if(type == 'schedule') {
                     Livewire.emit('showEvents', date_format, id);

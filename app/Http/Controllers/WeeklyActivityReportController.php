@@ -13,7 +13,11 @@ use App\Models\WeeklyActivityReportApproval;
 use App\Models\WeeklyActivityReportAttachment;
 
 use App\Models\ActivityPlanDetail;
+use App\Models\Holiday;
 use App\Models\UserBranchSchedule;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 
 use App\Http\Requests\StoreWeeklyActivityReportRequest;
@@ -304,12 +308,18 @@ class WeeklyActivityReportController extends Controller
             ->flip()
             ->all();
 
+        $holiday_dates = $this->buildHolidayDates(
+            $weekly_activity_report->date_from,
+            $weekly_activity_report->date_to
+        );
+
         return view('war.show')->with([
             'weekly_activity_report' => $weekly_activity_report,
             'status_arr' => $this->status_arr,
             'supervisor_id' => $supervisor_id,
             'area_status_arr' => $area_status_arr,
             'on_leave_dates' => $on_leave_dates,
+            'holiday_dates' => $holiday_dates,
         ]);
     }
 
@@ -488,6 +498,96 @@ class WeeklyActivityReportController extends Controller
     }
 
     /**
+     * Build a date-keyed map of non-work holidays in the given range.
+     *
+     * Returns ['YYYY-MM-DD' => 'Holiday Title'] for each holiday where is_work_day = false.
+     * Shares the google_calendar_holidays_ cache with HolidayIndex and the schedule calendars.
+     *
+     * @return array<string, string>
+     */
+    private function buildHolidayDates(string $date_from, string $date_to): array
+    {
+        $holidays    = [];
+        $currentYear = Carbon::parse($date_from)->year;
+        $cacheKey    = "google_calendar_holidays_{$currentYear}";
+
+        $googleItems = Cache::get($cacheKey);
+
+        if ($googleItems === null) {
+            $calendarId = urlencode('en.philippines#holiday@group.v.calendar.google.com');
+            $response   = Http::withHeaders(['Referer' => config('app.url')])->get(
+                "https://www.googleapis.com/calendar/v3/calendars/{$calendarId}/events",
+                [
+                    'key'          => config('services.google_calendar.api_key'),
+                    'timeMin'      => Carbon::now()->startOfYear()->toRfc3339String(),
+                    'timeMax'      => Carbon::now()->endOfYear()->toRfc3339String(),
+                    'singleEvents' => 'true',
+                    'orderBy'      => 'startTime',
+                ]
+            );
+
+            if ($response->successful()) {
+                $googleItems = $response->json('items') ?? [];
+                Cache::put($cacheKey, $googleItems, now()->addDay());
+            }
+        }
+
+        $googleItems = $googleItems ?? [];
+
+        $overrides = Holiday::where('source', 'philippine')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)->orWhere('repeat', true);
+            })
+            ->get()
+            ->keyBy(fn (Holiday $h) => Carbon::createFromDate(
+                $h->repeat ? $currentYear : $h->year,
+                $h->month,
+                $h->day
+            )->toDateString());
+
+        foreach ($googleItems as $item) {
+            $date = $item['start']['date'] ?? ($item['start']['dateTime'] ?? '');
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            $override  = $overrides->get($date);
+            $isWorkDay = $override ? (bool) $override->is_work_day : false;
+
+            if (! $isWorkDay) {
+                $holidays[$date] = $item['summary'] ?? '';
+            }
+        }
+
+        $customHolidays = Holiday::where('source', 'custom')
+            ->where(function ($q) use ($currentYear) {
+                $q->where('year', $currentYear)
+                  ->orWhere('repeat', true)
+                  ->orWhereNull('year');
+            })
+            ->get();
+
+        foreach ($customHolidays as $holiday) {
+            $date = Carbon::createFromDate(
+                ($holiday->repeat || is_null($holiday->year)) ? $currentYear : $holiday->year,
+                $holiday->month,
+                $holiday->day
+            )->toDateString();
+
+            if ($date < $date_from || $date > $date_to) {
+                continue;
+            }
+
+            if (! $holiday->is_work_day) {
+                $holidays[$date] = $holiday->title;
+            }
+        }
+
+        return $holidays;
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\WeeklyActivityReport  $weeklyActivityReport
@@ -517,10 +617,16 @@ class WeeklyActivityReportController extends Controller
             ->flip()
             ->all();
 
+        $holiday_dates = $this->buildHolidayDates(
+            $weekly_activity_report->date_from,
+            $weekly_activity_report->date_to
+        );
+
         $pdf = PDF::loadView('war.pdf', [
             'weekly_activity_report' => $weekly_activity_report,
             'area_status_arr'        => $area_status_arr,
             'on_leave_dates'         => $on_leave_dates,
+            'holiday_dates'          => $holiday_dates,
         ])->setPaper('a4', 'landscape');
 
         if(auth()->user()->id !== 1) {
