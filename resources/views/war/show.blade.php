@@ -106,12 +106,12 @@
                             <tbody>
                                 @foreach($weekly_activity_report->approvals as $approval)
                                 <tr>
-                                    <td>{{$approval->user->fullName()}}</td>
-                                    <td>
-                                        <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
+                                    <td class="align-middle">{{$approval->user->fullName()}}</td>
+                                    <td class="align-middle">
+                                        <span class="badge badge-pill badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>
                                     </td>
-                                    <td>{{$approval->remarks}}</td>
-                                    <td>{{$approval->created_at}}</td>
+                                    <td class="align-middle" style="font-size:0.82rem;">{{$approval->remarks}}</td>
+                                    <td class="align-middle text-nowrap">{{$approval->created_at->format('Y-m-d h:i A')}}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -280,23 +280,17 @@
                                                 @if(!empty($area_branch->attachments()->count()))
                                                     <br>
                                                     @foreach($area_branch->attachments as $attachment)
-                                                        <a href="{{asset('storage/'.$weekly_activity_report->id.'/'.$attachment->file)}}" target="_blank">{{$attachment->title}}</a>
+                                                        <a href="{{asset('storage/'.$attachment->file)}}" target="_blank">{{$attachment->title}}</a>
                                                     @endforeach
                                                 @endif
                                             </td>
                                             <td class="p-0 align-middle">
                                                 @if(!empty($area_branch->branch_login_id) && !empty($area_branch->user_branch_schedule_id))
-                                                    <span class="bg-success px-1">
-                                                        VISITED
-                                                    </span>
+                                                    <span class="badge badge-success badge-pill">VISITED</span>
                                                 @elseif(empty($area_branch->branch_login_id) && !empty($area_branch->user_branch_schedule_id))
-                                                    <span class="bg-danger px-1">
-                                                        NOT VISITED
-                                                    </span>
+                                                    <span class="badge badge-danger badge-pill">NOT VISITED</span>
                                                 @else
-                                                    <span class="bg-warning px-1">
-                                                        DEVIATION
-                                                    </span>
+                                                    <span class="badge badge-warning badge-pill">DEVIATION</span>
                                                 @endif
                                             </td>
                                             <td class="p-0 align-middle">
