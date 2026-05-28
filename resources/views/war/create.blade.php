@@ -6,37 +6,15 @@
 
 @section('css')
 <style>
-    .w200 {
-        width: 200px !important; 
-    }
-    .w300 {
-        width: 300px !important;
-    }
-    .war-title {
-        font-size: 25px;
-    }
-    .war-label {
-        background-color: rgb(202, 202, 202);
-    }
-
-    th, td {
-        border: 1.5px solid black !important;
-    }
-    .section-header {
-        background-color: black;
-        color: white;
-    }
-    .sub-line-row {
-        background-color:rgb(216, 215, 215);
-        color: black;
-        text-align: center;
-    }
-    .bg-editable {
-        background-color: rgb(242, 253, 255);
-    }
-    .logo {
-        max-width: 100px;
-    }
+    .war-title { font-size: 22px; letter-spacing: 1px; }
+    .war-label { background-color: #e9ecef; font-weight: 600; }
+    .war-table th, .war-table td { border: 1px solid #b5b5b5 !important; }
+    .section-header { background-color: #2c3e50; color: #fff; letter-spacing: 0.5px; }
+    .sub-line-row { background-color: #f4f4f4; color: #333; text-align: center; border-left: 3px solid #2c3e50; }
+    .bg-editable { background-color: #f0fbff; }
+    .logo { max-width: 90px; }
+    .branch-name { font-size: 0.85rem; line-height: 1.3; }
+    .attachment-list { font-size: 0.78rem; }
 </style>
 @endsection
 

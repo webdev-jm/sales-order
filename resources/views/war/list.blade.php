@@ -46,39 +46,39 @@
         </div>
     </div>
     <div class="card-body p-0 table-responsive">
-        <table class="table table-sm">
+        <table class="table table-sm table-hover">
             <thead>
                 <tr>
                     <th>User</th>
                     <th>Accounts</th>
-                    <th>Date Submitted</th>
-                    <th>Date From</th>
-                    <th>Date To</th>
+                    <th>Period</th>
                     <th>Status</th>
-                    <th>Created at</th>
-                    <th></th>
+                    <th>Added</th>
+                    <th class="text-right">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($weekly_activity_reports as $weekly_activity_report)
                     <tr>
-                        <td>{{$weekly_activity_report->user->fullName()}}</td>
-                        <td>{{$weekly_activity_report->accounts_visited}}</td>
-                        <td>{{$weekly_activity_report->date_submitted}}</td>
-                        <td>{{$weekly_activity_report->date_from}}</td>
-                        <td>{{$weekly_activity_report->date_to}}</td>
-                        <td>
-                            <span class="badge badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span>
+                        <td class="align-middle">{{$weekly_activity_report->user->fullName()}}</td>
+                        <td class="align-middle" style="max-width:180px;white-space:normal;font-size:0.82rem;">{{$weekly_activity_report->accounts_visited}}</td>
+                        <td class="align-middle text-nowrap">
+                            {{$weekly_activity_report->date_from}} &ndash; {{$weekly_activity_report->date_to}}
                         </td>
-                        <td>{{$weekly_activity_report->created_at->diffForHumans()}}</td>
-                        <td class="text-right">
-                            @if(auth()->user()->can('war edit') && ($weekly_activity_report->status == 'draft' || $weekly_activity_report->status == 'rejected'))
-                                <a href="{{route('war.edit', $weekly_activity_report->id)}}" title="edit"><i class="fas fa-edit text-success mx-1"></i></a>
-                            @endif
-                            <a href="{{route('war.show', $weekly_activity_report->id)}}" title="view details"><i class="fa fa-eye text-primary"></i></a>
-                            @can('war delete')
-                                <a href="#" title="delete" class="btn-delete" data-id="{{$weekly_activity_report->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
-                            @endcan
+                        <td class="align-middle">
+                            <span class="badge badge-pill badge-{{$status_arr[$weekly_activity_report->status]}}">{{$weekly_activity_report->status}}</span>
+                        </td>
+                        <td class="align-middle text-nowrap">{{$weekly_activity_report->created_at->format('Y-m-d h:i A')}}</td>
+                        <td class="align-middle text-right text-nowrap">
+                            <div class="btn-group btn-group-sm">
+                                @if(auth()->user()->can('war edit') && ($weekly_activity_report->status == 'draft' || $weekly_activity_report->status == 'rejected'))
+                                    <a href="{{route('war.edit', $weekly_activity_report->id)}}" title="Edit" class="btn btn-outline-success"><i class="fas fa-edit"></i></a>
+                                @endif
+                                <a href="{{route('war.show', $weekly_activity_report->id)}}" title="View" class="btn btn-outline-primary"><i class="fa fa-eye"></i></a>
+                                @can('war delete')
+                                    <a href="#" title="Delete" class="btn btn-outline-danger btn-delete" data-id="{{$weekly_activity_report->id}}"><i class="fas fa-trash-alt"></i></a>
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @endforeach

@@ -4,7 +4,7 @@
             <h3 class="card-title">ACTIVITY LOGS</h3>
         </div>
         <div class="card-body p-0 table-responsive">
-            <table class="table table-bordered table-sm">
+            <table class="table table-bordered table-sm" style="font-size:0.82rem;">
                 <thead>
                     <tr class="text-center">
                         <th>TYPE</th>
@@ -16,10 +16,12 @@
                 <tbody>
                     @foreach($activities as $activity)
                     <tr>
-                        <td class="p-0 text-center align-middle">{{$activity->log_name}}</td>
-                        <td class="p-0 text-center align-middle">{{$activity->causer->fullName() ?? '-'}}</td>
-                        <td class="p-0 pl-1 text-left align-middle">{{$activity->description}}</td>
-                        <td class="p-0 text-center align-middle">{{$activity->created_at}}</td>
+                        <td class="p-1 text-center align-middle">
+                            <span class="badge badge-secondary">{{$activity->log_name}}</span>
+                        </td>
+                        <td class="p-1 text-center align-middle">{{$activity->causer->fullName() ?? '-'}}</td>
+                        <td class="p-1 text-left align-middle">{{$activity->description}}</td>
+                        <td class="p-1 text-center align-middle text-nowrap">{{$activity->created_at->format('Y-m-d h:i A')}}</td>
                     </tr>
                     @endforeach
                 </tbody>

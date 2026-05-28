@@ -6,7 +6,23 @@
 
 @section('css')
 <style>
-    
+    .user-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #6c757d;
+        color: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-right: 6px;
+        flex-shrink: 0;
+        vertical-align: middle;
+    }
+    .user-cell { display: flex; align-items: center; }
 </style>
 @endsection
 
@@ -42,7 +58,7 @@
         </div>
     </div>
     <div class="card-body p-0 table-responsive">
-        <table class="table table-sm">
+        <table class="table table-sm table-hover">
             <thead>
                 <tr>
                     <th>User</th>
@@ -52,12 +68,27 @@
             </thead>
             <tbody>
                 @foreach($users as $user)
+                    @php
+                        $initials = collect(explode(' ', $user->fullName() ?? ''))
+                            ->filter()
+                            ->take(2)
+                            ->map(fn($w) => strtoupper($w[0]))
+                            ->implode('');
+                        $entryCount = $user->weekly_activity_reports()->count();
+                    @endphp
                     <tr>
-                        <td>{{$user->fullName() ?? '-'}}</td>
-                        <td>{{$user->weekly_activity_reports()->count()}} entries</td>
+                        <td>
+                            <div class="user-cell">
+                                <span class="user-avatar">{{ $initials ?: '?' }}</span>
+                                {{ $user->fullName() ?? '-' }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-primary badge-pill">{{ $entryCount }} {{ Str::plural('entry', $entryCount) }}</span>
+                        </td>
                         <td class="text-right">
-                            <a href="{{route('war.list', $user->id)}}" title="view details">
-                                <i class="fa fa-list text-primary"></i>
+                            <a href="{{route('war.list', $user->id)}}" title="View reports" class="btn btn-xs btn-outline-primary">
+                                <i class="fa fa-list mr-1"></i>View
                             </a>
                         </td>
                     </tr>

@@ -224,7 +224,7 @@ class WeeklyActivityReportController extends Controller
                             $title = $file->getClientOriginalName();
                             $filename = time().'_'.$title;
 
-                            $file->storeAs('uploads/war_branch_attachments/'.$war->id, $filename, 'public');
+                            $file->storeAs('uploads/war_branch_attachments', $filename, 'public');
 
                             $attachment = new WeeklyActivityReportAttachment([
                                 'weekly_activity_report_branch_id' => $war_branch->id,
@@ -421,7 +421,7 @@ class WeeklyActivityReportController extends Controller
                             $title = $file->getClientOriginalName();
                             $filename = time().'_'.$title;
 
-                            $file->storeAs('uploads/war_branch_attachments/'.$weekly_activity_report->id, $filename, 'public');
+                            $file->storeAs('uploads/war_branch_attachments', $filename, 'public');
 
                             $attachment = new WeeklyActivityReportAttachment([
                                 'weekly_activity_report_branch_id' => $war_branch->id,
