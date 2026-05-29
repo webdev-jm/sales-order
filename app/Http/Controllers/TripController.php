@@ -197,7 +197,7 @@ class TripController extends Controller
             $users_arr[$user->id] = $user->fullName();
         }
 
-        return view('trips.index')->with([
+        return view('pages.trips.index')->with([
             'user' => $user_id,
             'search' => $search,
             'date_from' => $date_from,
@@ -269,7 +269,7 @@ class TripController extends Controller
             $user_arr[$user->id] = $user->fullName();
         }
 
-        return view('trips.list')->with([
+        return view('pages.trips.list')->with([
             'trips' => $trips,
             'users' => $user_arr,
             'user' => $user,
@@ -336,7 +336,7 @@ class TripController extends Controller
         }
         $supervisor_ids = array_unique($supervisor_ids);
 
-        return view('trips.show')->with([
+        return view('pages.trips.show')->with([
             'trip' => $trip,
             'approval_dates' => $approval_dates,
             'approvals' => $approval_data,
@@ -651,14 +651,14 @@ class TripController extends Controller
     }
 
     public function create() {
-        return view('trips.create');
+        return view('pages.trips.create');
     }
 
     public function edit($id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         if($trip->status == 'for revision' || $trip->status == 'returned' || $trip->status == 'draft') {
-            return view('trips.edit')->with([
+            return view('pages.trips.edit')->with([
                 'trip' => $trip
             ]);
         } else {
@@ -718,7 +718,7 @@ class TripController extends Controller
             ->paginate(10)->onEachSide(1)
             ->appends(request()->query());
 
-        return view('trips.user-page')->with([
+        return view('pages.trips.user-page')->with([
             'trips' => $trips,
             'user' => $user,
             'status_arr' => $this->status_arr,
@@ -731,7 +731,7 @@ class TripController extends Controller
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
-        return view('trips.user-trip-detail')->with([
+        return view('pages.trips.user-trip-detail')->with([
             'trip' => $trip,
             'status_arr' => $this->status_arr,
         ]);

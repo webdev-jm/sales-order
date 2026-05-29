@@ -18,20 +18,20 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class ReportController extends Controller
 {
     public function index() {
-        return view('reports.index');
+        return view('pages.reports.index');
     }
 
     public function mcpDashboard() {
-        return view('reports.mcp');
+        return view('pages.reports.mcp');
     }
 
     public function sales_orders() {
-        return view('reports.orders');
+        return view('pages.reports.orders');
     }
 
     public function combinedReports() {
 
-        return view('reports.combined');
+        return view('pages.reports.combined');
     }
 
     public function combinedReportPrint($user_id, $year, $month) {
@@ -80,7 +80,7 @@ class ReportController extends Controller
         ->where('date', 'like', $date_string.'%')
         ->get();
 
-        $pdf = PDF::loadView('reports.combined-pdf', [
+        $pdf = PDF::loadview('pages.reports.combined-pdf', [
             'user' => $user,
             'year' => $year,
             'month' => $month,
@@ -190,7 +190,7 @@ class ReportController extends Controller
             ->whereHas('branch_logins')
             ->get();
 
-        return view('reports.map')->with([
+        return view('pages.reports.map')->with([
             'chart_data' => $chart_data,
             'branch_data' => $branch_data,
             'date_from' => $date_from,

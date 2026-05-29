@@ -23,7 +23,7 @@ class ProductivityReportController extends Controller
     {
         Session::forget('productivity_report_data');
 
-        return view('productivity-reports.index');
+        return view('pages.productivity-reports.index');
     }
 
     /**
@@ -33,7 +33,7 @@ class ProductivityReportController extends Controller
      */
     public function create()
     {
-        return view('productivity-reports.upload');
+        return view('pages.productivity-reports.upload');
     }
 
     /**

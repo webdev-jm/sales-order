@@ -29,7 +29,7 @@ class CompanyController extends Controller
         $search = trim($request->input('search'));
         $companies = Company::CompanySearch($search, $this->setting->data_per_page);
         
-        return view('companies.index')->with([
+        return view('pages.companies.index')->with([
             'companies' => $companies,
             'search' => $search
         ]);
@@ -42,7 +42,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        return view('companies.create');
+        return view('pages.companies.create');
     }
 
     /**
@@ -90,7 +90,7 @@ class CompanyController extends Controller
     {
         $id = decrypt($id);
         $company = Company::findOrFail($id);
-        return view('companies.edit')->with([
+        return view('pages.companies.edit')->with([
             'company' => $company
         ]);
     }

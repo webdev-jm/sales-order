@@ -34,7 +34,7 @@ class ShippingAddressController extends Controller
 
         $shipping_addresses = ShippingAddress::ShippingAddressSearch($search, $account->id, $this->settings->data_per_page);
 
-        return view('shipping-addresses.index')->with([
+        return view('pages.shipping-addresses.index')->with([
             'search' => $search,
             'account' => $account,
             'shipping_addresses' => $shipping_addresses
@@ -50,7 +50,7 @@ class ShippingAddressController extends Controller
     {
         $account = Account::findOrFail(decrypt($id));
         
-        return view('shipping-addresses.create')->with([
+        return view('pages.shipping-addresses.create')->with([
             'account' => $account
         ]);
     }
@@ -106,7 +106,7 @@ class ShippingAddressController extends Controller
     {
         $shipping_address = ShippingAddress::findOrFail(decrypt($id));
 
-        return view('shipping-addresses.edit')->with([
+        return view('pages.shipping-addresses.edit')->with([
             'shipping_address' => $shipping_address
         ]);
     }

@@ -13,14 +13,14 @@ class ShipAddressMappingController extends Controller
         $ship_address_mappings = AccountShipAddressMapping::orderBy('id', 'desc')
             ->paginate(10);
 
-        return view('ship-address-mappings.index')->with([
+        return view('pages.ship-address-mappings.index')->with([
             'search' => $search,
             'ship_address_mappings' => $ship_address_mappings
         ]);
     }
 
     public function create() {
-        return view('ship-address-mappings.create');
+        return view('pages.ship-address-mappings.create');
     }
 
     public function edit($id) {
@@ -28,7 +28,7 @@ class ShipAddressMappingController extends Controller
 
         $ship_address_mapping = AccountShipAddressMapping::findOrFail($id);
 
-        return view('ship-address-mappings.edit')->with([
+        return view('pages.ship-address-mappings.edit')->with([
             'ship_address_mapping' => $ship_address_mapping
         ]);
     }

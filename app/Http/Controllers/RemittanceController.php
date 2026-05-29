@@ -7,6 +7,6 @@ use Illuminate\Http\Request;
 class RemittanceController extends Controller
 {
     public function index() {
-        return view('remittances.index');
+        return view('pages.remittances.index');
     }
 }

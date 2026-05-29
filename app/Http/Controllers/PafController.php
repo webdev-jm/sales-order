@@ -29,7 +29,7 @@ class PafController extends Controller
         $pafs = Paf::orderBy('created_at', 'DESC')
             ->paginate(10)->onEachSide(1);
 
-        return view('pafs.index')->with([
+        return view('pages.pafs.index')->with([
             'pafs' => $pafs,
             'status_arr' => $this->status_arr
         ]);
@@ -42,7 +42,7 @@ class PafController extends Controller
      */
     public function create()
     {
-        return view('pafs.create');
+        return view('pages.pafs.create');
     }
 
     /**
@@ -68,7 +68,7 @@ class PafController extends Controller
         $paf_detail = $paf->paf_details()
             ->paginate(10);
 
-        return view('pafs.show')->with([
+        return view('pages.pafs.show')->with([
             'paf' => $paf,
             'paf_detail' => $paf_detail,
             'status_arr' => $this->status_arr
@@ -85,7 +85,7 @@ class PafController extends Controller
     {
         $paf = Paf::findOrFail($id);
 
-        return view('pafs.edit')->with([
+        return view('pages.pafs.edit')->with([
             'paf' => $paf
         ]);
     }

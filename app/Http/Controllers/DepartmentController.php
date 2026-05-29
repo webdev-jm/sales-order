@@ -27,7 +27,7 @@ class DepartmentController extends Controller
             })
             ->paginate(10)->onEachSide(1)->appends(request()->query());
 
-        return view('departments.index')->with([
+        return view('pages.departments.index')->with([
             'search' => $search,
             'departments' => $departments
         ]);
@@ -40,7 +40,7 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        return view('departments.create');
+        return view('pages.departments.create');
     }
 
     /**
@@ -79,7 +79,7 @@ class DepartmentController extends Controller
     {
         $department = Department::findOrFail($id);
         
-        return view('departments.show')->with([
+        return view('pages.departments.show')->with([
             'department' => $department
         ]);
     }
@@ -94,7 +94,7 @@ class DepartmentController extends Controller
     {
         $department = Department::findOrFail($id);
 
-        return view('departments.edit')->with([
+        return view('pages.departments.edit')->with([
             'department' => $department
         ]);
     }

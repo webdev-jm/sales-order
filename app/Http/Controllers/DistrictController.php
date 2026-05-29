@@ -31,7 +31,7 @@ class DistrictController extends Controller
 
         $districts = District::DistrictSearch($search, $this->setting->data_per_page);
 
-        return view('districts.index')->with([
+        return view('pages.districts.index')->with([
             'search' => $search,
             'districts' => $districts
         ]);
@@ -44,7 +44,7 @@ class DistrictController extends Controller
      */
     public function create()
     {
-        return view('districts.create');
+        return view('pages.districts.create');
     }
 
     /**
@@ -92,7 +92,7 @@ class DistrictController extends Controller
     {
         $district = District::findOrFail($id);
 
-        return view('districts.edit')->with([
+        return view('pages.districts.edit')->with([
             'district' => $district
         ]);
     }

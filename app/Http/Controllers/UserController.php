@@ -38,7 +38,7 @@ class UserController extends Controller
     {
         $search = trim($request->input('search'));
         $users = User::UserSearch($search, $this->setting->data_per_page);
-        return view('users.index')->with([
+        return view('pages.users.index')->with([
             'users' => $users,
             'search' => $search
         ]);
@@ -61,7 +61,7 @@ class UserController extends Controller
             $department_options[$department->id] = '['.$department->department_code.'] '.$department->department_name;
         }
 
-        return view('users.create')->with([
+        return view('pages.users.create')->with([
             'roles' => $roles,
             'departments' => $department_options
         ]);
@@ -113,7 +113,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        return view('users.show')->with([
+        return view('pages.users.show')->with([
             'user' => $user
         ]);
     }
@@ -137,7 +137,7 @@ class UserController extends Controller
             $department_options[$department->id] = '['.$department->department_code.'] '.$department->department_name;
         }
 
-        return view('users.edit')->with([
+        return view('pages.users.edit')->with([
             'user' => $user,
             'roles' => $roles,
             'departments' => $department_options

@@ -25,7 +25,7 @@ class PafPrePlanController extends Controller
             ->paginate(10)->onEachSide(1)
             ->appends(request()->query());
 
-        return view('pre-plans.index')->with([
+        return view('pages.pre-plans.index')->with([
             'pre_plans' => $pre_plans
         ]);
     }
@@ -64,7 +64,7 @@ class PafPrePlanController extends Controller
         $pre_plan_details = $pre_plan->pre_plan_details()
             ->paginate(10);
 
-        return view('pre-plans.show')->with([
+        return view('pages.pre-plans.show')->with([
             'pre_plan' => $pre_plan,
             'pre_plan_details' => $pre_plan_details
         ]);

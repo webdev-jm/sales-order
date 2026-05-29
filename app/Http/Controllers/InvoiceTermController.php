@@ -32,7 +32,7 @@ class InvoiceTermController extends Controller
     {
         $search = trim($request->input('search'));
         $invoice_terms = InvoiceTerm::InvoiceTermSearch($search, $this->setting->data_per_page);
-        return view('invoice-terms.index')->with([
+        return view('pages.invoice-terms.index')->with([
             'invoice_terms' => $invoice_terms,
             'search' => $search
         ]);
@@ -45,7 +45,7 @@ class InvoiceTermController extends Controller
      */
     public function create()
     {
-        return view('invoice-terms.create');
+        return view('pages.invoice-terms.create');
     }
 
     /**
@@ -95,7 +95,7 @@ class InvoiceTermController extends Controller
     public function edit($id)
     {
         $invoice_term = InvoiceTerm::findOrFail($id);
-        return view('invoice-terms.edit')->with([
+        return view('pages.invoice-terms.edit')->with([
             'invoice_term' => $invoice_term
         ]);
     }

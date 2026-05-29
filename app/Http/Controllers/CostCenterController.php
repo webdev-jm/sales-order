@@ -32,7 +32,7 @@ class CostCenterController extends Controller
 
         $cost_centers = CostCenter::CostCenterSearch($search, $settings->data_per_page);
 
-        return view('cost-centers.index')->with([
+        return view('pages.cost-centers.index')->with([
             'cost_centers' => $cost_centers,
             'search' => $search
         ]);
@@ -51,7 +51,7 @@ class CostCenterController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        return view('cost-centers.create')->with([
+        return view('pages.cost-centers.create')->with([
             'companies' => $companies_arr
         ]);
     }
@@ -108,7 +108,7 @@ class CostCenterController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        return view('cost-centers.edit')->with([
+        return view('pages.cost-centers.edit')->with([
             'cost_center' => $cost_center,
             'companies' => $companies_arr
         ]);

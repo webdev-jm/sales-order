@@ -23,7 +23,7 @@ class InvoiceController extends Controller
             ]);
         }
 
-        return view('invoices.index')->with([
+        return view('pages.invoices.index')->with([
             'logged_account' => $logged_account
         ]);
     }

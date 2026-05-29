@@ -33,7 +33,7 @@ class ClassificationController extends Controller
 
         $classifications = Classification::ClassificationSearch($search, $this->settings->data_per_page);
 
-        return view('classifications.index')->with([
+        return view('pages.classifications.index')->with([
             'search' => $search,
             'classifications' => $classifications
         ]);
@@ -46,7 +46,7 @@ class ClassificationController extends Controller
      */
     public function create()
     {
-        return view('classifications.create');
+        return view('pages.classifications.create');
     }
 
     /**
@@ -94,7 +94,7 @@ class ClassificationController extends Controller
     {
         $classification = Classification::findOrFail($id);
 
-        return view('classifications.edit')->with([
+        return view('pages.classifications.edit')->with([
             'classification' => $classification
         ]);
     }

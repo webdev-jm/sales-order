@@ -18,14 +18,14 @@ class BrandController extends Controller
             ->paginate(10)->onEachSide(1)
             ->appends(request()->query());
 
-        return view('brands.index')->with([
+        return view('pages.brands.index')->with([
             'search' => $search,
             'brands' => $brands
         ]);
     }
 
     public function create() {
-        return view('brands.create');
+        return view('pages.brands.create');
     }
 
     public function store(StoreBrandRequest $request) {
@@ -47,7 +47,7 @@ class BrandController extends Controller
     public function show($id) {
         $brand = Brand::findOrFail($id);
 
-        return view('brands.show')->with([
+        return view('pages.brands.show')->with([
             'brand' => $brand
         ]);
     }
@@ -55,7 +55,7 @@ class BrandController extends Controller
     public function edit($id) {
         $brand = Brand::findOrFail($id);
 
-        return view('brands.edit')->with([
+        return view('pages.brands.edit')->with([
             'brand' => $brand
         ]);
     }

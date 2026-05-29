@@ -87,7 +87,7 @@ class PPUFormController extends Controller
                 ->onEachSide(1)
                 ->appends(request()->query());
 
-                return view('ppu-forms.index')->with([
+                return view('pages.ppu-forms.index')->with([
                 'search' => $search,
                 'ppu_form' => $ppu_form,
                 'status' => $status,
@@ -120,7 +120,7 @@ class PPUFormController extends Controller
 
             $control_number = $this->generateControlNumber();
 
-            return view('ppu-forms.create')->with([
+            return view('pages.ppu-forms.create')->with([
                 'control_number' => $control_number,
                 'logged_account' => $logged_account
             ]);
@@ -234,7 +234,7 @@ class PPUFormController extends Controller
         $items = PPUFormItem::where('ppuform_id', $ppu_form->id)->get();
 
 
-        return view('ppu-forms.show')->with([
+        return view('pages.ppu-forms.show')->with([
             'ppu_form' => $ppu_form,
             'items' => $items,
      
@@ -247,7 +247,7 @@ class PPUFormController extends Controller
         $ppuform_item = PPUFormItem::where('ppuform_id', $id)->get();  
 
 
-        $pdf = PDF::loadView('ppu-forms.pdf', [
+        $pdf = PDF::loadview('pages.ppu-forms.pdf', [
             'ppu_form' => $ppu_form,
             'ppuform_item'=> $ppuform_item,
 
@@ -272,7 +272,7 @@ class PPUFormController extends Controller
         $control_number = $ppu_form->control_number;
 
 
-        return view('ppu-forms.edit')->with([
+        return view('pages.ppu-forms.edit')->with([
             'control_number' => $control_number,
             'logged_account' => $logged_account,
             'ppu_form' => $ppu_form,

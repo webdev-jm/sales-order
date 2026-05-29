@@ -26,7 +26,7 @@ class SalesmanController extends Controller
         $salesmen = Salesman::where('user_id', auth()->user()->id)
             ->paginate(10)->onEachSide(1);
 
-        return view('salesmen.index')->with([
+        return view('pages.salesmen.index')->with([
             'salesmen' => $salesmen
         ]);
     }
@@ -38,7 +38,7 @@ class SalesmanController extends Controller
      */
     public function create(): View
     {
-        return view('salesmen.create');
+        return view('pages.salesmen.create');
     }
 
     /**
@@ -87,7 +87,7 @@ class SalesmanController extends Controller
     {
         $salesman = Salesman::findOrFail($id);
 
-        return view('salesmen.edit')->with([
+        return view('pages.salesmen.edit')->with([
             'salesman' => $salesman
         ]);
     }

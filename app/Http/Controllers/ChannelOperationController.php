@@ -17,7 +17,7 @@ class ChannelOperationController extends Controller
      */
     public function index()
     {
-        return view('channel-operations.index');
+        return view('pages.channel-operations.index');
     }
 
     public function list(Request $request) {
@@ -54,7 +54,7 @@ class ChannelOperationController extends Controller
             ->paginate(10)->onEachSide(1)
             ->appends(request()->query());
 
-        return view('channel-operations.list')->with([
+        return view('pages.channel-operations.list')->with([
             'search' => $search,
             'start_date' => $start_date,
             'end_date' => $end_date,
@@ -65,7 +65,7 @@ class ChannelOperationController extends Controller
     public function show($id) {
         $channel_operation = ChannelOperation::findOrfail($id);
 
-        return view('channel-operations.show')->with([
+        return view('pages.channel-operations.show')->with([
             'channel_operation' => $channel_operation
         ]);
     }
@@ -81,7 +81,7 @@ class ChannelOperationController extends Controller
         $extra_displays = $channel_operation->extra_displays->first();
         $competetive_reports = $channel_operation->competetive_reports;
 
-        $pdf = PDF::loadView('coe.print', [
+        $pdf = PDF::loadview('pages.coe.print', [
             'channel_operation' => $channel_operation,
             'branch_login' => $branch_login,
             'merch_updates' => $merch_updates,
@@ -94,7 +94,7 @@ class ChannelOperationController extends Controller
 
         return $pdf->stream('coe-'.$channel_operation->id.'-'.time().'.pdf');
 
-        // return view('coe.print')->with([
+        // return view('pages.coe.print')->with([
         //     'channel_operation' => $channel_operation,
         //     'branch_login' => $branch_login,
         //     'merch_updates' => $merch_updates,

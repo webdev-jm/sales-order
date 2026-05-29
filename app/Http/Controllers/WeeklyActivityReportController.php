@@ -87,7 +87,7 @@ class WeeklyActivityReportController extends Controller
                 })
                 ->paginate($settings->data_per_page)->onEachSide(1)->appends(request()->query());
 
-            return view('war.list')->with([
+            return view('pages.war.list')->with([
                 'search' => $search,
                 'weekly_activity_reports' => $weekly_activity_reports,
                 'status_arr' => $this->status_arr,
@@ -136,7 +136,7 @@ class WeeklyActivityReportController extends Controller
             ->paginate($settings->data_per_page)
             ->appends(request()->query());
 
-        return view('war.index')->with([
+        return view('pages.war.index')->with([
             'search' => $search,
             'users' => $users
         ]);
@@ -162,7 +162,7 @@ class WeeklyActivityReportController extends Controller
 
         // areas data
 
-        return view('war.create')->with([
+        return view('pages.war.create')->with([
             'areas' => $areas_arr
         ]);
     }
@@ -313,7 +313,7 @@ class WeeklyActivityReportController extends Controller
             $weekly_activity_report->date_to
         );
 
-        return view('war.show')->with([
+        return view('pages.war.show')->with([
             'weekly_activity_report' => $weekly_activity_report,
             'status_arr' => $this->status_arr,
             'supervisor_id' => $supervisor_id,
@@ -344,7 +344,7 @@ class WeeklyActivityReportController extends Controller
             $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
         }
 
-        return view('war.edit')->with([
+        return view('pages.war.edit')->with([
             'areas' => $areas_arr,
             'weekly_activity_report' => $weekly_activity_report,
             'status_arr' => $this->status_arr
@@ -622,7 +622,7 @@ class WeeklyActivityReportController extends Controller
             $weekly_activity_report->date_to
         );
 
-        $pdf = PDF::loadView('war.pdf', [
+        $pdf = PDF::loadview('pages.war.pdf', [
             'weekly_activity_report' => $weekly_activity_report,
             'area_status_arr'        => $area_status_arr,
             'on_leave_dates'         => $on_leave_dates,

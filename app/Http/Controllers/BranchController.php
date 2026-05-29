@@ -48,7 +48,7 @@ class BranchController extends Controller
         } else {
             $branches = Branch::RestrictedBranchSearch($search, $this->settings->data_per_page);
         }
-        return view('branches.index')->with([
+        return view('pages.branches.index')->with([
             'search' => $search,
             'branches' => $branches
         ]);
@@ -79,7 +79,7 @@ class BranchController extends Controller
             $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
         }
 
-        return view('branches.create')->with([
+        return view('pages.branches.create')->with([
             'regions' => $regions_arr,
             'classifications' => $classifications_arr,
             'areas' => $areas_arr
@@ -153,7 +153,7 @@ class BranchController extends Controller
             $areas_arr[$area->id] = '['.$area->area_code.'] '.$area->area_name;
         }
 
-        return view('branches.edit')->with([
+        return view('pages.branches.edit')->with([
             'branch' => $branch,
             'regions' => $regions_arr,
             'classifications' => $classifications_arr,

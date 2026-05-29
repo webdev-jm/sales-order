@@ -36,7 +36,7 @@ class SystemLogController extends Controller
         }
         
 
-        return view('system-logs.index')->with([
+        return view('pages.system-logs.index')->with([
             'activities' => $activities,
             'search' => $search
         ]);

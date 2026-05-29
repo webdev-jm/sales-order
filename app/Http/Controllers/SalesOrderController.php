@@ -90,7 +90,7 @@ class SalesOrderController extends Controller
             ->onEachSide(1)
             ->appends(request()->query());
 
-        return view('sales-orders.list')->with([
+        return view('pages.sales-orders.list')->with([
             'search'     => $search,
             'status'     => $status,
             'order_date' => $order_date,
@@ -100,7 +100,7 @@ class SalesOrderController extends Controller
 
     public function dashboard()
     {
-        return view('sales-orders.dashboard');
+        return view('pages.sales-orders.dashboard');
     }
 
     public function index(Request $request)
@@ -147,7 +147,7 @@ class SalesOrderController extends Controller
             ->onEachSide(1)
             ->appends(request()->query());
 
-        return view('sales-orders.index')->with([
+        return view('pages.sales-orders.index')->with([
             'sales_orders' => $sales_orders,
             'search'       => $search,
             'date_from'    => $date_from,
@@ -168,7 +168,7 @@ class SalesOrderController extends Controller
 
         $process_ship_date = $this->resolveShipDate($logged_account);
 
-        return view('sales-orders.create')->with([
+        return view('pages.sales-orders.create')->with([
             'logged_account'    => $logged_account,
             'process_ship_date' => $process_ship_date,
         ]);
@@ -193,7 +193,7 @@ class SalesOrderController extends Controller
 
         $process_ship_date = $this->resolveShipDate($logged_account);
 
-        return view('sales-orders.create')->with([
+        return view('pages.sales-orders.create')->with([
             'logged_account'    => $logged_account,
             'process_ship_date' => $process_ship_date,
         ]);
@@ -242,7 +242,7 @@ class SalesOrderController extends Controller
             CheckSalesOrderStatus::dispatch($sales_order);
         }
 
-        return view('sales-orders.show')->with([
+        return view('pages.sales-orders.show')->with([
             'sales_order'   => $sales_order,
             'parts'         => $parts,
             'reference_arr' => $reference_arr,
@@ -269,7 +269,7 @@ class SalesOrderController extends Controller
 
         Session::put('order_data', $this->buildOrderDataFromSalesOrder($sales_order));
 
-        return view('sales-orders.edit')->with([
+        return view('pages.sales-orders.edit')->with([
             'sales_order' => $sales_order,
         ]);
     }

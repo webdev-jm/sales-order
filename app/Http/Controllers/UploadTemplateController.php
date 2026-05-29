@@ -24,13 +24,13 @@ class UploadTemplateController extends Controller
             ->paginate($this->setting->data_per_page)
             ->appends(request()->query());
 
-        return view('upload-templates.index')->with([
+        return view('pages.upload-templates.index')->with([
             'upload_templates' => $upload_templates
         ]);
     }
 
     public function create() {
-        return view('upload-templates.create');
+        return view('pages.upload-templates.create');
     }
 
     public function store() {
@@ -43,7 +43,7 @@ class UploadTemplateController extends Controller
     public function edit($id) {
         $upload_template = UploadTemplate::findOrFail($id);
 
-        return view('upload-templates.edit')->with([
+        return view('pages.upload-templates.edit')->with([
             'upload_template' => $upload_template
         ]);
     }
