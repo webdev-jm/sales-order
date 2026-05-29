@@ -16,7 +16,7 @@ class CreatePafBrandApprovalsTable extends Migration
         Schema::create('paf_brand_approvals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('paf_id')->nullable();
-            $table->unsignedBigInteger('brand_id')->nullable();
+            $table->bigInteger('brand_id')->nullable();
             $table->text('remarks')->nullable();
             $table->timestamps();
 
@@ -26,7 +26,7 @@ class CreatePafBrandApprovalsTable extends Migration
 
             $table->foreign('brand_id')
                 ->references('id')->on('brands')
-                ->omDelete('cascade');
+                ->onDelete('cascade');
 
             $table->softDeletes();
         });

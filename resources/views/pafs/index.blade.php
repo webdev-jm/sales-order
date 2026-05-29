@@ -37,29 +37,23 @@
             <thead>
                 <tr>
                     <th>PAF NUMBER</th>
-                    <th>USER</th>
                     <th>EXPENSE TYPE</th>
                     <th>SUPPORT TYPE</th>
                     <th>TITLE</th>
                     <th>START DATE</th>
                     <th>END DATE</th>
-                    <th>STATUS</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($pafs as $paf)
                     <tr>
-                        <td>{{$paf->paf_number}}</td>
-                        <td>{{$paf->user->fullName()}}</td>
+                        <td>{{$paf->PAFNo}}</td>
                         <td>{{$paf->expense_type->expense ?? ''}}</td>
                         <td>{{$paf->support_type->support ?? ''}}</td>
                         <td>{{$paf->title}}</td>
                         <td>{{$paf->start_date}}</td>
                         <td>{{$paf->end_date}}</td>
-                        <td>
-                            <span class="badge badge-{{$status_arr[$paf->status]}}">{{$paf->status}}</span>
-                        </td>
                         <td class="text-right align-middle">
                             <a href="{{route('paf.show', $paf->id)}}" title="details">
                                 <i class="fa fa-eye text-primary mx-1"></i>

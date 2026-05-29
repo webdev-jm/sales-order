@@ -214,16 +214,14 @@ class Create extends Component
     public function setDetail() {
         $paf_data = Session::get('paf_data');
 
-        foreach($paf_data['details'] as $detail) {
-            $product;
-            if(!empty($detail['product_id'])) {
-                $product = collect($this->products)->where('id', $detail['product_id'])->first();
-                $paf_data['details']['product'] = $product;
+        foreach ($paf_data['details'] as &$detail) {
+            if (!empty($detail['product_id'])) {
+                $product = collect($this->products)->firstWhere('id', $detail['product_id']);
+                $detail['product'] = $product;
             }
-            $branch;
-            if(!empty($detail['branch_id'])) {
-                $branch = collect($this->products)->where('id', $detail['branch_id'])->first();
-                $paf_data['details']['branch'] = $product;
+            if (!empty($detail['branch_id'])) {
+                $branch = collect($this->branches)->firstWhere('id', $detail['branch_id']);
+                $detail['branch'] = $branch;
             }
         }
 

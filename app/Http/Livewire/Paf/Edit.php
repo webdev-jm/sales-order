@@ -135,7 +135,7 @@ class Edit extends Component
             }
         }
 
-        session()->flash('message_success', 'PAF '.$paf->paf_number.' has been created.');
+        session()->flash('message_success', 'PAF '.$this->paf->paf_number.' has been created.');
         
         return redirect()->route('paf.index');
     }
@@ -193,39 +193,28 @@ class Edit extends Component
         $this->support_types = PafSupportType::all();
         $this->expense_types = PafExpenseType::all();
 
-        $header = [
-            'pre_plan_number' => $this->paf->pre_plan_number,
-            'account' => $this->paf->account ?? NULL,
-            'support_type' => $this->paf->support_type ?? NULL,
-            'expense_type' => $this->paf->expense_type ?? NULL,
-            'title' => $this->paf->title,
-            'start_date' => $this->paf->start_date,
-            'end_date' => $this->paf->end_date,
-            'activity' => $this->paf->activity
-        ];
-
         foreach($this->paf->paf_details as $detail) {
             $this->details[] = [
-                'type' => '',
+                'type' => $detail->type,
                 'quantity' => $detail->quantity,
                 'srp' => $detail->srp,
                 'percentage' => $detail->percentage,
-                'type' => $detail->type,
                 'amount' => $detail->amount,
                 'expense' => $detail->expense,
-                'product_id' => $detail->product ?? NULl,
+                'product_id' => $detail->product_id ?? NULL,
                 'product' => ($detail->product->stock_code ?? '') . ' '.($detail->product->description ?? '').' '.($detail->product->size ?? ''),
                 'branch' => $detail->branch,
             ];
         }
-        
+
         $this->account_id = $this->paf->account_id;
         $this->support_type_id = $this->paf->paf_support_type_id ?? NULL;
         $this->expense_type_id = $this->paf->paf_expense_type_id ?? NULL;
-        $this->activity_id = $this->paf->activity_id ?? NULL;
+        $this->activity_id = $this->paf->paf_activity_id ?? NULL;
         $this->title = $this->paf->title;
         $this->program_start = $this->paf->start_date;
         $this->program_end = $this->paf->end_date;
+        $this->pre_plan_number = $this->paf->pre_plan->pre_plan_number ?? NULL;
 
         $this->updatedAccountId();
     }
