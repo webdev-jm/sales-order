@@ -128,6 +128,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // PRE PLAN
     Route::group(['middleware' => 'permission:pre plan access'], function() {
+        Route::get('pre-plan/template', [PafPrePlanController::class, 'downloadTemplate'])->name('pre-plan.template');
         Route::get('pre-plan', [PafPrePlanController::class, 'index'])->name('pre-plan.index');
         Route::get('pre-plan/create', [PafPrePlanController::class, 'create'])->name('pre-plan.create')->middleware('permission:pre plan create');
         Route::post('pre-plan', [PafPrePlanController::class, 'store'])->name('pre-plan.store')->middleware('permission:pre plan create');

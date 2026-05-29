@@ -39,7 +39,8 @@ class RoleController extends Controller
     }
 
     public function store(StoreRoleRequest $request) {
-        $role = Role::create(['name' => $request->name])->givePermissionTo($request->permissions);
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+        $role = Role::create(['name' => $request->name])->givePermissionTo($permissions);
 
         // logs
         activity('create')
@@ -78,7 +79,8 @@ class RoleController extends Controller
         $role->update([
             'name' => $request->name
         ]);
-        $role->syncPermissions($request->permissions);
+        $permissions = Permission::whereIn('id', $request->permissions)->get();
+        $role->syncPermissions($permissions);
 
         $changes_arr['changes'] = $role->getChanges();
         

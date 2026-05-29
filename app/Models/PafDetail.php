@@ -21,16 +21,27 @@ class PafDetail extends Model
     }
 
     protected $fillable = [
-        'PAFNo',
-        'sku_code',
-        'sku_description',
-        'brand',
-        'category',
+        'paf_id',
+        'product_id',
+        'branch_id',
+        'branch',
+        'type',
+        'amount',
+        'expense',
+        'srp',
+        'percentage',
         'quantity',
+        'status',
     ];
 
-    public function paf() {
-        return $this->belongsTo('App\Models\Paf', 'PAFNo', 'PAFNo');
+    public function paf(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Paf::class, 'paf_id');
+    }
+
+    public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }
 

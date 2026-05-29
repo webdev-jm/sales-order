@@ -5,6 +5,15 @@
         </div>
         <div class="modal-body">
 
+            <div class="row mb-2">
+                <div class="col-lg-12">
+                    <a href="{{route('pre-plan.template')}}" class="btn btn-sm btn-outline-secondary">
+                        <i class="fa fa-download mr-1"></i>
+                        DOWNLOAD TEMPLATE
+                    </a>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-lg-12">
                     <div class="form-group">

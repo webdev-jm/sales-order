@@ -9,6 +9,8 @@ use App\Models\Brand;
 use App\Models\PafApproval;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\PafApproved;
 
 class Approval extends Component
 {

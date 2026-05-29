@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PrePlanTemplateExport;
 use App\Models\PafPrePlan;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PafPrePlanController extends Controller
 {
+    public function downloadTemplate(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        return Excel::download(new PrePlanTemplateExport, 'pre-plan-upload-template.xlsx');
+    }
+
     /**
      * Display a listing of the resource.
      *
