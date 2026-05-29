@@ -35,7 +35,7 @@ class ProductController extends Controller
     {
         $search = trim($request->input('search'));
         $products = Product::ProductSearch($search, $this->setting->data_per_page);
-        return view('products.index')->with([
+        return view('pages.products.index')->with([
             'products' => $products,
             'search' => $search
         ]);
@@ -60,7 +60,7 @@ class ProductController extends Controller
             $brands_arr[$brand->id] = $brand->brand;
         }
 
-        return view('products.create')->with([
+        return view('pages.products.create')->with([
             'companies' => $companies_arr,
             'brands_arr' => $brands_arr
         ]);
@@ -136,7 +136,7 @@ class ProductController extends Controller
             $brands_arr[$brand->id] = $brand->brand;
         }
 
-        return view('products.edit')->with([
+        return view('pages.products.edit')->with([
             'product' => $product,
             'brands_arr' => $brands_arr
         ]);

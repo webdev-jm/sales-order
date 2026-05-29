@@ -36,7 +36,7 @@ class BranchAddressController extends Controller
             })
             ->paginate(10)->onEachSide(1)->appends($request->query());
 
-        return view('branch-address.index')->with([
+        return view('pages.branch-address.index')->with([
             'search' => $search,
             'branch_address' => $branch_address,
         ]);

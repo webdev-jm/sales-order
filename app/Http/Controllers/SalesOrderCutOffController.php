@@ -18,7 +18,7 @@ class SalesOrderCutOffController extends Controller
         $cut_offs = SalesOrderCutOff::orderBy('id', 'DESC')
         ->paginate(10);
 
-        return view('sales-orders.cut-offs.index')->with([
+        return view('pages.sales-orders.cut-offs.index')->with([
             'cut_offs' => $cut_offs
         ]);
     }
@@ -30,7 +30,7 @@ class SalesOrderCutOffController extends Controller
      */
     public function create()
     {
-        return view('sales-orders.cut-offs.create');
+        return view('pages.sales-orders.cut-offs.create');
     }
 
     /**
@@ -83,7 +83,7 @@ class SalesOrderCutOffController extends Controller
     {
         $cut_off = SalesOrderCutOff::findOrFail($id);
 
-        return view('sales-orders.cut-offs.edit')->with([
+        return view('pages.sales-orders.cut-offs.edit')->with([
             'cut_off' => $cut_off
         ]);
     }

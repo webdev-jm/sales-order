@@ -34,7 +34,7 @@ class AccountProductReferenceController extends Controller
 
         $account_product_references = AccountProductReference::AccountProductReferenceSearch($search, $this->settings->data_per_page);
 
-        return view('account-references.index')->with([
+        return view('pages.account-references.index')->with([
             'search' => $search,
             'account_product_references' => $account_product_references
         ]);
@@ -47,7 +47,7 @@ class AccountProductReferenceController extends Controller
      */
     public function create()
     {
-        return view('account-references.create');
+        return view('pages.account-references.create');
     }
 
     /**
@@ -97,7 +97,7 @@ class AccountProductReferenceController extends Controller
     {
         $account_product_reference = AccountProductReference::findOrFail($id);
 
-        return view('account-references.edit')->with([
+        return view('pages.account-references.edit')->with([
             'account_product_reference' => $account_product_reference
         ]);
     }

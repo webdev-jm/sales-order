@@ -49,7 +49,7 @@ class CreditMemoController extends Controller
             ->paginate($this->setting->item_per_page)
             ->appends(request()->query());
 
-        return view('credit-memos.index')->with([
+        return view('pages.credit-memos.index')->with([
             'credit_memos' => $credit_memos,
             'search' => $search,
             'status_arr' => $this->status_arr,
@@ -63,7 +63,7 @@ class CreditMemoController extends Controller
      */
     public function create(): View
     {
-        return view('credit-memos.create');
+        return view('pages.credit-memos.create');
     }
 
     /**
@@ -87,7 +87,7 @@ class CreditMemoController extends Controller
     {
         $credit_memo = CreditMemo::findOrFail($id);
 
-        return view('credit-memos.show')->with([
+        return view('pages.credit-memos.show')->with([
             'credit_memo' => $credit_memo,
             'status_arr' => $this->status_arr,
         ]);
@@ -103,7 +103,7 @@ class CreditMemoController extends Controller
     {
         $credit_memo  = CreditMemo::findOrFail($id);
 
-        return view('credit-memos.edit')->with([
+        return view('pages.credit-memos.edit')->with([
             'credit_memo' => $credit_memo,
             'status_arr' => $this->status_arr,
         ]);
@@ -112,7 +112,7 @@ class CreditMemoController extends Controller
     public function printPDF($id) {
         $credit_memo = CreditMemo::findOrFail($id);
 
-        $pdf = PDF::loadView('credit-memos.pdf', [
+        $pdf = PDF::loadview('pages.credit-memos.pdf', [
             'credit_memo' => $credit_memo
         ])->setPaper('a4');
 

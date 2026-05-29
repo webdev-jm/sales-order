@@ -33,7 +33,7 @@ class CreditMemoReasonController extends Controller
             ->paginate($this->setting->item_per_page)
             ->onEachSide(1)->appends(request()->query());
 
-        return view('credit-memo-reasons.index')->with([
+        return view('pages.credit-memo-reasons.index')->with([
             'cm_reasons' => $cm_reasons,
             'search' => $search
         ]);
@@ -46,7 +46,7 @@ class CreditMemoReasonController extends Controller
      */
     public function create(): View
     {
-        return view('credit-memo-reasons.create');
+        return view('pages.credit-memo-reasons.create');
     }
 
     /**
@@ -82,7 +82,7 @@ class CreditMemoReasonController extends Controller
     public function show($id): View
     {
         $cm_reason = CreditMemoReason::findOrFail($id);
-        return view('credit-memo-reasons.show')->with([
+        return view('pages.credit-memo-reasons.show')->with([
             'cm_reason' => $cm_reason
         ]);
     }
@@ -97,7 +97,7 @@ class CreditMemoReasonController extends Controller
     {
         $cm_reason = CreditMemoReason::findOrFail($id);
 
-        return view('credit-memo-reasons.edit')->with([
+        return view('pages.credit-memo-reasons.edit')->with([
             'cm_reason' => $cm_reason
         ]);
     }

@@ -18,7 +18,7 @@ class SalesPersonController extends Controller
     public function index()
     {
         $sales_people = SalesPerson::orderBy('id', 'DESC')->paginate(10);
-        return view('sales-people.index')->with([
+        return view('pages.sales-people.index')->with([
             'sales_people' => $sales_people
         ]);
     }
@@ -30,7 +30,7 @@ class SalesPersonController extends Controller
      */
     public function create()
     {
-        return view('sales-people.create');
+        return view('pages.sales-people.create');
     }
 
     /**
@@ -86,7 +86,7 @@ class SalesPersonController extends Controller
             $accounts_arr[$account->id] = '['.$account->account_code.'] '.$account->short_name;
         }
 
-        return view('sales-people.edit')->with([
+        return view('pages.sales-people.edit')->with([
             'sales_person' => $sales_person,
             'accounts' => $accounts_arr,
         ]);

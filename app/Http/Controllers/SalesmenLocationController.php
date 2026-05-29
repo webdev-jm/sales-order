@@ -18,7 +18,7 @@ class SalesmenLocationController extends Controller
         $salesmen_locations = SalesmenLocation::orderBy('salesman_id', 'asc')
             ->paginate(10)->onEachSide(1);
 
-        return view('salesmen-locations.index')->with([
+        return view('pages.salesmen-locations.index')->with([
             'salesmen_locations' => $salesmen_locations
         ]);
     }
@@ -30,7 +30,7 @@ class SalesmenLocationController extends Controller
      */
     public function create()
     {
-        return view('salesmen-locations.create');
+        return view('pages.salesmen-locations.create');
     }
 
     /**

@@ -33,7 +33,7 @@ class DiscountController extends Controller
     {
         $search = trim($request->input('search'));
         $discounts = Discount::DiscountSearch($search, $this->setting->data_per_page);
-        return view('discounts.index')->with([
+        return view('pages.discounts.index')->with([
             'discounts' => $discounts,
             'search' => $search
         ]);
@@ -52,7 +52,7 @@ class DiscountController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
         
-        return view('discounts.create')->with([
+        return view('pages.discounts.create')->with([
             'companies' => $companies_arr
         ]);
     }
@@ -112,7 +112,7 @@ class DiscountController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        return view('discounts.edit')->with([
+        return view('pages.discounts.edit')->with([
             'discount' => $discount,
             'companies' => $companies_arr
         ]);

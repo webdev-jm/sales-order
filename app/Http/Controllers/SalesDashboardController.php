@@ -8,6 +8,6 @@ class SalesDashboardController extends Controller
 {
     public function index() {
 
-        return view('sales-dashboard.index');
+        return view('pages.sales-dashboard.index');
     }
 }

@@ -34,7 +34,7 @@ class AreaController extends Controller
 
         $areas = Area::AreaSearch($search, $this->settings->data_per_page);
 
-        return view('areas.index')->with([
+        return view('pages.areas.index')->with([
             'search' => $search,
             'areas' => $areas
         ]);
@@ -47,7 +47,7 @@ class AreaController extends Controller
      */
     public function create()
     {
-        return view('areas.create');
+        return view('pages.areas.create');
     }
 
     /**
@@ -95,7 +95,7 @@ class AreaController extends Controller
     {
         $area = Area::findOrFail($id);
 
-        return view('areas.edit')->with([
+        return view('pages.areas.edit')->with([
             'area' => $area
         ]);
     }

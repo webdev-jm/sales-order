@@ -34,7 +34,7 @@ class AccountController extends Controller
         $search   = trim($request->input('search'));
         $accounts = Account::AccountSearch($search, $this->setting->data_per_page);
 
-        return view('accounts.index')->with([
+        return view('pages.accounts.index')->with([
             'accounts' => $accounts,
             'search'   => $search,
         ]);
@@ -42,7 +42,7 @@ class AccountController extends Controller
 
     public function create(): View
     {
-        return view('accounts.create')->with($this->getAccountFormData());
+        return view('pages.accounts.create')->with($this->getAccountFormData());
     }
 
     public function store(StoreAccountRequest $request): RedirectResponse
@@ -62,7 +62,7 @@ class AccountController extends Controller
     {
         $account = Account::findOrFail(decrypt($id));
 
-        return view('accounts.show')->with([
+        return view('pages.accounts.show')->with([
             'account' => $account,
         ]);
     }
@@ -71,7 +71,7 @@ class AccountController extends Controller
     {
         $account = Account::findOrFail(decrypt($id));
 
-        return view('accounts.edit')->with(
+        return view('pages.accounts.edit')->with(
             array_merge(['account' => $account], $this->getAccountFormData())
         );
     }

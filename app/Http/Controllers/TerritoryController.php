@@ -32,7 +32,7 @@ class TerritoryController extends Controller
         $search = trim($request->input('search'));
         $territories = Territory::TerritorySearch($search, $this->setting->data_per_page);
 
-        return view('territories.index')->with([
+        return view('pages.territories.index')->with([
             'territories' => $territories,
             'search' => $search
         ]);
@@ -45,7 +45,7 @@ class TerritoryController extends Controller
      */
     public function create()
     {
-        return view('territories.create');
+        return view('pages.territories.create');
     }
 
     /**

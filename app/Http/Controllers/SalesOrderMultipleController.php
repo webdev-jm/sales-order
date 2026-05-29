@@ -15,7 +15,7 @@ class SalesOrderMultipleController extends Controller
             ]);
         }
 
-        return view('sales-orders.multiple-uploads.index')->with([
+        return view('pages.sales-orders.multiple-uploads.index')->with([
             'logged_account' => $logged_account
         ]);
     }

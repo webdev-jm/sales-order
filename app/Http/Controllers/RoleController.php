@@ -18,7 +18,7 @@ class RoleController extends Controller
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         
         $roles = Role::orderBy('id', 'DESC')->paginate(10);
-        return view('roles.index')->with([
+        return view('pages.roles.index')->with([
             'roles' => $roles
         ]);
     }
@@ -33,7 +33,7 @@ class RoleController extends Controller
             ];
         }
 
-        return view('roles.create')->with([
+        return view('pages.roles.create')->with([
             'permissions' => $permissions_arr
         ]);
     }
@@ -64,7 +64,7 @@ class RoleController extends Controller
             ];
         }
 
-        return view('roles.edit')->with([
+        return view('pages.roles.edit')->with([
             'role' => $role,
             'permissions' => $permissions_arr
         ]);

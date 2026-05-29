@@ -98,7 +98,7 @@ class ActivityPlanController extends Controller
             $next_month = $month + 1;
         }
 
-        return view('mcp.index')->with([
+        return view('pages.mcp.index')->with([
             'search' => $search,
             'activity_plans' => $activity_plans,
             'status_arr' => $this->status_arr,
@@ -124,7 +124,7 @@ class ActivityPlanController extends Controller
             }
         }
 
-        return view('mcp.create2')->with([
+        return view('pages.mcp.create2')->with([
             'position' => $position
         ]);
     }
@@ -404,7 +404,7 @@ class ActivityPlanController extends Controller
         //     }
         // }
 
-        return view('mcp.show')->with([
+        return view('pages.mcp.show')->with([
             'position' => $position,
             'activity_plan' => $activity_plan,
             'schedule_data' => $schedule_data,
@@ -530,7 +530,7 @@ class ActivityPlanController extends Controller
                 }
             }
 
-            return view('mcp.edit2')->with([
+            return view('pages.mcp.edit2')->with([
                 'position' => $position,
                 'activity_plan' => $activity_plan,
                 'status_arr' => $this->status_arr
@@ -624,7 +624,7 @@ class ActivityPlanController extends Controller
                                     continue;
                                 }
 
-                                // Date was previously on leave but now has schedule lines â€” remove sentinel
+                                // Date was previously on leave but now has schedule lines Ã¢â‚¬â€ remove sentinel
                                 ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
                                     ->where('date', $date)
                                     ->where('is_on_leave', true)
@@ -1112,7 +1112,7 @@ class ActivityPlanController extends Controller
             ];
         }
 
-        $pdf = PDF::loadView('mcp.pdf', [
+        $pdf = PDF::loadview('pages.mcp.pdf', [
             'activity_plan' => $activity_plan,
             'position' => $position,
             'lines' => $lines
@@ -1120,7 +1120,7 @@ class ActivityPlanController extends Controller
 
         return $pdf->stream('weekly-activity-report-'.$activity_plan->year.'-'.$activity_plan->month.'-'.time().'.pdf');
 
-        // return view('mcp.pdf')->with([
+        // return view('pages.mcp.pdf')->with([
         //     'activity_plan' => $activity_plan,
         //     'position' => $position,
         //     'lines' => $lines
@@ -1276,7 +1276,7 @@ class ActivityPlanController extends Controller
         $bar_code = new DNS2D();
         $bar_code = $bar_code->getBarcodeHTML(route('trip.user', encrypt($trip->user_id)), 'QRCODE', 2, 2);
 
-        $pdf = PDF::loadView('mcp.trip-detail', [
+        $pdf = PDF::loadview('pages.mcp.trip-detail', [
             'trip' => $trip,
             'bar_code' => $bar_code,
             'status_arr' => $status_arr,
@@ -1284,7 +1284,7 @@ class ActivityPlanController extends Controller
 
         return $pdf->download('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
 
-        // return view('mcp.trip-detail')->with([
+        // return view('pages.mcp.trip-detail')->with([
         //     'trip' => $trip,
         //     'bar_code' => $bar_code,
         //     'status_arr' => $status_arr,

@@ -15,7 +15,7 @@ class PPUFormMultipleController extends Controller
             ]);
         }
 
-        return view('ppu-forms.multiple-uploads.index')->with([
+        return view('pages.ppu-forms.multiple-uploads.index')->with([
             'logged_account' => $logged_account
         ]);
     }

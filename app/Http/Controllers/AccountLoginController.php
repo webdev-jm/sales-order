@@ -21,7 +21,7 @@ class AccountLoginController extends Controller
     public function index(Request $request) {
         $search = trim($request->input('search'));
         $accounts = Account::LoginAccountSearch($search, $this->setting->data_per_page);
-        return view('account-logins.index')->with([
+        return view('pages.account-logins.index')->with([
             'accounts' => $accounts,
             'search' => $search
         ]);
@@ -47,7 +47,7 @@ class AccountLoginController extends Controller
             ->appends(request()->query());
         }
 
-        return view('account-logins.show')->with([
+        return view('pages.account-logins.show')->with([
             'account_logins' => $account_logins,
             'account' => $account,
             'search' => $search

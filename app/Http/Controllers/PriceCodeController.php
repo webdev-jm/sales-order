@@ -43,7 +43,7 @@ class PriceCodeController extends Controller
         }
 
         $price_codes = PriceCode::PriceCodeSearch($search, $code, $this->setting->data_per_page);
-        return view('price-codes.index')->with([
+        return view('pages.price-codes.index')->with([
             'price_codes' => $price_codes,
             'search' => $search,
             'codes' => $code_arr,
@@ -81,7 +81,7 @@ class PriceCodeController extends Controller
             $price_basis_arr[$basis->price_basis] = $basis->price_basis.' - '.$price_basis_data[$basis->price_basis];
         }
 
-        return view('price-codes.create')->with([
+        return view('pages.price-codes.create')->with([
             'companies' => $companies_arr,
             'products' => $products_arr,
             'price_basis' => $price_basis_arr
@@ -148,7 +148,7 @@ class PriceCodeController extends Controller
             $products_arr[$product->id] = $product->stock_code;
         }
 
-        return view('price-codes.edit')->with([
+        return view('pages.price-codes.edit')->with([
             'price_code' => $price_code,
             'companies' => $companies_arr,
             'products' => $products_arr

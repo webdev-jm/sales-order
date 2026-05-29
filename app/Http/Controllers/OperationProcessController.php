@@ -35,7 +35,7 @@ class OperationProcessController extends Controller
         $search = trim($request->input('search'));
         $operation_processes = OperationProcess::orderBy('id', 'DESC')->paginate($this->settings->data_per_page);
 
-        return view('operation-processes.index')->with([
+        return view('pages.operation-processes.index')->with([
             'search' => $search,
             'operation_processes' => $operation_processes
         ]);
@@ -54,7 +54,7 @@ class OperationProcessController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        return view('operation-processes.create')->with([
+        return view('pages.operation-processes.create')->with([
             'companies' => $companies_arr
         ]);
     }
@@ -122,7 +122,7 @@ class OperationProcessController extends Controller
             $companies_arr[$company->id] = $company->name;
         }
 
-        return view('operation-processes.edit')->with([
+        return view('pages.operation-processes.edit')->with([
             'companies' => $companies_arr,
             'operation_process' => $operation_process
         ]);

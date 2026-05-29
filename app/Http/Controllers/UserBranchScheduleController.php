@@ -96,7 +96,7 @@ class UserBranchScheduleController extends Controller
 
         $schedule_data = array_merge($schedule_data, $this->buildHolidayEvents($date_from, $date_to));
 
-        return view('schedules.index')->with([
+        return view('pages.schedules.index')->with([
             'user_id'       => $user_id,
             'account_id'    => $account_id,
             'users'         => $users_arr,
@@ -125,7 +125,7 @@ class UserBranchScheduleController extends Controller
             })
             ->paginate(10)->onEachSide(1);
 
-        return view('schedules.list')->with([
+        return view('pages.schedules.list')->with([
             'search'    => $search,
             'schedules' => $schedules,
         ]);
@@ -145,7 +145,7 @@ class UserBranchScheduleController extends Controller
 
         $deviations = Deviation::DeviationSearch($search, $settings->data_per_page);
 
-        return view('schedules.deviations')->with([
+        return view('pages.schedules.deviations')->with([
             'search'     => $search,
             'deviations' => $deviations,
             'status_arr' => $status_arr,
@@ -182,7 +182,7 @@ class UserBranchScheduleController extends Controller
         // Single query instead of two separate where('type', ...) calls
         $schedules_by_type = $deviation->schedules()->get()->groupBy('type');
 
-        $pdf = PDF::loadView('schedules.deviation-pdf', [
+        $pdf = PDF::loadview('pages.schedules.deviation-pdf', [
             'deviation'          => $deviation,
             'original_schedules' => $schedules_by_type->get('original', collect()),
             'new_schedules'      => $schedules_by_type->get('new', collect()),
@@ -322,7 +322,7 @@ class UserBranchScheduleController extends Controller
         ];
 
         foreach ($schedule_types as ['status' => $status, 'type' => $base_type]) {
-            // Single query per type with eager loading — replaces the date-loop N+1 pattern
+            // Single query per type with eager loading â€” replaces the date-loop N+1 pattern
             $schedules = UserBranchSchedule::with('branch.account')
                 ->when($status === null, fn($q) => $q->whereNull('status'))
                 ->when($status !== null, fn($q) => $q->where('status', $status))
@@ -362,7 +362,7 @@ class UserBranchScheduleController extends Controller
             }
         }
 
-        // Single query with eager-loaded user — replaces date-loop + N+1 on $data->user
+        // Single query with eager-loaded user â€” replaces date-loop + N+1 on $data->user
         $deviations = Deviation::with('user')
             ->where('status', 'submitted')
             ->whereBetween('date', [$date_from, $date_to])

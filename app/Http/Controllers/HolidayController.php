@@ -11,7 +11,7 @@ class HolidayController extends Controller
      */
     public function index(): \Illuminate\Contracts\View\View
     {
-        return view('holidays.index');
+        return view('pages.holidays.index');
     }
 
     /**

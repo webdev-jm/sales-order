@@ -31,7 +31,7 @@ class PurchaseOrderController extends Controller
                     ->where('end_date', '>=', $date)
                     ->first();
     
-                return view('purchase-orders.index')->with([
+                return view('pages.purchase-orders.index')->with([
                     'cut_off' => $cut_off,
                 ]);
             } else {
@@ -52,7 +52,7 @@ class PurchaseOrderController extends Controller
         if(isset($logged_account)) {
             $purchase_order = PurchaseOrder::findOrFail($id);
 
-            return view('purchase-orders.show')->with([
+            return view('pages.purchase-orders.show')->with([
                 'purchase_order' => $purchase_order,
                 'logged_account' => $logged_account
             ]);
@@ -69,7 +69,7 @@ class PurchaseOrderController extends Controller
             $selectedPO = Session::get('selectedPO');
             if(!empty($selectedPO)) {
 
-                return view('purchase-orders.create')->with([
+                return view('pages.purchase-orders.create')->with([
                     'selectedPO' => $selectedPO,
                 ]);
             } else {

@@ -573,7 +573,7 @@ class UserBranchScheduleController extends Controller
             $accounts_arr[$account->id] = $account->account_code.' - '.$account->short_name;
         }
         
-        return view('schedules.index')->with([
+        return view('pages.schedules.index')->with([
             'user_id' => $user_id,
             'account_id' => $account_id,
             'users' => $users_arr,
@@ -593,7 +593,7 @@ class UserBranchScheduleController extends Controller
         })
         ->paginate(10)->onEachSide(1);
 
-        return view('schedules.list')->with([
+        return view('pages.schedules.list')->with([
             'search' => $search,
             'schedules' => $schedules
         ]);
@@ -613,7 +613,7 @@ class UserBranchScheduleController extends Controller
 
         $deviations = Deviation::DeviationSearch($search, $settings->data_per_page);
 
-        return view('schedules.deviations')->with([
+        return view('pages.schedules.deviations')->with([
             'search' => $search,
             'deviations' => $deviations,
             'status_arr' => $status_arr
@@ -752,7 +752,7 @@ class UserBranchScheduleController extends Controller
         $original_schedules = $deviation->schedules()->where('type', 'original')->get();
         $new_schedules = $deviation->schedules()->where('type', 'new')->get();
 
-        $pdf = PDF::loadView('schedules.deviation-pdf', [
+        $pdf = PDF::loadview('pages.schedules.deviation-pdf', [
             'deviation' => $deviation,
             'original_schedules' => $original_schedules,
             'new_schedules' => $new_schedules
@@ -760,7 +760,7 @@ class UserBranchScheduleController extends Controller
 
         return $pdf->stream('deviation-form-'.$deviation->date.'-'.time().'.pdf');
 
-        // return view('schedules.deviation-pdf')->with([
+        // return view('pages.schedules.deviation-pdf')->with([
         //     'deviation' => $deviation,
         //     'original_schedules' => $original_schedules,
         //     'new_schedules' => $new_schedules

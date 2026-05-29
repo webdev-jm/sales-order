@@ -33,7 +33,7 @@ class RegionController extends Controller
 
         $regions = Region::RegionSearch($search, $this->settings->data_per_page);
 
-        return view('regions.index')->with([
+        return view('pages.regions.index')->with([
             'search' => $search,
             'regions' => $regions
         ]);
@@ -46,7 +46,7 @@ class RegionController extends Controller
      */
     public function create()
     {
-        return view('regions.create');
+        return view('pages.regions.create');
     }
 
     /**
@@ -93,7 +93,7 @@ class RegionController extends Controller
     {
         $region = Region::findOrFail($id);
 
-        return view('regions.edit')->with([
+        return view('pages.regions.edit')->with([
             'region' => $region
         ]);
     }
