@@ -228,7 +228,7 @@ class SalesOrderService {
      */
     public function createOrder($data, $account, $order_data): SalesOrder
     {
-        $data->merge(['control_number' => $this->generateControlNumber()]);
+        $data->control_number = $this->generateControlNumber();
 
         // Prepend the account's PO prefix when defined (e.g. "PH-" → "PH-00001").
         if (!empty($account->po_prefix)) {
