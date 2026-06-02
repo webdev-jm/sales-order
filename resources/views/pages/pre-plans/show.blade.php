@@ -48,20 +48,28 @@
                     </li>
                     <li class="list-group-item">
                         <span>START DATE</span>
-                        <strong class="float-right">{{$pre_plan->start_date ?? ''}}</strong>
+                        <strong class="float-right">
+                            {{ $pre_plan->start_date ? \Carbon\Carbon::parse($pre_plan->start_date)->format('d-M-Y') : '' }}
+                        </strong>
                     </li>
                     <li class="list-group-item">
                         <span>END DATE</span>
-                        <strong class="float-right">{{$pre_plan->end_date ?? ''}}</strong>
+                        <strong class="float-right">
+                            {{ $pre_plan->end_date ? \Carbon\Carbon::parse($pre_plan->end_date)->format('d-M-Y') : '' }}
+                        </strong>
                     </li>
                     <li class="list-group-item">
                         <span>TITLE</span>
                         <strong class="float-right">{{$pre_plan->title ?? ''}}</strong>
                     </li>
+                    <li class="list-group-item">
+                        <span>CONCEPT</span>
+                        <strong class="float-right">{{$pre_plan->concept ?? ''}}</strong>
+                    </li>
                 </ul>
             </div>
             <div class="card-footer">
-                
+
             </div>
         </div>
     </div>
@@ -97,10 +105,16 @@
                                 <td class="p-0 align-middle">{{$detail->price_code}}</td>
                                 <td class="p-0 align-middle">{{$detail->brand}}</td>
                                 <td class="p-0 align-middle">{{$detail->quantity}}</td>
-                                <td class="p-0 align-middle">{{number_format($detail->account, 2)}}</td>
+                                <td class="p-0 align-middle">{{number_format($detail->amount, 2)}}</td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot>
+                        <tr class="text-center">
+                            <th colspan="8" class="text-right p-0">TOTAL</th>
+                            <th class="p-0">{{ number_format($total_amount, 2) }}</th>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
             <div class="card-footer">
@@ -123,5 +137,4 @@
 @endsection
 
 @section('right-sidebar')
-sidebar
 @endsection
