@@ -26,18 +26,22 @@ class AccountProductReferenceImport implements ToModel, WithStartRow
         $account = Account::where('account_code', $row[1])->first();
         $product = Product::where('stock_code', $row[3])->first();
 
-        if(!empty($account) && !empty($product)) {
+        if (!empty($account) && !empty($product)) {
 
-            return new AccountProductReference([
-                'account_id' => $account->id,
-                'product_id' => $product->id,
-                'account_reference' => $row[2],
-                'description' => $row[4] ?? $product->description,
-            ]);
+            AccountProductReference::updateOrCreate(
+                [
+                    'account_id' => $account->id,
+                    'product_id' => $product->id,
+                ],
+                [
+                    'account_reference' => $row[2],
+                    'description' => $row[4] ?? $product->description,
+                ]
+            );
 
-        } else {
-            return null;
         }
+
+        return null;
         
     }
 }
