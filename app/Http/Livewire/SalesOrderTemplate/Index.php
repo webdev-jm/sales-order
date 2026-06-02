@@ -90,6 +90,38 @@ class Index extends Component
         }, 'so_template_' . date('Ymd_His') . '.csv', $headers);
     }
 
+    public function exportTemplate()
+    {
+        $rows         = Session::get('so_template_rows', []);
+        $templatePath = public_path('assets/SMS Multiple PO upload Format.xlsx');
+        $filename     = 'so_upload_template_' . date('Ymd_His') . '.xlsx';
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($templatePath);
+        $sheet       = $spreadsheet->getActiveSheet();
+
+        $startRow = 2;
+        foreach ($rows as $row) {
+            $sheet->setCellValue("A{$startRow}", $row['po_number']     ?? '');
+            $sheet->setCellValue("B{$startRow}", $row['delivery_date'] ?? '');
+            $sheet->setCellValue("C{$startRow}", $row['store_code'] ?? '');
+            $sheet->setCellValue("D{$startRow}", $row['internal_sku']  ?? '');
+            $sheet->setCellValue("E{$startRow}", $row['qty']           ?? '');
+            $sheet->setCellValue("F{$startRow}", $row['uom']           ?? '');
+            $sheet->setCellValue("G{$startRow}", $row['amount']        ?? '');
+            $sheet->setCellValue("H{$startRow}", '');
+            $sheet->setCellValue("I{$startRow}", $row['po_remarks']    ?? '');
+            $startRow++;
+        }
+
+        $writer   = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $tempPath = tempnam(sys_get_temp_dir(), 'so_template_') . '.xlsx';
+        $writer->save($tempPath);
+
+        return response()->download($tempPath, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+
     public function exportExcel()
     {
         $rows     = Session::get('so_template_rows', []);
@@ -189,6 +221,7 @@ class Index extends Component
             'raw_sku'           => $rawSku,
             'sku_code'          => $this->stripSkuSuffix($rawSku),
             'description'       => trim($row[56] ?? ''),
+            'uom'               => 'CS',
             'qty'               => trim($row[58] ?? ''),
             'list_price'        => trim($row[60] ?? ''),
             'amount'            => trim($row[64] ?? ''),
@@ -220,6 +253,7 @@ class Index extends Component
             'raw_sku'           => $rawSku,
             'sku_code'          => $this->stripSkuSuffix($rawSku),
             'description'       => trim($this->extractSegment($skuField, 'description')),
+            'uom'               => trim($this->extractSegment($skuField, 'buyUM')),
             'qty'               => trim($row[20] ?? ''),
             'list_price'        => trim($this->extractSegment($skuField, 'buyCost')),
             'amount'            => trim($row[25] ?? ''),
@@ -281,19 +315,22 @@ class Index extends Component
             return $empty;
         }
 
-        // 1. Exact address_code match across all selected accounts
+        // 1. Static Puregold → BEVI code mapping
+        $lookupCode = self::PUREGOLD_STORE_MAP[$storeCode] ?? $storeCode;
+
+        // 2. Exact address_code match using mapped code
         $address = ShippingAddress::whereIn('account_id', $accountIds)
-            ->where('address_code', $storeCode)
+            ->where('address_code', $lookupCode)
             ->first();
 
-        // 2. Cast match (handles leading zeros)
-        if (empty($address) && is_numeric($storeCode)) {
+        // 3. Cast match (handles any remaining leading-zero differences)
+        if (empty($address) && is_numeric($lookupCode)) {
             $address = ShippingAddress::whereIn('account_id', $accountIds)
-                ->where(DB::raw('CAST(address_code AS UNSIGNED)'), (int) $storeCode)
+                ->where(DB::raw('CAST(address_code AS UNSIGNED)'), (int) $lookupCode)
                 ->first();
         }
 
-        // 3. AccountShipAddressMapping fallback
+        // 4. AccountShipAddressMapping fallback
         if (empty($address)) {
             $mapping = AccountShipAddressMapping::whereIn('account_id', $accountIds)
                 ->where(function ($q) use ($storeCode, $storeName) {
@@ -328,6 +365,40 @@ class Index extends Component
             'shipping_address'    => $fullAddress,
         ];
     }
+
+    // -------------------------------------------------------------------------
+    // Static Puregold → BEVI address_code mapping
+    // -------------------------------------------------------------------------
+
+    private const PUREGOLD_STORE_MAP = [
+        '1034' => '1034',
+        '1031' => '01031',
+        '1032' => '1032',
+        '1021' => '01021',
+        '1033' => '01033',
+        '1026' => '01026',
+        '1029' => '1029',
+        '1035' => '1035',
+        '1025' => '01025',
+        '1028' => '1028',
+        '1027' => '1027',
+        '1037' => '01037',
+        '1036' => '01036',
+        '1039' => '01039',
+        '1038' => '01038',
+        '1041' => '01041',
+        '1042' => '01042',
+        '1043' => '01043',
+        '1044' => '1044',
+        '1052' => '1052',
+        '1053' => '1053',
+        '1051' => '1051',
+        '1050' => '1050',
+        '1049' => '1049',
+        '1057' => '1057',
+        '1059' => '1059',
+        '1060' => '1060',
+    ];
 
     // -------------------------------------------------------------------------
     // Helpers

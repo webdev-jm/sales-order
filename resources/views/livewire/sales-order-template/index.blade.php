@@ -96,8 +96,11 @@
                 <button wire:click="export" type="button" class="btn btn-secondary btn-sm mr-1">
                     <i class="fas fa-file-csv mr-1"></i> Export CSV
                 </button>
-                <button wire:click="exportExcel" type="button" class="btn btn-success btn-sm">
+                <button wire:click="exportExcel" type="button" class="btn btn-success btn-sm mr-1">
                     <i class="fas fa-file-excel mr-1"></i> Export Excel
+                </button>
+                <button wire:click="exportTemplate" type="button" class="btn btn-primary btn-sm">
+                    <i class="fas fa-file-upload mr-1"></i> Export Upload Template
                 </button>
             </div>
         </div>
@@ -217,8 +220,11 @@
             <button wire:click="export" type="button" class="btn btn-secondary btn-sm mr-1">
                 <i class="fas fa-file-csv mr-1"></i> Export CSV
             </button>
-            <button wire:click="exportExcel" type="button" class="btn btn-success btn-sm">
+            <button wire:click="exportExcel" type="button" class="btn btn-success btn-sm mr-1">
                 <i class="fas fa-file-excel mr-1"></i> Export Excel
+            </button>
+            <button wire:click="exportTemplate" type="button" class="btn btn-primary btn-sm">
+                <i class="fas fa-file-upload mr-1"></i> Export Upload Template
             </button>
         </div>
     </div>
