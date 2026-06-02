@@ -49,6 +49,16 @@ class Index extends Component
     {
         $this->validate();
 
+        if (!auth()->user()->hasRole('superadmin')) {
+            $allowedIds = auth()->user()->accounts()->pluck('accounts.id')->toArray();
+            foreach ($this->account_ids as $id) {
+                if (!\in_array((int) $id, $allowedIds)) {
+                    $this->addError('account_ids', 'You do not have access to one or more selected accounts.');
+                    return;
+                }
+            }
+        }
+
         $path = $this->file->store('so-template-uploads');
         $fullPath = storage_path('app/' . $path);
 
@@ -469,6 +479,11 @@ class Index extends Component
         $rows = Session::get('so_template_rows', []);
 
         $accounts = Account::orderBy('account_name')
+            ->when(!auth()->user()->hasRole('superadmin'), function ($q) {
+                $q->whereHas('users', function ($query) {
+                    $query->where('users.id', auth()->id());
+                });
+            })
             ->when(trim($this->accountSearch) !== '', function ($q) {
                 $search = '%' . trim($this->accountSearch) . '%';
                 $q->where('account_name', 'like', $search)
