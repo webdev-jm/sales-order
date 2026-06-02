@@ -21,8 +21,21 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Pre Plans</h3>
+        <h3 class="card-title">
+            Pre Plans
+            <span class="badge badge-secondary ml-1">{{ $pre_plans->total() }}</span>
+        </h3>
         <div class="card-tools">
+            {!! Form::open(['method' => 'GET', 'route' => ['pre-plan.index'], 'id' => 'search_form', 'class' => 'd-inline-flex mr-2']) !!}
+            <div class="input-group input-group-sm" style="width:300px;">
+                {!! Form::text('search', request('search'), ['class' => 'form-control', 'placeholder' => 'Number / Account / Year']) !!}
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-default">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            {!! Form::close() !!}
             <button class="btn btn-sm btn-success" id="btn-upload">
                 <i class="fa fa-upload mr-1"></i>
                 UPLOAD
@@ -49,8 +62,8 @@
                         <td>{{$pre_plan->pre_plan_number}}</td>
                         <td>{{$pre_plan->account->account_code ?? '-'}} {{$pre_plan->account->short_name}}</td>
                         <td>{{$pre_plan->year}}</td>
-                        <td>{{$pre_plan->start_date}}</td>
-                        <td>{{$pre_plan->end_date}}</td>
+                        <td>{{ $pre_plan->start_date ? \Carbon\Carbon::parse($pre_plan->start_date)->format('d-M-Y') : '-' }}</td>
+                        <td>{{ $pre_plan->end_date ? \Carbon\Carbon::parse($pre_plan->end_date)->format('d-M-Y') : '-' }}</td>
                         <td>{{$pre_plan->title}}</td>
                         <td>{{$pre_plan->support_type->support ?? '-'}}</td>
                         <td class="text-right align-middle">
@@ -88,6 +101,13 @@
             e.preventDefault();
             $('#modal-upload').modal('show');
         });
+
+        window.addEventListener('pre-plan-uploaded', function () {
+            setTimeout(function () {
+                $('#modal-upload').modal('hide');
+                location.reload();
+            }, 1500);
+        });
     });
 </script>
 @endsection
@@ -96,5 +116,4 @@
 @endsection
 
 @section('right-sidebar')
-sidebar
 @endsection

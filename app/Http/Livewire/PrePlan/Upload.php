@@ -13,8 +13,11 @@ class Upload extends Component
     use WithFileUploads;
 
     public $file;
+    public string $successMessage = '';
+    public string $errorMessage   = '';
 
-    public function updatedFile() {
+    public function updatedFile(): void
+    {
         $this->validate([
             'file' => [
                 'required',
@@ -23,7 +26,8 @@ class Upload extends Component
         ]);
     }
 
-    public function upload() {
+    public function upload(): void
+    {
         $this->validate([
             'file' => [
                 'required',
@@ -31,11 +35,23 @@ class Upload extends Component
             ]
         ]);
 
-        Excel::import(new PrePlanUploadImport, $this->file);
+        $this->successMessage = '';
+        $this->errorMessage   = '';
 
-        // logs
-        activity('upload')
-            ->log(':causer.firstname :causer.lastname has uploaded pre plans');
+        try {
+            $import = new PrePlanUploadImport;
+            Excel::import($import, $this->file);
+
+            activity('upload')
+                ->log(':causer.firstname :causer.lastname has uploaded pre plans');
+
+            $this->successMessage = "Imported {$import->importedCount} pre-plan(s), skipped {$import->skippedCount} row(s).";
+            $this->file = null;
+            $this->dispatchBrowserEvent('pre-plan-uploaded');
+
+        } catch (\Exception $e) {
+            $this->errorMessage = 'Upload failed. Please check the file format and try again.';
+        }
     }
 
     public function render()

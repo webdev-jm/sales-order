@@ -16,6 +16,9 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, WithChunkReading
 {
+    public int $importedCount = 0;
+    public int $skippedCount  = 0;
+
     public function startRow(): int
     {
         return 2;
@@ -87,7 +90,7 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
         }
 
         // check if no error
-        if($err == 0) {
+        if ($err == 0) {
             // check duplicate
             $pre_plan = PafPrePlan::where('pre_plan_number', $pre_plan_number)->first();
             if(empty($pre_plan)) {
@@ -111,6 +114,8 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
                 ]);
             }
 
+            $this->importedCount++;
+
             return new PafPrePlanDetail([
                 'paf_pre_plan_id' => $pre_plan->id,
                 'product_id' => $product->id ?? NULL,
@@ -128,7 +133,8 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
             ]);
 
         } else {
-            return NULL;
+            $this->skippedCount++;
+            return null;
         }
     }
 
