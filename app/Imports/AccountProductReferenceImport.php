@@ -32,7 +32,7 @@ class AccountProductReferenceImport implements ToModel, WithStartRow
                 'account_id' => $account->id,
                 'product_id' => $product->id,
                 'account_reference' => $row[2],
-                'description' => $row[4],
+                'description' => $row[4] ?? $product->description,
             ]);
 
         } else {

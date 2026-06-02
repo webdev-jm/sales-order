@@ -314,6 +314,10 @@ class PermissionSeeder extends Seeder
                 'ppu form edit'    => 'access to edit ppu form',
                 'ppu form delete'  => 'access to delete ppu form',
             ],
+            'Sales Order Template' => [
+                'so template access'  => 'access to sales order template module',
+                'so template create'  => 'access to create sales order template',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {

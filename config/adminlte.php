@@ -290,200 +290,264 @@ return [
     */
 
     'menu' => [
-        // Navbar items:
-        // [
-        //     'type'         => 'navbar-search',
-        //     'text'         => 'search',
-        //     'topnav_right' => true,
-        // ],
-        // [
-        //     'type'         => 'fullscreen-widget',
-        //     'topnav_right' => true,
-        // ],
-
-        // Sidebar items:
         [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
         ],
         [
-            'text'        => 'Home',
-            'url'         => 'home',
-            'icon'        => 'fas fa-fw fa-home',
+            'text'  => 'Home',
+            'url'   => 'home',
+            'icon'  => 'fas fa-fw fa-home',
         ],
         [
-            'text'      => 'Dashboard',
-            'url'       => 'dashboard',
-            'icon'      => 'fas fa-fw fa-chart-pie',
-            'active'    => ['dashboard*']
+            'text'   => 'Dashboard',
+            'url'    => 'dashboard',
+            'icon'   => 'fas fa-fw fa-tachometer-alt',
+            'active' => ['dashboard*'],
         ],
-        // [
-        //     'text'      => 'remittances',
-        //     'url'       => 'remittance',
-        //     'icon'      => 'fas fa-fw fa-chart-pie',
-        //     'active'    => ['remittance*']
-        // ],
+
+        // TRANSACTIONS
         [
-            'text'      => 'Purchase Orders',
-            'url'       => '/purchase-order',
-            'icon'      => 'fas fa-fw fa-shopping-cart',
-            'can'       => 'purchase order access',
-            'active'    => ['purchase-order*']
+            'text'    => 'Transactions',
+            'icon'    => 'fas fa-fw fa-exchange-alt',
+            'can'     => [
+                'purchase order access',
+                'sales order access',
+                'sales order list',
+                'cm access',
+                'invoice access',
+                'ppu form access',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'Sales Order List',
+                    'url'    => '/list-sales-order/list',
+                    'icon'   => 'fas fa-fw fa-list',
+                    'can'    => 'sales order list',
+                    'active' => ['list-sales-order*'],
+                ],
+                [
+                    'text'   => 'Sales Orders',
+                    'url'    => '/sales-order',
+                    'icon'   => 'fas fa-fw fa-cart-plus',
+                    'can'    => 'sales order access',
+                    'active' => ['sales-order*'],
+                ],
+                [
+                    'text'   => 'Invoice',
+                    'url'    => '/invoice',
+                    'icon'   => 'fas fa-fw fa-file-invoice',
+                    'can'    => 'invoice access',
+                    'active' => ['invoice'],
+                ],
+                [
+                    'text'   => 'Purchase Orders',
+                    'url'    => '/purchase-order',
+                    'icon'   => 'fas fa-fw fa-shopping-cart',
+                    'can'    => 'purchase order access',
+                    'active' => ['purchase-order*'],
+                ],
+                [
+                    'text'   => 'PPU',
+                    'url'    => '/ppu-form',
+                    'icon'   => 'fas fa-fw fa-file',
+                    'can'    => 'ppu form access',
+                    'active' => ['ppu-form*'],
+                ],
+                [
+                    'text'   => 'RUD',
+                    'url'    => '/credit-memo',
+                    'icon'   => 'fas fa-fw fa-credit-card',
+                    'can'    => 'cm access',
+                    'active' => ['credit-memo*'],
+                ],
+            ],
         ],
+
+        // FIELD ACTIVITIES
         [
-            'text'      => 'Sales Orders',
-            'url'       => '/sales-order',
-            'icon'      => 'fas fa-fw fa-cart-plus',
-            'can'       => 'sales order access',
-            'active'    => ['sales-order*']
+            'text'    => 'Field Activities',
+            'icon'    => 'fas fa-fw fa-briefcase',
+            'can'     => [
+                'schedule access',
+                'mcp access',
+                'trip access',
+                'paf access',
+                'pre plan access',
+                'paf activity access',
+                'war access',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'Activity Plan',
+                    'url'    => '/mcp',
+                    'icon'   => 'fas fa-fw fa-clock',
+                    'can'    => 'mcp access',
+                    'active' => ['mcp*'],
+                ],
+                [
+                    'text'   => 'PAF',
+                    'url'    => '/paf',
+                    'icon'   => 'fas fa-fw fa-list',
+                    'can'    => 'paf access',
+                    'active' => ['paf*'],
+                ],
+                [
+                    'text'   => 'PAF Activities',
+                    'url'    => '/paf-activity',
+                    'icon'   => 'fas fa-fw fa-tasks',
+                    'can'    => 'paf activity access',
+                    'active' => ['paf-activity*'],
+                ],
+                [
+                    'text'   => 'Pre Plan',
+                    'url'    => '/pre-plan',
+                    'icon'   => 'fas fa-fw fa-balance-scale-right',
+                    'can'    => 'pre plan access',
+                    'active' => ['pre-plan*'],
+                ],
+                [
+                    'text'   => 'Schedules',
+                    'url'    => '/schedule',
+                    'icon'   => 'fas fa-fw fa-calendar-alt',
+                    'can'    => 'schedule access',
+                    'active' => ['schedule*'],
+                ],
+                [
+                    'text'   => 'Trips',
+                    'url'    => '/trip',
+                    'icon'   => 'fas fa-fw fa-plane',
+                    'can'    => 'trip access',
+                    'active' => ['trip*'],
+                ],
+                [
+                    'text'   => 'Weekly Productivity Report',
+                    'url'    => '/war',
+                    'icon'   => 'fas fa-fw fa-calendar-week',
+                    'can'    => 'war access',
+                    'active' => ['war*'],
+                ],
+            ],
         ],
+
+        // TOOLS
         [
-            'text'      => 'Sales Order List',
-            'url'       => '/list-sales-order/list',
-            'icon'      => 'fas fa-fw fa-list',
-            'can'       => 'sales order list',
-            'active'    => ['list-sales-order*']
+            'text'    => 'Tools',
+            'icon'    => 'fas fa-fw fa-tools',
+            'can'     => [
+                'so template access',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'SO Templates',
+                    'url'    => '/sales-order-template',
+                    'icon'   => 'fas fa-fw fa-file-alt',
+                    'can'    => 'so template access',
+                    'active' => ['sales-order-template*'],
+                ],
+            ],
         ],
+
+        // SALESMEN
         [
-            'text'      => 'RUD',
-            'url'       => '/credit-memo',
-            'icon'      => 'fas fa-fw fa-credit-card',
-            'can'       => 'cm access',
-            'active'    => ['credit-memo*']
+            'text'    => 'Salesmen',
+            'icon'    => 'fas fa-fw fa-user-tie',
+            'can'     => [
+                'salesman access',
+                'salesman location access',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'Salesman Locations',
+                    'url'    => '/salesman-location',
+                    'icon'   => 'fas fa-fw fa-map',
+                    'can'    => 'salesman location access',
+                    'active' => ['salesman-location', 'salesman-location/*'],
+                ],
+                [
+                    'text'   => 'Salesmen',
+                    'url'    => '/salesman',
+                    'icon'   => 'fas fa-fw fa-users',
+                    'can'    => 'salesman access',
+                    'active' => ['salesman', 'salesman/*'],
+                ],
+            ],
         ],
+
+        // REPORTS
         [
-            'text'      => 'Invoice',
-            'url'       => '/invoice',
-            'icon'      => 'fas fa-fw fa-list',
-            'can'       => 'invoice access',
-            'active'    => ['invoice']
+            'text'    => 'Reports',
+            'icon'    => 'fas fa-fw fa-chart-bar',
+            'can'     => [
+                'report access',
+                'productivity report access',
+                'channel operation report',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'COE Reports',
+                    'url'    => '/channel-operation',
+                    'icon'   => 'fas fa-fw fa-window-restore',
+                    'can'    => 'channel operation report',
+                    'active' => ['channel-operation*'],
+                ],
+                [
+                    'text'   => 'MCP Reports',
+                    'url'    => '/combined/report',
+                    'icon'   => 'fas fa-fw fa-chart-pie',
+                    'can'    => 'report access',
+                    'active' => ['combined*'],
+                ],
+                [
+                    'text'   => 'Productivity Reports',
+                    'url'    => '/productivity-report',
+                    'icon'   => 'fas fa-fw fa-chart-line',
+                    'can'    => 'productivity report access',
+                    'active' => ['productivity-report*'],
+                ],
+                [
+                    'text'   => 'Reports',
+                    'url'    => '/report',
+                    'icon'   => 'fas fa-fw fa-chart-bar',
+                    'can'    => 'report access',
+                    'active' => ['report*'],
+                ],
+            ],
         ],
-        [
-            'text'      => 'Schedules',
-            'url'       => '/schedule',
-            'icon'      => 'fas fa-fw fa-calendar-alt',
-            'can'       => 'schedule access',
-            'active'    => ['schedule*']
-        ],
-        [
-            'text'      => 'Activity Plan',
-            'url'       => '/mcp',
-            'icon'      => 'fas fa-fw fa-clock',
-            'can'       => 'mcp access',
-            'active'    => ['mcp*']
-        ],
-        [
-            'text'      => 'Trips',
-            'url'       => '/trip',
-            'icon'      => 'fas fa-fw fa-plane',
-            'can'       => 'trip access',
-            'active'    => ['trip*']
-        ],
-        [
-            'text'      => 'PAF',
-            'url'       => '/paf',
-            'icon'      => 'fas fa-fw fa-list',
-            'can'       => 'paf access',
-            'active'    => ['paf*']
-        ],
-        [
-            'text'      => 'Pre Plan',
-            'url'       => '/pre-plan',
-            'icon'      => 'fas fa-fw fa-balance-scale-right',
-            'can'       => 'pre plan access',
-            'active'    => ['pre-plan*']
-        ],
-        [
-            'text'      => 'PAF Activities',
-            'url'       => '/paf-activity',
-            'icon'      => 'fas fa-fw fa-balance-scale-right',
-            'can'       => 'paf activity access',
-            'active'    => ['paf-activity*']
-        ],
-        [
-            'text'      => 'Weekly Productivity Report',
-            'url'       => '/war',
-            'icon'      => 'fas fa-fw fa-calendar-week',
-            'can'       => 'war access',
-            'active'    => ['war*']
-        ],
-        [
-            'text'      => 'Reports',
-            'url'       => '/report',
-            'icon'      => 'fas fa-fw fa-chart-bar',
-            'can'       => 'report access',
-            'active'    => ['report*']
-        ],
-        [
-            'text'      => 'MCP Reports',
-            'url'       => '/combined/report',
-            'icon'      => 'fas fa-fw fa-chart-pie',
-            'can'       => 'report access',
-            'active'    => ['combined*']
-        ],
-        [
-            'text'      => 'Productivity Reports',
-            'url'       => '/productivity-report',
-            'icon'      => 'fas fa-fw fa-chart-line',
-            'can'       => 'productivity report access',
-            'active'    => ['productivity-report*']
-        ],
-        [
-            'text'      => 'Salesmen',
-            'url'       => '/salesman',
-            'icon'      => 'fas fa-fw fa-users',
-            'can'       => 'salesman access',
-            'active'    => ['salesman', 'salesman/*']
-        ],
-        [
-            'text'      => 'Salesman Locations',
-            'url'       => '/salesman-location',
-            'icon'      => 'fas fa-fw fa-map',
-            'can'       => 'salesman location access',
-            'active'    => ['salesman-location', 'salesman-location/*']
-        ],
-        [
-            'text'      => 'COE Reports',
-            'url'       => '/channel-operation',
-            'icon'      => 'fas fa-fw fa-window-restore',
-            'can'       => 'channel operation report',
-            'active'    => ['channel-operation*']
-        ],
-        [
-            'text'      => 'PPU',
-            'url'       => '/ppu-form',
-            'icon'      => 'fas fa-fw fa-file',
-            'can'       => 'ppu form access',
-            'active'    => ['ppu-form*']
-        ],
+
         // DMS
         [
-            'header'    => 'DMS',
-            'can'       => [
+            'text'    => 'DMS',
+            'icon'    => 'fas fa-fw fa-network-wired',
+            'can'     => [
                 'district access',
                 'territory access',
             ],
+            'submenu' => [
+                [
+                    'text'   => 'Districts',
+                    'url'    => '/district',
+                    'icon'   => 'fas fa-fw fa-network-wired',
+                    'can'    => 'district access',
+                    'active' => ['district*'],
+                ],
+                [
+                    'text'   => 'Territories',
+                    'url'    => '/territory',
+                    'icon'   => 'fas fa-fw fa-map-pin',
+                    'can'    => 'territory access',
+                    'active' => ['territory*'],
+                ],
+            ],
         ],
-        [
-            'text'      => 'Districts',
-            'url'       => '/district',
-            'icon'      => 'fas fa-fw fa-network-wired',
-            'can'       => 'district access',
-            'active'    => ['district*']
-        ],
-        [
-            'text'      => 'Territories',
-            'url'       => '/territory',
-            'icon'      => 'fas fa-fw fa-map-pin',
-            'can'       => 'territory access',
-            'active'    => ['territory*']
-        ],
+
         // MAINTENANCE
         [
-            'header'    => 'maintenance',
-            'can'       => [
+            'text'    => 'Maintenance',
+            'icon'    => 'fas fa-fw fa-tools',
+            'can'     => [
                 'department access',
-                'SO cut-off access',
+                'so cut-off access',
                 'company access',
                 'discount access',
                 'account access',
@@ -494,257 +558,237 @@ return [
                 'sales people access',
                 'operation process access',
                 'cm reason access',
-            ]
+                'brand access',
+                'account reference access',
+                'ship address mapping access',
+                'branch address access',
+                'region access',
+                'classification access',
+                'area access',
+                'cost center access',
+                'holiday access',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'Account Reference',
+                    'url'    => '/reference-account',
+                    'icon'   => 'fas fa-fw fa-hashtag',
+                    'can'    => 'account reference access',
+                    'active' => ['reference-account*'],
+                ],
+                [
+                    'text'   => 'Accounts',
+                    'url'    => '/account',
+                    'icon'   => 'fas fa-fw fa-file-invoice',
+                    'can'    => 'account access',
+                    'active' => ['account*', 'shipping-address*'],
+                ],
+                [
+                    'text'   => 'Areas',
+                    'url'    => '/area',
+                    'icon'   => 'fas fa-fw fa-globe',
+                    'can'    => 'area access',
+                    'active' => ['area*'],
+                ],
+                [
+                    'text'   => 'Branch Address',
+                    'url'    => '/branch-address',
+                    'icon'   => 'fas fa-fw fa-globe',
+                    'can'    => 'branch address access',
+                    'active' => ['branch-address*'],
+                ],
+                [
+                    'text'   => 'Branches',
+                    'url'    => '/branch',
+                    'icon'   => 'fas fa-fw fa-code-branch',
+                    'can'    => 'branch access',
+                    'active' => ['branch*'],
+                ],
+                [
+                    'text'   => 'Brands',
+                    'url'    => '/brand',
+                    'icon'   => 'fas fa-fw fa-copyright',
+                    'can'    => 'brand access',
+                    'active' => ['brand*'],
+                ],
+                [
+                    'text'   => 'Classifications',
+                    'url'    => '/classification',
+                    'icon'   => 'fas fa-fw fa-store',
+                    'can'    => 'classification access',
+                    'active' => ['classification*'],
+                ],
+                [
+                    'text'   => 'CM Reasons',
+                    'url'    => '/cm-reason',
+                    'icon'   => 'fas fa-fw fa-comment',
+                    'can'    => 'cm reason access',
+                    'active' => ['cm-reason*'],
+                ],
+                [
+                    'text'   => 'Companies',
+                    'url'    => '/company',
+                    'icon'   => 'fas fa-fw fa-building',
+                    'can'    => 'company access',
+                    'active' => ['company*'],
+                ],
+                [
+                    'text'   => 'Cost Centers',
+                    'url'    => '/cost-center',
+                    'icon'   => 'fas fa-fw fa-user-cog',
+                    'can'    => 'cost center access',
+                    'active' => ['cost-center*'],
+                ],
+                [
+                    'text'   => 'Departments',
+                    'url'    => '/department',
+                    'icon'   => 'fas fa-fw fa-layer-group',
+                    'can'    => 'department access',
+                    'active' => ['department*'],
+                ],
+                [
+                    'text'   => 'Discounts',
+                    'url'    => '/discount',
+                    'icon'   => 'fas fa-fw fa-tag',
+                    'can'    => 'discount access',
+                    'active' => ['discount*'],
+                ],
+                [
+                    'text'   => 'Holidays',
+                    'url'    => '/holiday',
+                    'icon'   => 'fas fa-fw fa-calendar-day',
+                    'can'    => 'holiday access',
+                    'active' => ['holiday*'],
+                ],
+                [
+                    'text'   => 'Invoice Terms',
+                    'url'    => '/invoice-term',
+                    'icon'   => 'fas fa-fw fa-asterisk',
+                    'can'    => 'invoice term access',
+                    'active' => ['invoice-term*'],
+                ],
+                [
+                    'text'   => 'Operation Processes',
+                    'url'    => '/operation-process',
+                    'icon'   => 'fas fa-fw fa-microchip',
+                    'can'    => 'operation process access',
+                    'active' => ['operation-process*'],
+                ],
+                [
+                    'text'   => 'Price Codes',
+                    'url'    => '/price-code',
+                    'icon'   => 'fas fa-fw fa-money-bill',
+                    'can'    => 'price code access',
+                    'active' => ['price-code*'],
+                ],
+                [
+                    'text'   => 'Products',
+                    'url'    => '/product',
+                    'icon'   => 'fas fa-fw fa-box',
+                    'can'    => 'product access',
+                    'active' => ['product', 'product/create', 'product/*'],
+                ],
+                [
+                    'text'   => 'Regions',
+                    'url'    => '/region',
+                    'icon'   => 'fas fa-fw fa-map',
+                    'can'    => 'region access',
+                    'active' => ['region*'],
+                ],
+                [
+                    'text'   => 'Sales People',
+                    'url'    => '/sales-people',
+                    'icon'   => 'fas fa-fw fa-universal-access',
+                    'can'    => 'sales people access',
+                    'active' => ['sales-people*'],
+                ],
+                [
+                    'text'   => 'Ship Address Mapping',
+                    'url'    => '/ship-address-mapping',
+                    'icon'   => 'fas fa-fw fa-map-signs',
+                    'can'    => 'ship address mapping access',
+                    'active' => ['ship-address-mapping*'],
+                ],
+                [
+                    'text'   => 'SO Cut-offs',
+                    'url'    => '/cut-off',
+                    'icon'   => 'fas fa-fw fa-clock',
+                    'can'    => 'so cut-off access',
+                    'active' => ['cut-off*'],
+                ],
+            ],
         ],
+
+        // SYSTEM
         [
-            'text'      => 'CM Reasons',
-            'url'       => '/cm-reason',
-            'icon'      => 'fas fa-fw fa-comment',
-            'can'       => 'cm reason access',
-            'active'    => ['cm-reason*']
-        ],
-        [
-            'text'      => 'Departments',
-            'url'       => '/department',
-            'icon'      => 'fas fa-fw fa-layer-group',
-            'can'       => 'department access',
-            'active'    => ['department*']
-        ],
-        [
-            'text'      => 'SO Cut-offs',
-            'url'       => '/cut-off',
-            'icon'      => 'fas fa-fw fa-clock',
-            'can'       => 'so cut-off access',
-            'active'    => ['cut-off*']
-        ],
-        [
-            'text'      => 'Companies',
-            'url'       => '/company',
-            'icon'      => 'fas fa-fw fa-building',
-            'can'       => 'company access',
-            'active'    => ['company*']
-        ],
-        [
-            'text'      => 'Discounts',
-            'url'       => '/discount',
-            'icon'      => 'fas fa-fw fa-tag',
-            'can'       => 'discount access',
-            'active'    => ['discount*']
-        ],
-        [
-            'text'      => 'Invoice Terms',
-            'url'       => '/invoice-term',
-            'icon'      => 'fas fa-fw fa-asterisk',
-            'can'       => 'invoice term access',
-            'active'    => ['invoice-term*']
-        ],
-        [
-           'text'      => 'Brands',
-            'url'       => '/brand',
-            'icon'      => 'fas fa-fw fa-copyright',
-            'can'       => 'brand access',
-            'active'    => ['brand*']
-        ],
-        [
-            'text'      => 'Products',
-            'url'       => '/product',
-            'icon'      => 'fas fa-fw fa-box',
-            'can'       => 'product access',
-            'active'    => ['product', 'product/create', 'product/*']
-        ],
-        [
-            'text'      => 'Price Codes',
-            'url'       => '/price-code',
-            'icon'      => 'fas fa-fw fa-money-bill',
-            'can'       => 'price code access',
-            'active'    => ['price-code*']
-        ],
-        [
-            'text'      => 'Accounts',
-            'url'       => '/account',
-            'icon'      => 'fas fa-fw fa-file-invoice',
-            'can'       => 'account access',
-            'active'    => ['account*', 'shipping-address*']
-        ],
-        [
-            'text'      => 'Account Reference',
-            'url'       => '/reference-account',
-            'icon'      => 'fas fa-fw fa-hashtag',
-            'can'       => 'account reference access',
-            'active'    => ['reference-account*']
-        ],
-        [
-            'text'      => 'Ship Address Mapping',
-            'url'       => '/ship-address-mapping',
-            'icon'      => 'fas fa-fw fa-map-signs',
-            'can'       => 'ship address mapping access',
-            'active'    => ['ship-address-mapping*']
-        ],
-        [
-            'text'      => 'Branches',
-            'url'       => '/branch',
-            'icon'      => 'fas fa-fw fa-code-branch',
-            'can'       => 'branch access',
-            'active'    => ['branch*']
-        ],
-        [
-            'text'      => 'Branch Address',
-            'url'       => '/branch-address',
-            'icon'      => 'fas fa-fw fa-globe',
-            'can'       => 'branch address access',
-            'active'    => ['branch-address*']
-        ],
-        [
-            'text'      => 'Regions',
-            'url'       => '/region',
-            'icon'      => 'fas fa-fw fa-map',
-            'can'       => 'region access',
-            'active'    => ['region*']
-        ],
-        [
-            'text'      => 'Classifications',
-            'url'       => '/classification',
-            'icon'      => 'fas fa-fw fa-store',
-            'can'       => 'classification access',
-            'active'    => ['classification*']
-        ],
-        [
-            'text'      => 'Areas',
-            'url'       => '/area',
-            'icon'      => 'fas fa-fw fa-globe',
-            'can'       => 'area access',
-            'active'    => ['area*']
-        ],
-        [
-            'text'      => 'Sales People',
-            'url'       => '/sales-people',
-            'icon'      => 'fas fa-fw fa-universal-access',
-            'can'       => 'sales people access',
-            'active'    => ['sales-people*']
-        ],
-        [
-            'text'      => 'Operation Processes',
-            'url'       => '/operation-process',
-            'icon'      => 'fas fa-fw fa-microchip',
-            'can'       => 'operation process access',
-            'active'    => ['operation-process*']
-        ],
-        [
-            'text'      => 'Cost Centers',
-            'url'       => '/cost-center',
-            'icon'      => 'fas fa-fw fa-user-cog',
-            'can'       => 'cost center access',
-            'active'    => ['cost-center*']
-        ],
-        [
-            'text'      => 'Holidays',
-            'url'       => '/holiday',
-            'icon'      => 'fas fa-fw fa-calendar-day',
-            'can'       => 'holiday access',
-            'active'    => ['holiday*']
-        ],
-        [
-            'header'    => 'system_menu',
-            'can'       => [
+            'text'    => 'System',
+            'icon'    => 'fas fa-fw fa-cogs',
+            'can'     => [
                 'user access',
                 'role access',
-                'settings access',
-                'account login access'
-            ]
+                'settings',
+                'account login access',
+                'organizational structure access',
+                'system logs',
+            ],
+            'submenu' => [
+                [
+                    'text'   => 'Account Logins',
+                    'url'    => '/login-account',
+                    'icon'   => 'fas fa-fw fa-user-clock',
+                    'can'    => 'account login access',
+                    'active' => ['login-account*'],
+                ],
+                [
+                    'text'   => 'Error Logs',
+                    'url'    => '/logs',
+                    'icon'   => 'fas fa-fw fa-bug',
+                    'can'    => 'role access',
+                    'active' => ['logs*'],
+                ],
+                [
+                    'text'   => 'Organization Structure',
+                    'url'    => '/organizational-structure',
+                    'icon'   => 'fas fa-fw fa-sitemap',
+                    'can'    => 'organizational structure access',
+                    'active' => ['organizational-structure*'],
+                ],
+                [
+                    'text'   => 'Roles',
+                    'url'    => '/role',
+                    'icon'   => 'fas fa-fw fa-user-tag',
+                    'can'    => 'role access',
+                    'active' => ['role*'],
+                ],
+                [
+                    'text'   => 'Settings',
+                    'url'    => '/setting',
+                    'icon'   => 'fas fa-fw fa-wrench',
+                    'can'    => 'settings',
+                    'active' => ['setting*'],
+                ],
+                [
+                    'text'   => 'System Logs',
+                    'url'    => '/system-logs',
+                    'icon'   => 'fas fa-fw fa-business-time',
+                    'can'    => 'system logs',
+                    'active' => ['system-logs*'],
+                ],
+                [
+                    'text'   => 'Upload Templates',
+                    'url'    => '/upload-template',
+                    'icon'   => 'fas fa-fw fa-upload',
+                    'active' => ['upload-template*'],
+                ],
+                [
+                    'text'   => 'Users',
+                    'url'    => '/user',
+                    'icon'   => 'fas fa-fw fa-users',
+                    'can'    => 'user access',
+                    'active' => ['user*'],
+                ],
+            ],
         ],
-        [
-            'text'      => 'Account Logins',
-            'url'       => '/login-account',
-            'icon'      => 'fas fa-fw fa-user-clock',
-            'can'       => 'account login access',
-            'active'    => ['login-account*']
-        ],
-        [
-            'text'      => 'Users',
-            'url'       => '/user',
-            'icon'      => 'fas fa-fw fa-users',
-            'can'       => 'user access',
-            'active'    => ['user*']
-        ],
-        [
-            'text'      => 'Organization Structure',
-            'url'       => '/organizational-structure',
-            'icon'      => 'fas fa-fw fa-sitemap',
-            'can'       => 'organizational structure access',
-            'active'    => ['organizational-structure*']
-        ],
-        [
-            'text'      => 'Upload Templates',
-            'url'       => '/upload-template',
-            'icon'      => 'fas fa-fw fa-sitemap',
-            'active'    => ['upload-template*']
-        ],
-        [
-            'text'      => 'Roles',
-            'url'       => '/role',
-            'icon'      => 'fas fa-fw fa-user-tag',
-            'can'       => 'role access',
-            'active'    => ['role*']
-        ],
-        [
-            'text'      => 'System Logs',
-            'url'       => '/system-logs',
-            'icon'      => 'fas fa-fw fa-business-time',
-            'can'       => 'system logs',
-            'active'    => ['system-logs*']
-        ],
-        [
-            'text'      => 'Settings',
-            'url'       => '/setting',
-            'icon'      => 'fas fa-fw fa-wrench',
-            'can'       => 'settings',
-            'active'    => ['setting*']
-        ],
-        [
-            'text'      => 'Error Logs',
-            'url'       => '/logs',
-            'icon'      => 'fas fa-fw fa-bug',
-            'can'       => 'role access',
-            'active'    => ['logs*']
-        ],
-        // [
-        //     'text'    => 'multilevel',
-        //     'icon'    => 'fas fa-fw fa-share',
-        //     'submenu' => [
-        //         [
-        //             'text' => 'level_one',
-        //             'url'  => '#',
-        //         ],
-        //         [
-        //             'text'    => 'level_one',
-        //             'url'     => '#',
-        //             'submenu' => [
-        //                 [
-        //                     'text' => 'level_two',
-        //                     'url'  => '#',
-        //                 ],
-        //                 [
-        //                     'text'    => 'level_two',
-        //                     'url'     => '#',
-        //                     'submenu' => [
-        //                         [
-        //                             'text' => 'level_three',
-        //                             'url'  => '#',
-        //                         ],
-        //                         [
-        //                             'text' => 'level_three',
-        //                             'url'  => '#',
-        //                         ],
-        //                     ],
-        //                 ],
-        //             ],
-        //         ],
-        //         [
-        //             'text' => 'level_one',
-        //             'url'  => '#',
-        //         ],
-        //     ],
-        // ],
     ],
 
     /*

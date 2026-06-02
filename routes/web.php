@@ -17,7 +17,8 @@ use App\Http\Controllers\{
     SalesDashboardController, TripController, SalesOrderMultipleController, DepartmentController,
     PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
     PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
-    PPUFormController, PPUFormMultipleController, CreditMemoReasonController, CreditMemoController, BranchAddressController
+    PPUFormController, PPUFormMultipleController, CreditMemoReasonController, CreditMemoController, BranchAddressController,
+    SalesOrderTemplateController
 };
 
 /*
@@ -73,6 +74,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // SALES DASHBOARD
     Route::get('sales-dashboard', [SalesDashboardController::class, 'index'])->name('sales-dashboard.index')->middleware('permission:sales dashboard');
+
+    // SALES ORDER TEMPLATE
+    Route::group(['middleware' => 'permission:so template access'], function() {
+        Route::get('sales-order-template', [SalesOrderTemplateController::class, 'index'])->name('sales-order-template.index');
+    });
 
     // CREDIT MEMO
     Route::group(['middleware' => 'permission:cm access'], function() {
