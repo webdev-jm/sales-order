@@ -102,6 +102,7 @@ class FormBuilder
     public function checkbox(string $name, $value = 1, $checked = null, array $options = []): HtmlString
     {
         $attrs = array_merge($options, ['type' => 'checkbox', 'name' => $name, 'value' => $value]);
+        $attrs = $this->withDefaultId($name, $attrs);
 
         if ($checked) {
             $attrs['checked'] = 'checked';
@@ -113,6 +114,7 @@ class FormBuilder
     public function radio(string $name, $value = null, $checked = null, array $options = []): HtmlString
     {
         $attrs = array_merge($options, ['type' => 'radio', 'name' => $name, 'value' => $value]);
+        $attrs = $this->withDefaultId($name, $attrs);
 
         if ($checked) {
             $attrs['checked'] = 'checked';
@@ -124,6 +126,7 @@ class FormBuilder
     public function textarea(string $name, $value = null, array $options = []): HtmlString
     {
         $attrs = array_merge($options, ['name' => $name]);
+        $attrs = $this->withDefaultId($name, $attrs);
 
         if (! isset($attrs['rows'])) {
             $attrs['rows'] = 10;
@@ -142,6 +145,7 @@ class FormBuilder
     public function select(string $name, array $list = [], $selected = null, array $options = []): HtmlString
     {
         $attrs = array_merge($options, ['name' => $name]);
+        $attrs = $this->withDefaultId($name, $attrs);
         $attrString  = $this->attributesToString($attrs);
         $optionsHtml = $this->buildOptions($list, $selected);
 
@@ -167,12 +171,22 @@ class FormBuilder
     protected function input(string $type, string $name, $value, array $options): HtmlString
     {
         $attrs = array_merge($options, ['type' => $type, 'name' => $name]);
+        $attrs = $this->withDefaultId($name, $attrs);
 
         if ($type !== 'password' && $value !== null) {
             $attrs['value'] = $value;
         }
 
         return new HtmlString('<input' . $this->attributesToString($attrs) . '>');
+    }
+
+    protected function withDefaultId(string $name, array $attrs): array
+    {
+        if (! isset($attrs['id'])) {
+            $attrs['id'] = $name;
+        }
+
+        return $attrs;
     }
 
     protected function resolveAction(array $options): string
