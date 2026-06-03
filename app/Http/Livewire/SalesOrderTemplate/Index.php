@@ -4,9 +4,11 @@ namespace App\Http\Livewire\SalesOrderTemplate;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Livewire\WithPagination;
 
 use App\Models\Account;
 use App\Models\Product;
+use App\Models\PuregoldStoreMap;
 use App\Models\ShippingAddress;
 use App\Models\AccountProductReference;
 use App\Models\AccountShipAddressMapping;
@@ -19,12 +21,43 @@ use Maatwebsite\Excel\Facades\Excel;
 class Index extends Component
 {
     use WithFileUploads;
+    use WithPagination;
+
+    protected $paginationTheme = 'bootstrap';
 
     public $file;
     public array $account_ids = [];
     public $accountSearch = '';
     public $step = 1;
     public $summary = [];
+
+    public string $activeTab    = 'upload';
+
+    // Store Map
+    public string $storeMapSearch = '';
+    public string $newStoreCode   = '';
+    public string $newBeviCode    = '';
+    public ?int   $editingId      = null;
+    public string $editStoreCode  = '';
+    public string $editBeviCode   = '';
+
+    // Product Map — filters
+    public string $productMapSearch    = '';
+    public string $productMapAccountId = '';
+
+    // Product Map — add form
+    public string $newPmAccountId     = '';
+    public string $newPmAccountRef    = '';
+    public string $newPmProductId     = '';
+    public string $newPmDescription   = '';
+    public string $newPmProductSearch = '';
+
+    // Product Map — inline edit
+    public ?int   $pmEditingId        = null;
+    public string $pmEditAccountRef   = '';
+    public string $pmEditProductId    = '';
+    public string $pmEditDescription  = '';
+    public string $pmEditProductSearch = '';
 
     protected $rules = [
         'account_ids'   => 'required|array|min:1',
@@ -73,6 +106,133 @@ class Index extends Component
         $this->step = 1;
     }
 
+    public function setTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+    }
+
+    public function updatingStoreMapSearch(): void
+    {
+        $this->resetPage('sm_page');
+    }
+
+    public function updatingProductMapSearch(): void
+    {
+        $this->resetPage('pm_page');
+    }
+
+    public function updatingProductMapAccountId(): void
+    {
+        $this->resetPage('pm_page');
+    }
+
+    public function addStoreMap(): void
+    {
+        $this->validate([
+            'newStoreCode' => 'required|string|unique:puregold_store_maps,store_code',
+            'newBeviCode'  => 'required|string',
+        ], [
+            'newStoreCode.unique' => 'That store code already exists.',
+        ]);
+
+        PuregoldStoreMap::create([
+            'store_code' => trim($this->newStoreCode),
+            'bevi_code'  => trim($this->newBeviCode),
+        ]);
+
+        $this->reset('newStoreCode', 'newBeviCode');
+    }
+
+    public function startEdit(int $id): void
+    {
+        $map = PuregoldStoreMap::findOrFail($id);
+        $this->editingId    = $map->id;
+        $this->editStoreCode = $map->store_code;
+        $this->editBeviCode  = $map->bevi_code;
+    }
+
+    public function saveEdit(): void
+    {
+        $this->validate([
+            'editStoreCode' => 'required|string|unique:puregold_store_maps,store_code,' . $this->editingId,
+            'editBeviCode'  => 'required|string',
+        ], [
+            'editStoreCode.unique' => 'That store code already exists.',
+        ]);
+
+        PuregoldStoreMap::findOrFail($this->editingId)->update([
+            'store_code' => trim($this->editStoreCode),
+            'bevi_code'  => trim($this->editBeviCode),
+        ]);
+
+        $this->cancelEdit();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset('editingId', 'editStoreCode', 'editBeviCode');
+    }
+
+    public function deleteStoreMap(int $id): void
+    {
+        PuregoldStoreMap::findOrFail($id)->delete();
+    }
+
+    public function addProductMap(): void
+    {
+        $this->validate([
+            'newPmAccountId'  => 'required|exists:accounts,id',
+            'newPmAccountRef' => 'required|string',
+            'newPmProductId'  => 'required|exists:products,id',
+        ]);
+
+        AccountProductReference::create([
+            'account_id'        => $this->newPmAccountId,
+            'product_id'        => $this->newPmProductId,
+            'account_reference' => trim($this->newPmAccountRef),
+            'description'       => trim($this->newPmDescription),
+            'active'            => 1,
+        ]);
+
+        $this->reset('newPmAccountId', 'newPmAccountRef', 'newPmProductId', 'newPmDescription', 'newPmProductSearch');
+    }
+
+    public function startEditPm(int $id): void
+    {
+        $ref = AccountProductReference::findOrFail($id);
+        $this->pmEditingId         = $ref->id;
+        $this->pmEditAccountRef    = $ref->account_reference;
+        $this->pmEditProductId     = (string) $ref->product_id;
+        $this->pmEditDescription   = (string) $ref->description;
+        $this->pmEditProductSearch = '';
+    }
+
+    public function saveEditPm(): void
+    {
+        $this->validate([
+            'pmEditAccountRef' => 'required|string',
+            'pmEditProductId'  => 'required|exists:products,id',
+        ]);
+
+        AccountProductReference::findOrFail($this->pmEditingId)->update([
+            'account_reference' => trim($this->pmEditAccountRef),
+            'product_id'        => $this->pmEditProductId,
+            'description'       => trim($this->pmEditDescription),
+        ]);
+
+        $this->cancelEditPm();
+    }
+
+    public function cancelEditPm(): void
+    {
+        $this->reset('pmEditingId', 'pmEditAccountRef', 'pmEditProductId', 'pmEditDescription', 'pmEditProductSearch');
+    }
+
+    public function deleteProductMap(int $id): void
+    {
+        AccountProductReference::findOrFail($id)->delete();
+    }
+
     public function export()
     {
         $rows = Session::get('so_template_rows', []);
@@ -87,7 +247,7 @@ class Index extends Component
             'cancellation_date', 'depot', 'del_loc', 'po_remarks', 'raw_sku',
             'sku_code', 'description', 'qty', 'list_price', 'amount',
             'internal_sku', 'product_name',
-            'shipping_name', 'shipping_address', 'lookup_status',
+            'shipping_name', 'shipping_address', 'account_code', 'account_name', 'lookup_status',
         ];
 
         return response()->streamDownload(function () use ($rows, $columns) {
@@ -104,8 +264,42 @@ class Index extends Component
     {
         $rows         = Session::get('so_template_rows', []);
         $templatePath = public_path('assets/SMS Multiple PO upload Format.xlsx');
-        $filename     = 'so_upload_template_' . date('Ymd_His') . '.xlsx';
+        $grouped      = collect($rows)->groupBy(fn($row) => $row['account_code'] ?? 'unknown');
 
+        if ($grouped->count() === 1) {
+            $accountCode = $grouped->keys()->first();
+            $tempPath    = $this->buildTemplateFile($templatePath, $grouped->first()->all());
+            $filename    = 'so_template_' . $accountCode . '_' . date('Ymd_His') . '.xlsx';
+
+            return response()->download($tempPath, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ])->deleteFileAfterSend(true);
+        }
+
+        $zipPath   = tempnam(sys_get_temp_dir(), 'so_templates_') . '.zip';
+        $zip       = new \ZipArchive();
+        $zip->open($zipPath, \ZipArchive::CREATE);
+        $tempFiles = [];
+
+        foreach ($grouped as $accountCode => $accountRows) {
+            $xlsxPath    = $this->buildTemplateFile($templatePath, $accountRows->all());
+            $tempFiles[] = $xlsxPath;
+            $zip->addFile($xlsxPath, "so_template_{$accountCode}.xlsx");
+        }
+
+        $zip->close();
+
+        foreach ($tempFiles as $f) {
+            @unlink($f);
+        }
+
+        return response()->download($zipPath, 'so_upload_templates_' . date('Ymd_His') . '.zip', [
+            'Content-Type' => 'application/zip',
+        ])->deleteFileAfterSend(true);
+    }
+
+    private function buildTemplateFile(string $templatePath, array $rows): string
+    {
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($templatePath);
         $sheet       = $spreadsheet->getActiveSheet();
 
@@ -113,7 +307,7 @@ class Index extends Component
         foreach ($rows as $row) {
             $sheet->setCellValue("A{$startRow}", $row['po_number']     ?? '');
             $sheet->setCellValue("B{$startRow}", $row['delivery_date'] ?? '');
-            $sheet->setCellValue("C{$startRow}", $row['store_code'] ?? '');
+            $sheet->setCellValue("C{$startRow}", $row['store_code']    ?? '');
             $sheet->setCellValue("D{$startRow}", $row['internal_sku']  ?? '');
             $sheet->setCellValue("E{$startRow}", $row['qty']           ?? '');
             $sheet->setCellValue("F{$startRow}", $row['uom']           ?? '');
@@ -127,9 +321,7 @@ class Index extends Component
         $tempPath = tempnam(sys_get_temp_dir(), 'so_template_') . '.xlsx';
         $writer->save($tempPath);
 
-        return response()->download($tempPath, $filename, [
-            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ])->deleteFileAfterSend(true);
+        return $tempPath;
     }
 
     public function exportExcel()
@@ -146,9 +338,13 @@ class Index extends Component
 
     private function parseFile(string $path): void
     {
-        $handle     = fopen($path, 'r');
-        $rows       = [];
-        $accountIds = array_map('intval', $this->account_ids);
+        $handle       = fopen($path, 'r');
+        $rows         = [];
+        $accountIds   = array_map('intval', $this->account_ids);
+        $accountsById = Account::whereIn('id', $accountIds)
+            ->get(['id', 'account_code', 'account_name'])
+            ->keyBy('id');
+        $storeMap     = PuregoldStoreMap::pluck('bevi_code', 'store_code')->all();
 
         $summary = [
             'total'            => 0,
@@ -174,7 +370,8 @@ class Index extends Component
             $addressData = $this->lookupShippingAddress(
                 $parsed['store_code'],
                 $parsed['store_name'],
-                $accountIds
+                $accountIds,
+                $storeMap
             );
 
             $skuMissing  = empty($productData['product_id']);
@@ -190,7 +387,14 @@ class Index extends Component
                 $status = 'ok';
             }
 
-            $rows[] = array_merge($parsed, $productData, $addressData, ['lookup_status' => $status]);
+            $accountId   = $addressData['account_id'] ?? null;
+            $account     = $accountId ? ($accountsById[$accountId] ?? null) : null;
+
+            $rows[] = array_merge($parsed, $productData, $addressData, [
+                'lookup_status' => $status,
+                'account_code'  => $account?->account_code,
+                'account_name'  => $account?->account_name,
+            ]);
 
             $summary['total']++;
             $summary[$status]++;
@@ -317,16 +521,16 @@ class Index extends Component
         ];
     }
 
-    private function lookupShippingAddress(string $storeCode, string $storeName, array $accountIds): array
+    private function lookupShippingAddress(string $storeCode, string $storeName, array $accountIds, array $storeMap = []): array
     {
-        $empty = ['shipping_address_id' => null, 'shipping_name' => null, 'shipping_address' => null];
+        $empty = ['account_id' => null, 'shipping_address_id' => null, 'shipping_name' => null, 'shipping_address' => null];
 
         if ((empty($storeCode) && empty($storeName)) || empty($accountIds)) {
             return $empty;
         }
 
-        // 1. Static Puregold → BEVI code mapping
-        $lookupCode = self::PUREGOLD_STORE_MAP[$storeCode] ?? $storeCode;
+        // 1. Puregold → BEVI code mapping (from DB)
+        $lookupCode = $storeMap[$storeCode] ?? $storeCode;
 
         // 2. Exact address_code match using mapped code
         $address = ShippingAddress::whereIn('account_id', $accountIds)
@@ -369,46 +573,13 @@ class Index extends Component
         ]));
 
         return [
+            'account_id'          => $address->account_id,
             'store_code'          => $address->address_code,
             'shipping_address_id' => $address->id,
             'shipping_name'       => $address->ship_to_name,
             'shipping_address'    => $fullAddress,
         ];
     }
-
-    // -------------------------------------------------------------------------
-    // Static Puregold → BEVI address_code mapping
-    // -------------------------------------------------------------------------
-
-    private const PUREGOLD_STORE_MAP = [
-        '1034' => '1034',
-        '1031' => '01031',
-        '1032' => '1032',
-        '1021' => '01021',
-        '1033' => '01033',
-        '1026' => '01026',
-        '1029' => '1029',
-        '1035' => '1035',
-        '1025' => '01025',
-        '1028' => '1028',
-        '1027' => '1027',
-        '1037' => '01037',
-        '1036' => '01036',
-        '1039' => '01039',
-        '1038' => '01038',
-        '1041' => '01041',
-        '1042' => '01042',
-        '1043' => '01043',
-        '1044' => '1044',
-        '1052' => '1052',
-        '1053' => '1053',
-        '1051' => '1051',
-        '1050' => '1050',
-        '1049' => '1049',
-        '1057' => '1057',
-        '1059' => '1059',
-        '1060' => '1060',
-    ];
 
     // -------------------------------------------------------------------------
     // Helpers
@@ -492,10 +663,50 @@ class Index extends Component
             ->limit(50)
             ->get(['id', 'account_code', 'account_name']);
 
+        $storeMaps = PuregoldStoreMap::query()
+            ->when($this->storeMapSearch, fn($q) => $q
+                ->where('store_code', 'like', "%{$this->storeMapSearch}%")
+                ->orWhere('bevi_code', 'like', "%{$this->storeMapSearch}%"))
+            ->orderBy('store_code')
+            ->paginate(20, ['*'], 'sm_page');
+
+        $productMaps = AccountProductReference::with([
+                'account:id,account_code,account_name',
+                'product:id,stock_code,description,size',
+            ])
+            ->when($this->productMapAccountId, fn($q) => $q->where('account_id', $this->productMapAccountId))
+            ->when($this->productMapSearch, fn($q) => $q
+                ->where('account_reference', 'like', "%{$this->productMapSearch}%")
+                ->orWhereHas('product', fn($pq) => $pq
+                    ->where('stock_code', 'like', "%{$this->productMapSearch}%")
+                    ->orWhere('description', 'like', "%{$this->productMapSearch}%")))
+            ->orderBy('account_id')->orderBy('account_reference')
+            ->paginate(20, ['*'], 'pm_page');
+
+        $pmProducts = Product::query()
+            ->when($this->newPmProductSearch, fn($q) => $q
+                ->where('stock_code', 'like', "%{$this->newPmProductSearch}%")
+                ->orWhere('description', 'like', "%{$this->newPmProductSearch}%"))
+            ->orderBy('stock_code')
+            ->limit(30)
+            ->get(['id', 'stock_code', 'description', 'size']);
+
+        $pmEditProducts = Product::query()
+            ->when($this->pmEditProductSearch, fn($q) => $q
+                ->where('stock_code', 'like', "%{$this->pmEditProductSearch}%")
+                ->orWhere('description', 'like', "%{$this->pmEditProductSearch}%"))
+            ->orderBy('stock_code')
+            ->limit(30)
+            ->get(['id', 'stock_code', 'description', 'size']);
+
         return view('livewire.sales-order-template.index', [
-            'rows'     => $rows,
-            'summary'  => $this->summary,
-            'accounts' => $accounts,
+            'rows'           => $rows,
+            'summary'        => $this->summary,
+            'accounts'       => $accounts,
+            'storeMaps'      => $storeMaps,
+            'productMaps'    => $productMaps,
+            'pmProducts'     => $pmProducts,
+            'pmEditProducts' => $pmEditProducts,
         ]);
     }
 }
