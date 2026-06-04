@@ -417,15 +417,22 @@ class ScheduleEvent extends Component
             }
         }
 
+        // check if user is on leave based on activity plan details and user branch schedules with objective 'on-leave'
         $this->is_on_leave = !empty($this->date) && ActivityPlanDetail::where('is_on_leave', true)
             ->where('date', $this->date)
+            ->where('user_id', $this->user_id)
+            ->whereNull('branch_id')
             ->whereHas('activity_plan', function ($q) {
                 $q->where('status', 'approved');
-                if (!empty($this->user_id)) {
-                    $q->where('user_id', $this->user_id);
-                }
             })
-            ->exists();
+            ->exists()
+            && 
+            UserBranchSchedule::where('date', $this->date)
+                ->whereNull('status')
+                ->where('user_id', $this->user_id)
+                ->whereNull('branch_id')
+                ->where('objective', 'on-leave')
+                ->exists();
 
         $transportation_types = [
             'AIR',
