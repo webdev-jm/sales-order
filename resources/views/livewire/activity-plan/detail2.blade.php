@@ -115,7 +115,7 @@
                                                         <div class="input-group input-group-sm">
                                                             <input type="text" class="form-control border-0"
                                                                 wire:model="account_query.{{$date}}.{{$line_key}}"
-                                                                wire:keyup.debounce.400ms="setAccountQuery('{{$date}}', '{{$line_key}}')"
+                                                                wire:keyup.debounce.200ms="setAccountQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetAccountQuery"
                                                                 wire:keydown.tab.prevent="resetAccountQuery"
                                                                 @if(!empty($data['account_name']))
@@ -151,7 +151,7 @@
                                                         <div class="input-group input-group-sm">
                                                             <input type="text" class="form-control border-0"
                                                                 wire:model="branch_query.{{$date}}.{{$line_key}}"
-                                                                wire:keyup.debounce.400ms="setBranchQuery('{{$date}}', '{{$line_key}}')"
+                                                                wire:keyup.debounce.200ms="setBranchQuery('{{$date}}', '{{$line_key}}')"
                                                                 wire:keydown.escape="resetBranchQuery"
                                                                 wire:keydown.tab.prevent="resetBranchQuery"
                                                                 @if(!empty($data['branch_name']))
@@ -170,10 +170,11 @@
                                                         {{-- search results --}}
                                                         @if(isset($branch_query[$date][$line_key]) && !empty($branch_query[$date][$line_key]))
                                                             {{-- show results --}}
-                                                            <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setBranchQuery">
+                                                            <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setBranchQuery" wire:key="branch-results-{{$date}}-{{$line_key}}">
                                                                 @if($branches->count() > 0)
                                                                     @foreach($branches as $branch)
                                                                         <button class="list-group-item list-group-item-action text-left"
+                                                                            wire:key="branch-item-{{$branch->id}}"
                                                                             wire:click.prevent="selectBranch('{{$date}}', '{{$line_key}}',{{$branch->id}})"
                                                                         >
                                                                             [{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}
