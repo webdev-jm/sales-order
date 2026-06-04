@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Account;
 use App\Models\ActivityPlanDetail;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
 
 class Detail extends Component
@@ -199,6 +200,21 @@ class Detail extends Component
         $this->lines[$this->month] = $lines;
     }
 
+    private function getCachedBranchIds(): array
+    {
+        $cacheKey = 'user_branches_' . auth()->id();
+        $ids      = Cache::get($cacheKey);
+
+        if ($ids === null) {
+            $ids = Branch::whereHas('account', fn ($q) =>
+                $q->whereHas('users', fn ($q) => $q->where('id', auth()->id()))
+            )->pluck('id')->all();
+            Cache::put($cacheKey, $ids, now()->addHour());
+        }
+
+        return $ids;
+    }
+
     public function setSession() {
         $activity_plan_data = Session::get('activity_plan_data');
         if(empty($activity_plan_data)) { // no session
@@ -243,30 +259,27 @@ class Detail extends Component
         $this->last_day = date('t', strtotime($this->year.'-'.$this->month.'-01'));
 
         $this->setLine();
-        
+
+        $this->getCachedBranchIds();
     }
 
     public function render()
     {
-        if(!empty($this->searchQuery)) {
+        if (!empty($this->searchQuery)) {
             $branches = Branch::orderBy('branch_name')
-            ->whereHas('account', function($query) {
-                if(!empty($this->account_id)) {
-                    $query->where('id', $this->account_id);
-                } else {
-                    $query->whereHas('users', function($qry) {
-                        $qry->where('id', auth()->user()->id);
-                    });
-                }
-            })
-            ->where(function($query) {
-                $query->where('branch_code', 'like', '%'.$this->searchQuery.'%')
-                ->orWhere('branch_name', 'like', '%'.$this->searchQuery.'%')
-                ->orWhereHas('account', function($qry) {
-                    $qry->where('short_name', 'like', '%'.$this->searchQuery.'%');
-                });
-            })
-            ->limit(10)->get();
+                ->when(
+                    !empty($this->account_id),
+                    fn ($q) => $q->where('account_id', $this->account_id),
+                    fn ($q) => $q->whereIn('id', $this->getCachedBranchIds())
+                )
+                ->where(function ($query) {
+                    $query->where('branch_code', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhere('branch_name', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhereHas('account', fn ($q) =>
+                            $q->where('short_name', 'like', '%' . $this->searchQuery . '%')
+                        );
+                })
+                ->limit(10)->get();
         } else {
             $branches = collect();
         }

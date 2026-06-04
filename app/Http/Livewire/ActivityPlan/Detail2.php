@@ -63,6 +63,8 @@ class Detail2 extends Component
 
         // 3. Set the initial month days array
         $this->setMonthDays();
+
+        $this->getCachedBranchIds();
     }
 
     public function render()
@@ -80,10 +82,8 @@ class Detail2 extends Component
 
         if (!empty($this->searchBranchQuery)) {
             $branches = Branch::orderBy('branch_name')
-                ->whereHas('account', function ($query) {
-                    $query->when(!empty($this->account_id), fn ($q) => $q->where('id', $this->account_id))
-                        ->whereHas('users', fn ($q) => $q->where('id', auth()->user()->id));
-                })
+                ->whereIn('id', $this->getCachedBranchIds())
+                ->when(!empty($this->account_id), fn ($q) => $q->where('account_id', $this->account_id))
                 ->where(function ($query) {
                     $query->where('branch_code', 'like', '%' . $this->searchBranchQuery . '%')
                         ->orWhere('branch_name', 'like', '%' . $this->searchBranchQuery . '%')
@@ -302,6 +302,21 @@ class Detail2 extends Component
     // ---
     // PRIVATE METHODS
     // ---
+
+    private function getCachedBranchIds(): array
+    {
+        $cacheKey = 'user_branches_' . auth()->id();
+        $ids      = Cache::get($cacheKey);
+
+        if ($ids === null) {
+            $ids = Branch::whereHas('account', fn ($q) =>
+                $q->whereHas('users', fn ($q) => $q->where('id', auth()->id()))
+            )->pluck('id')->all();
+            Cache::put($cacheKey, $ids, now()->addHour());
+        }
+
+        return $ids;
+    }
 
     // This method is the single source of truth for generating the monthly data structure.
     protected function setMonthDays()
