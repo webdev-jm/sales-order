@@ -22,6 +22,7 @@ class ActivityPlanDetail extends Model
         'activity',
         'work_with',
         'is_on_leave',
+        'on_leave_remarks',
     ];
 
     /**

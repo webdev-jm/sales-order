@@ -24,7 +24,7 @@
                 <tbody>
 
                     @foreach($lines[$month] as $date => $line)
-                        <tr class="text-center {{$line['class']}}">
+                        <tr wire:key="line-{{ $date }}" class="text-center {{$line['class']}}">
                             <td class="align-middle text-uppercase font-weight-bold" rowspan="{{count($line['lines']) + 1}}">
                                 {{$line['day']}}
                             </td>
@@ -33,7 +33,7 @@
                             </td>
                         </tr>
                         @foreach($line['lines'] as $key => $row)
-                        <tr class=" {{$line['class']}}">
+                        <tr wire:key="row-{{ $date }}-{{ $key }}" class=" {{$line['class']}}">
                             {{-- remove line --}}
                             <td class="align-middle text-center p-0">
                                 @if($key != 0)
@@ -73,7 +73,7 @@
                                 <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setAccountQuery">
                                     @if($accounts->count() > 0)
                                         @foreach($accounts as $account)
-                                            <button class="list-group-item list-group-item-action text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
+                                            <button wire:key="account-{{ $account->id }}" class="list-group-item list-group-item-action text-left" wire:click.prevent="selectAccount('{{$date}}', '{{$key}}',{{$account->id}}, '[{{$account->account_code}}], {{$account->short_name}}')">[{{$account->account_code}}], {{$account->short_name}}</button>
                                         @endforeach
                                     @else
                                         <button class="list-group-item disabled">No Results</button>
@@ -110,7 +110,7 @@
                                 <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="setQuery">
                                     @if($branches->count() > 0)
                                         @foreach($branches as $branch)
-                                            <button class="list-group-item list-group-item-action text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{str_replace("'", "",$branch->branch_name)}}')">[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}</button>
+                                            <button wire:key="branch-{{ $branch->id }}" class="list-group-item list-group-item-action text-left" wire:click.prevent="selectBranch('{{$date}}', '{{$key}}',{{$branch->id}}, '[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{str_replace("'", "",$branch->branch_name)}}')">[{{$branch->account->short_name}}], {{$branch->branch_code}} - {{$branch->branch_name}}</button>
                                         @endforeach
                                     @else
                                         <button class="list-group-item disabled">No Results</button>

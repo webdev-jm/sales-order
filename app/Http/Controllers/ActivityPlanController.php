@@ -150,13 +150,15 @@ class ActivityPlanController extends Controller
                         // validate lines
                         $holiday_dates = $this->getNoWorkHolidayDates((string) $data['year']);
 
-                        $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
-                        $line_error            = $validation['line_error'];
-                        $line_empty            = $validation['line_empty'];
-                        $duplicate_error       = $validation['duplicate_error'];
-                        $duplicate_dates       = $validation['duplicate_dates'];
-                        $missing_weekday_error = $validation['missing_weekday_error'];
-                        $missing_weekday_dates = $validation['missing_weekday_dates'];
+                        $validation              = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
+                        $line_error              = $validation['line_error'];
+                        $line_empty              = $validation['line_empty'];
+                        $duplicate_error         = $validation['duplicate_error'];
+                        $duplicate_dates         = $validation['duplicate_dates'];
+                        $missing_weekday_error   = $validation['missing_weekday_error'];
+                        $missing_weekday_dates   = $validation['missing_weekday_dates'];
+                        $consecutive_leave_error = $validation['consecutive_leave_error'];
+                        $consecutive_leave_dates = $validation['consecutive_leave_dates'];
 
                         if($duplicate_error) {
                             return back()->with([
@@ -168,7 +170,15 @@ class ActivityPlanController extends Controller
                             $missing_month = date('M', strtotime($missing_weekday_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
                             return back()->with([
-                                'message_error' => "All weekdays must have an entry or be marked as on leave. Missing: {$missing_month} {$missing_days}"
+                                'message_error' => "All weekdays must have an entry or be marked as vacation leave. Missing: {$missing_month} {$missing_days}"
+                            ]);
+                        }
+
+                        if($consecutive_leave_error) {
+                            $missing_month = date('M', strtotime($consecutive_leave_dates[0]));
+                            $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $consecutive_leave_dates));
+                            return back()->with([
+                                'message_error' => "Remarks are required for consecutive vacation leave days. Missing: {$missing_month} {$missing_days}"
                             ]);
                         }
 
@@ -195,6 +205,7 @@ class ActivityPlanController extends Controller
                                         'day'              => $details['day'],
                                         'date'             => $date,
                                         'is_on_leave'      => true,
+                                        'on_leave_remarks' => $details['on_leave_remarks'] ?? null,
                                     ]);
                                     $activity_plan_detail->save();
                                     continue;
@@ -279,7 +290,7 @@ class ActivityPlanController extends Controller
         foreach($activity_plan->details as $detail) {
             if(!empty($detail->is_on_leave)) {
                 $schedule_data[] = [
-                    'title'           => 'ON LEAVE',
+                    'title'           => 'VACATION LEAVE',
                     'start'           => $detail->date,
                     'allDay'          => true,
                     'backgroundColor' => '#dc3545',
@@ -493,6 +504,7 @@ class ActivityPlanController extends Controller
 
                 if(!empty($detail->is_on_leave)) {
                     $details[$detail->date]['on_leave'] = true;
+                    $details[$detail->date]['on_leave_remarks'] = $detail->on_leave_remarks ?? '';
                     continue;
                 }
 
@@ -566,13 +578,15 @@ class ActivityPlanController extends Controller
                         // validate lines
                         $holiday_dates = $this->getNoWorkHolidayDates((string) $data['year']);
 
-                        $validation            = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
-                        $line_error            = $validation['line_error'];
-                        $line_empty            = $validation['line_empty'];
-                        $duplicate_error       = $validation['duplicate_error'];
-                        $duplicate_dates       = $validation['duplicate_dates'];
-                        $missing_weekday_error = $validation['missing_weekday_error'];
-                        $missing_weekday_dates = $validation['missing_weekday_dates'];
+                        $validation              = $this->validatePlanLines($data['details'][$data['month']], $holiday_dates);
+                        $line_error              = $validation['line_error'];
+                        $line_empty              = $validation['line_empty'];
+                        $duplicate_error         = $validation['duplicate_error'];
+                        $duplicate_dates         = $validation['duplicate_dates'];
+                        $missing_weekday_error   = $validation['missing_weekday_error'];
+                        $missing_weekday_dates   = $validation['missing_weekday_dates'];
+                        $consecutive_leave_error = $validation['consecutive_leave_error'];
+                        $consecutive_leave_dates = $validation['consecutive_leave_dates'];
 
                         if($duplicate_error) {
                             return back()->with([
@@ -584,7 +598,15 @@ class ActivityPlanController extends Controller
                             $missing_month = date('M', strtotime($missing_weekday_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
                             return back()->with([
-                                'message_error' => "All weekdays must have an entry or be marked as on leave. Missing: {$missing_month} {$missing_days}"
+                                'message_error' => "All weekdays must have an entry or be marked as vacation leave. Missing: {$missing_month} {$missing_days}"
+                            ]);
+                        }
+
+                        if($consecutive_leave_error) {
+                            $missing_month = date('M', strtotime($consecutive_leave_dates[0]));
+                            $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $consecutive_leave_dates));
+                            return back()->with([
+                                'message_error' => "Remarks are required for consecutive vacation leave days. Missing: {$missing_month} {$missing_days}"
                             ]);
                         }
 
@@ -619,7 +641,7 @@ class ActivityPlanController extends Controller
                                     // Upsert the on-leave sentinel row
                                     ActivityPlanDetail::updateOrCreate(
                                         ['activity_plan_id' => $activity_plan->id, 'date' => $date, 'is_on_leave' => true],
-                                        ['day' => $details['day']]
+                                        ['day' => $details['day'], 'on_leave_remarks' => $details['on_leave_remarks'] ?? null]
                                     );
                                     continue;
                                 }
@@ -856,13 +878,15 @@ class ActivityPlanController extends Controller
      */
     private function validatePlanLines(array $month_details, array $holiday_dates = []): array
     {
-        $line_error            = 0;
-        $line_empty            = 1;
-        $duplicate_error       = 0;
-        $duplicate_dates       = [];
-        $date_branch_arr       = [];
-        $missing_weekday_error = 0;
-        $missing_weekday_dates = [];
+        $line_error              = 0;
+        $line_empty              = 1;
+        $duplicate_error         = 0;
+        $duplicate_dates         = [];
+        $date_branch_arr         = [];
+        $missing_weekday_error   = 0;
+        $missing_weekday_dates   = [];
+        $consecutive_leave_error = 0;
+        $consecutive_leave_dates = [];
 
         foreach ($month_details as $date => $details) {
             if (!empty($details['on_leave']) && $details['on_leave'] === true) {
@@ -926,10 +950,22 @@ class ActivityPlanController extends Controller
             }
         }
 
+        $on_leave_dates = array_keys(array_filter($month_details, fn($d) => !empty($d['on_leave'])));
+        foreach ($on_leave_dates as $date) {
+            $prev = date('Y-m-d', strtotime($date . ' -1 day'));
+            $next = date('Y-m-d', strtotime($date . ' +1 day'));
+            $is_consecutive = in_array($prev, $on_leave_dates, true) || in_array($next, $on_leave_dates, true);
+            if ($is_consecutive && empty(trim($month_details[$date]['on_leave_remarks'] ?? ''))) {
+                $consecutive_leave_error   = 1;
+                $consecutive_leave_dates[] = $date;
+            }
+        }
+
         return compact(
             'line_error', 'line_empty',
             'duplicate_error', 'duplicate_dates',
-            'missing_weekday_error', 'missing_weekday_dates'
+            'missing_weekday_error', 'missing_weekday_dates',
+            'consecutive_leave_error', 'consecutive_leave_dates'
         );
     }
 
@@ -1064,7 +1100,7 @@ class ActivityPlanController extends Controller
                         'location' => '',
                         'account_name' => '',
                         'branch_name' => '',
-                        'purpose' => 'ON LEAVE',
+                        'purpose' => 'VACATION LEAVE',
                         'work_with' => '',
                         'trip' => '',
                     ];

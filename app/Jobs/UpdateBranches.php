@@ -23,7 +23,7 @@ use App\Models\Classification;
 
 use Illuminate\Support\Facades\Session;
 
-class UpdateBranches implements ShouldQueue
+class UpdateBranches implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

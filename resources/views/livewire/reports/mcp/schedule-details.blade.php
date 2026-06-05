@@ -16,7 +16,7 @@
                             @if($schedule->branch && $schedule->branch->account)
                                 [{{$schedule->branch->account->short_name ?? 'N/A'}}] {{$schedule->branch->branch_code}} - {{$schedule->branch->branch_name}}
                             @elseif($schedule->objective == 'on-leave')
-                                ON LEAVE
+                                VACATION LEAVE
                             @endif
                         </span>
                     </li>

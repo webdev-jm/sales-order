@@ -181,7 +181,6 @@ class PPUFormController extends Controller
 
         $duplicateNames = DB::table('ppuform_items')
             ->whereIn(DB::raw('LOWER(rtv_number)'), $names)
-            ->where('ppuform_id', '!=', $ppu_form->id)
             ->pluck('rtv_number')
             ->map(fn($n) => strtolower($n))
             ->toArray();
@@ -193,24 +192,24 @@ class PPUFormController extends Controller
             ])->withInput();
         }
 
-        $ppu_form->save();
+        DB::transaction(function () use ($ppu_form, $ppu_item) {
+            $ppu_form->save();
 
-        if(!empty($ppu_item)){
-            foreach ($ppu_item['items'] as $key => $items){
-                $ppuform_item = new PPUFormItem([
-                    'ppuform_id' => $ppu_form->id,
-                    'rtv_number' => $items['rs'],
-                    'rtv_date' => $items['rtv'],
-                    'branch_name' =>  $items['name'],
-                    'total_quantity' =>  $items['qty'],
-                    'total_amount' =>  $items['amount'],
-                    'remarks' =>  $items['remarks'],
-                ]);
-                $ppuform_item->save();
+            if (!empty($ppu_item)) {
+                foreach ($ppu_item['items'] as $items) {
+                    $ppuform_item = new PPUFormItem([
+                        'ppuform_id' => $ppu_form->id,
+                        'rtv_number' => $items['rs'],
+                        'rtv_date' => $items['rtv'],
+                        'branch_name' =>  $items['name'],
+                        'total_quantity' =>  $items['qty'],
+                        'total_amount' =>  $items['amount'],
+                        'remarks' =>  $items['remarks'],
+                    ]);
+                    $ppuform_item->save();
+                }
             }
-        }
-        
-
+        });
 
         activity('create')
         ->performedOn($ppu_form)
@@ -295,17 +294,6 @@ class PPUFormController extends Controller
         $ppu_item = Session::get('ppu_item');
 
         $ppu_form = PPUForm::findOrFail($id);
-        
-        $ppu_form->update([
-            'account_login_id' => $logged_account->id,
-            'control_number' => $request->control_number,
-            'date_prepared' => $request->date_prepared,
-            'pickup_date' => $request->pickup_date,
-            'date_submitted' => $request->date_submitted,
-            'status' => $request->status,
-            'total_quantity' => $ppu_item['total_qty'] ?? 0,
-            'total_amount' => $ppu_item['total_amount'] ?? 0,
-        ]);
 
         $names = array_map(fn($item) => strtolower(trim($item['rs'])), $ppu_item['items']);
         if (count($names) !== count(array_unique($names))) {
@@ -326,23 +314,35 @@ class PPUFormController extends Controller
             ])->withInput();
         }
 
-        DB::table('ppuform_items')->where('ppuform_id', $id)->delete();
+        DB::transaction(function () use ($ppu_form, $ppu_item, $logged_account, $request, $id) {
+            $ppu_form->update([
+                'account_login_id' => $logged_account->id,
+                'control_number' => $request->control_number,
+                'date_prepared' => $request->date_prepared,
+                'pickup_date' => $request->pickup_date,
+                'date_submitted' => $request->date_submitted,
+                'status' => $request->status,
+                'total_quantity' => $ppu_item['total_qty'] ?? 0,
+                'total_amount' => $ppu_item['total_amount'] ?? 0,
+            ]);
 
+            DB::table('ppuform_items')->where('ppuform_id', $id)->delete();
 
-        if(!empty($ppu_item)){
-            foreach ($ppu_item['items'] as $key => $items){
-                $ppuform_item = new PPUFormItem([
-                    'ppuform_id' => $ppu_form->id,
-                    'rtv_number' => $items['rs'],
-                    'rtv_date' => $items['rtv'],
-                    'branch_name' =>  $items['name'],
-                    'total_quantity' =>  $items['qty'],
-                    'total_amount' =>  $items['amount'],
-                    'remarks' =>  $items['remarks'],
-                ]);
-                $ppuform_item->save();
+            if (!empty($ppu_item)) {
+                foreach ($ppu_item['items'] as $items) {
+                    $ppuform_item = new PPUFormItem([
+                        'ppuform_id' => $ppu_form->id,
+                        'rtv_number' => $items['rs'],
+                        'rtv_date' => $items['rtv'],
+                        'branch_name' =>  $items['name'],
+                        'total_quantity' =>  $items['qty'],
+                        'total_amount' =>  $items['amount'],
+                        'remarks' =>  $items['remarks'],
+                    ]);
+                    $ppuform_item->save();
+                }
             }
-        }
+        });
 
         activity('update')
         ->performedOn($ppu_form)

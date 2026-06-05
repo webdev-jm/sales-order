@@ -34,7 +34,7 @@
                     </thead>
                     <tbody>
                         @foreach($activities as $activity)
-                        <tr>
+                        <tr wire:key="activity-{{ $activity->id }}">
                             <td class="text-center align-middle">
                                 <div class="custom-control custom-switch">
                                     <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model="activity_data.{{$activity->id}}" value="{{$activity->id}}">

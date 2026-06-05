@@ -237,30 +237,32 @@ class SalesOrderService {
 
         $shipping_address_id = $data->shipping_address_id == 'default' ? null : $data->shipping_address_id;
 
-        $sales_order = SalesOrder::create([
-            'account_login_id'     => Session::get('logged_account')->id,
-            'shipping_address_id'  => $shipping_address_id,
-            'control_number'       => $data->control_number,
-            'po_number'            => $data->po_number,
-            'paf_number'           => $data->paf_number,
-            'order_date'           => $data->order_date,
-            'ship_date'            => $data->ship_date,
-            'shipping_instruction' => $data->shipping_instruction,
-            'ship_to_name'         => $data->ship_to_name,
-            'ship_to_building'     => $data->ship_to_address1,
-            'ship_to_street'       => $data->ship_to_address2,
-            'ship_to_city'         => $data->ship_to_address3,
-            'ship_to_postal'       => $data->postal_code,
-            'status'               => $data->status,
-            'total_quantity'       => $order_data['total_quantity'],
-            'total_sales'          => $order_data['total'],
-            'grand_total'          => $order_data['grand_total'],
-            'po_value'             => $order_data['po_value'] ?? 0,
-        ]);
+        return DB::transaction(function () use ($data, $account, $order_data, $shipping_address_id) {
+            $sales_order = SalesOrder::create([
+                'account_login_id'     => Session::get('logged_account')->id,
+                'shipping_address_id'  => $shipping_address_id,
+                'control_number'       => $data->control_number,
+                'po_number'            => $data->po_number,
+                'paf_number'           => $data->paf_number,
+                'order_date'           => $data->order_date,
+                'ship_date'            => $data->ship_date,
+                'shipping_instruction' => $data->shipping_instruction,
+                'ship_to_name'         => $data->ship_to_name,
+                'ship_to_building'     => $data->ship_to_address1,
+                'ship_to_street'       => $data->ship_to_address2,
+                'ship_to_city'         => $data->ship_to_address3,
+                'ship_to_postal'       => $data->postal_code,
+                'status'               => $data->status,
+                'total_quantity'       => $order_data['total_quantity'],
+                'total_sales'          => $order_data['total'],
+                'grand_total'          => $order_data['grand_total'],
+                'po_value'             => $order_data['po_value'] ?? 0,
+            ]);
 
-        $this->processOrderItems($sales_order, $order_data['items'], $account);
+            $this->processOrderItems($sales_order, $order_data['items'], $account);
 
-        return $sales_order;
+            return $sales_order;
+        });
     }
 
     /**
@@ -274,36 +276,38 @@ class SalesOrderService {
 
         $shipping_address_id = $data->shipping_address_id == 'default' ? null : $data->shipping_address_id;
 
-        $sales_order->update([
-            'shipping_address_id'  => $shipping_address_id,
-            'po_number'            => $data->po_number,
-            'paf_number'           => $data->paf_number,
-            'ship_date'            => $data->ship_date,
-            'shipping_instruction' => $data->shipping_instruction,
-            'ship_to_name'         => $data->ship_to_name,
-            'ship_to_building'     => $data->ship_to_address1,
-            'ship_to_street'       => $data->ship_to_address2,
-            'ship_to_city'         => $data->ship_to_address3,
-            'ship_to_postal'       => $data->postal_code,
-            'status'               => $data->status,
-            'total_quantity'       => $order_data['total_quantity'],
-            'total_sales'          => $order_data['total'],
-            'grand_total'          => $order_data['grand_total'],
-            'po_value'             => $order_data['po_value'] ?? 0,
-        ]);
+        return DB::transaction(function () use ($sales_order, $data, $account, $order_data, $shipping_address_id) {
+            $sales_order->update([
+                'shipping_address_id'  => $shipping_address_id,
+                'po_number'            => $data->po_number,
+                'paf_number'           => $data->paf_number,
+                'ship_date'            => $data->ship_date,
+                'shipping_instruction' => $data->shipping_instruction,
+                'ship_to_name'         => $data->ship_to_name,
+                'ship_to_building'     => $data->ship_to_address1,
+                'ship_to_street'       => $data->ship_to_address2,
+                'ship_to_city'         => $data->ship_to_address3,
+                'ship_to_postal'       => $data->postal_code,
+                'status'               => $data->status,
+                'total_quantity'       => $order_data['total_quantity'],
+                'total_sales'          => $order_data['total'],
+                'grand_total'          => $order_data['grand_total'],
+                'po_value'             => $order_data['po_value'] ?? 0,
+            ]);
 
-        // Hard-delete existing line items so they can be recreated cleanly.
-        foreach ($sales_order->order_products as $order_product) {
-            foreach ($order_product->product_uoms as $uom) {
-                SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
+            // Hard-delete existing line items so they can be recreated cleanly.
+            foreach ($sales_order->order_products as $order_product) {
+                foreach ($order_product->product_uoms as $uom) {
+                    SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
+                }
+                $order_product->product_uoms()->forceDelete();
             }
-            $order_product->product_uoms()->forceDelete();
-        }
-        $sales_order->order_products()->forceDelete();
+            $sales_order->order_products()->forceDelete();
 
-        $this->processOrderItems($sales_order, $order_data['items'], $account);
+            $this->processOrderItems($sales_order, $order_data['items'], $account);
 
-        return $sales_order;
+            return $sales_order;
+        });
     }
 
     /**
