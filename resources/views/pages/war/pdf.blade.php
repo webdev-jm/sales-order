@@ -227,7 +227,7 @@
                 @if(isset($on_leave_dates[$area->date]))
                     <tr>
                         <td colspan="5" class="text-center bg-danger" style="color:#fff; font-weight:bold;">
-                            ON LEAVE
+                            VACATION LEAVE
                         </td>
                     </tr>
                 @elseif(!empty($area->war_branches->count()))

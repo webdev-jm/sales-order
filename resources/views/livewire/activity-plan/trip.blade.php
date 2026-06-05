@@ -18,7 +18,7 @@
                         </div>
                     </div>
                 </div>
-            @enderror
+            @endif
 
             <div class="row mb-3">
                 <div class="col-12">
@@ -125,7 +125,7 @@
                             <tbody>
                                 @if(!empty($trip_tickets->count()))
                                     @foreach($trip_tickets as $trip_ticket)
-                                    <tr>
+                                    <tr wire:key="ticket-{{ $trip_ticket->id }}">
                                         <td>
                                             <a href="#" wire:click.prevent="pickTicket({{$trip_ticket->id}})">
                                                 {{$trip_ticket->trip_number}}
@@ -140,7 +140,7 @@
                                 @else
                                     @if(!empty($other_passengers_tickets))
                                         @foreach($other_passengers_tickets as $ticket)
-                                            <tr>
+                                            <tr wire:key="other-ticket-{{ $ticket->id }}">
                                                 <td>
                                                     <a href="#" wire:click.prevent="pickOtherTicket({{$ticket->id}})">
                                                         {{$ticket->trip->trip_number}}

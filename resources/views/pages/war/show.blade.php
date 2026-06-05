@@ -245,7 +245,7 @@
                                     <tr>
                                         <td colspan="5" class="text-center py-2">
                                             <span class="badge badge-danger px-3 py-2" style="font-size:0.9rem;">
-                                                <i class="fa fa-umbrella-beach mr-1"></i> ON LEAVE
+                                                <i class="fa fa-umbrella-beach mr-1"></i> VACATION LEAVE
                                             </span>
                                         </td>
                                     </tr>

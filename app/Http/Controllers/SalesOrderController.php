@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
-use App\Models\SalesOrderProductUomPAF;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
 
@@ -184,7 +183,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $sales_order = SalesOrder::findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
         $sales_order->update(['status' => 'cancelled']);
 
         Session::forget('order_data');
@@ -259,7 +258,7 @@ class SalesOrderController extends Controller
             ]);
         }
 
-        $sales_order = SalesOrder::findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
 
         if ($sales_order->status == 'for optimization') {
             return redirect()->route('sales-order.show', $sales_order->id)->with([
@@ -347,6 +346,9 @@ class SalesOrderController extends Controller
         $data    = [];
         $row_num = 0;
 
+        $stockCodes = collect($imports[0])->slice(7)->filter(fn($row) => !empty($row[0]))->pluck(0)->unique()->values();
+        $products   = Product::whereIn('stock_code', $stockCodes)->get()->keyBy('stock_code');
+
         foreach ($imports[0] as $row) {
             $row_num++;
 
@@ -388,7 +390,7 @@ class SalesOrderController extends Controller
             }
 
             if ($row_num > 7 && !empty($row[0])) {
-                $product = Product::where('stock_code', $row[0])->first();
+                $product = $products->get($row[0]);
 
                 if (!empty($product)) {
                     $data[$product->id] = [
@@ -479,17 +481,14 @@ class SalesOrderController extends Controller
             ];
 
             foreach ($order_product->product_uoms as $uom) {
-                $paf_rows      = [];
-                $paf_rows_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->get();
+                $paf_rows = [];
 
-                if ($paf_rows_data->isNotEmpty()) {
-                    foreach ($paf_rows_data as $paf_row) {
-                        $paf_rows[] = [
-                            'paf_number' => $paf_row->paf_number,
-                            'uom'        => $paf_row->uom,
-                            'quantity'   => $paf_row->quantity,
-                        ];
-                    }
+                foreach ($uom->uom_pafs as $paf_row) {
+                    $paf_rows[] = [
+                        'paf_number' => $paf_row->paf_number,
+                        'uom'        => $paf_row->uom,
+                        'quantity'   => $paf_row->quantity,
+                    ];
                 }
 
                 $order_data['items'][$order_product->product_id]['data'][$uom->uom] = [

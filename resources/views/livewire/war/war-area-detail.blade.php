@@ -9,7 +9,7 @@
             @if($is_on_leave)
                 <div class="alert alert-danger text-center py-2">
                     <i class="fa fa-umbrella-beach mr-2"></i>
-                    <strong>ON LEAVE</strong>
+                    <strong>VACATION LEAVE</strong>
                 </div>
             @endif
 

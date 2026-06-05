@@ -19,6 +19,19 @@ class ActivityPlanOnLeaveTest extends TestCase
     // ── Model ─────────────────────────────────────────────────────────────────
 
     /**
+     * The ActivityPlanDetail model must allow mass-assigning on_leave_remarks.
+     */
+    public function test_activity_plan_detail_model_has_on_leave_remarks_in_fillable(): void
+    {
+        $model = new ActivityPlanDetail();
+        $this->assertContains(
+            'on_leave_remarks',
+            $model->getFillable(),
+            'ActivityPlanDetail::$fillable must include "on_leave_remarks".'
+        );
+    }
+
+    /**
      * The ActivityPlanDetail model must allow mass-assigning is_on_leave.
      */
     public function test_activity_plan_detail_model_has_is_on_leave_in_fillable(): void
@@ -454,6 +467,107 @@ class ActivityPlanOnLeaveTest extends TestCase
             'isOnLeaveValue',
             $source,
             'upload() must call isOnLeaveValue() to detect on-leave rows.'
+        );
+    }
+
+    // ── Controller: consecutive leave remarks ─────────────────────────────────
+
+    /**
+     * validatePlanLines() must return consecutive_leave_error = 1 when two adjacent
+     * on-leave dates exist but at least one has no remarks.
+     */
+    public function test_validate_plan_lines_fails_when_consecutive_leave_has_no_remarks(): void
+    {
+        $controller = new ActivityPlanController();
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('validatePlanLines');
+        $method->setAccessible(true);
+
+        $month_details = [
+            '2026-06-09' => [
+                'day'              => 'Tue',
+                'on_leave'         => true,
+                'on_leave_remarks' => '',
+                'lines'            => [],
+            ],
+            '2026-06-10' => [
+                'day'              => 'Wed',
+                'on_leave'         => true,
+                'on_leave_remarks' => '',
+                'lines'            => [],
+            ],
+        ];
+
+        $result = $method->invoke($controller, $month_details);
+
+        $this->assertSame(1, $result['consecutive_leave_error'],
+            'validatePlanLines() must return consecutive_leave_error = 1 when consecutive on-leave dates have no remarks.'
+        );
+        $this->assertNotEmpty($result['consecutive_leave_dates'],
+            'validatePlanLines() must populate consecutive_leave_dates when remarks are missing.'
+        );
+    }
+
+    /**
+     * validatePlanLines() must return consecutive_leave_error = 0 when all consecutive
+     * on-leave dates have remarks provided.
+     */
+    public function test_validate_plan_lines_passes_when_consecutive_leave_has_remarks(): void
+    {
+        $controller = new ActivityPlanController();
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('validatePlanLines');
+        $method->setAccessible(true);
+
+        $month_details = [
+            '2026-06-09' => [
+                'day'              => 'Tue',
+                'on_leave'         => true,
+                'on_leave_remarks' => 'Annual leave',
+                'lines'            => [],
+            ],
+            '2026-06-10' => [
+                'day'              => 'Wed',
+                'on_leave'         => true,
+                'on_leave_remarks' => 'Annual leave',
+                'lines'            => [],
+            ],
+        ];
+
+        $result = $method->invoke($controller, $month_details);
+
+        $this->assertSame(0, $result['consecutive_leave_error'],
+            'validatePlanLines() must return consecutive_leave_error = 0 when all consecutive on-leave dates have remarks.'
+        );
+        $this->assertEmpty($result['consecutive_leave_dates'],
+            'validatePlanLines() must return empty consecutive_leave_dates when remarks are provided.'
+        );
+    }
+
+    /**
+     * validatePlanLines() must return consecutive_leave_error = 0 for a single
+     * on-leave date with no remarks (not consecutive).
+     */
+    public function test_validate_plan_lines_passes_single_day_leave_without_remarks(): void
+    {
+        $controller = new ActivityPlanController();
+        $reflection = new \ReflectionClass($controller);
+        $method = $reflection->getMethod('validatePlanLines');
+        $method->setAccessible(true);
+
+        $month_details = [
+            '2026-06-10' => [
+                'day'              => 'Wed',
+                'on_leave'         => true,
+                'on_leave_remarks' => '',
+                'lines'            => [],
+            ],
+        ];
+
+        $result = $method->invoke($controller, $month_details);
+
+        $this->assertSame(0, $result['consecutive_leave_error'],
+            'validatePlanLines() must not require remarks for a single isolated on-leave day.'
         );
     }
 

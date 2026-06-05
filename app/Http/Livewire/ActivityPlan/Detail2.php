@@ -64,7 +64,7 @@ class Detail2 extends Component
         // 3. Set the initial month days array
         $this->setMonthDays();
 
-        $this->getCachedBranchIds();
+        $this->getCachedAccountIds();
     }
 
     public function render()
@@ -81,8 +81,8 @@ class Detail2 extends Component
         }
 
         if (!empty($this->searchBranchQuery)) {
-            $branches = Branch::orderBy('branch_name')
-                ->whereIn('id', $this->getCachedBranchIds())
+            $branches = Branch::with('account')->orderBy('branch_name')
+                ->whereIn('account_id', $this->getCachedAccountIds())
                 ->when(!empty($this->account_id), fn ($q) => $q->where('account_id', $this->account_id))
                 ->where(function ($query) {
                     $query->where('branch_code', 'like', '%' . $this->searchBranchQuery . '%')
@@ -303,15 +303,14 @@ class Detail2 extends Component
     // PRIVATE METHODS
     // ---
 
-    private function getCachedBranchIds(): array
+    private function getCachedAccountIds(): array
     {
-        $cacheKey = 'user_branches_' . auth()->id();
+        $cacheKey = 'user_accounts_' . auth()->id();
         $ids      = Cache::get($cacheKey);
 
         if ($ids === null) {
-            $ids = Branch::whereHas('account', fn ($q) =>
-                $q->whereHas('users', fn ($q) => $q->where('id', auth()->id()))
-            )->pluck('id')->all();
+            $ids = Account::whereHas('users', fn ($q) => $q->where('id', auth()->id()))
+                ->pluck('id')->all();
             Cache::put($cacheKey, $ids, now()->addHour());
         }
 
@@ -399,15 +398,17 @@ class Detail2 extends Component
             // Always initialize with an empty lines array to ensure consistency
             $lines = $session_details[$this->month][$date]['lines'] ?? [];
             $on_leave = $session_details[$this->month][$date]['on_leave'] ?? false;
+            $on_leave_remarks = $session_details[$this->month][$date]['on_leave_remarks'] ?? '';
 
             $days[$date] = [
-                'day'          => $day_of_week,
-                'date'         => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
-                'class'        => $class,
-                'lines'        => $lines,
-                'on_leave'     => $on_leave,
-                'holiday'      => $holiday_map[$date]['title'] ?? null,
-                'holiday_work' => $holiday_map[$date]['is_work_day'] ?? false,
+                'day'             => $day_of_week,
+                'date'            => date('M', strtotime($this->year . '-' . $this->month . '-01')) . '. ' . ($i < 10 ? '0' . $i : $i),
+                'class'           => $class,
+                'lines'           => $lines,
+                'on_leave'        => $on_leave,
+                'on_leave_remarks' => $on_leave_remarks,
+                'holiday'         => $holiday_map[$date]['title'] ?? null,
+                'holiday_work'    => $holiday_map[$date]['is_work_day'] ?? false,
             ];
 
             // Initialize expand state, default to false.
