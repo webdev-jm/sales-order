@@ -116,13 +116,21 @@ class AccountController extends Controller
         ]);
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function ajax(Request $request)
     {
         $response = Account::AccountAjax($request->search);
         return response()->json($response);
     }
 
-    public function getAjax($id)
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAjax(int|string $id)
     {
         $account = Account::findOrFail($id);
         return response()->json($account);

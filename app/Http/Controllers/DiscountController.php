@@ -27,7 +27,7 @@ class DiscountController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -42,7 +42,7 @@ class DiscountController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -51,7 +51,7 @@ class DiscountController extends Controller
         foreach($companies as $company) {
             $companies_arr[$company->id] = $company->name;
         }
-        
+
         return view('pages.discounts.create')->with([
             'companies' => $companies_arr
         ]);
@@ -60,8 +60,8 @@ class DiscountController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreDiscountRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreDiscountRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreDiscountRequest $request)
     {
@@ -88,8 +88,8 @@ class DiscountController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Discount  $discount
-     * @return \Illuminate\Http\Response
+     * @param  Discount  $discount
+     * @return void
      */
     public function show(Discount $discount)
     {
@@ -99,10 +99,10 @@ class DiscountController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Discount  $discount
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $discount = Discount::findOrFail($id);
 
@@ -121,11 +121,11 @@ class DiscountController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateDiscountRequest  $request
-     * @param  \App\Models\Discount  $discount
-     * @return \Illuminate\Http\Response
+     * @param  UpdateDiscountRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateDiscountRequest $request, $id)
+    public function update(UpdateDiscountRequest $request, int|string $id)
     {
         $discount = Discount::findOrFail($id);
         $discount_code = $discount->discount_code;
@@ -157,14 +157,18 @@ class DiscountController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Discount  $discount
-     * @return \Illuminate\Http\Response
+     * @param  Discount  $discount
+     * @return void
      */
     public function destroy(Discount $discount)
     {
         //
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [

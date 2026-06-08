@@ -26,7 +26,7 @@ class InvoiceTermController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -41,7 +41,7 @@ class InvoiceTermController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -51,8 +51,8 @@ class InvoiceTermController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreInvoiceTermRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreInvoiceTermRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreInvoiceTermRequest $request)
     {
@@ -78,8 +78,8 @@ class InvoiceTermController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\InvoiceTerm  $invoiceTerm
-     * @return \Illuminate\Http\Response
+     * @param  InvoiceTerm  $invoiceTerm
+     * @return void
      */
     public function show(InvoiceTerm $invoiceTerm)
     {
@@ -89,10 +89,10 @@ class InvoiceTermController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\InvoiceTerm  $invoiceTerm
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $invoice_term = InvoiceTerm::findOrFail($id);
         return view('pages.invoice-terms.edit')->with([
@@ -103,11 +103,11 @@ class InvoiceTermController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateInvoiceTermRequest  $request
-     * @param  \App\Models\InvoiceTerm  $invoiceTerm
-     * @return \Illuminate\Http\Response
+     * @param  UpdateInvoiceTermRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateInvoiceTermRequest $request, $id)
+    public function update(UpdateInvoiceTermRequest $request, int|string $id)
     {
         $invoice_term = InvoiceTerm::findOrFail($id);
         $invoice_term_code = $invoice_term->term_code;
@@ -138,14 +138,18 @@ class InvoiceTermController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\InvoiceTerm  $invoiceTerm
-     * @return \Illuminate\Http\Response
+     * @param  InvoiceTerm  $invoiceTerm
+     * @return void
      */
     public function destroy(InvoiceTerm $invoiceTerm)
     {
         //
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [

@@ -36,7 +36,7 @@ class BranchController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
     public function index(Request $request): View
     {
@@ -57,7 +57,7 @@ class BranchController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
     public function create(): View
     {
@@ -89,8 +89,8 @@ class BranchController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreBranchRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreBranchRequest  $request
+     * @return RedirectResponse
      */
     public function store(StoreBranchRequest $request): RedirectResponse
     {
@@ -117,8 +117,8 @@ class BranchController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Branch  $branch
-     * @return \Illuminate\Http\Response
+     * @param  Branch  $branch
+     * @return void
      */
     public function show(Branch $branch): void
     {
@@ -128,8 +128,8 @@ class BranchController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Branch  $branch
-     * @return \Illuminate\Http\Response
+     * @param  int  $id
+     * @return View
      */
     public function edit(int $id): View
     {
@@ -164,9 +164,9 @@ class BranchController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateBranchRequest  $request
-     * @param  \App\Models\Branch  $branch
-     * @return \Illuminate\Http\Response
+     * @param  UpdateBranchRequest  $request
+     * @param  int  $id
+     * @return RedirectResponse
      */
     public function update(UpdateBranchRequest $request, int $id): RedirectResponse
     {
@@ -200,8 +200,8 @@ class BranchController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Branch  $branch
-     * @return \Illuminate\Http\Response
+     * @param  Branch  $branch
+     * @return void
      */
     public function destroy(Branch $branch): void
     {
@@ -227,6 +227,9 @@ class BranchController extends Controller
         ]);
     }
 
+    /**
+     * @return RedirectResponse
+     */
     public function mergeUploads(): RedirectResponse
     {
         BranchUpload::whereNull('status')->chunk(500, function($data) {

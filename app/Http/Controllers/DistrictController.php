@@ -23,7 +23,7 @@ class DistrictController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -40,7 +40,7 @@ class DistrictController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -50,8 +50,8 @@ class DistrictController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreDistrictRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreDistrictRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreDistrictRequest $request)
     {
@@ -74,8 +74,8 @@ class DistrictController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\District  $district
-     * @return \Illuminate\Http\Response
+     * @param  District  $district
+     * @return void
      */
     public function show(District $district)
     {
@@ -85,10 +85,10 @@ class DistrictController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\District  $district
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $district = District::findOrFail($id);
 
@@ -100,11 +100,11 @@ class DistrictController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateDistrictRequest  $request
-     * @param  \App\Models\District  $district
-     * @return \Illuminate\Http\Response
+     * @param  UpdateDistrictRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateDistrictRequest $request, $id)
+    public function update(UpdateDistrictRequest $request, int|string $id)
     {
         $district = District::findOrFail($id);
         $district_name = $district->district_name;
@@ -132,8 +132,8 @@ class DistrictController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\District  $district
-     * @return \Illuminate\Http\Response
+     * @param  District  $district
+     * @return void
      */
     public function destroy(District $district)
     {

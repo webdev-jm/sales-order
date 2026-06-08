@@ -25,7 +25,7 @@ class RegionController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -42,7 +42,7 @@ class RegionController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -52,8 +52,8 @@ class RegionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreRegionRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreRegionRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreRegionRequest $request)
     {
@@ -75,8 +75,8 @@ class RegionController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Region  $region
-     * @return \Illuminate\Http\Response
+     * @param  Region  $region
+     * @return void
      */
     public function show(Region $region)
     {
@@ -86,10 +86,10 @@ class RegionController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Region  $region
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $region = Region::findOrFail($id);
 
@@ -101,11 +101,11 @@ class RegionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateRegionRequest  $request
-     * @param  \App\Models\Region  $region
-     * @return \Illuminate\Http\Response
+     * @param  UpdateRegionRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateRegionRequest $request, $id)
+    public function update(UpdateRegionRequest $request, int|string $id)
     {
         $region = Region::findOrFail($id);
 
@@ -132,14 +132,18 @@ class RegionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Region  $region
-     * @return \Illuminate\Http\Response
+     * @param  Region  $region
+     * @return void
      */
     public function destroy(Region $region)
     {
         //
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [

@@ -12,17 +12,23 @@ use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
+    /**
+     * @return \Illuminate\View\View
+     */
     public function index() {
 
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        
+
         $roles = Role::orderBy('id', 'DESC')->paginate(10);
         return view('pages.roles.index')->with([
             'roles' => $roles
         ]);
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function create() {
         $permissions = Permission::all();
         $permissions_arr = [];
@@ -38,6 +44,10 @@ class RoleController extends Controller
         ]);
     }
 
+    /**
+     * @param  StoreRoleRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(StoreRoleRequest $request) {
         $permissions = Permission::whereIn('id', $request->permissions)->get();
         $role = Role::create(['name' => $request->name])->givePermissionTo($permissions);
@@ -52,9 +62,13 @@ class RoleController extends Controller
         ]);
     }
 
-    public function edit($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function edit(int|string $id) {
         $role = Role::findOrFail($id);
-        
+
         $permissions = Permission::all();
         $permissions_arr = [];
         foreach($permissions as $permission) {
@@ -70,7 +84,12 @@ class RoleController extends Controller
         ]);
     }
 
-    public function update(UpdateRoleRequest $request, $id) {
+    /**
+     * @param  UpdateRoleRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(UpdateRoleRequest $request, int|string $id) {
         $role = Role::findOrFail($id);
         $role_name = $role->name;
 
@@ -83,7 +102,7 @@ class RoleController extends Controller
         $role->syncPermissions($permissions);
 
         $changes_arr['changes'] = $role->getChanges();
-        
+
         // logs
         activity('update')
         ->performedOn($role)

@@ -25,7 +25,7 @@ class ClassificationController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -42,7 +42,7 @@ class ClassificationController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -52,8 +52,8 @@ class ClassificationController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreClassificationRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreClassificationRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreClassificationRequest $request)
     {
@@ -76,8 +76,8 @@ class ClassificationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Classification  $classification
-     * @return \Illuminate\Http\Response
+     * @param  Classification  $classification
+     * @return void
      */
     public function show(Classification $classification)
     {
@@ -87,10 +87,10 @@ class ClassificationController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Classification  $classification
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $classification = Classification::findOrFail($id);
 
@@ -102,11 +102,11 @@ class ClassificationController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateClassificationRequest  $request
-     * @param  \App\Models\Classification  $classification
-     * @return \Illuminate\Http\Response
+     * @param  UpdateClassificationRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateClassificationRequest $request, $id)
+    public function update(UpdateClassificationRequest $request, int|string $id)
     {
         $classification = Classification::findOrFail($id);
 
@@ -134,14 +134,18 @@ class ClassificationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Classification  $classification
-     * @return \Illuminate\Http\Response
+     * @param  Classification  $classification
+     * @return void
      */
     public function destroy(Classification $classification)
     {
         
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [

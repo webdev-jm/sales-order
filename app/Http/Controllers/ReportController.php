@@ -17,24 +17,42 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReportController extends Controller
 {
+    /**
+     * @return \Illuminate\View\View
+     */
     public function index() {
         return view('pages.reports.index');
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function mcpDashboard() {
         return view('pages.reports.mcp');
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function sales_orders() {
         return view('pages.reports.orders');
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function combinedReports() {
 
         return view('pages.reports.combined');
     }
 
-    public function combinedReportPrint($user_id, $year, $month) {
+    /**
+     * @param  int|string  $user_id
+     * @param  int|string  $year
+     * @param  int|string  $month
+     * @return \Illuminate\Http\Response
+     */
+    public function combinedReportPrint(int|string $user_id, int|string $year, int|string $month) {
 
         $user = User::find($user_id);
         $date_string = $year.'-'.$month;
@@ -95,6 +113,10 @@ class ReportController extends Controller
         return $pdf->stream('mcp reports -'.date('F Y', strtotime($year.'-'.$month.'-01')).'-'.time().'.pdf');
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
     public function map(Request $request) {
         $date_from = trim($request->input('date_from'));
         $date_to = trim($request->input('date_to'));

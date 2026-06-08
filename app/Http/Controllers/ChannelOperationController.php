@@ -13,13 +13,17 @@ class ChannelOperationController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index()
     {
         return view('pages.channel-operations.index');
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
     public function list(Request $request) {
 
         $search = trim($request->input('search'));
@@ -62,7 +66,11 @@ class ChannelOperationController extends Controller
         ]);
     }
 
-    public function show($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function show(int|string $id) {
         $channel_operation = ChannelOperation::findOrfail($id);
 
         return view('pages.channel-operations.show')->with([
@@ -70,7 +78,11 @@ class ChannelOperationController extends Controller
         ]);
     }
 
-    public function print($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function print(int|string $id) {
         $channel_operation = ChannelOperation::findOrFail($id);
         $branch_login = $channel_operation->branch_login;
         $merch_updates = $channel_operation->merch_updates->first();
