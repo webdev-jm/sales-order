@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Territory;
-use App\Models\District;
-
 use App\Http\Requests\StoreTerritoryRequest;
 use App\Http\Requests\UpdateTerritoryRequest;
 
@@ -25,7 +23,7 @@ class TerritoryController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -41,7 +39,7 @@ class TerritoryController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -51,10 +49,10 @@ class TerritoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreTerritoryRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreTerritoryRequest  $request
+     * @return void
      */
-    public function store(StoreTerritoryRequest $request)
+    public function store(StoreTerritoryRequest $request): void
     {
         //
     }
@@ -62,10 +60,10 @@ class TerritoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Territory  $territory
-     * @return \Illuminate\Http\Response
+     * @param  Territory  $territory
+     * @return void
      */
-    public function show(Territory $territory)
+    public function show(Territory $territory): void
     {
         //
     }
@@ -73,10 +71,10 @@ class TerritoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Territory  $territory
-     * @return \Illuminate\Http\Response
+     * @param  Territory  $territory
+     * @return void
      */
-    public function edit(Territory $territory)
+    public function edit(Territory $territory): void
     {
         //
     }
@@ -84,11 +82,11 @@ class TerritoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateTerritoryRequest  $request
-     * @param  \App\Models\Territory  $territory
-     * @return \Illuminate\Http\Response
+     * @param  UpdateTerritoryRequest  $request
+     * @param  Territory  $territory
+     * @return void
      */
-    public function update(UpdateTerritoryRequest $request, Territory $territory)
+    public function update(UpdateTerritoryRequest $request, Territory $territory): void
     {
         //
     }
@@ -96,10 +94,10 @@ class TerritoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Territory  $territory
-     * @return \Illuminate\Http\Response
+     * @param  Territory  $territory
+     * @return void
      */
-    public function destroy(Territory $territory)
+    public function destroy(Territory $territory): void
     {
         //
     }

@@ -26,7 +26,7 @@ class AreaController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return View
      */
     public function index(Request $request): View
     {
@@ -43,7 +43,7 @@ class AreaController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -53,8 +53,8 @@ class AreaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreAreaRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreAreaRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreAreaRequest $request)
     {
@@ -77,8 +77,8 @@ class AreaController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Area  $area
-     * @return \Illuminate\Http\Response
+     * @param  Area  $area
+     * @return void
      */
     public function show(Area $area)
     {
@@ -88,10 +88,10 @@ class AreaController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Area  $area
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $area = Area::findOrFail($id);
 
@@ -103,11 +103,11 @@ class AreaController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateAreaRequest  $request
-     * @param  \App\Models\Area  $area
-     * @return \Illuminate\Http\Response
+     * @param  UpdateAreaRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateAreaRequest $request, $id)
+    public function update(UpdateAreaRequest $request, int|string $id)
     {
         $area = Area::findOrFail($id);
 
@@ -136,14 +136,18 @@ class AreaController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Area  $area
-     * @return \Illuminate\Http\Response
+     * @param  Area  $area
+     * @return void
      */
     public function destroy(Area $area)
     {
         //
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [

@@ -53,11 +53,10 @@ class ActivityPlanController extends Controller
         'returned' => 'warning',
         'confirmed' => 'primary',
     ];
-
+    
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -112,7 +111,7 @@ class ActivityPlanController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -132,8 +131,8 @@ class ActivityPlanController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreActivityPlanRequest  $request
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  StoreActivityPlanRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreActivityPlanRequest $request)
     {
@@ -166,7 +165,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($missing_weekday_error) {
+                        if($request->status !== 'draft' && $missing_weekday_error) {
                             $missing_month = date('M', strtotime($missing_weekday_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
                             return back()->with([
@@ -174,7 +173,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($consecutive_leave_error) {
+                        if($request->status !== 'draft' && $consecutive_leave_error) {
                             $missing_month = date('M', strtotime($consecutive_leave_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $consecutive_leave_dates));
                             return back()->with([
@@ -182,7 +181,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($line_error == 0 && $line_empty == 0) {
+                        if($line_error == 0 && ($line_empty == 0 || $request->status === 'draft')) {
 
                             $activity_plan = new ActivityPlan([
                                 'user_id' => auth()->user()->id,
@@ -277,10 +276,10 @@ class ActivityPlanController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\ActivityPlan  $activityPlan
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int|string $id)
     {
         $activity_plan = ActivityPlan::findOrFail($id);
 
@@ -428,10 +427,10 @@ class ActivityPlanController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\ActivityPlan  $activityPlan
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $activity_plan = ActivityPlan::findOrFail($id);
 
@@ -554,14 +553,13 @@ class ActivityPlanController extends Controller
         }
     }
 
+    
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateActivityPlanRequest  $request
-     * @param  \App\Models\ActivityPlan  $activityPlan
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  UpdateActivityPlanRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateActivityPlanRequest $request, $id)
+    public function update(UpdateActivityPlanRequest $request, int|string $id)
     {
         $activity_plan_data = Session::get('activity_plan_data');
         $activity_plan = ActivityPlan::findOrFail($id);
@@ -594,7 +592,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($missing_weekday_error) {
+                        if($request->status !== 'draft' && $missing_weekday_error) {
                             $missing_month = date('M', strtotime($missing_weekday_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $missing_weekday_dates));
                             return back()->with([
@@ -602,7 +600,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($consecutive_leave_error) {
+                        if($request->status !== 'draft' && $consecutive_leave_error) {
                             $missing_month = date('M', strtotime($consecutive_leave_dates[0]));
                             $missing_days  = implode(', ', array_map(fn($d) => date('j', strtotime($d)), $consecutive_leave_dates));
                             return back()->with([
@@ -610,7 +608,7 @@ class ActivityPlanController extends Controller
                             ]);
                         }
 
-                        if($line_error == 0 && $line_empty == 0) {
+                        if($line_error == 0 && ($line_empty == 0 || $request->status === 'draft')) {
 
                             $changes_arr['old'] = $activity_plan->getOriginal();
                             // update
@@ -770,7 +768,7 @@ class ActivityPlanController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\ActivityPlan  $activityPlan
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function destroy(ActivityPlan $activityPlan)
     {
@@ -1066,7 +1064,11 @@ class ActivityPlanController extends Controller
         );
     }
 
-    public function printPDF($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function printPDF(int|string $id) {
         $activity_plan = ActivityPlan::findOrFail($id);
 
         $position = [];
@@ -1163,6 +1165,10 @@ class ActivityPlanController extends Controller
         // ]);
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [
@@ -1296,7 +1302,11 @@ class ActivityPlanController extends Controller
 
     }
 
-    public function printTrip($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function printTrip(int|string $id) {
         $status_arr = [
             'draft'                     => 'secondary',
             'submitted'                 => 'indigo',

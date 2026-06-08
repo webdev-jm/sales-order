@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Department;
-use App\Models\User;
 
 use App\Http\Requests\StoreDepartmentRequest;
 use App\Http\Requests\UpdateDepartmentRequest;
@@ -14,7 +13,8 @@ class DepartmentController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -36,7 +36,7 @@ class DepartmentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -46,8 +46,8 @@ class DepartmentController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreDepartmentRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreDepartmentRequest $request)
     {
@@ -72,13 +72,13 @@ class DepartmentController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int|string $id)
     {
         $department = Department::findOrFail($id);
-        
+
         return view('pages.departments.show')->with([
             'department' => $department
         ]);
@@ -87,10 +87,10 @@ class DepartmentController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $department = Department::findOrFail($id);
 
@@ -102,11 +102,11 @@ class DepartmentController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  UpdateDepartmentRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateDepartmentRequest $request, $id)
+    public function update(UpdateDepartmentRequest $request, int|string $id)
     {
         $department = Department::findOrFail($id);
         $changes_arr['old'] = $department->getOriginal();
@@ -117,7 +117,7 @@ class DepartmentController extends Controller
             'department_head_id' => $request->department_head_id,
             'department_admin_id' => $request->department_admin_id,
         ]);
-        
+
         $changes_arr['changes'] = $department->getchanges();
 
         // log
@@ -134,10 +134,10 @@ class DepartmentController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return void
      */
-    public function destroy($id)
+    public function destroy(int|string $id): void
     {
         //
     }

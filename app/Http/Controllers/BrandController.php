@@ -9,6 +9,10 @@ use App\Http\Requests\UpdateBrandRequest;
 
 class BrandController extends Controller
 {
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request) {
         $search = trim($request->input('search'));
         $brands = Brand::orderBy('id', 'DESC')
@@ -24,10 +28,17 @@ class BrandController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function create() {
         return view('pages.brands.create');
     }
 
+    /**
+     * @param  StoreBrandRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(StoreBrandRequest $request) {
         $brand = new Brand([
             'brand' => $request->brand,
@@ -44,7 +55,11 @@ class BrandController extends Controller
         ]);
     }
 
-    public function show($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function show(int|string $id) {
         $brand = Brand::findOrFail($id);
 
         return view('pages.brands.show')->with([
@@ -52,7 +67,11 @@ class BrandController extends Controller
         ]);
     }
 
-    public function edit($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function edit(int|string $id) {
         $brand = Brand::findOrFail($id);
 
         return view('pages.brands.edit')->with([
@@ -60,7 +79,12 @@ class BrandController extends Controller
         ]);
     }
 
-    public function update(UpdateBrandRequest $request, $id) {
+    /**
+     * @param  UpdateBrandRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function update(UpdateBrandRequest $request, int|string $id) {
         $brand = Brand::findOrFail($id);
 
         $changes_arr['old'] = $brand->getOriginal();

@@ -32,7 +32,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -47,7 +47,7 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -70,8 +70,8 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreUserRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreUserRequest $request)
     {
@@ -106,10 +106,10 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function show($id)
+    public function show(int|string $id)
     {
         $user = User::findOrFail($id);
 
@@ -121,10 +121,10 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $user = User::findOrFail($id);
         $roles = Role::orderBy('name', 'ASC')->get();
@@ -147,11 +147,11 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @param  UpdateUserRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateUserRequest $request, $id)
+    public function update(UpdateUserRequest $request, int|string $id)
     {
         $user = User::findOrFail($id);
 
@@ -187,14 +187,18 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\User  $user
-     * @return \Illuminate\Http\Response
+     * @param  User  $user
+     * @return void
      */
     public function destroy(User $user)
     {
         //
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function upload(Request $request) {
         $request->validate([
             'upload_file' => [
@@ -240,13 +244,21 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function ajax(Request $request) {
         $search = $request->search;
         $response = User::UserAjax($search);
         return response()->json($response);
     }
 
-    public function getAjax($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAjax(int|string $id) {
         $user = User::findOrFail($id);
         return response()->json($user);
     }

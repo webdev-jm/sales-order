@@ -64,6 +64,10 @@ class TripController extends Controller
         $this->setting = $this->getSettings();
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
     public function index(Request $request) {
         $date_from = trim($request->input('date_from'));
         $date_to = trim($request->input('date_to'));
@@ -211,6 +215,10 @@ class TripController extends Controller
         ]);
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
     public function list(Request $request) {
         $date = trim($request->input('date'));
         $user = trim($request->input('user'));
@@ -279,7 +287,11 @@ class TripController extends Controller
         ]);
     }
 
-    public function show($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function show(int|string $id) {
         $trip = ActivityPlanDetailTrip::with('activity_plan_detail', 'approvals')->findOrFail($id);
 
         $approval_dates = ActivityPlanDetailTripApproval::select(DB::raw('DATE(created_at) as date'))
@@ -347,7 +359,12 @@ class TripController extends Controller
         ]);
     }
 
-    public function submitApprove(Request $request, $id) {
+    /**
+     * @param  Request  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function submitApprove(Request $request, int|string $id) {
         $request->validate([
             'status' => 'required',
             'amount' => [
@@ -548,7 +565,11 @@ class TripController extends Controller
         ]);
     }
 
-    public function approve($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function approve(int|string $id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         $changes_arr['old'] = $trip->getOriginal();
@@ -606,7 +627,11 @@ class TripController extends Controller
         ]);
     }
 
-    public function reject($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function reject(int|string $id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         $changes_arr['old'] = $trip->getOriginal();
@@ -650,11 +675,18 @@ class TripController extends Controller
         ]);
     }
 
+    /**
+     * @return \Illuminate\View\View
+     */
     public function create() {
         return view('pages.trips.create');
     }
 
-    public function edit($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
+    public function edit(int|string $id) {
         $trip = ActivityPlanDetailTrip::findOrFail($id);
 
         if($trip->status == 'for revision' || $trip->status == 'returned' || $trip->status == 'draft') {
@@ -668,7 +700,12 @@ class TripController extends Controller
         }
     }
 
-    public function attach(Request $request, $id) {
+    /**
+     * @param  Request  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function attach(Request $request, int|string $id) {
         // validate form data
         $request->validate([
             'attachment_file' => [
@@ -709,7 +746,11 @@ class TripController extends Controller
         ]);
     }
 
-    public function trip_user($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function trip_user(int|string $id) {
         $id = decrypt($id, 'user-id');
 
         $user = User::findOrFail($id);
@@ -726,7 +767,11 @@ class TripController extends Controller
 
     }
 
-    public function trip_user_detail($id) {
+    /**
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
+     */
+    public function trip_user_detail(int|string $id) {
         $id = decrypt($id, 'trip-id');
 
         $trip = ActivityPlanDetailTrip::findOrFail($id);
@@ -737,6 +782,10 @@ class TripController extends Controller
         ]);
     }
 
+    /**
+     * @param  Request  $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse
+     */
     public function export(Request $request) {
         $search = trim($request->input('search'));
         $date_from = trim($request->input('date_from'));

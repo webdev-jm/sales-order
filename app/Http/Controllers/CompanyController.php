@@ -22,7 +22,7 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
@@ -38,7 +38,7 @@ class CompanyController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function create()
     {
@@ -48,8 +48,8 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreCompanyRequest  $request
-     * @return \Illuminate\Http\Response
+     * @param  StoreCompanyRequest  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(StoreCompanyRequest $request)
     {
@@ -72,21 +72,21 @@ class CompanyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return void
      */
-    public function show($id)
+    public function show(int|string $id): void
     {
-        
+
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param  int|string  $id
+     * @return \Illuminate\View\View
      */
-    public function edit($id)
+    public function edit(int|string $id)
     {
         $id = decrypt($id);
         $company = Company::findOrFail($id);
@@ -98,11 +98,11 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateCompanyRequest  $request
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param  UpdateCompanyRequest  $request
+     * @param  int|string  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(UpdateCompanyRequest $request, $id)
+    public function update(UpdateCompanyRequest $request, int|string $id)
     {
         $id = decrypt($id);
         $company = Company::findOrFail($id);
@@ -131,10 +131,10 @@ class CompanyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param  Company  $company
+     * @return void
      */
-    public function destroy(Company $company)
+    public function destroy(Company $company): void
     {
         //
     }
