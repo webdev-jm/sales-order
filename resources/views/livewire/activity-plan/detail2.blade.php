@@ -162,7 +162,7 @@
 
                                                             {{-- search results --}}
                                                             @if(isset($account_query[$date][$line_key]) && !empty($account_query[$date][$line_key]))
-                                                                <div class="list-group position-absolute search-branch" wire:loading.remove wire:key="account-results-{{$date}}-{{$line_key}}">
+                                                                <div class="list-group position-absolute search-branch" wire:loading.remove wire:target="selectAccount" wire:key="account-results-{{$date}}-{{$line_key}}">
                                                                     @if($accounts->count() > 0)
                                                                         @foreach($accounts as $account)
                                                                             {{-- Pass only the ID to the Livewire method --}}
