@@ -317,6 +317,14 @@ class Index extends Component
             $startRow++;
         }
 
+        $lastRow = $startRow - 1;
+        if ($lastRow >= 2) {
+            $sheet->getStyle("A2:I{$lastRow}")
+                ->getBorders()
+                ->getAllBorders()
+                ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+        }
+
         $writer   = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
         $tempPath = tempnam(sys_get_temp_dir(), 'so_template_') . '.xlsx';
         $writer->save($tempPath);
