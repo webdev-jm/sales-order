@@ -310,7 +310,7 @@ class Index extends Component
             $sheet->setCellValue("C{$startRow}", $row['store_code']    ?? '');
             $sheet->setCellValue("D{$startRow}", $row['internal_sku']  ?? '');
             $sheet->setCellValue("E{$startRow}", $row['qty']           ?? '');
-            $sheet->setCellValue("F{$startRow}", $row['uom']           ?? '');
+            $sheet->setCellValue("F{$startRow}", 'CS');
             $sheet->setCellValue("G{$startRow}", $row['amount']        ?? '');
             $sheet->setCellValue("H{$startRow}", '');
             $sheet->setCellValue("I{$startRow}", $row['po_remarks']    ?? '');
