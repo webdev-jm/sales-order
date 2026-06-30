@@ -125,6 +125,11 @@
     </div>
     <div class="row no-print">
         <div class="col-12 ">
+          @if($ppu_form->status == 'finalized')
+          <a type="button" href="{{route('ppu.export', $ppu_form->id)}}" class="btn btn-success float-right" style="margin-right: 5px;">
+            <i class="fas fa-file-excel"></i> Export to Excel
+          </a>
+          @endif
           <a type="button" href="{{route('ppu.pdf', $ppu_form->id)}}" target="_blank" class="btn btn-primary float-right" style="margin-right: 5px;">
             <i class="fas fa-download"></i> Generate PDF
           </a>

@@ -13,6 +13,8 @@ use App\Http\Requests\StorePPUFormRequest;
 use App\Http\Requests\UpdatePPUFormRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\PPUFormExport;
 
 class PPUFormController extends Controller
 {
@@ -253,6 +255,17 @@ class PPUFormController extends Controller
         ]);
 
         return $pdf->stream();
+    }
+
+    public function exportExcel($id)
+    {
+        $ppu_form     = PPUForm::findOrFail($id);
+        $ppuform_item = PPUFormItem::where('ppuform_id', $id)->get();
+
+        return Excel::download(
+            new PPUFormExport($ppu_form, $ppuform_item),
+            'ppu-form-' . $ppu_form->control_number . '.xlsx'
+        );
     }
 
     /**
