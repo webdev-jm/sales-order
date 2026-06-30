@@ -113,6 +113,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('ppu-form/show/{id}', [PPUFormController::class, 'show'])->name('ppu.show');
         Route::get('ppu-form/edit/{id}', [PPUFormController::class, 'edit'])->name('ppu.edit');
         Route::get('ppu-form/pdf/{id}', [PPUFormController::class, 'printPDF'])->name('ppu.pdf');
+        Route::get('ppu-form/export/{id}', [PPUFormController::class, 'exportExcel'])->name('ppu.export');
         Route::post('ppu-form/store', [PPUFormController::class, 'store'])->name('ppu.store');
         Route::post('ppu-form/update/{id}', [PPUFormController::class, 'update'])->name('ppu.update');
         Route::get('ppu-form-multiple', [PPUFormMultipleController::class, 'index'])->name('ppu-form-multiple.index');
