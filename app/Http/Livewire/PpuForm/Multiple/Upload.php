@@ -128,6 +128,7 @@ class Upload extends Component
                     $data_arr['pickup_date'] = $pickup_date;
     
                     $data_arr['lines'][] = [
+                        'row_number' => $key + 1,
                         'rtv_number' => $rtv_number,
                         'rtv_date' => $rtv_date,
                         'branch_name' => $branch_name,
@@ -162,25 +163,57 @@ class Upload extends Component
         });
     }
 
+    private function validateLines(array $lines): array
+    {
+        $err = [];
+
+        if (empty($lines)) {
+            $err['lines'] = 'Please add items first';
+            return $err;
+        }
+
+        $rtvCounts = [];
+        foreach ($lines as $item) {
+            $normalized = mb_strtolower(trim($item['rtv_number'] ?? ''));
+            if ($normalized !== '') {
+                $rtvCounts[$normalized] = ($rtvCounts[$normalized] ?? 0) + 1;
+            }
+        }
+
+        foreach ($lines as $key => $item) {
+            $rowErr = [];
+            $rtvNumber = trim($item['rtv_number'] ?? '');
+
+            if ($rtvNumber === '') {
+                $rowErr['rtv_number'] = 'RTV number is required';
+            } else {
+                $normalized = mb_strtolower($rtvNumber);
+                if (($rtvCounts[$normalized] ?? 0) > 1) {
+                    $rowErr['rtv_number'] = 'RTV number '.$rtvNumber.' is duplicated within this upload';
+                } elseif (PPUFormItem::where('rtv_number', $rtvNumber)->withTrashed()->exists()) {
+                    $rowErr['rtv_number'] = 'RTV number '.$rtvNumber.' already exists';
+                }
+            }
+
+            if (!empty($rowErr)) {
+                $err['rows'][$key] = $rowErr;
+            }
+        }
+
+        return $err;
+    }
+
+    public function recheckLines()
+    {
+        $this->success_data = null;
+        $this->err_data = $this->validateLines($this->ppu_data['lines'] ?? []);
+    }
+
     public function savePPUForm($status) {
         // validate
         $data = $this->ppu_data;
 
-        $err = array();
-        if(empty($data['lines'])) {
-            $err['lines'] = 'Please add items first';
-        }
-        foreach($data['lines'] as $key => $item) {
-            if(empty($item['rtv_number'])) {
-                $err['rtv_number'] = 'RTV number is required';
-            } else {
-                // check for duplicates
-                $check1 = PPUFormItem::where('rtv_number', $item['rtv_number'])->withTrashed()->exists();
-                if(!empty($check1)) {
-                    $err['rtv_number'] = 'RTV number '.$item['rtv_number'].' already exists';
-                }
-            }
-        }
+        $err = $this->validateLines($data['lines'] ?? []);
 
         if(empty($err)) {
             // create sales order

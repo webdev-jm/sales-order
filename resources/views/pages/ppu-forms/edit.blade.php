@@ -122,7 +122,12 @@
                             @foreach ($ppuform_item as $index => $item)
                             <tr>
                                 <td class="row-number">{{ $index + 1 }}</td>
-                                <td><input type="text" name="items[{{ $index }}][rs]"  value="{{ $item['rtv_number'] }}" class="form-control text-center rs" /></td>
+                                <td>
+                                    <input type="text" name="items[{{ $index }}][rs]"  value="{{ $item['rtv_number'] }}" class="form-control text-center rs{{ $errors->has("items.$index") ? ' is-invalid' : '' }}" />
+                                    @error("items.$index")
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </td>
                                 <td><input type="date" name="items[{{ $index }}][rtvdate]" value="{{ $item['rtv_date'] }}" class="form-control text-center rtv" /></td>
                                 <td><input type="text" name="items[{{ $index }}][name]" value="{{ $item['branch_name'] }}" class="form-control text-center name" /></td>
                                 <td><input type="number" name="items[{{ $index }}][qty]" value="{{ $item['total_quantity'] }}" class="form-control text-center qty" value="0"/></td>
@@ -135,8 +140,10 @@
                         <tfoot>
                             <tr>
                                 <th></th>
-                                <th> 
-                                    <p class="text-danger">{{$errors->first('items')}}</p>
+                                <th>
+                                    @if(collect($errors->keys())->contains(fn($k) => str_starts_with($k, 'items.')))
+                                        <p class="text-danger">See highlighted row(s) above.</p>
+                                    @endif
                                 </th>
 
                                 <th colspan="2" class="text-right">TOTAL</th>

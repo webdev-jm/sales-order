@@ -241,29 +241,30 @@ class MCPReportExport implements FromCollection, ShouldAutoSize, WithStyles, Wit
 
     private function formatRowData($status, $schedule, $login, $activity_plan, $activity_str): array
     {
-        $user = $schedule->user ?? $login->user;
-        $branch = $schedule->branch ?? $login->branch;
-        $date = $schedule->date ?? Carbon::parse($login->time_in)->toDateString();
+        $user = $schedule?->user ?? $login?->user;
+        $branch = $schedule?->branch ?? $login?->branch;
+        $date = $schedule?->date ?? Carbon::parse($login->time_in)->toDateString();
+        $isOnLeave = $schedule?->objective === 'on-leave';
 
         return [
             $user->group_code,
             $user->email,
             $user->fullName(),
             $date,
-            $branch->account->short_name,
-            $branch->branch_code,
-            $branch->branch_name,
-            $login->latitude ?? '',
-            $login->longitude ?? '',
-            ($login && $login->latitude) ? \App\Helpers\AppHelper::instance()->getAddress($login->latitude, $login->longitude) : '',
-            !empty($login->time_in) ? date('H:i a', strtotime($login->time_in)) : '',
-            !empty($login->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
-            $status,
-            $schedule->source ?? 'unscheduled',
-            $schedule->objective ?? '',
+            $isOnLeave ? 'ON LEAVE' : ($branch->account?->short_name ?? ''),
+            $isOnLeave ? '' : $branch?->branch_code,
+            $isOnLeave ? '' : $branch?->branch_name,
+            $login?->latitude ?? '',
+            $login?->longitude ?? '',
+            '',
+            !empty($login?->time_in) ? date('H:i a', strtotime($login->time_in)) : '',
+            !empty($login?->time_out) ? date('H:i a', strtotime($login->time_out)) : '',
+            $isOnLeave ? 'on leave' : $status,
+            $schedule?->source ?? 'unscheduled',
+            $schedule?->objective ?? '',
             $activity_str,
             $activity_plan->exact_location ?? '',
-            ($login && $login->time_out_latitude) ? \App\Helpers\AppHelper::instance()->getAddress($login->time_out_latitude, $login->time_out_longitude) : '-'
+            ''
         ];
     }
 

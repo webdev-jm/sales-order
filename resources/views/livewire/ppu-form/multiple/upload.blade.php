@@ -54,6 +54,11 @@
                         <div class="card-title">CONTROL NUMBER: <b>{{$success_data['control_number'] ?? 'N/A'}}</b></div>
                         <div class="card-tools">
                             @if(empty($success_data['control_number']))
+                                <button class="btn btn-outline-secondary" wire:loading.attr="disabled" wire:click.prevent="recheckLines">
+                                    <i class="fa fa-sync mr-1" wire:loading.remove></i>
+                                    <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
+                                    Re-check Rows
+                                </button>
                                 <button class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="savePPUForm('draft', '')">
                                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
                                     Save as Draft
@@ -66,13 +71,23 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if(!empty($err_data))
+                        @if(!empty($err_data['lines']))
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-danger pl-0">
+                                        {{ $err_data['lines'] }}
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif(!empty($err_data['rows']))
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-danger pl-0">
                                         <ul class="mb-0">
-                                            @foreach($err_data as $err)
-                                                <li class="">{{$err}}</li>
+                                            @foreach($err_data['rows'] as $idx => $fields)
+                                                @foreach($fields as $field => $msg)
+                                                    <li>Row {{ $ppu_data['lines'][$idx]['row_number'] ?? ($idx + 1) }}: {{ $msg }}</li>
+                                                @endforeach
                                             @endforeach
                                         </ul>
                                     </div>
@@ -150,15 +165,38 @@
                                         @foreach($ppu_data['lines'] as $key => $val)
                                             @php
                                                 $num++;
+                                                $rowErr = $err_data['rows'][$key] ?? [];
                                             @endphp
-                                            <tr>
-                                                <td class="align-middle text-center">{{$num}}</td>
-                                                <td class="align-middle">{{$val['rtv_number']}}</td>
-                                                <td class="align-middle">{{$val['rtv_date']}}</td>
-                                                <td class="align-middle">{{$val['branch_name']}}</td>
-                                                <td class="text-right">{{$val['total_quantity']}}</td>
-                                                <td class="text-right">{{number_format($val['total_amount'], 2)}}</td>
-                                                <td class="text-right">{{$val['remarks']}}</td>
+                                            <tr class="{{ !empty($rowErr) ? 'table-danger' : '' }}">
+                                                <td class="align-middle text-center">{{ $val['row_number'] ?? $num }}</td>
+                                                <td class="align-middle">
+                                                    <input type="text"
+                                                           class="form-control form-control-sm{{ !empty($rowErr['rtv_number']) ? ' is-invalid' : '' }}"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.rtv_number">
+                                                    @if(!empty($rowErr['rtv_number']))
+                                                        <div class="invalid-feedback d-block">{{ $rowErr['rtv_number'] }}</div>
+                                                    @endif
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="date" class="form-control form-control-sm"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.rtv_date">
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.branch_name">
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="number" class="form-control form-control-sm text-right"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.total_quantity">
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="number" step="0.01" class="form-control form-control-sm text-right"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.total_amount">
+                                                </td>
+                                                <td class="align-middle">
+                                                    <input type="text" class="form-control form-control-sm"
+                                                           wire:model.defer="ppu_data.lines.{{ $key }}.remarks">
+                                                </td>
                                             </tr>
                                             @php
                                                 $quantity_total += $val['total_quantity'];
