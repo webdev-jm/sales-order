@@ -123,7 +123,12 @@
                         <tbody >
                             <tr>
                                 <td class="row-number">1</td>
-                                <td><input type="text" name="items[0][rs]" placeholder="Enter RTV/RS No." class="form-control text-center rs" /></td>
+                                <td>
+                                    <input type="text" name="items[0][rs]" placeholder="Enter RTV/RS No." class="form-control text-center rs{{ $errors->has('items.0') ? ' is-invalid' : '' }}" />
+                                    @error('items.0')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </td>
                                 <td><input type="date" name="items[0][rtvdate]" placeholder="Enter RTV Date" class="form-control text-center rtv" /></td>
                                 <td><input type="text" name="items[0][name]" placeholder="Enter Branch Name" class="form-control text-center name" /></td>
                                 <td><input type="number" name="items[0][qty]" placeholder="Enter Qty" class="form-control text-center qty" value="0"/></td>
@@ -136,7 +141,9 @@
                             <tr>
                                 <th></th>
                                 <th>
-                                    <p class="text-danger">{{$errors->first('items')}}</p>
+                                    @if(collect($errors->keys())->contains(fn($k) => str_starts_with($k, 'items.')))
+                                        <p class="text-danger">See highlighted row(s) above.</p>
+                                    @endif
                                 </th>
 
                                 <th colspan="2" class="text-right">TOTAL</th>

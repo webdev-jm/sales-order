@@ -133,6 +133,48 @@ class PPUFormController extends Controller
         }
     }
 
+    /**
+     * @param  array<int, array{rs?: string}>  $items
+     * @return array<string, string>
+     */
+    private function validatePpuItems(array $items, ?int $excludeId = null): array
+    {
+        $errors = [];
+        $seenAt = [];
+
+        foreach ($items as $idx => $item) {
+            $name = strtolower(trim($item['rs'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            if (isset($seenAt[$name])) {
+                $errors["items.$idx"] = 'RTV No. '.$item['rs'].' is duplicated within this PPU.';
+                $errors["items.{$seenAt[$name]}"] = 'RTV No. '.$item['rs'].' is duplicated within this PPU.';
+            } else {
+                $seenAt[$name] = $idx;
+            }
+        }
+
+        foreach ($items as $idx => $item) {
+            if (isset($errors["items.$idx"])) {
+                continue;
+            }
+            $name = strtolower(trim($item['rs'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $query = DB::table('ppuform_items')->whereRaw('LOWER(rtv_number) = ?', [$name]);
+            if ($excludeId !== null) {
+                $query->where('ppuform_id', '!=', $excludeId);
+            }
+            if ($query->exists()) {
+                $errors["items.$idx"] = 'RTV No. '.$item['rs'].' already exists in another PPU.';
+            }
+        }
+
+        return $errors;
+    }
+
     private function generateControlNumber(): string
     {
         $year = date('Y');
@@ -176,22 +218,9 @@ class PPUFormController extends Controller
             'total_amount' => $ppu_item['total_amount'] ?? 0,
         ]);
       
-        $names = array_map(fn($item) => strtolower(trim($item['rs'])), $ppu_item['items']);
-        if (count($names) !== count(array_unique($names))) {
-            return back()->withErrors(['items' => 'Duplicate RTV No. are not allowed.'])->withInput();
-        }
-
-        $duplicateNames = DB::table('ppuform_items')
-            ->whereIn(DB::raw('LOWER(rtv_number)'), $names)
-            ->pluck('rtv_number')
-            ->map(fn($n) => strtolower($n))
-            ->toArray();
-
-        if (!empty($duplicateNames)) {
-            $duplicates = implode(', ', array_unique($duplicateNames));
-            return back()->withErrors([
-                'items' => "The following RTV No. already exist in another PPU: {$duplicates}"
-            ])->withInput();
+        $rowErrors = $this->validatePpuItems($ppu_item['items'] ?? []);
+        if (!empty($rowErrors)) {
+            return back()->withErrors($rowErrors)->withInput();
         }
 
         DB::transaction(function () use ($ppu_form, $ppu_item) {
@@ -308,23 +337,9 @@ class PPUFormController extends Controller
 
         $ppu_form = PPUForm::findOrFail($id);
 
-        $names = array_map(fn($item) => strtolower(trim($item['rs'])), $ppu_item['items']);
-        if (count($names) !== count(array_unique($names))) {
-            return back()->withErrors(['items' => 'Duplicate RTV No. are not allowed.'])->withInput();
-        }
-
-        $duplicateNames = DB::table('ppuform_items')
-            ->whereIn(DB::raw('LOWER(rtv_number)'), $names)
-            ->where('ppuform_id', '!=', $id)
-            ->pluck('rtv_number')
-            ->map(fn($n) => strtolower($n))
-            ->toArray();
-
-        if (!empty($duplicateNames)) {
-            $duplicates = implode(', ', array_unique($duplicateNames));
-            return back()->withErrors([
-                'items' => "The following RTV No. already exist in another PPU: {$duplicates}"
-            ])->withInput();
+        $rowErrors = $this->validatePpuItems($ppu_item['items'] ?? [], (int) $id);
+        if (!empty($rowErrors)) {
+            return back()->withErrors($rowErrors)->withInput();
         }
 
         DB::transaction(function () use ($ppu_form, $ppu_item, $logged_account, $request, $id) {
