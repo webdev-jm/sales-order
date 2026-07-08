@@ -4,6 +4,10 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Services\SalesOrderService;
+use App\Models\Account;
+use App\Models\Company;
+use App\Models\PriceCode;
+use App\Models\Product;
 use App\Models\SalesOrder;
 use Database\Seeders\SettingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -74,5 +78,85 @@ class SalesOrderServiceTest extends TestCase
         $this->assertSame(0, $result['total_quantity']);
         $this->assertSame(0, $result['total']);
         $this->assertSame(0, $result['grand_total']);
+    }
+
+    /**
+     * calculateOrderTotals() should drop a product from the results and report it
+     * under 'skipped_items' when no price code matches the account's company/code,
+     * instead of silently disappearing with no explanation (the multiple-SO-upload bug).
+     */
+    public function test_calculate_order_totals_reports_skipped_item_when_no_price_code_matches(): void
+    {
+        $company = Company::factory()->create();
+        $account = Account::factory()->create([
+            'company_id' => $company->id,
+            'price_code' => 'B',
+            'line_discount_code' => null,
+        ]);
+        $product = Product::factory()->create([
+            'brand_id' => \App\Models\Brand::factory()->create(['brand' => 'TEST BRAND'])->id,
+        ]);
+
+        // A price code exists for this product, but under a different code than the account uses.
+        PriceCode::factory()->create([
+            'company_id' => $company->id,
+            'product_id' => $product->id,
+            'code' => 'A',
+        ]);
+
+        $data = [
+            $product->id => [
+                'product' => $product,
+                'data' => [
+                    $product->stock_uom => ['quantity' => 5],
+                ],
+            ],
+        ];
+
+        $result = $this->service->calculateOrderTotals($data, $account);
+
+        $this->assertArrayNotHasKey($product->id, $result['items'] ?? []);
+        $this->assertCount(1, $result['skipped_items']);
+        $this->assertSame($product->stock_code, $result['skipped_items'][0]['stock_code']);
+        $this->assertStringContainsString("No price code 'B'", $result['skipped_items'][0]['reason']);
+    }
+
+    /**
+     * calculateOrderTotals() should include the product normally, with nothing
+     * reported as skipped, once a matching price code exists.
+     */
+    public function test_calculate_order_totals_does_not_report_skipped_item_when_price_code_matches(): void
+    {
+        $company = Company::factory()->create();
+        $account = Account::factory()->create([
+            'company_id' => $company->id,
+            'price_code' => 'A',
+            'line_discount_code' => null,
+        ]);
+        $product = Product::factory()->create([
+            'brand_id' => \App\Models\Brand::factory()->create(['brand' => 'TEST BRAND'])->id,
+        ]);
+
+        PriceCode::factory()->create([
+            'company_id' => $company->id,
+            'product_id' => $product->id,
+            'code' => 'A',
+            'selling_price' => 100,
+            'price_basis' => 'S',
+        ]);
+
+        $data = [
+            $product->id => [
+                'product' => $product,
+                'data' => [
+                    $product->stock_uom => ['quantity' => 5],
+                ],
+            ],
+        ];
+
+        $result = $this->service->calculateOrderTotals($data, $account);
+
+        $this->assertArrayHasKey($product->id, $result['items']);
+        $this->assertEmpty($result['skipped_items']);
     }
 }

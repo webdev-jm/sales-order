@@ -154,6 +154,7 @@ class Upload extends Component
 
             // Prepare Items for Service
             $service_items = [];
+            $warnings = [];
 
             foreach ($group['items'] as $sku => $item_data) {
                 $product = Product::where('stock_code', $sku)->first();
@@ -171,10 +172,17 @@ class Upload extends Component
                         'product' => $product,
                         'data' => $uom_data
                     ];
+                } else {
+                    $warnings[] = [
+                        'stock_code' => $sku,
+                        'reason'     => 'SKU not found in the product catalog.',
+                    ];
                 }
             }
 
             $calculated_orders = $this->salesOrderService->calculateOrderTotals($service_items, $this->account);
+
+            $warnings = array_merge($warnings, $calculated_orders['skipped_items'] ?? []);
 
             // Prepare Data (Lines)
             $display_lines = [];
@@ -207,6 +215,7 @@ class Upload extends Component
                 'shipping_instruction' => $group['meta']['shipping_instruction'],
                 'discount' => $this->account->discount,
                 'lines' => $display_lines,
+                'warnings' => $warnings,
                 'calculated_data' => $calculated_orders,
                 'service_items_input' => $service_items // Store input just in case we need to recalculate
             ];

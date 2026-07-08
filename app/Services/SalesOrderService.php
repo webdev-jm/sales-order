@@ -36,6 +36,7 @@ class SalesOrderService {
         $orders = [];
         $total = 0;
         $total_quantity = 0;
+        $orders['skipped_items'] = [];
 
         if (!empty($data)) {
             $line_discount = Discount::where('discount_code', $account->line_discount_code)
@@ -193,6 +194,13 @@ class SalesOrderService {
                     $orders['items'][$product->id]['product_quantity'] = $product_quantity;
                 } else {
                     unset($orders['items'][$product->id]);
+
+                    $orders['skipped_items'][] = [
+                        'stock_code' => $product->stock_code,
+                        'reason'     => empty($price_code)
+                            ? "No price code '{$code}' is configured for this product on this account."
+                            : 'Calculated total is zero.',
+                    ];
                 }
 
                 $total          += $product_total;
