@@ -81,6 +81,21 @@
                             </div>
                         @endif
 
+                        @if(!empty($data['warnings']))
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-warning pl-0">
+                                        <strong class="ml-3">The following SKUs were not included in this order:</strong>
+                                        <ul class="mb-0">
+                                            @foreach($data['warnings'] as $warning)
+                                                <li>{{$warning['stock_code']}} &mdash; {{$warning['reason']}}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         @if(!empty($success_data[$po_number]['message']))
                             <div class="row">
                                 <div class="col-12">
