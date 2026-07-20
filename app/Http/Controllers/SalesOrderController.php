@@ -22,6 +22,8 @@ use App\Exports\SalesOrderExport;
 use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 use App\Http\Traits\SoXmlTrait;
+use App\Services\AccountLoginResolver;
+use App\Services\SalesOrderRestriction;
 use App\Services\SalesOrderService;
 use App\Jobs\GenerateSalesOrderXml;
 use App\Jobs\CheckSalesOrderStatus;
@@ -34,8 +36,11 @@ class SalesOrderController extends Controller
 
     public $setting;
 
-    public function __construct(protected SalesOrderService $salesOrderService)
-    {
+    public function __construct(
+        protected SalesOrderService $salesOrderService,
+        protected AccountLoginResolver $accountLoginResolver,
+        protected SalesOrderRestriction $salesOrderRestriction
+    ) {
         $this->setting = $this->getSettings();
     }
 
@@ -104,7 +109,7 @@ class SalesOrderController extends Controller
 
     public function index(Request $request)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
 
         if (empty($logged_account)) {
             return redirect()->route('home')->with([
@@ -147,22 +152,22 @@ class SalesOrderController extends Controller
             ->appends(request()->query());
 
         return view('pages.sales-orders.index')->with([
-            'sales_orders' => $sales_orders,
-            'search'       => $search,
-            'date_from'    => $date_from,
-            'date_to'      => $date_to,
-            'cut_off'      => $cut_off,
+            'sales_orders'         => $sales_orders,
+            'search'               => $search,
+            'date_from'            => $date_from,
+            'date_to'              => $date_to,
+            'cut_off'              => $cut_off,
+            'restricted'           => $this->salesOrderRestriction->isRestricted($logged_account->account),
+            'restricted_message'   => $this->salesOrderRestriction->message($logged_account->account),
         ]);
     }
 
     public function create()
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
 
-        if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
-            ]);
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
         }
 
         $process_ship_date = $this->resolveShipDate($logged_account);
@@ -175,12 +180,10 @@ class SalesOrderController extends Controller
 
     public function resubmit($id)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
 
-        if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
-            ]);
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
         }
 
         $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
@@ -200,6 +203,12 @@ class SalesOrderController extends Controller
 
     public function store(StoreSalesOrderRequest $request)
     {
+        $logged_account = $this->accountLoginResolver->resolve();
+
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
+        }
+
         $order_data = Session::get('order_data');
 
         if (empty($order_data['items'])) {
@@ -210,7 +219,7 @@ class SalesOrderController extends Controller
             return back()->with('message_error', 'PO value is required.')->withInput();
         }
 
-        $account = Session::get('logged_account')->account;
+        $account = $logged_account->account;
 
         try {
             $sales_order = $this->salesOrderService->createOrder($request, $account, $order_data);
@@ -250,12 +259,10 @@ class SalesOrderController extends Controller
 
     public function edit($id)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
 
-        if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
-            ]);
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
         }
 
         $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
@@ -275,8 +282,12 @@ class SalesOrderController extends Controller
 
     public function update(UpdateSalesOrderRequest $request, $id)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
         $order_data     = Session::get('order_data');
+
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
+        }
 
         if (empty($order_data['items'])) {
             return back()->with('message_error', 'Please add items first.')->withInput();
@@ -315,12 +326,10 @@ class SalesOrderController extends Controller
 
     public function upload(Request $request)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
 
-        if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
-            ]);
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
         }
 
         $request->validate([
@@ -435,7 +444,14 @@ class SalesOrderController extends Controller
 
     public function export(Request $request)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
+
+        if (empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order',
+            ]);
+        }
+
         $date_from      = trim($request->input('date_from'));
         $date_to        = trim($request->input('date_to'));
         $search         = trim($request->input('search'));
@@ -462,6 +478,27 @@ class SalesOrderController extends Controller
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Redirect home when the user has no account login, or when the account
+     * they are signed in to is barred from creating sales orders.
+     */
+    private function accountRedirect($logged_account): ?\Illuminate\Http\RedirectResponse
+    {
+        if (empty($logged_account)) {
+            return redirect()->route('home')->with([
+                'message_error' => 'please sign in to account before creating sales order',
+            ]);
+        }
+
+        if ($this->salesOrderRestriction->isRestricted($logged_account->account)) {
+            return redirect()->route('home')->with([
+                'message_error' => $this->salesOrderRestriction->message($logged_account->account),
+            ]);
+        }
+
+        return null;
+    }
 
     /**
      * Build the $order_data array from an existing SalesOrder's persisted products.

@@ -57,6 +57,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Restricted Accounts
+    |--------------------------------------------------------------------------
+    |
+    | Account codes that are not allowed to create or upload sales orders.
+    | The restriction applies both when signed in to the account itself and
+    | when signed in to any of its branches.
+    |
+    */
+    'restricted_accounts' => [
+        '100001', // BEVI OFFICES
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Restricted Account Message
+    |--------------------------------------------------------------------------
+    |
+    | Shown whenever a restricted account attempts to create or upload a
+    | sales order. ":account" is replaced with the account name.
+    |
+    */
+    'restricted_account_message' => ':account is not available for sales order creation.',
+
+    /*
+    |--------------------------------------------------------------------------
     | API Product IDs
     |--------------------------------------------------------------------------
     |

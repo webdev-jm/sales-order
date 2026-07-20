@@ -4,6 +4,8 @@ namespace App\Services;
 
 use BeviWebdevJm\HubAuthClient\Contracts\ResolvesHubUser;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Spatie\Permission\Models\Role;
 
@@ -43,7 +45,7 @@ class HubUserResolver implements ResolvesHubUser
             'lastname'     => $lastname,
             'email'        => $hubUser->getEmail(),
             'notify_email' => $hubUser->getEmail(),
-            'password'     => null,
+            'password'     => Hash::make($this->defaultPassword($hubUser->getEmail())),
         ]);
 
         $this->assignDefaultRole($user);
@@ -61,6 +63,15 @@ class HubUserResolver implements ResolvesHubUser
         $parts = explode(' ', trim($fullName), 2);
 
         return [$parts[0] ?? '', $parts[1] ?? ''];
+    }
+
+    /**
+     * Build the default password from the local part of the user's email.
+     * Example: michael@gmail.com -> michael123!
+     */
+    private function defaultPassword(string $email): string
+    {
+        return Str::before($email, '@') . '123!';
     }
 
     /**

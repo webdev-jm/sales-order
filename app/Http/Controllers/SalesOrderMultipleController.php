@@ -2,16 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use App\Services\AccountLoginResolver;
+use App\Services\SalesOrderRestriction;
 
 class SalesOrderMultipleController extends Controller
 {
+    public function __construct(
+        protected AccountLoginResolver $accountLoginResolver,
+        protected SalesOrderRestriction $salesOrderRestriction
+    ) {
+    }
+
     public function index() {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
         if(empty($logged_account)) {
             return redirect()->route('home')->with([
                 'message_error' => 'please sign in to account before creating sales order'
+            ]);
+        }
+
+        if($this->salesOrderRestriction->isRestricted($logged_account->account)) {
+            return redirect()->route('home')->with([
+                'message_error' => $this->salesOrderRestriction->message($logged_account->account)
             ]);
         }
 

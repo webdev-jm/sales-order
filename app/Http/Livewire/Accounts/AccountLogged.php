@@ -60,12 +60,25 @@ class AccountLogged extends Component
     {
         $userId = auth()->user()->id;
 
+        // Fetch logged branch
+        $this->logged_branch = BranchLogin::where('user_id', $userId)
+            ->whereNull('time_out')
+            ->first();
+
+        Session::put('logged_branch', $this->logged_branch);
+
         // Fetch logged account
         $this->logged = AccountLoginModel::where('user_id', $userId)
             ->whereNull('time_out')
             ->first();
 
-        if ($this->logged) {
+        // An account login derived from a branch login is owned by that branch,
+        // so it is exempt from the account assignment check below.
+        $derived_from_branch = $this->logged
+            && $this->logged_branch
+            && $this->logged->account_id == $this->logged_branch->branch->account_id;
+
+        if ($this->logged && !$derived_from_branch) {
             $exists = Account::where('id', $this->logged->account_id)
                 ->where(function ($query) use ($userId) {
                     $query->whereHas('users', function ($qry) use($userId) {
@@ -84,12 +97,11 @@ class AccountLogged extends Component
 
         Session::put('logged_account', $this->logged);
 
-        // Fetch logged branch
-        $this->logged_branch = BranchLogin::where('user_id', $userId)
-            ->whereNull('time_out')
-            ->first();
-
-        Session::put('logged_branch', $this->logged_branch);
+        // The account login derived from a branch login is not shown on its own;
+        // the branch remains the active session the user signs out of.
+        if ($this->logged_branch) {
+            $this->logged = null;
+        }
 
         $this->setSignout();
     }

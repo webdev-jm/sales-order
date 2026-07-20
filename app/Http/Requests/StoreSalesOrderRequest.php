@@ -7,7 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Models\SalesOrder;
 
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Session;
+use App\Services\AccountLoginResolver;
 
 class StoreSalesOrderRequest extends FormRequest
 {
@@ -28,7 +28,7 @@ class StoreSalesOrderRequest extends FormRequest
      */
     public function rules(): array
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = app(AccountLoginResolver::class)->resolve();
 
         return [
             'control_number' => [],
@@ -43,7 +43,7 @@ class StoreSalesOrderRequest extends FormRequest
                     ->where(function($query) {
                         $query->where('status', '!=', 'cancelled');
                     }),
-                Rule::unique('purchase_order_numbers')->where('company_id', $logged_account->account->company_id),
+                Rule::unique('purchase_order_numbers')->where('company_id', $logged_account?->account?->company_id),
                 'max:30'
             ],
             'paf_number' => [
@@ -58,7 +58,7 @@ class StoreSalesOrderRequest extends FormRequest
                 'required',
                 function ($attribute, $value, $fail) use ($logged_account) {
                     
-                    if (!empty($logged_account->account->po_process_date)) {
+                    if (!empty($logged_account?->account?->po_process_date)) {
                         // Check if the ship date is at least 3 days from the order date
                         $leadDate = Carbon::parse($this->order_date)->addWeekdays($logged_account->account->po_process_date)->startOfDay();
                         $shipDate = Carbon::parse($value)->startOfDay();

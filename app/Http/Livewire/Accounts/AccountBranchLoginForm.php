@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Accounts;
 
+use App\Services\AccountLoginResolver;
 use Livewire\Component;
 
 use Livewire\WithFileUploads;
@@ -43,8 +44,12 @@ class AccountBranchLoginForm extends Component
         ->performedOn($this->logged_branch)
         ->log(':causer.firstname :causer.lastname has logged out from branch '.($this->logged_branch->branch->account->short_name ?? '').' - '.$this->logged_branch->branch->branch_name);
 
+        // close the account login derived from this branch login
+        app(AccountLoginResolver::class)->closeDerivedLogin($this->logged_branch->user_id);
+
         Session::forget('logged_branch');
         Session::forget('coe_form_data');
+        Session::forget('order_data');
 
         return redirect()->to('/home');
     }
