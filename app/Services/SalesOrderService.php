@@ -238,19 +238,16 @@ class SalesOrderService {
     {
         $data->control_number = $this->generateControlNumber();
 
-        // Prepend the account's PO prefix when defined (e.g. "PH-" → "PH-00001").
-        if (!empty($account->po_prefix)) {
-            $data->merge(['po_number' => $account->po_prefix . $data->po_number]);
-        }
+        $po_number = $this->applyPoPrefix($data->po_number, $account);
 
         $shipping_address_id = $data->shipping_address_id == 'default' ? null : $data->shipping_address_id;
 
-        return DB::transaction(function () use ($data, $account, $order_data, $shipping_address_id) {
+        return DB::transaction(function () use ($data, $account, $order_data, $shipping_address_id, $po_number) {
             $sales_order = SalesOrder::create([
                 'account_login_id'     => app(AccountLoginResolver::class)->resolve()->id,
                 'shipping_address_id'  => $shipping_address_id,
                 'control_number'       => $data->control_number,
-                'po_number'            => $data->po_number,
+                'po_number'            => $po_number,
                 'paf_number'           => $data->paf_number,
                 'order_date'           => $data->order_date,
                 'ship_date'            => $data->ship_date,
@@ -278,16 +275,14 @@ class SalesOrderService {
      */
     public function updateOrder($sales_order, $data, $account, $order_data): SalesOrder
     {
-        if (!empty($account->po_prefix)) {
-            $data->merge(['po_number' => $account->po_prefix . $data->po_number]);
-        }
+        $po_number = $this->applyPoPrefix($data->po_number, $account);
 
         $shipping_address_id = $data->shipping_address_id == 'default' ? null : $data->shipping_address_id;
 
-        return DB::transaction(function () use ($sales_order, $data, $account, $order_data, $shipping_address_id) {
+        return DB::transaction(function () use ($sales_order, $data, $account, $order_data, $shipping_address_id, $po_number) {
             $sales_order->update([
                 'shipping_address_id'  => $shipping_address_id,
-                'po_number'            => $data->po_number,
+                'po_number'            => $po_number,
                 'paf_number'           => $data->paf_number,
                 'ship_date'            => $data->ship_date,
                 'shipping_instruction' => $data->shipping_instruction,
@@ -319,6 +314,29 @@ class SalesOrderService {
     }
 
     /**
+     * Prepend the account's PO prefix when defined (e.g. "PH-" → "PH-00001").
+     *
+     * Editing an order posts back the stored PO number, which already carries the
+     * prefix, so the prefix is only applied when it is not present yet.
+     *
+     * The result is returned rather than merged back into $data: callers pass
+     * either a FormRequest or an Illuminate\Support\Fluent, and Fluent has no
+     * merge() — the call would silently become an attribute named "merge".
+     */
+    private function applyPoPrefix(?string $po_number, $account): ?string
+    {
+        if (empty($account->po_prefix) || empty($po_number)) {
+            return $po_number;
+        }
+
+        if (str_starts_with($po_number, $account->po_prefix)) {
+            return $po_number;
+        }
+
+        return $account->po_prefix . $po_number;
+    }
+
+    /**
      * Create SalesOrderProduct rows for all items.
      *
      * Products belonging to a "special group" (configured in config/sales-order.php
@@ -346,7 +364,7 @@ class SalesOrderService {
                 continue;
             }
 
-            if (Config::get('enable_parts')) {
+            if (Config::get('sales-order.enable_parts')) {
                 $num++;
                 if ($num > $curr_limit) {
                     $curr_limit += $limit;
@@ -398,7 +416,7 @@ class SalesOrderService {
 
             if (!empty($data['paf_rows'])) {
                 foreach ($data['paf_rows'] as $paf_row) {
-                    if (isset($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
+                    if (!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
                         SalesOrderProductUomPAF::create([
                             'sales_order_product_uom_id' => $product_uom->id,
                             'paf_number'                 => $paf_row['paf_number'],

@@ -11,19 +11,20 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\SeedsReferenceData;
 use Tests\TestCase;
 
 class SalesOrderBranchLoginTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
+    use SeedsReferenceData;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionSeeder::class);
-        $this->seed(RoleSeeder::class);
-        $this->seed(SettingSeeder::class);
+        $this->seedPermissionsAndRoles();
+        $this->seedSettings();
     }
 
     private function createSuperadmin(): User

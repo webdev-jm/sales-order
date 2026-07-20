@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\SeedsReferenceData;
 use Tests\TestCase;
 use App\Models\User;
 use App\Models\Account;
@@ -13,14 +14,14 @@ use Database\Seeders\SettingSeeder;
 
 class SalesOrderCreationTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
+    use SeedsReferenceData;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionSeeder::class);
-        $this->seed(RoleSeeder::class);
-        $this->seed(SettingSeeder::class);
+        $this->seedPermissionsAndRoles();
+        $this->seedSettings();
     }
 
     private function createSuperadmin(): User
@@ -176,6 +177,9 @@ class SalesOrderCreationTest extends TestCase
 
         $user = $this->createSuperadmin();
         $account = Account::factory()->create();
+        // The home page signs the user out of any account that is not assigned
+        // to them (see AccountLogged::mount), so the assignment must exist.
+        $user->accounts()->attach($account);
         $accountLogin = AccountLogin::factory()->create([
             'user_id' => $user->id,
             'account_id' => $account->id,
@@ -183,10 +187,13 @@ class SalesOrderCreationTest extends TestCase
         ]);
         $accountLogin->load('account');
 
-        // Step 1: Login
+        // Step 1: Login. 'type' => 'test' keeps the session pinned to the
+        // mysql_test connection; without it LoginController switches the session
+        // to 'mysql' and the following steps query the live database.
         $this->post('/login', [
             'email' => 'admin@admin',
             'password' => 'p4ssw0rd',
+            'type' => 'test',
         ])->assertRedirect('/home');
 
         // Step 2: Access home

@@ -10,18 +10,20 @@ use App\Models\PriceCode;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use Database\Seeders\SettingSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\SeedsReferenceData;
 
 class SalesOrderServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
+    use SeedsReferenceData;
 
     private SalesOrderService $service;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(SettingSeeder::class);
+        $this->seedSettings();
         $this->service = app(SalesOrderService::class);
     }
 
@@ -41,7 +43,12 @@ class SalesOrderServiceTest extends TestCase
     public function test_generate_control_number_starts_at_001_with_no_orders(): void
     {
         $dateCode = date('Ymd');
-        $number   = $this->service->generateControlNumber();
+
+        if (SalesOrder::withTrashed()->where('control_number', 'like', "SO-{$dateCode}-%")->exists()) {
+            $this->markTestSkipped("Orders already exist for {$dateCode}; the sequence cannot start over.");
+        }
+
+        $number = $this->service->generateControlNumber();
 
         $this->assertSame("SO-{$dateCode}-001", $number);
     }
@@ -54,11 +61,20 @@ class SalesOrderServiceTest extends TestCase
     {
         $dateCode = date('Ymd');
 
-        SalesOrder::factory()->create(['control_number' => "SO-{$dateCode}-001"]);
+        $latest = SalesOrder::withTrashed()
+            ->where('control_number', 'like', "SO-{$dateCode}-%")
+            ->orderByDesc('control_number')
+            ->value('control_number');
+
+        $sequence = $latest ? ((int) substr($latest, strrpos($latest, '-') + 1)) + 1 : 1;
+
+        SalesOrder::factory()->create([
+            'control_number' => sprintf('SO-%s-%03d', $dateCode, $sequence),
+        ]);
 
         $number = $this->service->generateControlNumber();
 
-        $this->assertSame("SO-{$dateCode}-002", $number);
+        $this->assertSame(sprintf('SO-%s-%03d', $dateCode, $sequence + 1), $number);
     }
 
     /**
@@ -92,6 +108,7 @@ class SalesOrderServiceTest extends TestCase
             'company_id' => $company->id,
             'price_code' => 'B',
             'line_discount_code' => null,
+            'sales_order_uom' => null,
         ]);
         $product = Product::factory()->create([
             'brand_id' => \App\Models\Brand::factory()->create(['brand' => 'TEST BRAND'])->id,
@@ -132,6 +149,9 @@ class SalesOrderServiceTest extends TestCase
             'company_id' => $company->id,
             'price_code' => 'A',
             'line_discount_code' => null,
+            // The factory picks a random sales_order_uom, which would convert the
+            // quantity out of the product's stock UOM and zero the total.
+            'sales_order_uom' => null,
         ]);
         $product = Product::factory()->create([
             'brand_id' => \App\Models\Brand::factory()->create(['brand' => 'TEST BRAND'])->id,

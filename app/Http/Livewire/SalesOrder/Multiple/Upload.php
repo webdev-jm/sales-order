@@ -298,8 +298,8 @@ class Upload extends Component
                         ? $data['shipping_address']['address_code'].' - '.$data['shipping_address']['ship_to_name']
                         : $this->account->account_name,
                     'ship_to_address1' => $data['shipping_address']['building'] ?? $this->account->ship_to_address1,
-                    'ship_to_address2' => $data['shipping_address']['street'] ?? $this->account->ship_to_address1,
-                    'ship_to_address3' => $data['shipping_address']['city'] ?? $this->account->ship_to_address1,
+                    'ship_to_address2' => $data['shipping_address']['street'] ?? $this->account->ship_to_address2,
+                    'ship_to_address3' => $data['shipping_address']['city'] ?? $this->account->ship_to_address3,
                     'postal_code' => $data['shipping_address']['postal'] ?? $this->account->postal_code,
                     'status' => $status,
                 ]);
@@ -329,7 +329,7 @@ class Upload extends Component
                     ->performedOn($sales_order)
                     ->log(':causer.firstname :causer.lastname has created sales order :subject.control_number [ :subject.po_number ]');
 
-                if($status == 'finalized') {
+                if($status == 'finalized' && config('sales-order.xml_generation_enabled')) {
                     GenerateSalesOrderXml::dispatch($sales_order);
                 }
 

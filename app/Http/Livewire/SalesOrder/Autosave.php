@@ -120,7 +120,7 @@ class Autosave extends Component
         $this->logged_account = app(AccountLoginResolver::class)->resolve();
         $this->sales_order = SalesOrder::findOrFail($sales_order_id);
         $this->dispatchBrowserEvent('getData');
-        $this->settings = $this->getSettings();
+        $this->setting = $this->getSettings();
     }
 
     public function render()

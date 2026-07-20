@@ -11,21 +11,22 @@ use App\Models\User;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\SeedsReferenceData;
 use Tests\TestCase;
 
 class SalesOrderRestrictedAccountTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
+    use SeedsReferenceData;
 
     private const RESTRICTED_CODE = '1200099';
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionSeeder::class);
-        $this->seed(RoleSeeder::class);
-        $this->seed(SettingSeeder::class);
+        $this->seedPermissionsAndRoles();
+        $this->seedSettings();
 
         config(['sales-order.restricted_accounts' => [self::RESTRICTED_CODE]]);
     }
