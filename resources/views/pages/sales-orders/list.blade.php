@@ -77,6 +77,7 @@
                     <th>Status</th>
                     <th>Reference</th>
                     <th>Created By</th>
+                    <th>Created At</th>
                     <th></th>
                 </tr>
             </thead>
@@ -104,6 +105,7 @@
                         {{$sales_order->reference}}
                     </td>
                     <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
+                    <td>{{$sales_order->created_at}}</td>
                     <td class="text-right">
                         @can('sales order change status')
                         <livewire:sales-order.change-status :sales_order_id="$sales_order->id"/>

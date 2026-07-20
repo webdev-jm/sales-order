@@ -33,16 +33,35 @@
 
 @section('content')
 
+    @if(!empty($restricted))
+    <div class="alert alert-danger" role="alert">
+        {{$restricted_message}}
+    </div>
+    @endif
+
     @if(!empty($logged_account))
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Activities</h3>
         </div>
         <div class="card-body">
-            <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
+            @if(empty($restricted))
+            <a href="{{route('sales-order.create')}}" class="btn btn-primary">Sales Order</a>
+            @endif
         </div>
     </div>
     @elseif(!empty($logged_branch))
+        @if(!empty($logged_branch->branch->account_id) && empty($restricted))
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Sales Order</h3>
+            </div>
+            <div class="card-body">
+                <a href="{{route('sales-order.create')}}" class="btn btn-primary">Booking Order</a>
+            </div>
+        </div>
+        @endif
+
         {{-- exempt bevi offices --}}
         @if(auth()->user()->coe && $logged_branch->branch->account_id != 241)
         <livewire:coe.form :logged_branch="$logged_branch"/>

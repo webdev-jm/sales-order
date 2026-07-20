@@ -247,7 +247,7 @@ class SalesOrderService {
 
         return DB::transaction(function () use ($data, $account, $order_data, $shipping_address_id) {
             $sales_order = SalesOrder::create([
-                'account_login_id'     => Session::get('logged_account')->id,
+                'account_login_id'     => app(AccountLoginResolver::class)->resolve()->id,
                 'shipping_address_id'  => $shipping_address_id,
                 'control_number'       => $data->control_number,
                 'po_number'            => $data->po_number,

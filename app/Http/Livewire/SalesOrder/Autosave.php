@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\SalesOrder;
 
+use App\Services\AccountLoginResolver;
 use Livewire\Component;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProductUom;
@@ -116,7 +117,7 @@ class Autosave extends Component
     }
 
     public function mount($sales_order_id) {
-        $this->logged_account = Session::get('logged_account');
+        $this->logged_account = app(AccountLoginResolver::class)->resolve();
         $this->sales_order = SalesOrder::findOrFail($sales_order_id);
         $this->dispatchBrowserEvent('getData');
         $this->settings = $this->getSettings();

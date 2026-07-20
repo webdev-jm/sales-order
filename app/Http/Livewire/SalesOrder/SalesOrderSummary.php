@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\SalesOrder;
 
+use App\Services\AccountLoginResolver;
 use Livewire\Component;
 
 use Illuminate\Support\Facades\Session;
@@ -43,7 +44,7 @@ class SalesOrderSummary extends Component
     }
 
     public function mount() {
-        $this->logged_account = Session::get('logged_account');
+        $this->logged_account = app(AccountLoginResolver::class)->resolve();
         $this->account = $this->logged_account->account;
     }
 

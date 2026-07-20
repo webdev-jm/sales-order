@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\SalesOrder;
 
+use App\Services\AccountLoginResolver;
 use Livewire\Component;
 use App\Models\ShippingAddress;
 use Livewire\WithPagination;
@@ -33,7 +34,7 @@ class ShippingAddressChange extends Component
     }
 
     public function mount() {
-        $logged_account = Session::get('logged_account');
+        $logged_account = app(AccountLoginResolver::class)->resolve();
         $this->account = $logged_account->account;
     }
 

@@ -18,19 +18,29 @@
                 <i class="fa fa-list mr-1"></i>
                 PURCHASE ORDERS
             </a>
-            @can('sales order create')
-                <a href="{{route('sales-order.create')}}" class="btn btn-primary">
-                    <i class="fas fa-plus mr-1"></i>
-                    ADD SALES ORDER
-                </a>
-            @endcan
+            @if(empty($restricted))
+                @can('sales order create')
+                    <a href="{{route('sales-order.create')}}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-1"></i>
+                        ADD SALES ORDER
+                    </a>
+                @endcan
 
-            <a href="{{route('sales-order-multiple.index')}}" class="btn btn-success">
-                <i class="fa fa-upload mr-1"></i>
-                UPLOAD MULTIPLE SO
-            </a>
+                <a href="{{route('sales-order-multiple.index')}}" class="btn btn-success">
+                    <i class="fa fa-upload mr-1"></i>
+                    UPLOAD MULTIPLE SO
+                </a>
+            @endif
         @endif
     </div>
+
+    @if(!empty($restricted))
+    <div class="col-lg-12">
+        <div class="alert alert-danger mb-0 mt-2" role="alert">
+            {{$restricted_message}}
+        </div>
+    </div>
+    @endif
 
     @if(!empty($cut_off))
     <div class="col-lg-12">
@@ -113,6 +123,7 @@
                     <th>Status</th>
                     <th>Reference</th>
                     <th>Created By</th>
+                    <th>Created At</th>
                     <th></th>
                 </tr>
             </thead>
@@ -145,6 +156,7 @@
                         {{$sales_order->reference}}
                     </td>
                     <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
+                    <td>{{$sales_order->created_at}}</td>
                     <td class="text-right">
                         @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
                             @if($sales_order->status == 'draft')
