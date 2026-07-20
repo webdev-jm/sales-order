@@ -27,7 +27,6 @@
 
 {{-- sales order list --}}
 <livewire:sales-order.dashboard.sales-orders/>
-
 @endsection
 
 @section('js')

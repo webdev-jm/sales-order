@@ -11,21 +11,22 @@ use App\Services\SalesOrderService;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\SettingSeeder;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\Concerns\SeedsReferenceData;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class XmlGenerationToggleTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
+    use SeedsReferenceData;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(PermissionSeeder::class);
-        $this->seed(RoleSeeder::class);
-        $this->seed(SettingSeeder::class);
+        $this->seedPermissionsAndRoles();
+        $this->seedSettings();
         // Disable activity logging — the activity_log table is missing the batch_uuid
         // column required by spatie/laravel-activitylog v4 in the test schema.
         Config::set('activitylog.enabled', false);

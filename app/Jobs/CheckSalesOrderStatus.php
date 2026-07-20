@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Http\Traits\UsesSessionDatabaseConnection;
 use App\Models\SalesOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 class CheckSalesOrderStatus implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use UsesSessionDatabaseConnection;
 
     public int $tries   = 3;
     public int $timeout = 60;
@@ -20,12 +22,20 @@ class CheckSalesOrderStatus implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct(public SalesOrder $order) {}
+    public function __construct(public SalesOrder $order)
+    {
+        $this->captureDatabaseConnection();
+    }
 
     /**
      * Execute the job.
      */
     public function handle(): void
+    {
+        $this->withDatabaseConnection(fn() => $this->checkStatus());
+    }
+
+    private function checkStatus(): void
     {
         try {
             $response = Http::withHeaders([

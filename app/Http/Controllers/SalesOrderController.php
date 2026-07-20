@@ -244,7 +244,7 @@ class SalesOrderController extends Controller
     {
         $sales_order   = SalesOrder::findOrFail($id);
         $parts         = SalesOrderProduct::select('part')->distinct()->where('sales_order_id', $sales_order->id)->get('part');
-        $reference_arr = explode(' ,', $sales_order->reference);
+        $reference_arr = preg_split('/\s*,\s*/', (string) $sales_order->reference, -1, PREG_SPLIT_NO_EMPTY);
 
         if (is_null($sales_order->upload_status) && empty($sales_order->reference)) {
             CheckSalesOrderStatus::dispatch($sales_order);
