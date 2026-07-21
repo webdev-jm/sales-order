@@ -38,7 +38,7 @@ class StoreSalesOrderRequest extends FormRequest
             'po_number' => [
                 'required',
                 // 'alpha_dash',
-                'regex:/^[a-zA-Z0-9\s\-]+$/',
+                'regex:/^[a-zA-Z0-9\s\-\^]+$/',
                 Rule::unique((new SalesOrder)->getTable())
                     ->where(function($query) {
                         $query->where('status', '!=', 'cancelled');
