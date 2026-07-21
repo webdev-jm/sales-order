@@ -167,4 +167,20 @@ class SalesOrderBranchLoginTest extends TestCase
             ->assertViewHas('logged_account', null)
             ->assertViewHas('logged_branch', fn($logged) => $logged->id === $branch_login->id);
     }
+
+    public function test_branch_banner_shows_the_owning_account_details(): void
+    {
+        [$user, $account] = $this->signInToBranch();
+
+        $account->update([
+            'account_code' => 'ACCT-42',
+            'short_name'   => 'ACME',
+            'account_name' => 'Acme Corporation',
+        ]);
+
+        \Livewire\Livewire::actingAs($user)
+            ->test(\App\Http\Livewire\Accounts\AccountLogged::class)
+            ->assertSee('Account:')
+            ->assertSee('[ACCT-42] ACME - Acme Corporation');
+    }
 }
