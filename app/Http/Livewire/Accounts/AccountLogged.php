@@ -103,6 +103,12 @@ class AccountLogged extends Component
             $this->logged = null;
         }
 
+        // Home lists the accounts and offers the switch itself, so the account
+        // banner would only duplicate it there.
+        if (request()->routeIs('home')) {
+            $this->logged = null;
+        }
+
         $this->setSignout();
     }
 

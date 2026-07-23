@@ -71,7 +71,7 @@ class ScheduleHolidayDisplayTest extends TestCase
     public function test_schedule_index_view_guards_holiday_event_click(): void
     {
         $source = file_get_contents(
-            resource_path('views/schedules/index.blade.php')
+            resource_path('views/pages/schedules/index.blade.php')
         );
 
         $this->assertStringContainsString(
@@ -84,7 +84,7 @@ class ScheduleHolidayDisplayTest extends TestCase
     public function test_schedule_index_view_shows_holiday_color_badges(): void
     {
         $source = file_get_contents(
-            resource_path('views/schedules/index.blade.php')
+            resource_path('views/pages/schedules/index.blade.php')
         );
 
         $this->assertStringContainsString(
@@ -109,7 +109,7 @@ class ScheduleHolidayDisplayTest extends TestCase
     public function test_schedule_index_view_has_separate_events_and_holidays_sections(): void
     {
         $source = file_get_contents(
-            resource_path('views/schedules/index.blade.php')
+            resource_path('views/pages/schedules/index.blade.php')
         );
 
         $this->assertStringContainsString(
