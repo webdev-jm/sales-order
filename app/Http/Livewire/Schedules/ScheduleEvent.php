@@ -5,7 +5,6 @@ namespace App\Http\Livewire\Schedules;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-use AccountLoginModel;
 use App\Models\User;
 use App\Models\BranchLogin;
 use App\Models\ActivityPlanDetail;
@@ -123,15 +122,13 @@ class ScheduleEvent extends Component
             'latitude'  => 'required',
         ]);
 
-        $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
-            ->whereNull('time_out')
-            ->first();
-
+        // Being signed in to an account no longer blocks a branch sign in; only
+        // an open branch login does, since a user can only be in one branch.
         $logged_branch = BranchLogin::where('user_id', auth()->user()->id)
             ->whereNull('time_out')
             ->first();
 
-        if (empty($logged_account) && empty($logged_branch)) {
+        if (empty($logged_branch)) {
             $branch_login = new BranchLogin([
                 'user_id'   => auth()->user()->id,
                 'branch_id' => $this->schedule_data->branch_id,

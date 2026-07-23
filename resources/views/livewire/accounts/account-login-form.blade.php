@@ -11,6 +11,17 @@
         </div>
         <div class="modal-body text-left">
 
+            @if(!empty($logged_account) && $logged_account->account_id != $account->id)
+            <div class="alert alert-warning">
+                <h5 class="mb-2"><i class="fas fa-exclamation-triangle mr-1"></i> Switching Account</h5>
+                <p class="mb-0">
+                    You are currently signed in to
+                    <b>[{{$logged_account->account->account_code}}] {{$logged_account->account->short_name}}</b>.
+                    Signing in here signs you out of it and any sales order or PPU form still in progress will be discarded.
+                </p>
+            </div>
+            @endif
+
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -40,7 +51,9 @@
         </div>
         <div class="modal-footer text-right">
             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">Sign In</button>
+            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                {{ (!empty($logged_account) && $logged_account->account_id != $account->id) ? 'Switch Account' : 'Sign In' }}
+            </button>
         </div>
     </form>
 

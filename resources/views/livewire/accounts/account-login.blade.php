@@ -23,7 +23,7 @@
                         <div class="inner h-80">
                             <h3>{{$account->account_code}}</h3>
                             <p class="text-uppercase mb-0">{{$account->account_name}}</p>
-                            <small class="text-muted">{{$account->short_name}} [{{$account->company->name}}]</small>
+                            <small class="text-muted">{{$account->short_name}} @if(!empty($account->company))[{{$account->company->name}}]@endif</small>
                             <br>
                             <button class="btn btn-primary btn-xs" wire:click.prevent="branchModal({{$account->id}})">Branches</button>
                         </div>

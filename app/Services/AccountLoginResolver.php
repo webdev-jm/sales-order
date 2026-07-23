@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Session;
 class AccountLoginResolver
 {
     /**
+     * Session key holding the id of an account login derived from a branch
+     * login, so branch sign out only closes what the branch opened.
+     */
+    private const DERIVED_LOGIN_KEY = 'derived_account_login_id';
+
+    /**
      * Resolve the account login to tag sales orders with.
      *
      * Users signed in to a branch do not have an account login, so one is
@@ -94,6 +100,8 @@ class AccountLoginResolver
             ->log(':causer.firstname :causer.lastname has set account ' . ($account->short_name ?? $account->account_name) . ' as the active account');
 
         Session::put('logged_account', $account_login);
+        // The account was picked by the user, so it is no longer the branch's to close.
+        Session::forget(self::DERIVED_LOGIN_KEY);
         Session::forget('order_data');
         Session::forget('ppu_item');
 
@@ -102,14 +110,39 @@ class AccountLoginResolver
 
     /**
      * Close the account login derived from a branch login, if any.
+     *
+     * A user may now sign in to a branch while already signed in to an account
+     * of their own choosing, so only a login this class derived from the branch
+     * is closed here. The derived login is identified by the marker left in the
+     * session, falling back to one opened for the branch account at or after
+     * the branch was signed in to when the session no longer carries it.
      */
-    public function closeDerivedLogin(int $user_id): void
+    public function closeDerivedLogin(int $user_id, ?BranchLogin $branch_login = null): void
     {
-        AccountLogin::where('user_id', $user_id)
-            ->whereNull('time_out')
-            ->update(['time_out' => now()]);
+        $derived_id = Session::get(self::DERIVED_LOGIN_KEY);
 
-        Session::forget('logged_account');
+        $query = AccountLogin::where('user_id', $user_id)->whereNull('time_out');
+
+        if (!empty($derived_id)) {
+            $query->where('id', $derived_id);
+        } elseif (!empty($branch_login) && !empty($branch_login->branch->account_id)) {
+            $query->where('account_id', $branch_login->branch->account_id)
+                ->where('time_in', '>=', $branch_login->time_in);
+        } else {
+            return;
+        }
+
+        $closed = $query->get();
+
+        foreach ($closed as $account_login) {
+            $account_login->update(['time_out' => now()]);
+        }
+
+        Session::forget(self::DERIVED_LOGIN_KEY);
+
+        if ($closed->isNotEmpty()) {
+            Session::forget('logged_account');
+        }
     }
 
     /**
@@ -135,6 +168,8 @@ class AccountLoginResolver
             'time_in'    => now(),
         ]);
         $account_login->save();
+
+        Session::put(self::DERIVED_LOGIN_KEY, $account_login->id);
 
         activity('login')
             ->performedOn($account_login)

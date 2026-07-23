@@ -13,7 +13,6 @@ use App\Models\BranchAddress;
 
 use Illuminate\Support\Facades\Http;
 
-use AccountLoginModel;
 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -120,16 +119,13 @@ class AccountBranchLogin extends Component
             'latitude' => 'required',
         ]);
 
-        // check if logged in to account or branch
-        $logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
-        ->whereNull('time_out')
-        ->first();
-
+        // Being signed in to an account no longer blocks a branch sign in; only
+        // an open branch login does, since a user can only be in one branch.
         $logged_branch = BranchLogin::where('user_id', auth()->user()->id)
         ->whereNull('time_out')
         ->first();
 
-        if(empty($logged_account) && empty($logged_branch)) {
+        if(empty($logged_branch)) {
             $branch_login = new BranchLogin([
                 'user_id' => auth()->user()->id,
                 'branch_id' => $this->branch->id,
