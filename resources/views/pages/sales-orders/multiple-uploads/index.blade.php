@@ -21,6 +21,8 @@
 
 @section('content')
 
+<livewire:accounts.active-account-banner/>
+
 <livewire:sales-order.multiple.upload :logged_account="$logged_account" />
 
 <div class="modal fade" id="summary-modal">

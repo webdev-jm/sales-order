@@ -13,12 +13,14 @@
         <h1>PPU Forms</h1>
     </div>
     <div class="col-md-6 text-right">
-        @can('ppu form create')
-            <a href="{{route('ppu.create')}}" class="btn btn-primary">
-                <i class="fas fa-plus mr-1"></i>
-                ADD PPU FORM
-            </a>
-        @endcan
+        @if(!empty($logged_account))
+            @can('ppu form create')
+                <a href="{{route('ppu.create')}}" class="btn btn-primary">
+                    <i class="fas fa-plus mr-1"></i>
+                    ADD PPU FORM
+                </a>
+            @endcan
+        @endif
 
     </div>
 
@@ -38,6 +40,14 @@
 @endsection
 
 @section('content')
+<livewire:accounts.active-account-banner/>
+
+@if(empty($logged_account))
+    <div class="callout callout-info">
+        <h5>Select an account to continue</h5>
+        <p class="mb-0">PPU forms are listed once an active account is set.</p>
+    </div>
+@else
 {!! Form::open(['method' => 'GET', 'route' => ['ppu.index'], 'id' => 'search_form']) !!}
 {!! Form::close() !!}
 
@@ -136,6 +146,7 @@
         <livewire:confirm-delete/>
     </div>
 </div>
+@endif
 @endsection
 
 @section('js')

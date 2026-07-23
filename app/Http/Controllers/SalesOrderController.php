@@ -111,12 +111,6 @@ class SalesOrderController extends Controller
     {
         $logged_account = $this->accountLoginResolver->resolve();
 
-        if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
-            ]);
-        }
-
         Session::forget('order_data');
 
         $search    = trim($request->input('search'));
@@ -126,6 +120,21 @@ class SalesOrderController extends Controller
         $cut_off = SalesOrderCutOff::where('start_date', '<=', time())
             ->where('end_date', '>=', time())
             ->first();
+
+        // Without an active account there is nothing to scope the list to, so the
+        // account banner is shown on its own until the user selects one.
+        if (empty($logged_account)) {
+            return view('pages.sales-orders.index')->with([
+                'sales_orders'       => $this->emptyPaginator(),
+                'search'             => $search,
+                'date_from'          => $date_from,
+                'date_to'            => $date_to,
+                'cut_off'            => $cut_off,
+                'logged_account'     => null,
+                'restricted'         => false,
+                'restricted_message' => '',
+            ]);
+        }
 
         $sales_orders = SalesOrder::orderBy('id', 'DESC')
             ->whereHas('account_login', function ($qry) use ($logged_account) {
@@ -157,9 +166,24 @@ class SalesOrderController extends Controller
             'date_from'            => $date_from,
             'date_to'              => $date_to,
             'cut_off'              => $cut_off,
+            'logged_account'       => $logged_account,
             'restricted'           => $this->salesOrderRestriction->isRestricted($logged_account->account),
             'restricted_message'   => $this->salesOrderRestriction->message($logged_account->account),
         ]);
+    }
+
+    /**
+     * Placeholder paginator used while no account has been selected.
+     */
+    private function emptyPaginator(): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            [],
+            0,
+            $this->setting->data_per_page,
+            1,
+            ['path' => request()->url()]
+        );
     }
 
     public function create()
@@ -486,13 +510,13 @@ class SalesOrderController extends Controller
     private function accountRedirect($logged_account): ?\Illuminate\Http\RedirectResponse
     {
         if (empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order',
+            return redirect()->route('sales-order.index')->with([
+                'message_error' => 'please select an active account before creating sales order',
             ]);
         }
 
         if ($this->salesOrderRestriction->isRestricted($logged_account->account)) {
-            return redirect()->route('home')->with([
+            return redirect()->route('sales-order.index')->with([
                 'message_error' => $this->salesOrderRestriction->message($logged_account->account),
             ]);
         }

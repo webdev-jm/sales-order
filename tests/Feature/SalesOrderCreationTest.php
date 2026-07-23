@@ -78,13 +78,14 @@ class SalesOrderCreationTest extends TestCase
         $this->actingAs($user)->get('/home')->assertStatus(200);
     }
 
-    public function test_sales_order_index_requires_logged_account(): void
+    public function test_sales_order_index_shows_the_account_banner_without_logged_account(): void
     {
         $user = $this->createSuperadmin();
 
         $this->actingAs($user)
             ->get('/sales-order')
-            ->assertRedirect('/home');
+            ->assertStatus(200)
+            ->assertViewHas('logged_account', null);
     }
 
     public function test_sales_order_index_accessible_with_logged_account(): void
@@ -109,7 +110,7 @@ class SalesOrderCreationTest extends TestCase
 
         $this->actingAs($user)
             ->get('/sales-order/create')
-            ->assertRedirect('/home');
+            ->assertRedirect('/sales-order');
     }
 
     public function test_sales_order_create_accessible_with_logged_account(): void

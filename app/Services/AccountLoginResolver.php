@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Account;
 use App\Models\AccountLogin;
 use App\Models\BranchLogin;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Session;
 
 class AccountLoginResolver
@@ -32,6 +35,67 @@ class AccountLoginResolver
         }
 
         Session::put('logged_account', $account_login);
+
+        return $account_login;
+    }
+
+    /**
+     * Accounts the user is allowed to set as the active account.
+     *
+     * Sales orders and PPU forms may be raised for any account assigned to the
+     * user, regardless of the branch the user happens to be signed in to.
+     */
+    public function assignedAccounts(User $user): Builder
+    {
+        return Account::query()->where(function (Builder $query) use ($user) {
+            $query->whereHas('users', function (Builder $qry) use ($user) {
+                $qry->where('user_id', $user->id);
+            })->orWhereHas('sales_people', function (Builder $qry) use ($user) {
+                $qry->where('user_id', $user->id);
+            });
+        });
+    }
+
+    /**
+     * Determine whether the account is assigned to the user.
+     */
+    public function isAssignedTo(User $user, int $account_id): bool
+    {
+        return $this->assignedAccounts($user)->whereKey($account_id)->exists();
+    }
+
+    /**
+     * Set the account the user tags sales orders and PPU forms with.
+     *
+     * Any account login still open is closed first so a user only ever has one
+     * active account, and the in-progress order data of the previous account is
+     * discarded so it cannot leak into the new one.
+     *
+     * @param  array{longitude?: mixed, latitude?: mixed, accuracy?: mixed}  $coordinates
+     */
+    public function switchTo(User $user, Account $account, array $coordinates = []): AccountLogin
+    {
+        AccountLogin::where('user_id', $user->id)
+            ->whereNull('time_out')
+            ->update(['time_out' => now()]);
+
+        $account_login = new AccountLogin([
+            'user_id'    => $user->id,
+            'account_id' => $account->id,
+            'longitude'  => $coordinates['longitude'] ?? 0,
+            'latitude'   => $coordinates['latitude'] ?? 0,
+            'accuracy'   => $coordinates['accuracy'] ?? 'not available',
+            'time_in'    => now(),
+        ]);
+        $account_login->save();
+
+        activity('login')
+            ->performedOn($account_login)
+            ->log(':causer.firstname :causer.lastname has set account ' . ($account->short_name ?? $account->account_name) . ' as the active account');
+
+        Session::put('logged_account', $account_login);
+        Session::forget('order_data');
+        Session::forget('ppu_item');
 
         return $account_login;
     }

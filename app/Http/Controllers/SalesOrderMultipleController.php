@@ -16,13 +16,13 @@ class SalesOrderMultipleController extends Controller
     public function index() {
         $logged_account = $this->accountLoginResolver->resolve();
         if(empty($logged_account)) {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating sales order'
+            return redirect()->route('sales-order.index')->with([
+                'message_error' => 'please select an active account before creating sales order'
             ]);
         }
 
         if($this->salesOrderRestriction->isRestricted($logged_account->account)) {
-            return redirect()->route('home')->with([
+            return redirect()->route('sales-order.index')->with([
                 'message_error' => $this->salesOrderRestriction->message($logged_account->account)
             ]);
         }
