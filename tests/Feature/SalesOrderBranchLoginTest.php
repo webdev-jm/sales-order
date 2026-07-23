@@ -147,11 +147,11 @@ class SalesOrderBranchLoginTest extends TestCase
         );
     }
 
-    public function test_user_without_branch_or_account_login_is_redirected_home(): void
+    public function test_user_without_branch_or_account_login_is_sent_to_the_sales_order_list(): void
     {
         $user = $this->createSuperadmin();
 
-        $this->actingAs($user)->get('/sales-order/create')->assertRedirect('/home');
+        $this->actingAs($user)->get('/sales-order/create')->assertRedirect(route('sales-order.index'));
         $this->assertEquals(0, AccountLogin::where('user_id', $user->id)->count());
     }
 

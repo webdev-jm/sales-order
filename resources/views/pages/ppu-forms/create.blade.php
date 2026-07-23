@@ -26,6 +26,8 @@
 
 
 @section('content')
+<livewire:accounts.active-account-banner/>
+
 {!! Form::open(['method' => 'POST', 'route' => ['ppu.store'], 'id' => 'add_ppu']) !!}
 <input type="hidden" name="control_number" form="add_ppu" value="{{$control_number}}">
 {!! Form::close() !!}

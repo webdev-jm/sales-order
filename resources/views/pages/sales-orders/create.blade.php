@@ -42,6 +42,8 @@
 @endsection
 
 @section('content')
+<livewire:accounts.active-account-banner/>
+
 {!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order']) !!}
 <input type="hidden" name="control_number" form="add_sales_order" value="">
 {!! Form::close() !!}

@@ -13,7 +13,7 @@
         <h1>Sales Orders</h1>
     </div>
     <div class="col-md-6 text-right">
-        @if(empty($cut_off))
+        @if(empty($cut_off) && !empty($logged_account))
             <a href="{{route('purchase-order.index')}}" class="btn btn-info">
                 <i class="fa fa-list mr-1"></i>
                 PURCHASE ORDERS
@@ -58,137 +58,146 @@
 @endsection
 
 @section('content')
-{!! Form::open(['method' => 'GET', 'route' => ['sales-order.index'], 'id' => 'search_form']) !!}
-{!! Form::close() !!}
+<livewire:accounts.active-account-banner/>
 
-<div class="card card-primary card-outline">
-    <div class="card-header">
-        <h3 class="card-title">FILTER</h3>
+@if(empty($logged_account))
+    <div class="callout callout-info">
+        <h5>Select an account to continue</h5>
+        <p class="mb-0">Sales orders are listed once an active account is set.</p>
     </div>
-    <div class="card-body">
-        <div class="row mb-2">
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <label for="search" class="mb-0">SEARCH</label>
-                    {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
-                </div>
-            </div>
+@else
+    {!! Form::open(['method' => 'GET', 'route' => ['sales-order.index'], 'id' => 'search_form']) !!}
+    {!! Form::close() !!}
+
+    <div class="card card-primary card-outline">
+        <div class="card-header">
+            <h3 class="card-title">FILTER</h3>
         </div>
-
-        <div class="row">
-
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <label for="from" class="mb-0">FROM</label>
-                    <input type="date" class="form-control" name="date_from" form="search_form" value="{{$date_from}}">
-                </div>
-            </div>
-
-            <div class="col-lg-3">
-                <div class="form-group">
-                    <label for="from" class="mb-0">TO</label>
-                    <input type="date" class="form-control" name="date_to" form="search_form" value="{{$date_to}}">
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label for="search" class="mb-0">SEARCH</label>
+                        {!! Form::text('search', $search, ['class' => 'form-control float-right', 'placeholder' => 'Search', 'form' => 'search_form']) !!}
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-    <div class="card-footer text-right">
-        <button type="submit" class="btn btn-default btn-sm" form="search_form">
-            <i class="fa fa-filter mr-1"></i>
-            FILTER
-        </button>
-        <a href="{{route('sales-order.export')}}?date_from={{$date_from}}&date_to={{$date_to}}&search={{$search}}" class="btn btn-success btn-sm">
-            <i class="fa fa-file-excel mr-1"></i>
-            EXPORT
-        </a>
-    </div>
-</div>
+            <div class="row">
 
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">List of Sales Orders</h3>
-        <div class="card-tools">
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label for="from" class="mb-0">FROM</label>
+                        <input type="date" class="form-control" name="date_from" form="search_form" value="{{$date_from}}">
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label for="from" class="mb-0">TO</label>
+                        <input type="date" class="form-control" name="date_to" form="search_form" value="{{$date_to}}">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-footer text-right">
+            <button type="submit" class="btn btn-default btn-sm" form="search_form">
+                <i class="fa fa-filter mr-1"></i>
+                FILTER
+            </button>
+            <a href="{{route('sales-order.export')}}?date_from={{$date_from}}&date_to={{$date_to}}&search={{$search}}" class="btn btn-success btn-sm">
+                <i class="fa fa-file-excel mr-1"></i>
+                EXPORT
+            </a>
         </div>
     </div>
-    <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap table-sm">
-            <thead>
-                <tr>
-                    <th>Control Number</th>
-                    <th>PO Number</th>
-                    <th>Order Date</th>
-                    <th>Ship Date</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Reference</th>
-                    <th>Created By</th>
-                    <th>Created At</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($sales_orders as $sales_order)
-                <tr>
-                    <td>{{$sales_order->control_number}}</td>
-                    <td>{{$sales_order->po_number}}</td>
-                    <td>{{$sales_order->order_date}}</td>
-                    <td>{{$sales_order->ship_date}}</td>
-                    <td>
-                        {{$sales_order->ship_to_name}}
-                    </td>
-                    <td>
-                        @if(isset($sales_order->upload_status))
-                            @if($sales_order->status == 'cancelled')
-                                <span class="badge badge-danger">{{$sales_order->status}}</span>
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">List of Sales Orders</h3>
+            <div class="card-tools">
+            </div>
+        </div>
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap table-sm">
+                <thead>
+                    <tr>
+                        <th>Control Number</th>
+                        <th>PO Number</th>
+                        <th>Order Date</th>
+                        <th>Ship Date</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Reference</th>
+                        <th>Created By</th>
+                        <th>Created At</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($sales_orders as $sales_order)
+                    <tr>
+                        <td>{{$sales_order->control_number}}</td>
+                        <td>{{$sales_order->po_number}}</td>
+                        <td>{{$sales_order->order_date}}</td>
+                        <td>{{$sales_order->ship_date}}</td>
+                        <td>
+                            {{$sales_order->ship_to_name}}
+                        </td>
+                        <td>
+                            @if(isset($sales_order->upload_status))
+                                @if($sales_order->status == 'cancelled')
+                                    <span class="badge badge-danger">{{$sales_order->status}}</span>
+                                @else
+                                    <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                                @endif
                             @else
-                                <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
+                                @if($sales_order->status == 'cancelled')
+                                    <span class="badge badge-danger">{{$sales_order->status}}</span>
+                                @else
+                                    <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                                @endif
                             @endif
-                        @else
-                            @if($sales_order->status == 'cancelled')
-                                <span class="badge badge-danger">{{$sales_order->status}}</span>
-                            @else
-                                <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
+                        </td>
+                        <td>
+                            {{$sales_order->reference}}
+                        </td>
+                        <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
+                        <td>{{$sales_order->created_at}}</td>
+                        <td class="text-right">
+                            @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
+                                @if($sales_order->status == 'draft')
+                                    @can('sales order edit')
+                                        <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit">
+                                            <i class="fas fa-edit text-success mx-1"></i>
+                                        </a>
+                                    @endcan
+                                @endif
                             @endif
-                        @endif
-                    </td>
-                    <td>
-                        {{$sales_order->reference}}
-                    </td>
-                    <td>{{isset($sales_order->account_login->user) ? $sales_order->account_login->user->fullName() : '-'}}</td>
-                    <td>{{$sales_order->created_at}}</td>
-                    <td class="text-right">
-                        @if(empty($cut_off) || (!empty($cut_off) && strtotime($cut_off->date.' '.$cut_off->time) > time()))
-                            @if($sales_order->status == 'draft')
-                                @can('sales order edit')
-                                    <a href="{{route('sales-order.edit', $sales_order->id)}}" title="edit">
-                                        <i class="fas fa-edit text-success mx-1"></i>
-                                    </a>
-                                @endcan
+                            <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
+                                <i class="fa fa-eye text-primary mx-1"></i>
+                            </a>
+                            @if(auth()->user()->can('sales order delete') || $sales_order->status == 'draft')
+                                <a href="#" title="delete" class="btn-delete" data-id="{{$sales_order->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
                             @endif
-                        @endif
-                        <a href="{{route('sales-order.show', $sales_order->id)}}" title="view">
-                            <i class="fa fa-eye text-primary mx-1"></i>
-                        </a>
-                        @if(auth()->user()->can('sales order delete') || $sales_order->status == 'draft')
-                            <a href="#" title="delete" class="btn-delete" data-id="{{$sales_order->id}}"><i class="fas fa-trash-alt text-danger mx-1"></i></a>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            {{$sales_orders->links()}}
+        </div>
     </div>
-    <div class="card-footer">
-        {{$sales_orders->links()}}
-    </div>
-</div>
 
-<div class="modal fade" id="modal-delete">
-    <div class="modal-dialog">
-        <livewire:confirm-delete/>
+    <div class="modal fade" id="modal-delete">
+        <div class="modal-dialog">
+            <livewire:confirm-delete/>
+        </div>
     </div>
-</div>
+@endif
 @endsection
 
 @section('js')

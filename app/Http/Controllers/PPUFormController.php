@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Session;
 use App\Models\SalesOrderCutOff;
 use App\Models\SalesOrder;
 use App\Http\Traits\GlobalTrait;
+use App\Services\AccountLoginResolver;
 use App\Http\Requests\StorePPUFormRequest;
 use App\Http\Requests\UpdatePPUFormRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -28,20 +29,20 @@ class PPUFormController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function __construct() {
+    public function __construct(protected AccountLoginResolver $accountLoginResolver) {
         $this->setting = $this->getSettings();
     }
 
     public function index(Request $request)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
         $search = trim($request->input('search'));
         $status = trim($request->input('status'));
         $date_prepared = trim($request->input('date_prepared'));
 
 
         // $this->checkSalesOrderStatus();
-        
+
         if(isset($logged_account)) {
 
             $ppu_form = PPUForm::query()
@@ -94,14 +95,33 @@ class PPUFormController extends Controller
                 'ppu_form' => $ppu_form,
                 'status' => $status,
                 'date_prepared' => $date_prepared,
-            ]);
-        } else {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating PPU'
+                'logged_account' => $logged_account,
             ]);
         }
 
-        
+        // Without an active account there is nothing to list; the account banner
+        // is shown on its own until the user selects one.
+        return view('pages.ppu-forms.index')->with([
+            'search' => $search,
+            'ppu_form' => $this->emptyPaginator(),
+            'status' => $status,
+            'date_prepared' => $date_prepared,
+            'logged_account' => null,
+        ]);
+    }
+
+    /**
+     * Placeholder paginator used while no account has been selected.
+     */
+    private function emptyPaginator(): \Illuminate\Pagination\LengthAwarePaginator
+    {
+        return new \Illuminate\Pagination\LengthAwarePaginator(
+            [],
+            0,
+            $this->setting->data_per_page,
+            1,
+            ['path' => request()->url()]
+        );
     }
 
     /**
@@ -111,7 +131,7 @@ class PPUFormController extends Controller
      */
     public function create(Request $request)
     {
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
         $search = trim($request->input('search'));
 
         if(isset($logged_account)) {
@@ -127,8 +147,8 @@ class PPUFormController extends Controller
                 'logged_account' => $logged_account
             ]);
         } else {
-            return redirect()->route('home')->with([
-                'message_error' => 'please sign in to account before creating ppu form'
+            return redirect()->route('ppu.index')->with([
+                'message_error' => 'please select an active account before creating ppu form'
             ]);
         }
     }
@@ -202,9 +222,16 @@ class PPUFormController extends Controller
     {
         $request->control_number = $this->generateControlNumber();
 
-        $logged_account = Session::get('logged_account');
+        $logged_account = $this->accountLoginResolver->resolve();
+
+        if(empty($logged_account)) {
+            return redirect()->route('ppu.index')->with([
+                'message_error' => 'please select an active account before creating ppu form'
+            ]);
+        }
+
         $ppu_item = Session::get('ppu_item');
-        
+
         $account = $logged_account->account;
 
         $ppu_form = new PPUForm([

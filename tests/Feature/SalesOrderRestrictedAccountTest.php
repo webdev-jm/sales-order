@@ -89,7 +89,7 @@ class SalesOrderRestrictedAccountTest extends TestCase
 
         $this->actingAs($user)
             ->get('/sales-order/create')
-            ->assertRedirect('/home')
+            ->assertRedirect('/sales-order')
             ->assertSessionHas('message_error', 'RESTRICTED STORE is not available for sales order creation.');
     }
 
@@ -99,7 +99,7 @@ class SalesOrderRestrictedAccountTest extends TestCase
 
         $this->actingAs($user)
             ->get('/sales-order-multiple')
-            ->assertRedirect('/home')
+            ->assertRedirect('/sales-order')
             ->assertSessionHas('message_error', 'RESTRICTED STORE is not available for sales order creation.');
     }
 
@@ -109,7 +109,7 @@ class SalesOrderRestrictedAccountTest extends TestCase
 
         $this->actingAs($user)
             ->get('/sales-order/create')
-            ->assertRedirect('/home')
+            ->assertRedirect('/sales-order')
             ->assertSessionHas('message_error', 'RESTRICTED STORE is not available for sales order creation.');
     }
 
@@ -119,7 +119,7 @@ class SalesOrderRestrictedAccountTest extends TestCase
 
         $this->actingAs($user)
             ->get('/sales-order-multiple')
-            ->assertRedirect('/home');
+            ->assertRedirect('/sales-order');
     }
 
     public function test_restricted_account_can_still_view_the_sales_order_list(): void
