@@ -32,6 +32,14 @@ class BranchLogin extends Model
         'time_out_longitude',
         'time_out_latitude',
         'time_out_accuracy',
+        'location_trail',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'location_trail' => 'array',
     ];
 
     public function user() {

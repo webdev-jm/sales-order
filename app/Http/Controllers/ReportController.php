@@ -122,6 +122,8 @@ class ReportController extends Controller
         $date_to = trim($request->input('date_to'));
         $user_id = trim($request->input('user_id'));
 
+        $restricted_ids = $this->restrictedUserIds();
+
         $chart_data = [];
         $branch_data = [];
         if(!empty($date_from) || !empty($date_to) || !empty($user_id)) {
@@ -149,6 +151,9 @@ class ReportController extends Controller
                 })
                 ->when(!empty($user_id), function($query) use($user_id) {
                     $query->where('u.id', $user_id);
+                })
+                ->when(!is_null($restricted_ids), function($query) use($restricted_ids) {
+                    $query->whereIn('u.id', $restricted_ids);
                 })
                 ->get();
 
@@ -190,6 +195,9 @@ class ReportController extends Controller
                 ->when(!empty($user_id), function($query) use($user_id) {
                     $query->where('user_id', $user_id);
                 })
+                ->when(!is_null($restricted_ids), function($query) use($restricted_ids) {
+                    $query->whereIn('user_id', $restricted_ids);
+                })
                 ->get();
 
             foreach($schedules as $schedule) {
@@ -210,6 +218,9 @@ class ReportController extends Controller
 
         $users = User::orderBy('firstname', 'ASC')
             ->whereHas('branch_logins')
+            ->when(!is_null($restricted_ids), function($query) use($restricted_ids) {
+                $query->whereIn('id', $restricted_ids);
+            })
             ->get();
 
         return view('pages.reports.map')->with([
@@ -220,5 +231,142 @@ class ReportController extends Controller
             'user_id' => $user_id,
             'users' => $users,
         ]);
+    }
+
+    /**
+     * Store location records report: traces the per-minute GPS trail captured
+     * for each branch login as a route on the map, filterable by user and date.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function locations(Request $request) {
+        $date_from = trim($request->input('date_from'));
+        $date_to = trim($request->input('date_to'));
+        $user_id = trim($request->input('user_id'));
+
+        $restricted_ids = $this->restrictedUserIds();
+
+        $route_data = [];
+        $point_data = [];
+        $start_data = [];
+        $end_data = [];
+        if (!empty($date_from) || !empty($date_to) || !empty($user_id)) {
+            $logins = BranchLogin::with(['user', 'branch', 'branch.account'])
+                ->whereNotNull('location_trail')
+                ->when(!empty($date_from), function ($query) use ($date_from) {
+                    $query->where(DB::raw('DATE(time_in)'), '>=', $date_from);
+                })
+                ->when(!empty($date_to), function ($query) use ($date_to) {
+                    $query->where(DB::raw('DATE(time_in)'), '<=', $date_to);
+                })
+                ->when(!empty($user_id), function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id);
+                })
+                ->when(!is_null($restricted_ids), function ($query) use ($restricted_ids) {
+                    $query->whereIn('user_id', $restricted_ids);
+                })
+                ->orderBy('time_in', 'ASC')
+                ->get();
+
+            foreach ($logins as $login) {
+                $trail = $login->location_trail ?? [];
+                if (count($trail) < 1) {
+                    continue;
+                }
+
+                $user_name = trim(($login->user->firstname ?? '').' '.($login->user->lastname ?? ''));
+                $branch_name = trim(($login->branch->account->short_name ?? '').' '.($login->branch->branch_code ?? '').' '.($login->branch->branch_name ?? ''));
+
+                // The full route runs sign-in -> per-minute trail -> sign-out so
+                // the connecting line always begins and ends where the user did.
+                $coordinates = [];
+
+                $coordinates[] = [(float) $login->longitude, (float) $login->latitude];
+                $start_data[] = [
+                    'lat'     => (float) $login->latitude,
+                    'lon'     => (float) $login->longitude,
+                    'user'    => $user_name,
+                    'branch'  => $branch_name,
+                    'time_in' => (string) $login->time_in,
+                ];
+
+                foreach ($trail as $index => $point) {
+                    $coordinates[] = [(float) $point['longitude'], (float) $point['latitude']];
+
+                    $point_data[] = [
+                        'lat'         => (float) $point['latitude'],
+                        'lon'         => (float) $point['longitude'],
+                        'user'        => $user_name,
+                        'branch'      => $branch_name,
+                        'accuracy'    => $point['accuracy'] ?? null,
+                        'recorded_at' => $point['recorded_at'] ?? null,
+                        'sequence'    => $index + 1,
+                    ];
+                }
+
+                if (!is_null($login->time_out_latitude) && !is_null($login->time_out_longitude)) {
+                    $coordinates[] = [(float) $login->time_out_longitude, (float) $login->time_out_latitude];
+                    $end_data[] = [
+                        'lat'      => (float) $login->time_out_latitude,
+                        'lon'      => (float) $login->time_out_longitude,
+                        'user'     => $user_name,
+                        'branch'   => $branch_name,
+                        'time_out' => (string) $login->time_out,
+                    ];
+                }
+
+                $route_data[] = [
+                    'name'     => $user_name.' - '.$branch_name,
+                    'user'     => $user_name,
+                    'branch'   => $branch_name,
+                    'time_in'  => (string) $login->time_in,
+                    'time_out' => (string) $login->time_out,
+                    'points'   => count($trail),
+                    'geometry' => [
+                        'type'        => 'LineString',
+                        'coordinates' => $coordinates,
+                    ],
+                ];
+            }
+        }
+
+        $users = User::orderBy('firstname', 'ASC')
+            ->whereHas('branch_logins', function ($query) {
+                $query->whereNotNull('location_trail');
+            })
+            ->when(!is_null($restricted_ids), function ($query) use ($restricted_ids) {
+                $query->whereIn('id', $restricted_ids);
+            })
+            ->get();
+
+        return view('pages.reports.locations')->with([
+            'route_data' => $route_data,
+            'point_data' => $point_data,
+            'start_data' => $start_data,
+            'end_data'   => $end_data,
+            'date_from'  => $date_from,
+            'date_to'    => $date_to,
+            'user_id'    => $user_id,
+            'users'      => $users,
+        ]);
+    }
+
+    /**
+     * Subordinate user IDs to constrain report visibility to when the current
+     * user carries the "report restricted" permission, or null when the user
+     * may see everyone.
+     *
+     * @return array<int>|null
+     */
+    private function restrictedUserIds(): ?array
+    {
+        if (!auth()->user()->can('report restricted')) {
+            return null;
+        }
+
+        $subordinate_ids = auth()->user()->getSubordinateIds();
+
+        return empty($subordinate_ids) ? [] : array_merge(...array_values($subordinate_ids));
     }
 }

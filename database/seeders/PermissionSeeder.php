@@ -59,8 +59,10 @@ class PermissionSeeder extends Seeder
                 'schedule approve deviation'        => 'access to approve deviation request',
             ],
             'Report' => [
-                'report access' => 'access to reports',
-                'report export' => 'access to export raw data of reports',
+                'report access'          => 'access to reports',
+                'report export'          => 'access to export raw data of reports',
+                'location report access' => 'access to store location records report',
+                'report restricted'      => 'restricts reports and mcp reports to the user\'s subordinates only',
             ],
             'Sales Dashboard' => [
                 'sales dashboard'   => 'access to live sales dashboard',

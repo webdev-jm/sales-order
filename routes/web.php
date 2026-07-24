@@ -50,6 +50,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('notifications', [ProfileController::class, 'notifications'])->name('notifications');
 
+    // BRANCH LOCATION TRACKING
+    Route::post('branch-location', [App\Http\Controllers\BranchLocationController::class, 'store'])->name('branch-location.store');
+
     Route::get('generateXML', [SalesOrderController::class, 'generateXML']);
 
     Route::get('get-xml', [SalesOrderController::class, 'getXml'])->name('sales-order.xml');
@@ -222,6 +225,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('combined/{user_id}/{year}/{month}/print', [ReportController::class, 'combinedReportPrint'])->name('report.combined-print')->middleware('permission:report export');
 
         Route::get('report/map', [ReportController::class, 'map'])->name('report.map');
+    });
+
+    // STORE LOCATION RECORDS REPORT
+    Route::group(['middleware' => 'permission:location report access'], function() {
+        Route::get('report/locations', [ReportController::class, 'locations'])->name('report.locations');
     });
 
     // TRIP
