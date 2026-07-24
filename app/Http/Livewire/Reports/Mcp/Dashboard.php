@@ -58,6 +58,11 @@ class Dashboard extends Component
             ->where(function ($q) {
                 $q->whereNull('objective')->orWhere('objective', '!=', 'on-leave');
             })
+            ->when(auth()->user()->can('report restricted'), function ($q) {
+                $subordinate_ids = auth()->user()->getSubordinateIds();
+                $subordinate_ids = empty($subordinate_ids) ? [0] : array_merge(...array_values($subordinate_ids));
+                $q->whereIn('user_branch_schedules.user_id', $subordinate_ids);
+            })
             ->orderBy('name')
             ->groupBy(['uid', 'name']);
 

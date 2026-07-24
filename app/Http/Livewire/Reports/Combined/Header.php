@@ -59,7 +59,7 @@ class Header extends Component
         }
 
         $user_options = [];
-        if(auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('finance')) {
+        if((auth()->user()->hasRole('superadmin') || auth()->user()->hasRole('admin') || auth()->user()->hasRole('finance')) && !auth()->user()->can('report restricted')) {
             $users = User::whereHas('activity_plans', function($query) {
                     $query->where('year', $this->year)
                         ->where('month', $this->month);

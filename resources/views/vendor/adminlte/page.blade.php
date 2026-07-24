@@ -68,4 +68,7 @@
     
     @stack('js')
     @yield('js')
+
+    {{-- Store location records: app-wide GPS tracker while a branch session is open --}}
+    @include('partials.branch-location-tracker')
 @stop

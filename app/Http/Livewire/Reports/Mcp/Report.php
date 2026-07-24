@@ -80,7 +80,7 @@ class Report extends Component
                 ->when(!empty($this->user_id), function($query) {
                     $query->where('id', $this->user_id);
                 })
-                ->when(auth()->user()->hasRole('GSM'), function($query) {
+                ->when(auth()->user()->hasRole('GSM') || auth()->user()->can('report restricted'), function($query) {
                     $subordinateIds = auth()->user()->getSubordinateIds();
                     $subordinateIds = array_merge(...array_values($subordinateIds));
                     $query->whereIn('id', $subordinateIds);
@@ -138,7 +138,7 @@ class Report extends Component
                     ->when(!empty($this->user_id), function($query) {
                         $query->where('id', $this->user_id);
                     })
-                    ->when(auth()->user()->hasRole('GSM'), function($query) {
+                    ->when(auth()->user()->hasRole('GSM') || auth()->user()->can('report restricted'), function($query) {
                         $subordinateIds = auth()->user()->getSubordinateIds();
                         $subordinateIds = array_merge(...array_values($subordinateIds));
                         $query->whereIn('id', $subordinateIds);
@@ -211,7 +211,7 @@ class Report extends Component
         // Filter options
         $users = User::orderBy('firstname', 'ASC')
             ->whereHas('schedules')
-            ->when(auth()->user()->hasRole('GSM'), function($query) {
+            ->when(auth()->user()->hasRole('GSM') || auth()->user()->can('report restricted'), function($query) {
                 $subordinateIds = auth()->user()->getSubordinateIds();
                 $subordinateIds = array_merge(...array_values($subordinateIds));
                 $query->whereIn('id', $subordinateIds);

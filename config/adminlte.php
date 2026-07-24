@@ -512,6 +512,13 @@ return [
                     'can'    => 'report access',
                     'active' => ['report*'],
                 ],
+                [
+                    'text'   => 'MAPS',
+                    'url'    => '/report/locations',
+                    'icon'   => 'fas fa-fw fa-route',
+                    'can'    => 'location report access',
+                    'active' => ['report/locations*'],
+                ],
             ],
         ],
 

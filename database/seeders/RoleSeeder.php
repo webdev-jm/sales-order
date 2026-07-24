@@ -18,7 +18,11 @@ class RoleSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        Role::create(['name' => 'superadmin'])->givePermissionTo(Permission::all());
+        // "report restricted" is an opt-in restriction rather than a capability,
+        // so it is deliberately withheld from the all-access superadmin default.
+        Role::create(['name' => 'superadmin'])->givePermissionTo(
+            Permission::where('name', '!=', 'report restricted')->get()
+        );
         Role::create(['name' => 'user'])->givePermissionTo([
             'sales order access',
             'sales order create',
