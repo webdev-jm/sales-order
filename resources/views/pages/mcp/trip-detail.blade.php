@@ -305,8 +305,8 @@
                     </td>
                 </tr>
             </tbody>
-            @if(!empty($trip->destinations()->count()))
-                @foreach($trip->destinations as $destination)
+            @if($destinations->isNotEmpty())
+                @foreach($destinations as $destination)
                 <tbody>
                     <tr>
                         <td colspan="3" class="border-0 border-bottom"></td>

@@ -61,7 +61,7 @@ class ActivityPlanController extends Controller
     public function index(Request $request)
     {
         // clear session data
-        Session::forget('activity_plan_data');
+        Session::forget(['activity_plan_data', 'activity_plan_edit_id']);
 
         $search = trim($request->input('search'));
 
@@ -115,6 +115,12 @@ class ActivityPlanController extends Controller
      */
     public function create()
     {
+        // leftovers from an activity plan that was being edited must not be
+        // carried into a brand new plan
+        if(!empty(Session::get('activity_plan_edit_id'))) {
+            Session::forget(['activity_plan_data', 'activity_plan_edit_id']);
+        }
+
         $position = [];
         $organizations = auth()->user()->organizations;
         if(!empty($organizations)) {
@@ -286,8 +292,16 @@ class ActivityPlanController extends Controller
         $schedule_data = [];
         $chart_data = [];
         $branch_activities = [];
+        $seen_schedules = [];
+        $seen_activities = [];
         foreach($activity_plan->details as $detail) {
             if(!empty($detail->is_on_leave)) {
+                $schedule_key = $detail->date.'|VACATION LEAVE';
+                if(isset($seen_schedules[$schedule_key])) {
+                    continue;
+                }
+                $seen_schedules[$schedule_key] = true;
+
                 $schedule_data[] = [
                     'title'           => 'VACATION LEAVE',
                     'start'           => $detail->date,
@@ -328,15 +342,20 @@ class ActivityPlanController extends Controller
 
                 }
 
-                $schedule_data[] = [
-                    'title' => $title,
-                    'start' => $detail->date,
-                    'allDay' => true,
-                    'backgroundColor' => $bg_color,
-                    'borderColor' => '#024d4d',
-                    'id' => $detail->id,
-                    'on_leave' => false,
-                ];
+                $schedule_key = $detail->date.'|'.$title;
+                if(!isset($seen_schedules[$schedule_key])) {
+                    $seen_schedules[$schedule_key] = true;
+
+                    $schedule_data[] = [
+                        'title' => $title,
+                        'start' => $detail->date,
+                        'allDay' => true,
+                        'backgroundColor' => $bg_color,
+                        'borderColor' => '#024d4d',
+                        'id' => $detail->id,
+                        'on_leave' => false,
+                    ];
+                }
 
                 $branch_address = $detail->branch->addresses->first();
                 $branch = $detail->branch;
@@ -350,10 +369,15 @@ class ActivityPlanController extends Controller
                         ];
                     }
 
-                    $branch_activities[$branch->id]['activities'][] = [
-                        'schedule_date' => $detail->date,
-                        'objective' => $detail->activity,
-                    ];
+                    $activity_key = $branch->id.'|'.$detail->date.'|'.strtoupper(trim((string) $detail->activity));
+                    if(!isset($seen_activities[$activity_key])) {
+                        $seen_activities[$activity_key] = true;
+
+                        $branch_activities[$branch->id]['activities'][] = [
+                            'schedule_date' => $detail->date,
+                            'objective' => $detail->activity,
+                        ];
+                    }
                 }
             }
         }
@@ -529,7 +553,11 @@ class ActivityPlanController extends Controller
 
             $activity_plan_data[$activity_plan->year]['details'][$activity_plan->month] = $details;
 
-            if(empty(Session::get('activity_plan_data'))) {
+            // reseed only when the session holds a different plan, so returning to the
+            // form after a failed save keeps the user's unsaved changes
+            if(empty(Session::get('activity_plan_data'))
+                || (int) Session::get('activity_plan_edit_id') !== (int) $activity_plan->id) {
+                Session::put('activity_plan_edit_id', $activity_plan->id);
                 Session::put('activity_plan_data', $activity_plan_data);
             }
 
@@ -651,15 +679,15 @@ class ActivityPlanController extends Controller
                                     ->forceDelete();
 
                                 if(!empty($details['lines'])) {
-                                    foreach($details['lines'] as $val) {
+                                    foreach($details['lines'] as $line_key => $val) {
 
                                         // check if already exist
                                         if(isset($val['id']) && !empty($val['id'])) { // update
                                             $activity_plan_detail = ActivityPlanDetail::find($val['id']);
 
                                             // check if line is deleted
-                                            if(!empty($val['deleted']) && $val['deleted'] == true && !empty($activity_plan_detail)) {
-                                                $activity_plan_detail->forceDelete();
+                                            if(!empty($val['deleted']) && $val['deleted'] == true) {
+                                                $activity_plan_detail?->forceDelete();
 
                                                 if(isset($val['trip']) && !empty($val['trip'])) {
                                                     $trip_data = $val['trip'];
@@ -667,38 +695,41 @@ class ActivityPlanController extends Controller
                                                     if(isset($trip_data['selected_trip']) && !empty($trip_data['selected_trip'])) {
                                                         if($trip_data['source'] == 'trips') {
                                                             $activity_plan_trip = ActivityPlanDetailTrip::where('id', $trip_data['selected_trip'])->first();
-                                                            $activity_plan_trip->update([
+                                                            $activity_plan_trip?->update([
                                                                 'activity_plan_detail_id' => NULL,
                                                             ]);
                                                         } else {
                                                             $destination = ActivityPlanDetailTripDestination::where('id', $trip_data['selected_trip'])->first();
-                                                            $destination->update([
+                                                            $destination?->update([
                                                                 'activity_plan_detail_id' => NULL
                                                             ]);
                                                         }
                                                     }
                                                 }
                                                 continue;
-                                            } else {
-                                                if(!empty($activity_plan_detail)) {
-                                                    $activity_plan_detail->update([
-                                                        'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
-                                                        'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
-                                                        'day' => $details['day'],
-                                                        'date' => $date,
-                                                        'exact_location' => $val['location'],
-                                                        'activity' => $val['purpose'],
-                                                        'work_with' => $val['work_with'] ?? NULL,
-                                                    ]);
-                                                }
                                             }
 
+                                            // the row was already removed elsewhere, nothing left to sync
+                                            if(empty($activity_plan_detail)) {
+                                                continue;
+                                            }
+
+                                            $activity_plan_detail->update([
+                                                'user_id' => empty($val['user_id']) ? NULL : $val['user_id'],
+                                                'branch_id' => empty($val['branch_id']) ? NULL : $val['branch_id'],
+                                                'day' => $details['day'],
+                                                'date' => $date,
+                                                'exact_location' => $val['location'],
+                                                'activity' => $val['purpose'],
+                                                'work_with' => $val['work_with'] ?? NULL,
+                                            ]);
+
                                         } else { // insert
-                                            // check if exists
+                                            // check if exists - match on plan/date/branch only, the "work with"
+                                            // user is stored as NULL and would never match the form's empty string
                                             $activity_plan_detail = ActivityPlanDetail::where('activity_plan_id', $activity_plan->id)
                                                 ->where('date', $date)
-                                                ->where('branch_id', $val['branch_id'])
-                                                ->where('user_id', $val['user_id'])
+                                                ->where('branch_id', empty($val['branch_id']) ? NULL : $val['branch_id'])
                                                 ->first();
 
                                             if(empty($activity_plan_detail)) {
@@ -716,6 +747,9 @@ class ActivityPlanController extends Controller
                                                 $activity_plan_detail->save();
                                             }
 
+                                            // keep the session in sync so a repeated save updates this row
+                                            // instead of inserting another copy of it
+                                            $activity_plan_data[$year]['details'][$data['month']][$date]['lines'][$line_key]['id'] = $activity_plan_detail->id;
                                         }
 
                                         // detail trip
@@ -726,6 +760,8 @@ class ActivityPlanController extends Controller
                                     }
                                 }
                             }
+
+                            Session::put('activity_plan_data', $activity_plan_data);
                         } else {
                             return back()->with([
                                 'message_error' => 'Please complete branch details.'
@@ -1120,7 +1156,12 @@ class ActivityPlanController extends Controller
                             $trip = $detail->trip->trip_number;
                         }
 
-                        $data[] = [
+                        if(!$detail->is_on_leave && empty($detail->branch_id)) {
+                            // skip this line if it's not on leave and has no branch_id
+                            continue;
+                        }
+
+                        $line = [
                             'location' => $detail->exact_location,
                             'account_name' => $account_name,
                             'branch_name' => $branch_name,
@@ -1128,9 +1169,16 @@ class ActivityPlanController extends Controller
                             'work_with' => !empty($detail->user_id) ? $detail->user->fullName() : $detail->work_with,
                             'trip' => $trip,
                         ];
+
+                        // key the line by its content so identical rows only print once
+                        $data[md5(json_encode(array_map(fn ($value) => strtoupper(trim((string) $value)), $line)))] = $line;
                     }
+
+                    $data = array_values($data);
                 }
-            } else {
+            }
+
+            if(empty($data)) {
                 $data[] = [
                     'location' => '',
                     'account_name' => '',
@@ -1322,10 +1370,24 @@ class ActivityPlanController extends Controller
         $bar_code = new DNS2D();
         $bar_code = $bar_code->getBarcodeHTML(route('trip.user', encrypt($trip->user_id)), 'QRCODE', 2, 2);
 
+        // only print one block per unique passenger / schedule / route
+        $destinations = $trip->destinations
+            ->unique(function ($destination): string {
+                return implode('|', [
+                    $destination->user_id,
+                    $destination->departure,
+                    $destination->return,
+                    strtoupper(trim((string) $destination->from)),
+                    strtoupper(trim((string) $destination->to)),
+                ]);
+            })
+            ->values();
+
         $pdf = PDF::loadview('pages.mcp.trip-detail', [
             'trip' => $trip,
             'bar_code' => $bar_code,
             'status_arr' => $status_arr,
+            'destinations' => $destinations,
         ]);
 
         return $pdf->download('trip-details-'.$trip->trip_number.'-'.time().'.pdf');
