@@ -184,31 +184,42 @@ class TripEdit extends Component
             'status' => $this->status,
         ]);
 
+        // always clear first, otherwise lowering the passenger count leaves the
+        // previous destinations behind and they keep printing on the trip PDF
+        $this->trip->destinations()->forceDelete();
+
         if($this->passenger >= 2) {
-            $this->trip->destinations()->forceDelete();
+            $saved_destinations = [];
+
             foreach($this->from_other as $key => $from) {
                 if(!empty($from) && !empty($this->to_other[$key]) && !empty($this->departure_other[$key]) && !empty($this->passenger_other[$key])) {
-                    if($this->type == 'round_trip' && !empty($this->return_other[$key])) {
-                        $destination = new ActivityPlanDetailTripDestination([
-                            'activity_plan_detail_trip_id' => $this->trip->id,
-                            'user_id' => $this->passenger_other[$key],
-                            'from' => $this->from_other[$key],
-                            'to' => $this->to_other[$key],
-                            'departure' => $this->departure_other[$key],
-                            'return' => $this->return_other[$key],
-                        ]);
-                        $destination->save();
-                    } else {
-                        $destination = new ActivityPlanDetailTripDestination([
-                            'activity_plan_detail_trip_id' => $this->trip->id,
-                            'user_id' => $this->passenger_other[$key],
-                            'from' => $this->from_other[$key],
-                            'to' => $this->to_other[$key],
-                            'departure' => $this->departure_other[$key],
-                            'return' => NULL,
-                        ]);
-                        $destination->save();
+                    $return = $this->type == 'round_trip' && !empty($this->return_other[$key])
+                        ? $this->return_other[$key]
+                        : NULL;
+
+                    // skip a passenger already saved with the same schedule and route
+                    $destination_key = implode('|', [
+                        $this->passenger_other[$key],
+                        $this->departure_other[$key],
+                        $return,
+                        strtoupper(trim((string) $from)),
+                        strtoupper(trim((string) $this->to_other[$key])),
+                    ]);
+
+                    if(isset($saved_destinations[$destination_key])) {
+                        continue;
                     }
+                    $saved_destinations[$destination_key] = true;
+
+                    $destination = new ActivityPlanDetailTripDestination([
+                        'activity_plan_detail_trip_id' => $this->trip->id,
+                        'user_id' => $this->passenger_other[$key],
+                        'from' => $this->from_other[$key],
+                        'to' => $this->to_other[$key],
+                        'departure' => $this->departure_other[$key],
+                        'return' => $return,
+                    ]);
+                    $destination->save();
                 }
             }
         }
