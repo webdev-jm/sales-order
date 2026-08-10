@@ -142,7 +142,11 @@ class SalesOrderTotal extends Component
             }
 
             $uom_data = [];
-            foreach($details as $c_uom => $c_quantity) {
+            foreach((array) $details as $c_uom => $c_quantity) {
+                // Clearing the quantity box posts back an empty string, which is a
+                // TypeError once it reaches the addition below.
+                $c_quantity = is_numeric($c_quantity) ? (float) $c_quantity : 0.0;
+
                 // uomQuantityAllocation(quantity, product_id, uom)
                 foreach($this->uomQuantityAllocation($c_quantity, $product->id, $c_uom) as $uom => $quantity) {
                     $uom_data[$uom]['quantity'] = ($uom_data[$uom]['quantity'] ?? 0) + $quantity;

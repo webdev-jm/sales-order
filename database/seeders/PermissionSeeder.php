@@ -324,11 +324,14 @@ class PermissionSeeder extends Seeder
 
         foreach($permissions_arr as $module => $permissions) {
             foreach($permissions as $permission => $description) {
-                Permission::create([
-                    'name' => $permission,
-                    'module' => $module,
-                    'description' => $description,
-                ]);
+                /** Some permissions are also created by migrations, so seeding must be idempotent. */
+                Permission::firstOrCreate(
+                    ['name' => $permission],
+                    [
+                        'module' => $module,
+                        'description' => $description,
+                    ]
+                );
             }
         }
     }
