@@ -133,6 +133,139 @@ class UploadTest extends TestCase
         $this->assertEmpty($component->get('err_data'));
     }
 
+    /**
+     * A spreadsheet row as PhpSpreadsheet hands it over: RTV number, submitted
+     * date, pick-up date, RTV date, branch, quantity, amount, remarks.
+     *
+     * @param  mixed  $submitted
+     * @param  mixed  $pickup
+     * @param  mixed  $rtvDate
+     */
+    private function sheetRow(string $rtvNumber, $submitted, $pickup, $rtvDate): array
+    {
+        return [$rtvNumber, $submitted, $pickup, $rtvDate, 'Branch A', 10, 100.5, 'note'];
+    }
+
+    private function headerRow(): array
+    {
+        return ['RTV/RS No.', 'Date Submitted', 'Pick-up Date', 'RTV Date', 'Branch', 'Quantity', 'Amount', 'Remarks'];
+    }
+
+    /**
+     * Excel hands date cells over as serial numbers - as a float whenever a
+     * formula produced them - or as text in whatever format the branch typed.
+     * Every one of these must reach the form as a `Y-m-d` value; the old
+     * parser only understood integer serials and `m-d-Y`, so the rest showed
+     * up as blank date fields.
+     */
+    public function test_dates_are_parsed_from_serials_and_common_text_formats(): void
+    {
+        $accountLogin = $this->loggedAccount();
+
+        $component = Livewire::test(Upload::class, ['logged_account' => $accountLogin]);
+
+        $rows = [
+            $this->headerRow(),
+            $this->sheetRow('RTV-1', 45678.0, '01/21/2025', 45678),
+            $this->sheetRow('RTV-2', 45678.0, '01/21/2025', '01/22/2025'),
+            $this->sheetRow('RTV-3', 45678.0, '01/21/2025', '2025-01-23'),
+            $this->sheetRow('RTV-4', 45678.0, '01/21/2025', '24-Jan-2025'),
+            $this->sheetRow('RTV-5', 45678.0, '01/21/2025', '45681'),
+        ];
+
+        $this->invokeProcessData($component->instance(), $rows);
+
+        $ppuData = $component->instance()->ppu_data;
+
+        $this->assertSame('2025-01-21', $ppuData['date_submitted']);
+        $this->assertSame('2025-01-21', $ppuData['pickup_date']);
+        $this->assertSame(
+            ['2025-01-21', '2025-01-22', '2025-01-23', '2025-01-24', '2025-01-24'],
+            array_column($ppuData['lines'], 'rtv_date')
+        );
+    }
+
+    /**
+     * A date the parser cannot resolve must be reported on its row rather than
+     * saved as an empty date.
+     */
+    public function test_unreadable_dates_are_flagged_and_block_saving(): void
+    {
+        $accountLogin = $this->loggedAccount();
+
+        $component = Livewire::test(Upload::class, ['logged_account' => $accountLogin]);
+
+        $rows = [
+            $this->headerRow(),
+            $this->sheetRow('RTV-1', '01/21/2025', '01/21/2025', 'n/a'),
+        ];
+
+        $this->invokeProcessData($component->instance(), $rows);
+
+        $errData = $component->instance()->err_data;
+
+        $this->assertStringContainsString('could not be read', $errData['rows'][0]['rtv_date']);
+
+        $component->set('ppu_data', $component->instance()->ppu_data)
+            ->call('savePPUForm', 'draft');
+
+        $this->assertNull($component->get('success_data'));
+        $this->assertDatabaseMissing('ppuform_items', ['rtv_number' => 'RTV-1']);
+    }
+
+    /**
+     * The header dates repeat on every line; a blank cell on a later line must
+     * not wipe the value read from the first one.
+     */
+    public function test_header_dates_survive_blank_cells_on_later_rows(): void
+    {
+        $accountLogin = $this->loggedAccount();
+
+        $component = Livewire::test(Upload::class, ['logged_account' => $accountLogin]);
+
+        $rows = [
+            $this->headerRow(),
+            $this->sheetRow('RTV-1', '01/21/2025', '01/22/2025', '01/23/2025'),
+            $this->sheetRow('RTV-2', null, null, '01/23/2025'),
+        ];
+
+        $this->invokeProcessData($component->instance(), $rows);
+
+        $ppuData = $component->instance()->ppu_data;
+
+        $this->assertSame('2025-01-21', $ppuData['date_submitted']);
+        $this->assertSame('2025-01-22', $ppuData['pickup_date']);
+    }
+
+    /**
+     * Missing header dates are reported instead of being written to the form.
+     */
+    public function test_missing_header_dates_are_reported(): void
+    {
+        $accountLogin = $this->loggedAccount();
+
+        $component = Livewire::test(Upload::class, ['logged_account' => $accountLogin]);
+
+        $rows = [
+            $this->headerRow(),
+            $this->sheetRow('RTV-1', '', '', '01/23/2025'),
+        ];
+
+        $this->invokeProcessData($component->instance(), $rows);
+
+        $errData = $component->instance()->err_data;
+
+        $this->assertStringContainsString('could not be read', $errData['date_submitted']);
+        $this->assertStringContainsString('could not be read', $errData['pickup_date']);
+    }
+
+    private function invokeProcessData(Upload $component, array $rows): void
+    {
+        $method = new \ReflectionMethod($component, 'processData');
+        $method->setAccessible(true);
+        $method->invoke($component, $rows);
+    }
+
     public function test_valid_batch_saves_successfully_and_creates_ppuform_and_items(): void
     {
         $accountLogin = $this->loggedAccount();

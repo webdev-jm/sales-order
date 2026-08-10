@@ -8,8 +8,6 @@ use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 
 use Maatwebsite\Excel\Facades\Excel;
-use PhpOffice\PhpSpreadsheet\Cell\Cell;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use Illuminate\Support\Facades\Session;
@@ -76,56 +74,27 @@ class Upload extends Component
 
         $data_arr = array();
         foreach($data as $key => $row) {
-            if(!empty(trim($row[0]))) {
+            if(!empty(trim($row[0] ?? ''))) {
                 if($key != 0) {
                     
                     $account = $this->account;
 
                     $rtv_number = trim($row[0]);
-                    $date_submitted = $row[1];
-                    $pickup_date = $row[2];
-                    $rtv_date = $row[3];
-                    $branch_name = trim($row[4]);
-                    $total_quantity = (int)trim($row[5]);
-                    $total_amount = (float)trim($row[6]);
-                    $remarks = trim($row[7]);
-    
-    
-                    if(is_int($date_submitted)) {
-                        $date_submitted = Date::excelToDateTimeObject($date_submitted)->format('Y-m-d');
-                    } else {
-                        $dateTime = \DateTime::createFromFormat('m-d-Y', $date_submitted);
-                        if ($dateTime === false) {
-                            $date_submitted = $date_submitted;
-                        } else {
-                            $date_submitted = $dateTime->format('Y-m-d');
-                        }
-                    }
+                    $date_submitted = $this->parseSpreadsheetDate($row[1] ?? null);
+                    $pickup_date = $this->parseSpreadsheetDate($row[2] ?? null);
+                    $rtv_date = $this->parseSpreadsheetDate($row[3] ?? null);
+                    $branch_name = trim($row[4] ?? '');
+                    $total_quantity = (int)trim($row[5] ?? '');
+                    $total_amount = (float)trim($row[6] ?? '');
+                    $remarks = trim($row[7] ?? '');
 
-                    if(is_int($pickup_date)) {
-                        $pickup_date = Date::excelToDateTimeObject($pickup_date)->format('Y-m-d');
-                    } else {
-                        $dateTime = \DateTime::createFromFormat('m-d-Y', $pickup_date);
-                        if ($dateTime === false) {
-                            $pickup_date = $pickup_date;
-                        } else {
-                            $pickup_date = $dateTime->format('Y-m-d');
-                        }
+                    /** The header dates repeat on every line; keep the first readable one. */
+                    if($date_submitted !== null && empty($data_arr['date_submitted'])) {
+                        $data_arr['date_submitted'] = $date_submitted;
                     }
-
-                    if(is_int($rtv_date)) {
-                        $rtv_date = Date::excelToDateTimeObject($rtv_date)->format('Y-m-d');
-                    } else {
-                        $dateTime = \DateTime::createFromFormat('m-d-Y', $rtv_date);
-                        if ($dateTime === false) {
-                            $rtv_date = $rtv_date;
-                        } else {
-                            $rtv_date = $dateTime->format('Y-m-d');
-                        }
+                    if($pickup_date !== null && empty($data_arr['pickup_date'])) {
+                        $data_arr['pickup_date'] = $pickup_date;
                     }
-
-                    $data_arr['date_submitted'] = $date_submitted;
-                    $data_arr['pickup_date'] = $pickup_date;
     
                     $data_arr['lines'][] = [
                         'row_number' => $key + 1,
@@ -140,10 +109,14 @@ class Upload extends Component
             }
         }
 
+        if(!empty($data_arr['lines'])) {
+            $data_arr['date_submitted'] = $data_arr['date_submitted'] ?? null;
+            $data_arr['pickup_date'] = $data_arr['pickup_date'] ?? null;
+        }
+
         $this->ppu_data = $data_arr;
 
-        // dd($this->account);
-
+        $this->err_data = $this->validateUpload($data_arr);
     }
 
     private function generateControlNumber(): string
@@ -161,6 +134,30 @@ class Upload extends Component
 
             return \sprintf('PPU-%s-%03d', $year, $next);
         });
+    }
+
+    /**
+     * Validate the whole upload: the header dates plus every line.
+     *
+     * A date that the spreadsheet parser could not resolve arrives here as
+     * null, so an unreadable cell is reported instead of silently saving an
+     * empty date.
+     *
+     * @param  array{date_submitted?: ?string, pickup_date?: ?string, lines?: array}  $data
+     */
+    private function validateUpload(array $data): array
+    {
+        $err = $this->validateLines($data['lines'] ?? []);
+
+        if (empty($data['date_submitted'])) {
+            $err['date_submitted'] = 'Submitted date is missing or its format could not be read';
+        }
+
+        if (empty($data['pickup_date'])) {
+            $err['pickup_date'] = 'Pick-up date is missing or its format could not be read';
+        }
+
+        return $err;
     }
 
     private function validateLines(array $lines): array
@@ -195,6 +192,10 @@ class Upload extends Component
                 }
             }
 
+            if (empty($item['rtv_date'])) {
+                $rowErr['rtv_date'] = 'RTV date is missing or its format could not be read';
+            }
+
             if (!empty($rowErr)) {
                 $err['rows'][$key] = $rowErr;
             }
@@ -206,14 +207,14 @@ class Upload extends Component
     public function recheckLines()
     {
         $this->success_data = null;
-        $this->err_data = $this->validateLines($this->ppu_data['lines'] ?? []);
+        $this->err_data = $this->validateUpload($this->ppu_data ?? []);
     }
 
     public function savePPUForm($status) {
         // validate
         $data = $this->ppu_data;
 
-        $err = $this->validateLines($data['lines'] ?? []);
+        $err = $this->validateUpload($data ?? []);
 
         if(empty($err)) {
             // create sales order

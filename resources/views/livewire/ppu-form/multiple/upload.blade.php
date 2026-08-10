@@ -79,12 +79,18 @@
                                     </div>
                                 </div>
                             </div>
-                        @elseif(!empty($err_data['rows']))
+                        @elseif(!empty($err_data['rows']) || !empty($err_data['date_submitted']) || !empty($err_data['pickup_date']))
                             <div class="row">
                                 <div class="col-12">
                                     <div class="alert alert-danger pl-0">
                                         <ul class="mb-0">
-                                            @foreach($err_data['rows'] as $idx => $fields)
+                                            @if(!empty($err_data['date_submitted']))
+                                                <li>{{ $err_data['date_submitted'] }}</li>
+                                            @endif
+                                            @if(!empty($err_data['pickup_date']))
+                                                <li>{{ $err_data['pickup_date'] }}</li>
+                                            @endif
+                                            @foreach($err_data['rows'] ?? [] as $idx => $fields)
                                                 @foreach($fields as $field => $msg)
                                                     <li>Row {{ $ppu_data['lines'][$idx]['row_number'] ?? ($idx + 1) }}: {{ $msg }}</li>
                                                 @endforeach
@@ -132,12 +138,18 @@
                             </div>
                             <div class="col-sm-4 invoice-col">
                                 <b>Submitted Date:</b><br>
-                                <p>
-                                    {{$ppu_data['date_submitted']}}
+                                <p class="{{ !empty($err_data['date_submitted']) ? 'text-danger mb-0' : '' }}">
+                                    {{$ppu_data['date_submitted'] ?? ''}}
+                                    @if(!empty($err_data['date_submitted']))
+                                        <small>{{ $err_data['date_submitted'] }}</small>
+                                    @endif
                                 </p>
                                 <b>Pick-up Date:</b><br>
-                                <p>
-                                    {{$ppu_data['pickup_date']}}
+                                <p class="{{ !empty($err_data['pickup_date']) ? 'text-danger mb-0' : '' }}">
+                                    {{$ppu_data['pickup_date'] ?? ''}}
+                                    @if(!empty($err_data['pickup_date']))
+                                        <small>{{ $err_data['pickup_date'] }}</small>
+                                    @endif
                                 </p>
                             </div>    
                         </div>
@@ -178,8 +190,12 @@
                                                     @endif
                                                 </td>
                                                 <td class="align-middle">
-                                                    <input type="date" class="form-control form-control-sm"
+                                                    <input type="date"
+                                                           class="form-control form-control-sm{{ !empty($rowErr['rtv_date']) ? ' is-invalid' : '' }}"
                                                            wire:model.defer="ppu_data.lines.{{ $key }}.rtv_date">
+                                                    @if(!empty($rowErr['rtv_date']))
+                                                        <div class="invalid-feedback d-block">{{ $rowErr['rtv_date'] }}</div>
+                                                    @endif
                                                 </td>
                                                 <td class="align-middle">
                                                     <input type="text" class="form-control form-control-sm"

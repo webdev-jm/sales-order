@@ -129,6 +129,54 @@ class SalesOrderTotalTest extends TestCase
     }
 
     /**
+     * Clearing the quantity box posts back an empty string. Under PHP 8 that used
+     * to fatal with "Unsupported operand types: int + string"; it must simply drop
+     * the line from the order instead.
+     *
+     * @dataProvider nonNumericQuantityProvider
+     */
+    public function test_non_numeric_quantity_does_not_throw($quantity): void
+    {
+        $product = $this->makeProduct();
+        $this->makePriceCode($product);
+
+        Livewire::test(SalesOrderTotal::class)
+            ->call('getTotal', [$product->id => ['EA' => $quantity]])
+            ->assertSet('total', '0.00')
+            ->assertSet('grand_total', '0.00')
+            ->assertStatus(200);
+
+        $this->assertArrayNotHasKey($product->id, Session::get('order_data')['items'] ?? []);
+    }
+
+    /**
+     * @return array<string, array{0: mixed}>
+     */
+    public static function nonNumericQuantityProvider(): array
+    {
+        return [
+            'cleared input' => [''],
+            'null'          => [null],
+            'garbage text'  => ['abc'],
+        ];
+    }
+
+    /**
+     * A quantity arriving as a numeric string still totals correctly.
+     */
+    public function test_numeric_string_quantity_is_still_totalled(): void
+    {
+        $product = $this->makeProduct();
+        $this->makePriceCode($product);
+
+        Livewire::test(SalesOrderTotal::class)
+            ->call('getTotal', [$product->id => ['EA' => '4']])
+            ->assertSet('total', '400.00');
+
+        $this->assertSame(4.0, Session::get('order_data')['items'][$product->id]['data']['EA']['quantity']);
+    }
+
+    /**
      * PAF rows are captured by a separate component straight into the session.
      * Recalculating the totals must not wipe them.
      */
