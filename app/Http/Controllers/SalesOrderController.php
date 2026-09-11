@@ -19,7 +19,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ActivityPlanImport;
 use App\Exports\SalesOrderExport;
 
-use PhpOffice\PhpSpreadsheet\Shared\Date;
+use App\Helpers\UploadDateHelper;
 
 use App\Http\Traits\SoXmlTrait;
 use App\Services\AccountLoginResolver;
@@ -366,6 +366,7 @@ class SalesOrderController extends Controller
         $shipping_instruction = '';
         $ship_to_address_id   = 'default';
         $po_value             = '';
+        $ship_date_error      = null;
 
         $ship_to_name      = $logged_account->account->account_name;
         $ship_to_address_1 = $logged_account->account->ship_to_address1;
@@ -392,15 +393,9 @@ class SalesOrderController extends Controller
                 $paf_number = $row[1];
             }
             if ($row_num == 3 && $row[0] == 'SHIP DATE') {
-                $ship_date = $row[1];
-                if (is_int($ship_date)) {
-                    $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
-                } else {
-                    $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
-                    if ($dateTime !== false) {
-                        $ship_date = $dateTime->format('Y-m-d');
-                    }
-                }
+                /** Optional here: a blank cell is filled in on the form the user lands on. */
+                $ship_date_error = UploadDateHelper::error($row[1] ?? null, 'Ship date', false);
+                $ship_date = $ship_date_error === null ? (UploadDateHelper::parse($row[1] ?? null) ?? '') : '';
             }
             if ($row_num == 4 && $row[0] == 'SHIPPING INSTRUCTION') {
                 $shipping_instruction = $row[1];
@@ -451,7 +446,10 @@ class SalesOrderController extends Controller
 
         Session::put('order_data', $order_data);
 
-        return redirect()->route('sales-order.create')->with([
+        /** The items are usable, so load the form and let the user fix the date there. */
+        $flash = $ship_date_error !== null ? ['message_error' => $ship_date_error] : [];
+
+        return redirect()->route('sales-order.create')->with($flash + [
             'po_number'            => $po_number,
             'paf_number'           => $paf_number,
             'ship_date'            => $ship_date,

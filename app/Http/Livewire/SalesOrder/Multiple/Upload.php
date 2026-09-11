@@ -6,7 +6,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use Illuminate\Support\Fluent;
@@ -19,6 +18,7 @@ use App\Models\ShippingAddress;
 use App\Jobs\GenerateSalesOrderXml;
 
 use App\Services\SalesOrderService;
+use App\Helpers\UploadDateHelper;
 
 class Upload extends Component
 {
@@ -95,20 +95,17 @@ class Upload extends Component
                 $po_raw = trim($row[0]);
                 $po_number = !empty($this->account->po_prefix) ? $this->account->po_prefix . $po_raw : $po_raw;
 
-                // Parse Dates
-                $ship_date = $row[1];
-                if(is_int($ship_date)) {
-                    $ship_date = Date::excelToDateTimeObject($ship_date)->format('Y-m-d');
-                } else {
-                    $dateTime = \DateTime::createFromFormat('m-d-Y', $ship_date);
-                    $ship_date = ($dateTime !== false) ? $dateTime->format('Y-m-d') : $ship_date;
-                }
+                // Parse Dates - the cell may hold an Excel serial or text in any format.
+                $ship_date_raw = $row[1] ?? null;
+                $ship_date = UploadDateHelper::parse($ship_date_raw);
+                $ship_date_error = UploadDateHelper::error($ship_date_raw, 'Ship date');
 
                 // Initialize PO Group if not exists
                 if (!isset($grouped_data[$po_number])) {
                     $grouped_data[$po_number] = [
                         'meta' => [
                             'ship_date' => $ship_date,
+                            'ship_date_error' => $ship_date_error,
                             'ship_to_address_code' => trim($row[2]),
                             'po_value' => 0,
                             'paf_number' => trim($row[7]),
@@ -210,6 +207,7 @@ class Upload extends Component
                 'ship_to_address' => $ship_to_code,
                 'shipping_address' => !empty($shipping_address) ? $shipping_address : [],
                 'ship_date' => $group['meta']['ship_date'],
+                'ship_date_error' => $group['meta']['ship_date_error'],
                 'po_value' => $group['meta']['po_value'],
                 'paf_number' => $group['meta']['paf_number'],
                 'shipping_instruction' => $group['meta']['shipping_instruction'],
@@ -222,6 +220,13 @@ class Upload extends Component
         }
 
         $this->so_data = $final_data;
+
+        /** Flag unreadable dates straight away so the user fixes the sheet before saving. */
+        foreach($final_data as $po_number => $data) {
+            if(!empty($data['ship_date_error'])) {
+                $this->err_data[$po_number]['ship_date'] = $data['ship_date_error'];
+            }
+        }
     }
 
     public function saveSalesOrder($status, $po_number) {
@@ -236,7 +241,9 @@ class Upload extends Component
         }
 
         // Date Validation
-        if(empty($data['ship_date'])) {
+        if(!empty($data['ship_date_error'])) {
+            $err['ship_date'] = $data['ship_date_error'];
+        } elseif(empty($data['ship_date'])) {
             $err['ship_date'] = 'Ship date is required.';
         } else {
             $poProcessDays = (int) ($this->account->po_process_date ?? 1);

@@ -9,6 +9,8 @@ use App\Models\PafActivity;
 use App\Models\Account;
 use App\Models\Product;
 
+use App\Helpers\UploadDateHelper;
+
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
@@ -18,6 +20,16 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
 {
     public int $importedCount = 0;
     public int $skippedCount  = 0;
+
+    /**
+     * Why rows were rejected, in sheet order, so the uploader can fix the file.
+     *
+     * @var string[]
+     */
+    public array $rowErrors = [];
+
+    /** Sheet row currently being read, so a rejected row can be named. */
+    private int $rowNumber = 1;
 
     public function startRow(): int
     {
@@ -40,13 +52,15 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
     */
     public function model(array $row)
     {
+        $this->rowNumber++;
+
         $pre_plan_number = trim($row[0]);
         $year = trim($row[1]);
         $company = trim($row[2]);
         $account_code = trim($row[3]);
         $account_name = trim($row[4]);
-        $start_date = trim($row[5]);
-        $end_date = trim($row[6]);
+        $start_date = $row[5] ?? null;
+        $end_date = $row[6] ?? null;
         $title = trim($row[7]);
         $support_type = trim($row[8]);
         $concept = trim($row[9]);
@@ -63,6 +77,18 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
         $amount = trim($row[20]);
 
         $err = 0;
+
+        // dates - the sheet may hold an Excel serial or text in any format
+        foreach ([
+            'Start date' => $start_date,
+            'End date'   => $end_date,
+        ] as $label => $value) {
+            $date_error = UploadDateHelper::error($value, $label);
+            if (!empty($date_error)) {
+                $this->rowErrors[] = 'Row '.$this->rowNumber.': '.$date_error;
+                $err = 1;
+            }
+        }
 
         // account
         $account = Account::where('account_code', $account_code)
@@ -100,8 +126,8 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
                     'paf_activity_id' => $activity->id ?? NULL,
                     'pre_plan_number' => $pre_plan_number,
                     'year' => $year,
-                    'start_date' => $this->transformDate($start_date),
-                    'end_date' => $this->transformDate($end_date),
+                    'start_date' => UploadDateHelper::parse($start_date),
+                    'end_date' => UploadDateHelper::parse($end_date),
                     'title' => $title,
                     'concept' => $concept
                 ]);
@@ -138,12 +164,4 @@ class PrePlanUploadImport implements ToModel, WithStartRow, WithBatchInserts, Wi
         }
     }
 
-    private function transformDate($value, $format = 'Y-m-d')
-    {
-        try {
-            return \Carbon\Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
-        } catch (\ErrorException $e) {
-            return \Carbon\Carbon::createFromFormat($format, $value);
-        }
-    }
 }

@@ -39,9 +39,10 @@ class SalesOrderService {
         $orders['skipped_items'] = [];
 
         if (!empty($data)) {
-            $line_discount = Discount::where('discount_code', $account->line_discount_code)
-                ->where('company_id', $account->company_id)
-                ->first();
+            // $line_discount = Discount::where('discount_code', $account->line_discount_code)
+            //     ->where('company_id', $account->company_id)
+            //     ->first();
+            $line_discount = null;
 
             foreach ($data as $product_id => $details) {
                 $product = $details['product'];
@@ -162,6 +163,7 @@ class SalesOrderService {
                         }
 
                         // Apply line-level (per-UOM) discount before accumulating product total.
+                        // disabled
                         $uom_discounted = $uom_total;
                         if (!empty($line_discount)) {
                             if ($line_discount->discount_1 > 0) {
