@@ -7,6 +7,7 @@ use Livewire\WithFileUploads;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PrePlanUploadImport;
+use App\Helpers\UploadDateHelper;
 
 class Upload extends Component
 {
@@ -46,6 +47,7 @@ class Upload extends Component
                 ->log(':causer.firstname :causer.lastname has uploaded pre plans');
 
             $this->successMessage = "Imported {$import->importedCount} pre-plan(s), skipped {$import->skippedCount} row(s).";
+            $this->errorMessage = UploadDateHelper::summarizeErrors($import->rowErrors);
             $this->file = null;
             $this->dispatchBrowserEvent('pre-plan-uploaded');
 

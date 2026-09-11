@@ -73,6 +73,7 @@ class Upload extends Component
         ]);
 
         $data_arr = array();
+        $raw_header_dates = [];
         foreach($data as $key => $row) {
             if(!empty(trim($row[0] ?? ''))) {
                 if($key != 0) {
@@ -83,6 +84,14 @@ class Upload extends Component
                     $date_submitted = $this->parseSpreadsheetDate($row[1] ?? null);
                     $pickup_date = $this->parseSpreadsheetDate($row[2] ?? null);
                     $rtv_date = $this->parseSpreadsheetDate($row[3] ?? null);
+
+                    /** Keep the first row's raw cells so an unreadable header date can be quoted back. */
+                    if (empty($raw_header_dates)) {
+                        $raw_header_dates = [
+                            'date_submitted' => $row[1] ?? null,
+                            'pickup_date' => $row[2] ?? null,
+                        ];
+                    }
                     $branch_name = trim($row[4] ?? '');
                     $total_quantity = (int)trim($row[5] ?? '');
                     $total_amount = (float)trim($row[6] ?? '');
@@ -100,6 +109,7 @@ class Upload extends Component
                         'row_number' => $key + 1,
                         'rtv_number' => $rtv_number,
                         'rtv_date' => $rtv_date,
+                        'rtv_date_error' => $this->spreadsheetDateError($row[3] ?? null, 'RTV date'),
                         'branch_name' => $branch_name,
                         'total_quantity' => $total_quantity,
                         'total_amount' => $total_amount,
@@ -112,6 +122,14 @@ class Upload extends Component
         if(!empty($data_arr['lines'])) {
             $data_arr['date_submitted'] = $data_arr['date_submitted'] ?? null;
             $data_arr['pickup_date'] = $data_arr['pickup_date'] ?? null;
+
+            /** No row carried a readable header date - say why, quoting what was there. */
+            $data_arr['date_submitted_error'] = $data_arr['date_submitted'] === null
+                ? $this->spreadsheetDateError($raw_header_dates['date_submitted'] ?? null, 'Submitted date')
+                : null;
+            $data_arr['pickup_date_error'] = $data_arr['pickup_date'] === null
+                ? $this->spreadsheetDateError($raw_header_dates['pickup_date'] ?? null, 'Pick-up date')
+                : null;
         }
 
         $this->ppu_data = $data_arr;
@@ -139,9 +157,9 @@ class Upload extends Component
     /**
      * Validate the whole upload: the header dates plus every line.
      *
-     * A date that the spreadsheet parser could not resolve arrives here as
-     * null, so an unreadable cell is reported instead of silently saving an
-     * empty date.
+     * A date the parser could not resolve arrives here as null, carrying the
+     * message built when the file was read, so an unreadable cell is reported
+     * with its offending value instead of silently saving an empty date.
      *
      * @param  array{date_submitted?: ?string, pickup_date?: ?string, lines?: array}  $data
      */
@@ -150,11 +168,13 @@ class Upload extends Component
         $err = $this->validateLines($data['lines'] ?? []);
 
         if (empty($data['date_submitted'])) {
-            $err['date_submitted'] = 'Submitted date is missing or its format could not be read';
+            $err['date_submitted'] = $data['date_submitted_error']
+                ?? 'Submitted date is missing or its format could not be read';
         }
 
         if (empty($data['pickup_date'])) {
-            $err['pickup_date'] = 'Pick-up date is missing or its format could not be read';
+            $err['pickup_date'] = $data['pickup_date_error']
+                ?? 'Pick-up date is missing or its format could not be read';
         }
 
         return $err;
@@ -193,7 +213,8 @@ class Upload extends Component
             }
 
             if (empty($item['rtv_date'])) {
-                $rowErr['rtv_date'] = 'RTV date is missing or its format could not be read';
+                $rowErr['rtv_date'] = $item['rtv_date_error']
+                    ?? 'RTV date is missing or its format could not be read';
             }
 
             if (!empty($rowErr)) {

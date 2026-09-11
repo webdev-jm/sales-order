@@ -164,6 +164,27 @@ class MultipleUploadTest extends TestCase
     }
 
     /**
+     * A ship date the parser could not read reaches saveSalesOrder as a null
+     * date carrying the message built when the sheet was read; the order must
+     * not be created off the back of it.
+     */
+    public function test_an_unreadable_ship_date_blocks_the_save_and_explains_why(): void
+    {
+        Queue::fake();
+
+        $entry = $this->soDataEntry();
+        $entry['ship_date'] = null;
+        $entry['ship_date_error'] = 'Ship date is not a valid date ("next tuesday").';
+
+        Livewire::test(Upload::class, ['logged_account' => $this->accountLogin])
+            ->set('so_data', ['PH-UPLOAD-005' => $entry])
+            ->call('saveSalesOrder', 'draft', 'PH-UPLOAD-005')
+            ->assertSet('err_data.PH-UPLOAD-005.ship_date', 'Ship date is not a valid date ("next tuesday").');
+
+        $this->assertNull(SalesOrder::where('po_number', 'PH-UPLOAD-005')->first());
+    }
+
+    /**
      * The component strips the account prefix before handing the number to the
      * service, which must put it back exactly once.
      */

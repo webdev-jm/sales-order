@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ScheduleImport;
+use App\Helpers\UploadDateHelper;
 
 use App\Http\Traits\GlobalTrait;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -168,11 +169,19 @@ class UserBranchScheduleController extends Controller
     {
         $request->validate(['upload_file' => ['mimes:xlsx']]);
 
-        Excel::import(new ScheduleImport, $request->upload_file);
+        $import = new ScheduleImport;
+        Excel::import($import, $request->upload_file);
 
         activity('upload')->log(':causer.firstname :causer.lastname has uploaded schedules');
 
-        return back()->with(['message_success' => 'Schedule has been uploaded.']);
+        $flash = ['message_success' => 'Schedule has been uploaded.'];
+
+        if (!empty($import->rowErrors)) {
+            $flash['message_error'] = 'Some rows were skipped. '
+                .UploadDateHelper::summarizeErrors($import->rowErrors);
+        }
+
+        return back()->with($flash);
     }
 
     public function printDeviationForm(int $id): \Illuminate\Http\Response
