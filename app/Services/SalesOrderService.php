@@ -44,6 +44,8 @@ class SalesOrderService {
             //     ->first();
             $line_discount = null;
 
+            $company_name = $account->company->name ?? null;
+
             foreach ($data as $product_id => $details) {
                 $product = $details['product'];
                 $orders['items'][$product_id] = [
@@ -200,7 +202,7 @@ class SalesOrderService {
                     $orders['skipped_items'][] = [
                         'stock_code' => $product->stock_code,
                         'reason'     => empty($price_code)
-                            ? "No price code '{$code}' is configured for this product on this account."
+                            ? $this->missingPriceCodeReason($code, $company_name)
                             : 'Calculated total is zero.',
                     ];
                 }
@@ -231,6 +233,19 @@ class SalesOrderService {
         $orders['po_value']       = '';
 
         return $orders;
+    }
+
+    /**
+     * Explain a SKU skipped for lack of a price, naming the company so users can
+     * tell a missing price-code upload apart from a system error.
+     */
+    private function missingPriceCodeReason(?string $code, ?string $company_name): string
+    {
+        $price_code_label = empty($company_name)
+            ? "price code '{$code}'"
+            : "{$company_name} price code '{$code}'";
+
+        return "No {$price_code_label} is set up for this product. Please ask the admin to upload it.";
     }
 
     /**

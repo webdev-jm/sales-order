@@ -103,7 +103,7 @@ class SalesOrderServiceTest extends TestCase
      */
     public function test_calculate_order_totals_reports_skipped_item_when_no_price_code_matches(): void
     {
-        $company = Company::factory()->create();
+        $company = Company::factory()->create(['name' => 'TEST COMPANY']);
         $account = Account::factory()->create([
             'company_id' => $company->id,
             'price_code' => 'B',
@@ -135,7 +135,45 @@ class SalesOrderServiceTest extends TestCase
         $this->assertArrayNotHasKey($product->id, $result['items'] ?? []);
         $this->assertCount(1, $result['skipped_items']);
         $this->assertSame($product->stock_code, $result['skipped_items'][0]['stock_code']);
-        $this->assertStringContainsString("No price code 'B'", $result['skipped_items'][0]['reason']);
+        $this->assertSame(
+            "No TEST COMPANY price code 'B' is set up for this product. Please ask the admin to upload it.",
+            $result['skipped_items'][0]['reason']
+        );
+    }
+
+    /**
+     * The skipped-item reason should still read cleanly when the account has no
+     * company to name.
+     */
+    public function test_calculate_order_totals_skipped_reason_omits_company_when_account_has_none(): void
+    {
+        $account = new Account([
+            'company_id' => null,
+            'price_code' => 'B',
+            'line_discount_code' => null,
+            'sales_order_uom' => null,
+        ]);
+        $product = Product::factory()->create([
+            'brand_id' => \App\Models\Brand::factory()->create(['brand' => 'TEST BRAND'])->id,
+            'special_product' => 0,
+        ]);
+
+        $data = [
+            $product->id => [
+                'product' => $product,
+                'data' => [
+                    $product->stock_uom => ['quantity' => 5],
+                ],
+            ],
+        ];
+
+        $result = $this->service->calculateOrderTotals($data, $account);
+
+        $this->assertCount(1, $result['skipped_items']);
+        $this->assertSame(
+            "No price code 'B' is set up for this product. Please ask the admin to upload it.",
+            $result['skipped_items'][0]['reason']
+        );
     }
 
     /**
