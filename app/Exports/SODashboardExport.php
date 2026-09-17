@@ -183,14 +183,31 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             ->get();
         }
 
+        $sales_orders->load([
+            'account_login' => fn ($query) => $query->withTrashed(),
+            'account_login.user',
+            'account_login.account' => fn ($query) => $query->withTrashed(),
+            'account_login.account.company' => fn ($query) => $query->withTrashed(),
+            'order_products.product_uoms',
+        ]);
+
         $data = [];
         $total_quantity = 0;
         $total_amount = 0;
         $total_less_discount = 0;
         foreach($sales_orders as $sales_order) {
             $account_login = $sales_order->account_login;
-            $account = $account_login->account;
-            
+            $account = $account_login?->account;
+            $user = $account_login?->user;
+
+            $group_code = $user?->group_code ?? '';
+            $email = $user?->email ?? '';
+            $full_name = $user?->fullName() ?? '';
+            $company_name = $account?->company?->name ?? '';
+            $account_code = $account?->account_code ?? '';
+            $short_name = $account?->short_name ?? '';
+            $account_name = $account?->account_name ?? '';
+
             $address_arr = [
                 $sales_order->ship_to_name,
                 $sales_order->ship_to_building,
@@ -211,6 +228,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             }
 
             // products
+            $order_product = null;
             $order_products = $sales_order->order_products;
             foreach($order_products as $order_product) {
                 // $product = $order_product->product;
@@ -220,13 +238,13 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                 $product_uoms = $order_product->product_uoms;
                 foreach($product_uoms as $product_uom) {
                     $data[] = [
-                        $account_login->user->group_code,
-                        $account_login->user->email,
-                        $account_login->user->fullName(),
-                        $account->company->name,
-                        $account->account_code,
-                        $account->short_name,
-                        $account->account_name,
+                        $group_code,
+                        $email,
+                        $full_name,
+                        $company_name,
+                        $account_code,
+                        $short_name,
+                        $account_name,
                         $sales_order->control_number,
                         $sales_order->po_number,
                         $sales_order->order_date,
@@ -251,13 +269,13 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
             }
 
             $data[] = [
-                $account_login->user->group_code,
-                $account_login->user->email,
-                $account_login->user->fullName(),
-                $account->company->name,
-                $account->account_code,
-                $account->short_name,
-                $account->account_name,
+                $group_code,
+                $email,
+                $full_name,
+                $company_name,
+                $account_code,
+                $short_name,
+                $account_name,
                 $sales_order->control_number,
                 $sales_order->po_number,
                 $sales_order->order_date,
@@ -266,7 +284,7 @@ class SODashboardExport implements FromCollection, ShouldAutoSize, WithStyles, W
                 $address,
                 $status,
                 $sales_order->reference,
-                $order_product->part,
+                $order_product?->part ?? '',
                 '',
                 '',
                 '',
