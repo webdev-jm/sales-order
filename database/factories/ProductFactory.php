@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Brand;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ProductFactory extends Factory
@@ -18,6 +19,7 @@ class ProductFactory extends Factory
         $otherUom = fake()->randomElement(array_diff($uoms, [$orderUom]));
 
         return [
+            'brand_id' => Brand::factory(),
             'stock_code' => fake()->unique()->numerify('SKU#####'),
             'description' => fake()->unique()->words(3, true),
             'size' => fake()->randomElement(['50ML', '100ML', '200ML', '250ML', '500ML', '1L', '5L']),

@@ -32,6 +32,9 @@ class UpdateSettingRequest extends FormRequest
             ],
             'mcp_deadline' => [
                 'required', 'min:1', 'max:2'
+            ],
+            'ai_monthly_token_limit' => [
+                'nullable', 'integer', 'min:1'
             ]
         ];
     }

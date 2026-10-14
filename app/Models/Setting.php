@@ -23,6 +23,7 @@ class Setting extends Model
         'sales_order_limit',
         'mcp_deadline',
         'email_sending',
+        'ai_monthly_token_limit',
     ];
 }
 

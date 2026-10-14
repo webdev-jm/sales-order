@@ -54,6 +54,15 @@
                 </div>
             </div>
 
+            <div class="col-lg-3">
+                <div class="form-group">
+                    {!! Form::label('ai_monthly_token_limit', 'AI Token Limit per Month') !!}
+                    {!! Form::number('ai_monthly_token_limit', $setting->ai_monthly_token_limit, ['class' => 'form-control'.($errors->has('ai_monthly_token_limit') ? ' is-invalid' : ''), 'form' => 'update_settings', 'min' => 1, 'placeholder' => 'No limit']) !!}
+                    <small class="form-text text-muted">PDF scanning stops once this many tokens are used in a month. Leave blank for no limit.</small>
+                    <p class="text-danger">{{$errors->first('ai_monthly_token_limit')}}</p>
+                </div>
+            </div>
+
         </div>
 
     </div>

@@ -436,6 +436,7 @@ return [
             'icon'    => 'fas fa-fw fa-tools',
             'can'     => [
                 'so template access',
+                'ai usage access',
             ],
             'submenu' => [
                 [
@@ -444,6 +445,13 @@ return [
                     'icon'   => 'fas fa-fw fa-file-alt',
                     'can'    => 'so template access',
                     'active' => ['sales-order-template*'],
+                ],
+                [
+                    'text'   => 'AI Usage',
+                    'url'    => '/ai-usage',
+                    'icon'   => 'fas fa-fw fa-robot',
+                    'can'    => 'ai usage access',
+                    'active' => ['ai-usage*'],
                 ],
             ],
         ],
