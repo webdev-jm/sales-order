@@ -8,6 +8,22 @@
                 <i class="fas fa-file-csv mr-1"></i> Upload Template
             </a>
         </li>
+        @can('po scan access')
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'scan' ? 'active' : '' }}"
+               wire:click.prevent="setTab('scan')" href="#">
+                <i class="fas fa-robot mr-1"></i> Scan PDF
+            </a>
+        </li>
+        @endcan
+        @can('po scan format manage')
+        <li class="nav-item">
+            <a class="nav-link {{ $activeTab === 'formats' ? 'active' : '' }}"
+               wire:click.prevent="setTab('formats')" href="#">
+                <i class="fas fa-file-pdf mr-1"></i> PO Formats
+            </a>
+        </li>
+        @endcan
         <li class="nav-item">
             <a class="nav-link {{ $activeTab === 'storemap' ? 'active' : '' }}"
                wire:click.prevent="setTab('storemap')" href="#">
@@ -116,6 +132,26 @@
             </div>
         </div>
         <div class="card-body pb-0">
+            @php
+                $scannedFiles = collect($rows)->pluck('source_file')->filter()->unique();
+            @endphp
+            @if($scannedFiles->isNotEmpty())
+                <div class="alert alert-info py-2">
+                    <i class="fas fa-robot mr-1"></i>
+                    Read by AI from <strong>{{ $scannedFiles->implode(', ') }}</strong>.
+                    Check every line against the PDF before exporting.
+                </div>
+            @endif
+            @if(!empty($scanWarnings))
+                <div class="alert alert-warning py-2">
+                    <p class="mb-1"><strong>These PDFs could not be scanned and are not in the table:</strong></p>
+                    <ul class="mb-0 pl-3">
+                        @foreach($scanWarnings as $fileName => $message)
+                            <li><strong>{{ $fileName }}</strong> — {{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge badge-secondary badge-lg p-2">Total: {{ $summary['total'] ?? 0 }}</span>
                 <span class="badge badge-success badge-lg p-2">
@@ -156,6 +192,7 @@
                         <th>SKU Code</th>
                         <th>Description</th>
                         <th>Qty</th>
+                        <th>Unit</th>
                         <th>List Price</th>
                         <th>Amount</th>
                         <th>Internal SKU</th>
@@ -197,6 +234,7 @@
                             <td>{{ $row['sku_code'] }}</td>
                             <td>{{ $row['description'] }}</td>
                             <td>{{ $row['qty'] }}</td>
+                            <td>{{ $row['so_uom'] ?? 'CS' }}</td>
                             <td>{{ $row['list_price'] }}</td>
                             <td>{{ $row['amount'] }}</td>
                             <td>{{ $row['internal_sku'] ?? '—' }}</td>
@@ -217,7 +255,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="22" class="text-center text-muted py-3">No rows parsed.</td>
+                            <td colspan="23" class="text-center text-muted py-3">No rows parsed.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -238,6 +276,20 @@
     @endif
 
     @endif {{-- end upload tab --}}
+
+    {{-- ================================================================= --}}
+    {{-- SCAN PDF TAB                                                       --}}
+    {{-- ================================================================= --}}
+    @if($activeTab === 'scan')
+        @livewire('sales-order-template.po-scan', key('po-scan'))
+    @endif
+
+    {{-- ================================================================= --}}
+    {{-- PO FORMATS TAB                                                     --}}
+    {{-- ================================================================= --}}
+    @if($activeTab === 'formats')
+        @livewire('sales-order-template.scan-formats', key('scan-formats'))
+    @endif
 
     {{-- ================================================================= --}}
     {{-- STORE MAP TAB                                                      --}}

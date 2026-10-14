@@ -9,12 +9,10 @@ use Livewire\WithPagination;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\PuregoldStoreMap;
-use App\Models\ShippingAddress;
 use App\Models\AccountProductReference;
-use App\Models\AccountShipAddressMapping;
 
 use App\Exports\SalesOrderTemplateExport;
-use Illuminate\Support\Facades\DB;
+use App\Services\SoTemplateLookup;
 use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -31,7 +29,15 @@ class Index extends Component
     public $step = 1;
     public $summary = [];
 
+    /** @var array<string, string> PDF file name => why it could not be scanned */
+    public array $scanWarnings = [];
+
     public string $activeTab    = 'upload';
+
+    protected $listeners = [
+        'poScanned' => 'showScannedRows',
+        'openTab'   => 'setTab',
+    ];
 
     // Store Map
     public string $storeMapSearch = '';
@@ -92,23 +98,42 @@ class Index extends Component
             }
         }
 
-        $path = $this->file->store('so-template-uploads');
-        $fullPath = storage_path('app/' . $path);
+        $this->file->store('so-template-uploads');
 
-        $this->parseFile($fullPath);
+        $this->parseFile($this->file->getRealPath());
         $this->step = 2;
     }
 
     public function resetUpload(): void
     {
         Session::forget('so_template_rows');
-        $this->reset('file', 'step', 'summary', 'account_ids');
+        $this->reset('file', 'step', 'summary', 'account_ids', 'scanWarnings');
         $this->step = 1;
+    }
+
+    /**
+     * Shows the rows the PDF scanner put in the session, on the same review screen as a CSV.
+     *
+     * @param array<string, int> $summary
+     * @param array<string, string> $warnings
+     */
+    public function showScannedRows(array $summary, array $warnings = []): void
+    {
+        $this->summary      = $summary;
+        $this->scanWarnings = $warnings;
+        $this->step         = 2;
+        $this->activeTab    = 'upload';
     }
 
     public function setTab(string $tab): void
     {
-        $this->activeTab = $tab;
+        $allowed = match ($tab) {
+            'scan'    => auth()->user()->can('po scan access'),
+            'formats' => auth()->user()->can('po scan format manage'),
+            default   => true,
+        };
+
+        $this->activeTab = $allowed ? $tab : 'upload';
     }
 
     public function updatingStoreMapSearch(): void
@@ -310,7 +335,7 @@ class Index extends Component
             $sheet->setCellValue("C{$startRow}", $row['store_code']    ?? '');
             $sheet->setCellValue("D{$startRow}", $row['internal_sku']  ?? '');
             $sheet->setCellValue("E{$startRow}", $row['qty']           ?? '');
-            $sheet->setCellValue("F{$startRow}", 'CS');
+            $sheet->setCellValue("F{$startRow}", $row['so_uom'] ?? 'CS');
             $sheet->setCellValue("G{$startRow}", $row['amount']        ?? '');
             $sheet->setCellValue("H{$startRow}", '');
             $sheet->setCellValue("I{$startRow}", $row['po_remarks']    ?? '');
@@ -353,14 +378,9 @@ class Index extends Component
             ->get(['id', 'account_code', 'account_name'])
             ->keyBy('id');
         $storeMap     = PuregoldStoreMap::pluck('bevi_code', 'store_code')->all();
+        $lookup       = app(SoTemplateLookup::class);
 
-        $summary = [
-            'total'            => 0,
-            'ok'               => 0,
-            'sku_not_found'    => 0,
-            'address_not_found'=> 0,
-            'both_not_found'   => 0,
-        ];
+        $summary = SoTemplateLookup::emptySummary();
 
         while (($raw = fgetcsv($handle)) !== false) {
             if (empty(array_filter($raw))) {
@@ -369,31 +389,20 @@ class Index extends Component
 
             $parsed = $this->parseRow($raw);
 
-            $productData = $this->lookupProduct(
+            $productData = $lookup->product(
                 $parsed['raw_sku'],
                 $parsed['sku_code'],
                 $accountIds
             );
 
-            $addressData = $this->lookupShippingAddress(
+            $addressData = $lookup->shippingAddress(
                 $parsed['store_code'],
                 $parsed['store_name'],
                 $accountIds,
                 $storeMap
             );
 
-            $skuMissing  = empty($productData['product_id']);
-            $addrMissing = empty($addressData['shipping_address_id']);
-
-            if ($skuMissing && $addrMissing) {
-                $status = 'both_not_found';
-            } elseif ($skuMissing) {
-                $status = 'sku_not_found';
-            } elseif ($addrMissing) {
-                $status = 'address_not_found';
-            } else {
-                $status = 'ok';
-            }
+            $status = $lookup->status($productData, $addressData);
 
             $accountId   = $addressData['account_id'] ?? null;
             $account     = $accountId ? ($accountsById[$accountId] ?? null) : null;
@@ -479,113 +488,6 @@ class Index extends Component
             'qty'               => trim($row[20] ?? ''),
             'list_price'        => trim($this->extractSegment($skuField, 'buyCost')),
             'amount'            => trim($row[25] ?? ''),
-        ];
-    }
-
-    // -------------------------------------------------------------------------
-    // DB Lookups
-    // -------------------------------------------------------------------------
-
-    private function lookupProduct(string $rawSku, string $skuCode, array $accountIds): array
-    {
-        $empty = ['product_id' => null, 'internal_sku' => null, 'product_name' => null];
-
-        if (empty($rawSku) && empty($skuCode)) {
-            return $empty;
-        }
-
-        // 1. Direct match on stripped SKU
-        $product = Product::where('stock_code', $skuCode)->first();
-
-        // 2. Direct match on raw SKU
-        if (empty($product)) {
-            $product = Product::where('stock_code', $rawSku)->first();
-        }
-
-        // 3. AccountProductReference fallback across all selected accounts
-        if (empty($product) && !empty($accountIds)) {
-            $ref = AccountProductReference::whereIn('account_id', $accountIds)
-                ->where(function ($q) use ($rawSku, $skuCode) {
-                    $q->where('account_reference', $rawSku)
-                      ->orWhere('account_reference', $skuCode)
-                      ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $rawSku)
-                      ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $skuCode);
-                })
-                ->first();
-
-            if (!empty($ref)) {
-                $product = $ref->product;
-            }
-        }
-
-        if (empty($product)) {
-            return $empty;
-        }
-
-        return [
-            'product_id'   => $product->id,
-            'internal_sku' => $product->stock_code,
-            'product_name' => trim($product->description . ' ' . $product->size),
-        ];
-    }
-
-    private function lookupShippingAddress(string $storeCode, string $storeName, array $accountIds, array $storeMap = []): array
-    {
-        $empty = ['account_id' => null, 'shipping_address_id' => null, 'shipping_name' => null, 'shipping_address' => null];
-
-        if ((empty($storeCode) && empty($storeName)) || empty($accountIds)) {
-            return $empty;
-        }
-
-        // 1. Puregold → BEVI code mapping (from DB)
-        $lookupCode = $storeMap[$storeCode] ?? $storeCode;
-
-        // 2. Exact address_code match using mapped code
-        $address = ShippingAddress::whereIn('account_id', $accountIds)
-            ->where('address_code', $lookupCode)
-            ->first();
-
-        // 3. Cast match (handles any remaining leading-zero differences)
-        if (empty($address) && is_numeric($lookupCode)) {
-            $address = ShippingAddress::whereIn('account_id', $accountIds)
-                ->where(DB::raw('CAST(address_code AS UNSIGNED)'), (int) $lookupCode)
-                ->first();
-        }
-
-        // 4. AccountShipAddressMapping fallback
-        if (empty($address)) {
-            $mapping = AccountShipAddressMapping::whereIn('account_id', $accountIds)
-                ->where(function ($q) use ($storeCode, $storeName) {
-                    $q->where('reference1', $storeCode)
-                      ->orWhere('reference2', $storeCode)
-                      ->orWhere('reference3', $storeCode)
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference1," ",""))'), strtolower(str_replace(' ', '', $storeName)))
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference2," ",""))'), strtolower(str_replace(' ', '', $storeName)))
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference3," ",""))'), strtolower(str_replace(' ', '', $storeName)));
-                })
-                ->first();
-
-            if (!empty($mapping)) {
-                $address = $mapping->shipping_address;
-            }
-        }
-
-        if (empty($address)) {
-            return $empty;
-        }
-
-        $fullAddress = implode(', ', array_filter([
-            $address->building,
-            $address->street,
-            $address->city,
-        ]));
-
-        return [
-            'account_id'          => $address->account_id,
-            'store_code'          => $address->address_code,
-            'shipping_address_id' => $address->id,
-            'shipping_name'       => $address->ship_to_name,
-            'shipping_address'    => $fullAddress,
         ];
     }
 

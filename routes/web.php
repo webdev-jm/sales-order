@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\{
-    UserController, AccountController, SalesOrderController, CompanyController,
+    AiUsageController, UserController, AccountController, SalesOrderController, CompanyController,
     DiscountController, BranchController, InvoiceTermController, ProductController,
     PriceCodeController, SalesPersonController, RoleController, SettingController,
     AccountLoginController, ShippingAddressController, SystemLogController, ProfileController,
@@ -82,6 +82,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:so template access'], function() {
         Route::get('sales-order-template', [SalesOrderTemplateController::class, 'index'])->name('sales-order-template.index');
     });
+
+    // AI USAGE
+    Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index')->middleware('permission:ai usage access');
 
     // CREDIT MEMO
     Route::group(['middleware' => 'permission:cm access'], function() {

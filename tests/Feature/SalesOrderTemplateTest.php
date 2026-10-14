@@ -143,7 +143,8 @@ class SalesOrderTemplateTest extends TestCase
         $this->assertEquals('2026-05-29', $row['po_date']);
         $this->assertEquals('0065840556-00', $row['po_number']);
         $this->assertEquals('PPCI-SUBIC (FERTUNA)', $row['store_name']);
-        $this->assertEquals('1033', $row['store_code']);
+        // The matched shipping address code replaces the CSV's store code; the upload template needs it exactly.
+        $this->assertEquals('01033', $row['store_code']);
         $this->assertEquals('2026-06-15', $row['delivery_date']);
         $this->assertEquals('2026-06-17', $row['cancellation_date']);
         $this->assertEquals('GRAND CHAMONIX MARKETING INC.', $row['depot']);
@@ -303,7 +304,10 @@ class SalesOrderTemplateTest extends TestCase
     public function test_reset_clears_session_and_returns_to_step_1(): void
     {
         $this->actingAsSuperadmin();
-        Session::put('so_template_rows', [['foo' => 'bar']]);
+        Session::put('so_template_rows', [array_merge(array_fill_keys([
+            'po_date', 'po_number', 'store_name', 'store_code', 'delivery_date', 'cancellation_date', 'depot',
+            'del_loc', 'po_remarks', 'raw_sku', 'sku_code', 'description', 'qty', 'list_price', 'amount',
+        ], ''), ['lookup_status' => 'ok'])]);
 
         Livewire::test(Index::class)
             ->set('step', 2)

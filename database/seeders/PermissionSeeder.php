@@ -320,6 +320,11 @@ class PermissionSeeder extends Seeder
                 'so template access'  => 'access to sales order template module',
                 'so template create'  => 'access to create sales order template',
             ],
+            'AI' => [
+                'po scan access'        => 'access to scan account PO PDFs into a sales order template with AI',
+                'po scan format manage' => 'access to manage the per-account PO scan formats',
+                'ai usage access'       => 'access to the AI token usage monitor',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {
