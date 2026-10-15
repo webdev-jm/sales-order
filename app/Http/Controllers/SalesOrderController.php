@@ -22,9 +22,15 @@ use App\Exports\SalesOrderExport;
 use App\Helpers\UploadDateHelper;
 
 use App\Http\Traits\SoXmlTrait;
+use App\Exceptions\AiUnavailableException;
+use App\Models\SalesOrderAttachment;
 use App\Services\AccountLoginResolver;
+use App\Services\Ai\AiClient;
+use App\Services\SalesOrderAttachmentService;
+use App\Services\SalesOrderPdfReader;
 use App\Services\SalesOrderRestriction;
 use App\Services\SalesOrderService;
+use Illuminate\Http\UploadedFile;
 use App\Jobs\GenerateSalesOrderXml;
 use App\Jobs\CheckSalesOrderStatus;
 
@@ -39,7 +45,8 @@ class SalesOrderController extends Controller
     public function __construct(
         protected SalesOrderService $salesOrderService,
         protected AccountLoginResolver $accountLoginResolver,
-        protected SalesOrderRestriction $salesOrderRestriction
+        protected SalesOrderRestriction $salesOrderRestriction,
+        protected SalesOrderAttachmentService $attachmentService
     ) {
         $this->setting = $this->getSettings();
     }
@@ -112,6 +119,7 @@ class SalesOrderController extends Controller
         $logged_account = $this->accountLoginResolver->resolve();
 
         Session::forget('order_data');
+        $this->attachmentService->discardPending();
 
         $search    = trim($request->input('search'));
         $date_from = trim($request->input('date_from'));
@@ -197,8 +205,9 @@ class SalesOrderController extends Controller
         $process_ship_date = $this->resolveShipDate($logged_account);
 
         return view('pages.sales-orders.create')->with([
-            'logged_account'    => $logged_account,
-            'process_ship_date' => $process_ship_date,
+            'logged_account'     => $logged_account,
+            'process_ship_date'  => $process_ship_date,
+            'pending_attachment' => $this->attachmentService->pending(),
         ]);
     }
 
@@ -210,18 +219,25 @@ class SalesOrderController extends Controller
             return $redirect;
         }
 
-        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs', 'attachment'])->findOrFail($id);
         $sales_order->update(['status' => 'cancelled']);
 
         Session::forget('order_data');
         Session::put('order_data', $this->buildOrderDataFromSalesOrder($sales_order));
         session()->put('po_number', $sales_order->po_number);
 
+        if ($sales_order->attachment) {
+            $this->attachmentService->holdExisting($sales_order->attachment);
+        } else {
+            $this->attachmentService->discardPending();
+        }
+
         $process_ship_date = $this->resolveShipDate($logged_account);
 
         return view('pages.sales-orders.create')->with([
-            'logged_account'    => $logged_account,
-            'process_ship_date' => $process_ship_date,
+            'logged_account'     => $logged_account,
+            'process_ship_date'  => $process_ship_date,
+            'pending_attachment' => $this->attachmentService->pending(),
         ]);
     }
 
@@ -247,6 +263,8 @@ class SalesOrderController extends Controller
 
         try {
             $sales_order = $this->salesOrderService->createOrder($request, $account, $order_data);
+
+            $this->saveNewOrderAttachment($request, $sales_order);
 
             activity('create')
                 ->performedOn($sales_order)
@@ -289,7 +307,7 @@ class SalesOrderController extends Controller
             return $redirect;
         }
 
-        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs'])->findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs', 'attachment'])->findOrFail($id);
 
         if ($sales_order->status == 'for optimization') {
             return redirect()->route('sales-order.show', $sales_order->id)->with([
@@ -326,6 +344,12 @@ class SalesOrderController extends Controller
 
         $this->salesOrderService->updateOrder($sales_order, $request, $logged_account->account, $order_data);
 
+        if ($request->hasFile('po_attachment')) {
+            $this->attachmentService->attach($sales_order, $request->file('po_attachment'));
+        } elseif ($request->boolean('remove_attachment')) {
+            $this->attachmentService->remove($sales_order);
+        }
+
         $changes_arr['changes'] = $sales_order->getChanges();
 
         activity('update')
@@ -357,8 +381,17 @@ class SalesOrderController extends Controller
         }
 
         $request->validate([
-            'upload_file' => ['required', 'mimes:xlsx,xls'],
+            'upload_file' => ['required', 'mimes:xlsx,xls,pdf', 'max:' . config('ai.po_scan.max_file_kb')],
+        ], [
+            'upload_file.mimes' => 'Upload the Excel format (.xlsx, .xls) or a PO PDF.',
         ]);
+
+        if (strtolower($request->file('upload_file')->getClientOriginalExtension()) === 'pdf') {
+            return $this->uploadPdf($request->file('upload_file'), $logged_account);
+        }
+
+        /** An Excel upload replaces any PO scanned earlier, so its PDF must not attach to this order. */
+        $this->attachmentService->discardPending();
 
         $po_number            = '';
         $paf_number           = '';
@@ -464,6 +497,104 @@ class SalesOrderController extends Controller
         ]);
     }
 
+    /**
+     * Fills the order form from a customer PO PDF read with AI. The PDF is held and attached
+     * to the order when it is saved.
+     */
+    private function uploadPdf(UploadedFile $file, $logged_account): \Illuminate\Http\RedirectResponse
+    {
+        if (!auth()->user()->can('po scan access')) {
+            return back()->with('message_error', 'You do not have permission to scan PO PDFs. Upload the Excel format instead.');
+        }
+
+        $account = $logged_account->account;
+
+        set_time_limit(30 + app(AiClient::class)->maxDurationSeconds());
+
+        try {
+            $orders = app(SalesOrderPdfReader::class)->read($file, $account, auth()->user());
+        } catch (AiUnavailableException $e) {
+            return back()->with('message_error', $e->getMessage());
+        }
+
+        $order    = reset($orders);
+        $products = Product::whereIn('stock_code', array_keys($order['items']))->get()->keyBy('stock_code');
+        $data     = [];
+
+        foreach ($order['items'] as $stock_code => $uoms) {
+            $product = $products->get($stock_code);
+
+            $data[$product->id] = [
+                'product'          => $product,
+                'stock_code'       => $stock_code,
+                'description'      => $product->description,
+                'size'             => $product->size,
+                'data'             => collect($uoms)->map(fn ($quantity) => [
+                    'quantity'   => $quantity,
+                    'total'      => 0,
+                    'discount'   => 0,
+                    'discounted' => 0,
+                ])->all(),
+                'product_total'    => 0,
+                'product_quantity' => 0,
+            ];
+        }
+
+        $po_value = $order['po_value'] > 0 ? round($order['po_value'], 2) : '';
+
+        $order_data             = $this->salesOrderService->calculateOrderTotals($data, $account);
+        $order_data['po_value'] = $po_value;
+
+        Session::put('order_data', $order_data);
+        $this->attachmentService->holdPending($file, SalesOrderAttachment::SOURCE_SCAN);
+
+        $address = !empty($order['shipping_address_id'])
+            ? $account->shipping_addresses()->find($order['shipping_address_id'])
+            : null;
+
+        $notices = [];
+
+        if (count($orders) > 1) {
+            $notices[] = 'This PDF holds ' . count($orders) . ' purchase orders. Only PO ' . $order['po_number']
+                . ' was loaded; use Upload Multiple SO for the others.';
+        }
+
+        if ($po_value === '') {
+            $notices[] = 'The PDF shows no line amounts, so enter the PO value before saving.';
+        }
+
+        $flash = $order['ship_date_error'] !== null ? ['message_error' => $order['ship_date_error']] : [];
+
+        return redirect()->route('sales-order.create')->with($flash + [
+            'po_number'            => $order['po_number'],
+            'paf_number'           => '',
+            'ship_date'            => $order['ship_date'] ?? '',
+            'shipping_instruction' => $order['shipping_instruction'],
+            'shipping_address_id'  => $address->id ?? 'default',
+            'po_value'             => $po_value,
+            'ship_to_name'         => $address ? $address->address_code . ' - ' . $address->ship_to_name : $account->account_name,
+            'ship_to_address1'     => $address ? $address->building : $account->ship_to_address1,
+            'ship_to_address2'     => $address ? $address->street : $account->ship_to_address2,
+            'ship_to_address3'     => $address ? $address->city : $account->ship_to_address3,
+            'postal_code'          => $address ? $address->postal : $account->postal_code,
+            'scan_notices'         => $notices,
+            'scan_warnings'        => array_merge($order['warnings'], $order_data['skipped_items'] ?? []),
+        ]);
+    }
+
+    /**
+     * Serves a sales order's PO attachment. PDFs and images open in the browser.
+     */
+    public function attachment($id)
+    {
+        $sales_order = SalesOrder::with('attachment')->findOrFail($id);
+        $attachment  = $sales_order->attachment;
+
+        abort_if(empty($attachment) || !$this->attachmentService->disk()->exists($attachment->file_path), 404);
+
+        return $this->attachmentService->disk()->response($attachment->file_path, $attachment->file_name);
+    }
+
     public function export(Request $request)
     {
         $logged_account = $this->accountLoginResolver->resolve();
@@ -500,6 +631,28 @@ class SalesOrderController extends Controller
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Attaches the file chosen on the form, or else the PDF held since the order was scanned
+     * or resubmitted, unless the user removed it.
+     */
+    private function saveNewOrderAttachment(StoreSalesOrderRequest $request, SalesOrder $sales_order): void
+    {
+        if ($request->hasFile('po_attachment')) {
+            $this->attachmentService->attach($sales_order, $request->file('po_attachment'));
+            $this->attachmentService->discardPending();
+
+            return;
+        }
+
+        if ($request->boolean('discard_pending_attachment')) {
+            $this->attachmentService->discardPending();
+
+            return;
+        }
+
+        $this->attachmentService->attachPending($sales_order);
+    }
 
     /**
      * Redirect home when the user has no account login, or when the account

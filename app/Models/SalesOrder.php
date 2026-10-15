@@ -56,6 +56,14 @@ class SalesOrder extends Model
     }
 
     /**
+     * The PO document attached to the order. An order keeps one at a time.
+     */
+    public function attachment(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SalesOrderAttachment::class)->latestOfMany();
+    }
+
+    /**
      * Scope for the account-facing index page. Filters by the logged-in account
      * and optionally by a search string across common SO fields.
      */

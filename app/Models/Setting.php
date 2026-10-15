@@ -24,6 +24,7 @@ class Setting extends Model
         'mcp_deadline',
         'email_sending',
         'ai_monthly_token_limit',
+        'ai_daily_user_token_limit',
     ];
 }
 

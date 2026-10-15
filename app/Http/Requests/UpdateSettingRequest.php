@@ -35,6 +35,9 @@ class UpdateSettingRequest extends FormRequest
             ],
             'ai_monthly_token_limit' => [
                 'nullable', 'integer', 'min:1'
+            ],
+            'ai_daily_user_token_limit' => [
+                'nullable', 'integer', 'min:1'
             ]
         ];
     }

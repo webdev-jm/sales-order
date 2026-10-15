@@ -437,6 +437,7 @@ return [
             'can'     => [
                 'so template access',
                 'ai usage access',
+                'ai settings manage',
             ],
             'submenu' => [
                 [
@@ -452,6 +453,13 @@ return [
                     'icon'   => 'fas fa-fw fa-robot',
                     'can'    => 'ai usage access',
                     'active' => ['ai-usage*'],
+                ],
+                [
+                    'text'   => 'AI Settings',
+                    'url'    => '/ai-settings',
+                    'icon'   => 'fas fa-fw fa-sliders-h',
+                    'can'    => 'ai settings manage',
+                    'active' => ['ai-settings*'],
                 ],
             ],
         ],

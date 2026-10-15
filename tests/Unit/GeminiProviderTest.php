@@ -55,7 +55,7 @@ class GeminiProviderTest extends TestCase
 
     public function test_a_blank_thinking_level_leaves_the_model_default(): void
     {
-        config(['ai.providers.gemini.thinking_level' => '']);
+        config(['ai.providers.gemini.effort' => '']);
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->geminiReply(['ok' => true]))]);
 
         $this->generate();
@@ -182,5 +182,45 @@ class GeminiProviderTest extends TestCase
         config(['ai.providers.gemini.timeout' => 100, 'ai.providers.gemini.retry_ms' => 2500]);
 
         $this->assertSame(203, $this->provider()->maxDurationSeconds());
+    }
+
+    public function test_it_lists_only_models_that_generate_content(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/v1beta/models*' => Http::response(['models' => [
+            ['name' => 'models/gemini-z-flash', 'supportedGenerationMethods' => ['generateContent', 'countTokens']],
+            ['name' => 'models/text-embedding-9', 'supportedGenerationMethods' => ['embedContent']],
+            ['name' => 'models/gemini-a-pro', 'supportedGenerationMethods' => ['generateContent']],
+        ]])]);
+
+        $this->assertSame(['gemini-a-pro', 'gemini-z-flash'], $this->provider()->listModels());
+        Http::assertSent(fn (Request $request): bool => $request->method() === 'GET' && $request->header('x-goog-api-key') === ['test-key']);
+    }
+
+    public function test_the_connection_check_looks_up_the_model_without_using_tokens(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/v1beta/models/gemini-test' => Http::response(['name' => 'models/gemini-test', 'displayName' => 'Gemini Test'])]);
+
+        $this->assertSame('Connected. Gemini Test (gemini-test) is ready.', $this->provider()->checkConnection());
+        Http::assertSent(fn (Request $request): bool => $request->method() === 'GET' && !str_contains($request->url(), 'generateContent'));
+    }
+
+    public function test_a_bad_key_and_a_missing_model_are_named(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
+            ->push(['error' => ['message' => 'API key not valid.', 'details' => [['reason' => 'API_KEY_INVALID']]]], 400)
+            ->push(['error' => ['message' => 'models/gemini-test is not found']], 404),
+        ]);
+
+        foreach ([
+            'The AI service rejected the API key. Check GEMINI_API_KEY in the .env file.',
+            'The AI model "gemini-test" was not found. Choose another model on the AI Settings page.',
+        ] as $message) {
+            try {
+                $this->provider()->checkConnection();
+                $this->fail('No exception was thrown.');
+            } catch (AiUnavailableException $e) {
+                $this->assertSame($message, $e->getMessage());
+            }
+        }
     }
 }

@@ -50,6 +50,7 @@ class SettingController extends Controller
             'sales_order_limit' => $request->sales_order_limit,
             'mcp_deadline' => $request->mcp_deadline,
             'ai_monthly_token_limit' => $request->ai_monthly_token_limit,
+            'ai_daily_user_token_limit' => $request->ai_daily_user_token_limit,
         ]);
 
         $changes_arr['changes'] = $setting->getChanges();

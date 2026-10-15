@@ -10,9 +10,14 @@
         <h1>AI Usage</h1>
     </div>
     <div class="col-md-6 text-right">
+        @can('ai settings manage')
+            <a href="{{ route('ai-settings.index') }}" class="btn btn-default btn-sm">
+                <i class="fas fa-sliders-h mr-1"></i> AI Settings
+            </a>
+        @endcan
         @can('settings')
             <a href="{{ route('setting.index') }}" class="btn btn-default btn-sm">
-                <i class="fas fa-cog mr-1"></i> Monthly token limit
+                <i class="fas fa-cog mr-1"></i> Token limits
             </a>
         @endcan
     </div>

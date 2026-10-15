@@ -37,6 +37,9 @@ class AnthropicProvider implements AiProviderInterface
     /** The SDK backs off at most this long between retries. */
     private const MAX_RETRY_DELAY_SECONDS = 8;
 
+    /** Seconds a model lookup or connection check may take. */
+    private const CHECK_TIMEOUT = 20;
+
     /**
      * @param array{key?: string|null, model?: string, timeout?: int, effort?: string|null, max_retries?: int, retry_ms?: int} $config
      * @param ClientInterface|null $transporter HTTP client for the SDK; tests pass a mocked one
@@ -60,6 +63,11 @@ class AnthropicProvider implements AiProviderInterface
         return (string) ($this->config['model'] ?? '');
     }
 
+    public function effortLevels(): array
+    {
+        return ['low', 'medium', 'high', 'xhigh', 'max'];
+    }
+
     public function setupProblem(): ?string
     {
         return blank($this->config['key'] ?? null)
@@ -74,11 +82,35 @@ class AnthropicProvider implements AiProviderInterface
         return ($retries + 1) * $this->timeout() + $retries * self::MAX_RETRY_DELAY_SECONDS;
     }
 
+    public function checkConnection(): string
+    {
+        $this->ensureReady();
+
+        try {
+            $model = $this->client(self::CHECK_TIMEOUT)->models->retrieve($this->model());
+        } catch (AnthropicException $e) {
+            throw $this->failureFor($e);
+        }
+
+        return 'Connected. ' . $model->displayName . ' (' . $model->id . ') is ready.';
+    }
+
+    public function listModels(): array
+    {
+        $this->ensureReady();
+
+        try {
+            $models = $this->client(self::CHECK_TIMEOUT)->models->list(limit: 1000)->getItems();
+        } catch (AnthropicException $e) {
+            throw $this->failureFor($e);
+        }
+
+        return collect($models)->pluck('id')->sort()->values()->all();
+    }
+
     public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens): AiResponse
     {
-        if (($problem = $this->setupProblem()) !== null) {
-            throw new AiUnavailableException($problem);
-        }
+        $this->ensureReady();
 
         $content = array_map(fn (AiDocument $document): DocumentBlockParam|ImageBlockParam => $this->blockFor($document), $documents);
         $content[] = TextBlockParam::with(text: $prompt);
@@ -92,28 +124,15 @@ class AnthropicProvider implements AiProviderInterface
         $startedAt = hrtime(true);
 
         try {
-            $message = $this->client()->messages->create(
+            $message = $this->client($this->timeout(), $this->maxRetries())->messages->create(
                 maxTokens: $maxOutputTokens,
                 messages: [['role' => 'user', 'content' => $content]],
                 model: $this->model(),
                 system: $instructions,
                 outputConfig: $outputConfig,
             );
-        } catch (RateLimitException) {
-            throw new AiUnavailableException('The AI service is busy or its quota is used up. Try again later.');
-        } catch (InternalServerException) {
-            throw new AiUnavailableException('The AI service is having problems. Try again in a minute.');
-        } catch (AuthenticationException|PermissionDeniedException) {
-            throw new AiUnavailableException('The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.');
-        } catch (NotFoundException) {
-            throw new AiUnavailableException('The AI model "' . $this->model() . '" was not found. Check ANTHROPIC_MODEL in the .env file.');
-        } catch (APIStatusException $e) {
-            throw new AiUnavailableException('The AI service refused the request: '
-                . Str::limit((string) data_get($e->body, 'error.message', $e->getMessage()), 200));
-        } catch (APIConnectionException $e) {
-            throw new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e);
         } catch (AnthropicException $e) {
-            throw new AiUnavailableException('The AI service failed: ' . Str::limit($e->getMessage(), 200), 0, $e);
+            throw $this->failureFor($e);
         }
 
         return $this->responseFrom($message, (int) ((hrtime(true) - $startedAt) / 1_000_000));
@@ -156,17 +175,39 @@ class AnthropicProvider implements AiProviderInterface
         return $schema;
     }
 
-    private function client(): Client
+    private function ensureReady(): void
+    {
+        if (($problem = $this->setupProblem()) !== null) {
+            throw new AiUnavailableException($problem);
+        }
+    }
+
+    private function client(int $timeout, int $maxRetries = 0): Client
     {
         return new Client(
             apiKey: (string) $this->config['key'],
             requestOptions: [
-                'transporter'       => $this->transporter ?? new GuzzleClient(['timeout' => $this->timeout(), 'connect_timeout' => 15]),
-                'timeout'           => (float) $this->timeout(),
-                'maxRetries'        => $this->maxRetries(),
+                'transporter'       => $this->transporter ?? new GuzzleClient(['timeout' => $timeout, 'connect_timeout' => 15]),
+                'timeout'           => (float) $timeout,
+                'maxRetries'        => $maxRetries,
                 'initialRetryDelay' => ($this->config['retry_ms'] ?? 500) / 1000,
             ],
         );
+    }
+
+    private function failureFor(AnthropicException $e): AiUnavailableException
+    {
+        return match (true) {
+            $e instanceof RateLimitException => new AiUnavailableException('The AI service is busy or its quota is used up. Try again later.'),
+            $e instanceof InternalServerException => new AiUnavailableException('The AI service is having problems. Try again in a minute.'),
+            $e instanceof AuthenticationException,
+            $e instanceof PermissionDeniedException => new AiUnavailableException('The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.'),
+            $e instanceof NotFoundException => new AiUnavailableException('The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.'),
+            $e instanceof APIStatusException => new AiUnavailableException('The AI service refused the request: '
+                . Str::limit((string) data_get($e->body, 'error.message', $e->getMessage()), 200)),
+            $e instanceof APIConnectionException => new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e),
+            default => new AiUnavailableException('The AI service failed: ' . Str::limit($e->getMessage(), 200), 0, $e),
+        };
     }
 
     private function blockFor(AiDocument $document): DocumentBlockParam|ImageBlockParam

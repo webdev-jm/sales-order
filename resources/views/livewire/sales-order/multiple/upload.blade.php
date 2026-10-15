@@ -15,16 +15,45 @@
             <div class="card-body">
 
                 <div class="row">
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <div class="form-group">
                             <label for="">UPLOAD FILE</label>
-                            <input type="file" class="form-control" wire:model.defer="so_file" accept=".xls, .xlsx">
+                            @can('po scan access')
+                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model.defer="so_files" accept=".xls, .xlsx, .pdf" multiple>
+                                <small class="text-muted">One Excel file, or up to {{config('ai.po_scan.max_files')}} PO PDFs.</small>
+                            @else
+                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model.defer="so_files" accept=".xls, .xlsx" multiple>
+                            @endcan
+                            @error('so_files')<p class="text-danger mb-0">{{$message}}</p>@enderror
+                            @foreach($errors->get('so_files.*') as $messages)
+                                <p class="text-danger mb-0">{{$messages[0]}}</p>
+                            @endforeach
                         </div>
                     </div>
+                    @can('po scan access')
+                    <div class="col-lg-8">
+                        <p class="text-muted small mt-lg-4">
+                            <i class="fa fa-magic mr-1"></i>
+                            PO PDFs are read with AI. Each purchase order found becomes one sales order, with its PDF attached as the PO document.
+                        </p>
+                    </div>
+                    @endcan
                 </div>
+
+                @if(!empty($scanErrors))
+                    <div class="alert alert-danger pl-0 mb-0">
+                        <strong class="ml-3">These PDFs could not be fully read:</strong>
+                        <ul class="mb-0">
+                            @foreach($scanErrors as $file_name => $message)
+                                <li>{{$file_name}} &mdash; {{$message}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
             </div>
             <div class="card-footer text-right">
+                <span class="text-muted mr-2" wire:loading wire:target="checkFileData">Reading the files, PDFs take a few seconds each&hellip;</span>
                 <button class="btn btn-primary" type="submit" wire:loading.attr="disabled">
                     <i class="fa fa-upload mr-1" wire:loading.remove></i>
                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
@@ -48,7 +77,7 @@
         </div>
 
         @foreach($so_data as $po_number => $data)
-            <div class="col-12">
+            <div class="col-12" wire:key="so-card-{{$data['key'] ?? $loop->index}}">
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">CONTROL NUMBER: <b>{{$success_data[$po_number]['control_number'] ?? 'N/A'}}</b></div>
@@ -147,9 +176,23 @@
 
                             <div class="col-sm-4 invoice-col">
                                 <b>PO Number: {{$po_number}}</b><br>
-                                <b>PO Value:</b> {{number_format($data['po_value'], 2)}}<br>
+                                @if(empty($success_data[$po_number]) && !empty($data['key']))
+                                    <div class="form-inline my-1">
+                                        <label class="font-weight-bold mr-1" for="po-value-{{$data['key']}}">PO Value:</label>
+                                        <input type="number" step="0.01" min="0" class="form-control form-control-sm" id="po-value-{{$data['key']}}" value="{{$data['po_value'] ?: ''}}" wire:change="updateOrderField('{{$data['key']}}', 'po_value', $event.target.value)">
+                                    </div>
+                                @else
+                                    <b>PO Value:</b> {{number_format($data['po_value'], 2)}}<br>
+                                @endif
                                 <b>Order Date:</b> {{date('Y-m-d')}}<br>
-                                <b>Ship Date:</b> {{$data['ship_date']}}<br>
+                                @if(empty($success_data[$po_number]) && !empty($data['key']))
+                                    <div class="form-inline my-1">
+                                        <label class="font-weight-bold mr-1" for="ship-date-{{$data['key']}}">Ship Date:</label>
+                                        <input type="date" class="form-control form-control-sm" id="ship-date-{{$data['key']}}" value="{{$data['ship_date']}}" wire:change="updateOrderField('{{$data['key']}}', 'ship_date', $event.target.value)">
+                                    </div>
+                                @else
+                                    <b>Ship Date:</b> {{$data['ship_date']}}<br>
+                                @endif
                                 <b>Discount:</b> {{$account->discount->description ?? ''}}<br>
                                 <b>Account:</b> [{{$account->account_code}}] {{$account->short_name}}
                             </div>
@@ -160,6 +203,26 @@
                                 <p>
                                     {{$data['shipping_instruction']}}
                                 </p>
+                                @if(!empty($data['key']))
+                                    <b>PO Attachment:</b>
+                                    @if(!empty($attachments[$data['key']]))
+                                        <div>
+                                            <i class="fa {{strtolower($attachments[$data['key']]->getClientOriginalExtension()) === 'pdf' ? 'fa-file-pdf text-danger' : 'fa-file'}} mr-1"></i>{{$attachments[$data['key']]->getClientOriginalName()}}
+                                            @if(($data['scanned_from'] ?? null) === $attachments[$data['key']]->getClientOriginalName())
+                                                <span class="badge badge-info ml-1">scanned PO</span>
+                                            @endif
+                                            @if(empty($success_data[$po_number]))
+                                                <a href="#" class="badge badge-danger ml-1" wire:click.prevent="removeAttachment('{{$data['key']}}')"><i class="fa fa-times mr-1"></i>Remove</a>
+                                            @endif
+                                        </div>
+                                    @elseif(empty($success_data[$po_number]))
+                                        <input type="file" class="form-control-file" wire:model="attachments.{{$data['key']}}" accept="{{\App\Services\SalesOrderAttachmentService::accept()}}">
+                                        <small class="text-muted" wire:loading wire:target="attachments.{{$data['key']}}">Uploading&hellip;</small>
+                                    @else
+                                        <span class="text-muted">none</span>
+                                    @endif
+                                    @error('attachments.'.$data['key'])<p class="text-danger mb-0">{{$message}}</p>@enderror
+                                @endif
                             </div>
                         </div>
 

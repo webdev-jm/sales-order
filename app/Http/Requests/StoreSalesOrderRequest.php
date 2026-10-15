@@ -8,6 +8,7 @@ use App\Models\SalesOrder;
 
 use Carbon\Carbon;
 use App\Services\AccountLoginResolver;
+use App\Services\SalesOrderAttachmentService;
 
 class StoreSalesOrderRequest extends FormRequest
 {
@@ -94,12 +95,15 @@ class StoreSalesOrderRequest extends FormRequest
             'postal_code' => [
                 'max:255'
             ],
+            'po_attachment' => SalesOrderAttachmentService::rules(),
         ];
     }
 
     public function messages(): array {
         return [
             'paf_number.yyyy_a_number' => 'The input field must be in the format "YYYY-A-#####".',
+            'po_attachment.mimes' => 'The PO attachment must be one of these file types: :values.',
+            'po_attachment.max' => 'The PO attachment must not be larger than :max KB.',
         ];
     }
 }
