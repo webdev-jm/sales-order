@@ -55,6 +55,39 @@ class SalesOrder extends Model
         return $this->hasMany(SalesOrderProduct::class);
     }
 
+    public function cancel_requests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SalesOrderCancelRequest::class);
+    }
+
+    /**
+     * The request that is still waiting on the salesman or SCM, if any. An order has at most one.
+     */
+    public function open_cancel_request(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SalesOrderCancelRequest::class)->ofMany(['id' => 'max'], function ($query) {
+            $query->whereIn('status', SalesOrderCancelRequest::OPEN_STATUSES);
+        });
+    }
+
+    /**
+     * The completed request that cancelled this order, if it was cancelled that way.
+     */
+    public function completed_cancel_request(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(SalesOrderCancelRequest::class)->ofMany(['id' => 'max'], function ($query) {
+            $query->where('status', SalesOrderCancelRequest::STATUS_COMPLETED);
+        });
+    }
+
+    /**
+     * In SYSPRO already: the upload was confirmed and SYSPRO returned its SO number.
+     */
+    public function isInSyspro(): bool
+    {
+        return (int) $this->upload_status === 1 && trim((string) $this->reference) !== '';
+    }
+
     /**
      * The PO document attached to the order. An order keeps one at a time.
      */

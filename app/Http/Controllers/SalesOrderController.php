@@ -83,9 +83,11 @@ class SalesOrderController extends Controller
             })
             ->when(!empty($status), function ($query) use ($status) {
                 if ($status === 'uploaded') {
-                    $query->where('upload_status', 1);
+                    $query->where('upload_status', 1)->where('status', '<>', 'cancelled');
                 } elseif ($status === 'upload_error') {
-                    $query->where('upload_status', 0);
+                    $query->where('upload_status', 0)->where('status', '<>', 'cancelled');
+                } elseif ($status === 'cancelled') {
+                    $query->where('status', 'cancelled');
                 } else {
                     $query->where('status', $status)->whereNull('upload_status');
                 }
@@ -220,6 +222,13 @@ class SalesOrderController extends Controller
         }
 
         $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs', 'attachment'])->findOrFail($id);
+
+        if ($open_cancel_request = $sales_order->open_cancel_request) {
+            return redirect()->route('sales-order.show', $sales_order->id)->with([
+                'message_error' => 'Cancel request ' . $open_cancel_request->request_number . ' is open for this order, so it cannot be resubmitted.',
+            ]);
+        }
+
         $sales_order->update(['status' => 'cancelled']);
 
         Session::forget('order_data');

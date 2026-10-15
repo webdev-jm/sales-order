@@ -325,6 +325,10 @@ class PermissionSeeder extends Seeder
                 'po scan format manage' => 'access to manage the per-account PO scan formats',
                 'ai usage access'       => 'access to the AI token usage monitor',
             ],
+            'SO Cancel Request' => [
+                'so cancel request create'  => 'access to request the cancelation of sales orders in the accounts assigned to the user',
+                'so cancel request process' => 'access to process sales order cancel requests (SCM); users with it are notified of new requests',
+            ],
         ];
 
         foreach($permissions_arr as $module => $permissions) {

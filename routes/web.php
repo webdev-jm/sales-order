@@ -14,7 +14,7 @@ use App\Http\Controllers\{
     OrganizationStructureController, ActivityPlanController, WeeklyActivityReportController, SalesOrderCutOffController,
     CostCenterController, HolidayController, DistrictController, TerritoryController,
     ProductivityReportController, SalesmanController, SalesmenLocationController, ChannelOperationController,
-    SalesDashboardController, TripController, SalesOrderMultipleController, DepartmentController,
+    SalesDashboardController, TripController, SalesOrderMultipleController, SalesOrderCancelRequestController, DepartmentController,
     PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
     PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
     PPUFormController, PPUFormMultipleController, CreditMemoReasonController, CreditMemoController, BranchAddressController,
@@ -178,6 +178,12 @@ Route::group(['middleware' => 'auth'], function () {
 
         // EXPORT
         Route::get('sales-order-export', [SalesOrderController::class, 'export'])->name('sales-order.export');
+    });
+
+    // SO CANCEL REQUEST
+    Route::group(['middleware' => 'permission:so cancel request create|so cancel request process'], function() {
+        Route::get('so-cancel-request', [SalesOrderCancelRequestController::class, 'index'])->name('so-cancel-request.index');
+        Route::get('so-cancel-request/{id}', [SalesOrderCancelRequestController::class, 'show'])->name('so-cancel-request.show');
     });
 
     // PURCHASE ORDERS

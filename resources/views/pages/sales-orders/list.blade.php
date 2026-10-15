@@ -45,7 +45,8 @@
                                 'draft' => 'Draft',
                                 'finalized' => 'Finalized',
                                 'uploaded' => 'Uploaded',
-                                'upload_error' => 'Upload Error'
+                                'upload_error' => 'Upload Error',
+                                'cancelled' => 'Cancelled'
                             ];
                         @endphp
                         {!! Form::select('status', $status_arr, $status, ['class' => 'form-control form-control-sm', 'form' => 'search_form']) !!}
@@ -93,10 +94,10 @@
                     <td>{{$sales_order->ship_date}}</td>
                     <td>{{$sales_order->ship_to_name}}</td>
                     <td>
-                        @if(isset($sales_order->upload_status))
-                            <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
-                        @elseif($sales_order->status == 'cancelled')
+                        @if($sales_order->status == 'cancelled')
                             <span class="badge badge-danger">{{$sales_order->status}}</span>
+                        @elseif(isset($sales_order->upload_status))
+                            <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
                         @else
                             <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
                         @endif
