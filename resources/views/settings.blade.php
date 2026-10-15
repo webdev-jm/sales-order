@@ -63,6 +63,15 @@
                 </div>
             </div>
 
+            <div class="col-lg-3">
+                <div class="form-group">
+                    {!! Form::label('ai_daily_user_token_limit', 'AI Token Limit per User per Day') !!}
+                    {!! Form::number('ai_daily_user_token_limit', $setting->ai_daily_user_token_limit, ['class' => 'form-control'.($errors->has('ai_daily_user_token_limit') ? ' is-invalid' : ''), 'form' => 'update_settings', 'min' => 1, 'placeholder' => 'No limit']) !!}
+                    <small class="form-text text-muted">A user cannot scan more PDFs once they use this many tokens in a day. Leave blank for no limit.</small>
+                    <p class="text-danger">{{$errors->first('ai_daily_user_token_limit')}}</p>
+                </div>
+            </div>
+
         </div>
 
     </div>

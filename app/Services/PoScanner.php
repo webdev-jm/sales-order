@@ -11,7 +11,9 @@ use App\Models\PuregoldStoreMap;
 use App\Models\User;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\AiDocument;
+use App\Services\Ai\AiResponse;
 use App\Services\Ai\AiUsageMeter;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Reads an account's PO PDF with AI and turns it into sales order template rows, the same rows
@@ -19,8 +21,12 @@ use App\Services\Ai\AiUsageMeter;
  *
  * The account's scan format, when it has one, tells the AI how that account lays out its POs.
  * The AI client fails over to the next provider when one cannot answer. Every call, including
- * each failed provider, is logged with its tokens, and no call is made once the monthly limit
- * is used up.
+ * each failed provider, is logged with its tokens, and no call is made once the monthly limit or
+ * the user's daily limit is used up.
+ *
+ * What the AI read from a PDF is kept for a while (config ai.po_scan.cache_days), so scanning the
+ * same file again for the same account and format costs no tokens. The rows are still built
+ * fresh, so products and stores added since then are matched.
  */
 class PoScanner
 {
@@ -60,18 +66,15 @@ class PoScanner
     /**
      * Reads one PDF and returns its template rows.
      *
+     * @param bool $useSaved false reads the PDF with AI again even when it was read before
      * @return array<int, array<string, mixed>>
      *
      * @throws AiUnavailableException with a message that can be shown to the user
      */
-    public function scan(string $pdfContents, string $fileName, Account $account, ?PoScanFormat $format, ?User $user): array
+    public function scan(string $pdfContents, string $fileName, Account $account, ?PoScanFormat $format, ?User $user, bool $useSaved = true): array
     {
         if (($problem = $this->ai->setupProblem()) !== null) {
             throw new AiUnavailableException($problem);
-        }
-
-        if (! $this->meter->hasBudget()) {
-            throw new AiUnavailableException('This month\'s AI token limit has been reached. Ask an administrator to raise it on the Settings page.');
         }
 
         $log = [
@@ -80,6 +83,16 @@ class PoScanner
             'feature'    => AiUsageLog::FEATURE_PO_SCAN,
             'reference'  => $fileName,
         ];
+
+        $cacheKey = $this->cacheKey($pdfContents, $account, $format);
+
+        if ($useSaved && ($rows = $this->savedRows($cacheKey, $account, $format, $fileName, $log)) !== []) {
+            return $rows;
+        }
+
+        if (($problem = $this->meter->budgetProblem($user)) !== null) {
+            throw new AiUnavailableException($problem);
+        }
 
         $response = $this->ai->generateJson(
             self::INSTRUCTIONS,
@@ -107,6 +120,8 @@ class PoScanner
 
             if ($rows === []) {
                 $error = 'No PO lines were found in this PDF. Check that it is a purchase order from the selected account.';
+            } elseif (($days = (int) config('ai.po_scan.cache_days')) > 0) {
+                Cache::put($cacheKey, ['data' => $data, 'provider' => $response->provider, 'model' => $response->model], now()->addDays($days));
             }
         }
 
@@ -171,6 +186,52 @@ class PoScanner
             ],
             'required' => ['purchase_orders'],
         ];
+    }
+
+    /**
+     * Rows from an earlier read of the same file, logged as a call that used no tokens, or an
+     * empty array when there is none.
+     *
+     * @param array<string, mixed> $log
+     * @return array<int, array<string, mixed>>
+     */
+    private function savedRows(string $cacheKey, Account $account, ?PoScanFormat $format, string $fileName, array $log): array
+    {
+        if ((int) config('ai.po_scan.cache_days') <= 0 || ! \is_array($saved = Cache::get($cacheKey))) {
+            return [];
+        }
+
+        $rows = $this->rowsFrom((array) ($saved['data'] ?? []), $account, $format, $fileName);
+
+        if ($rows !== []) {
+            $this->meter->record($log + ['status' => AiUsageLog::STATUS_CACHED], new AiResponse(
+                text: '',
+                provider: (string) ($saved['provider'] ?? ''),
+                model: (string) ($saved['model'] ?? ''),
+                inputTokens: 0,
+                outputTokens: 0,
+                totalTokens: 0,
+                durationMs: 0,
+            ));
+        }
+
+        return $rows;
+    }
+
+    /**
+     * The same file read for the same account, with the same format notes and instructions, in
+     * the same database. Editing the format makes the next scan read the file again.
+     */
+    private function cacheKey(string $pdfContents, Account $account, ?PoScanFormat $format): string
+    {
+        return 'ai-po-scan:' . hash('sha256', implode('|', [
+            hash('sha256', $pdfContents),
+            $account->getConnectionName(),
+            $account->id,
+            $format?->id,
+            $format?->updated_at?->getTimestamp(),
+            hash('sha256', self::INSTRUCTIONS . json_encode(self::schema())),
+        ]));
     }
 
     private function promptFor(Account $account, ?PoScanFormat $format): string

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\AiUnavailableException;
 use App\Http\Livewire\SalesOrderTemplate\Index;
 use App\Http\Livewire\SalesOrderTemplate\PoScan;
 use App\Models\Account;
@@ -13,6 +14,7 @@ use App\Models\Product;
 use App\Models\Setting;
 use App\Models\ShippingAddress;
 use App\Models\User;
+use App\Services\PoScanner;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
@@ -357,6 +359,150 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->call('scan')
             ->assertEmitted('poScanned');
+    }
+
+    public function test_scanning_stops_once_the_users_daily_token_limit_is_reached(): void
+    {
+        $user = $this->actingAsUser();
+        $this->seedSettings();
+        Setting::query()->orderBy('id')->first()->update(['ai_monthly_token_limit' => null, 'ai_daily_user_token_limit' => 1000]);
+        AiUsageLog::factory()->create(['user_id' => $user->id, 'total_tokens' => 1000]);
+        Http::fake();
+
+        Livewire::test(PoScan::class)
+            ->assertSee('Your tokens today: 1,000 / 1,000')
+            ->set('account_id', (string) $this->account->id)
+            ->set('files', [$this->pdf()])
+            ->call('scan')
+            ->assertSee('You have used your AI token limit for today (1,000 tokens).')
+            ->assertNotEmitted('poScanned');
+
+        Http::assertNothingSent();
+    }
+
+    public function test_other_users_and_yesterdays_tokens_do_not_count_against_the_daily_limit(): void
+    {
+        $user = $this->actingAsUser();
+        $this->seedSettings();
+        Setting::query()->orderBy('id')->first()->update(['ai_monthly_token_limit' => null, 'ai_daily_user_token_limit' => 1000]);
+        AiUsageLog::factory()->create(['user_id' => User::factory()->create()->id, 'total_tokens' => 5000]);
+        AiUsageLog::factory()->create(['user_id' => $user->id, 'total_tokens' => 5000, 'created_at' => now()->subDay()]);
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        Livewire::test(PoScan::class)
+            ->set('account_id', (string) $this->account->id)
+            ->set('files', [$this->pdf()])
+            ->call('scan')
+            ->assertEmitted('poScanned');
+    }
+
+    // -------------------------------------------------------------------------
+    // Saved scans
+    // -------------------------------------------------------------------------
+
+    private function scanAgainWith(bool $readAgain = false): void
+    {
+        Livewire::test(PoScan::class)
+            ->set('account_id', (string) $this->account->id)
+            ->set('files', [$this->pdf()])
+            ->set('readAgain', $readAgain)
+            ->call('scan')
+            ->assertEmitted('poScanned')
+            ->assertSet('readAgain', false);
+    }
+
+    public function test_the_same_pdf_is_read_once_and_then_reused_without_tokens(): void
+    {
+        config(['ai.po_scan.cache_days' => 30]);
+        $this->actingAsUser();
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        $this->scanAgainWith();
+        $firstRows = Session::get('so_template_rows');
+        $this->scanAgainWith();
+
+        Http::assertSentCount(1);
+        $this->assertSame($firstRows, Session::get('so_template_rows'));
+
+        $logs = $this->usageLogs()->sortBy('id')->values();
+        $this->assertSame([AiUsageLog::STATUS_SUCCESS, AiUsageLog::STATUS_CACHED], $logs->pluck('status')->all());
+        $this->assertSame(0, $logs[1]->total_tokens);
+        $this->assertSame('gemini-test-001', $logs[1]->model);
+    }
+
+    public function test_read_again_skips_the_saved_scan(): void
+    {
+        config(['ai.po_scan.cache_days' => 30]);
+        $this->actingAsUser();
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        $this->scanAgainWith();
+        $this->scanAgainWith(readAgain: true);
+
+        Http::assertSentCount(2);
+        $this->assertSame([AiUsageLog::STATUS_SUCCESS, AiUsageLog::STATUS_SUCCESS], $this->usageLogs()->sortBy('id')->pluck('status')->all());
+    }
+
+    public function test_editing_the_format_reads_the_pdf_again(): void
+    {
+        config(['ai.po_scan.cache_days' => 30]);
+        $user = $this->actingAsUser();
+        $format = PoScanFormat::factory()->create(['account_id' => $this->account->id]);
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        $scanner = app(PoScanner::class);
+        $scanner->scan(self::PDF_CONTENT, 'po.pdf', $this->account, $format, $user);
+        $scanner->scan(self::PDF_CONTENT, 'po.pdf', $this->account, $format, $user);
+        Http::assertSentCount(1);
+
+        $this->travel(5)->seconds();
+        $format->update(['instructions' => 'Quantities are in pieces.']);
+        $scanner->scan(self::PDF_CONTENT, 'po.pdf', $this->account, $format->fresh(), $user);
+
+        Http::assertSentCount(2);
+    }
+
+    public function test_a_saved_scan_is_reused_even_after_the_limit_is_reached(): void
+    {
+        config(['ai.po_scan.cache_days' => 30]);
+        $this->actingAsUser();
+        $this->seedSettings();
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        $this->scanAgainWith();
+        Setting::query()->orderBy('id')->first()->update(['ai_monthly_token_limit' => 1]);
+        $this->scanAgainWith();
+
+        Http::assertSentCount(1);
+    }
+
+    public function test_a_read_that_failed_is_not_saved(): void
+    {
+        config(['ai.po_scan.cache_days' => 30]);
+        $user = $this->actingAsUser();
+        $this->fakeGemini($this->purchaseOrder([]));
+        $scanner = app(PoScanner::class);
+
+        foreach ([1, 2] as $attempt) {
+            try {
+                $scanner->scan(self::PDF_CONTENT, 'po.pdf', $this->account, null, $user);
+                $this->fail('No exception was thrown.');
+            } catch (AiUnavailableException $e) {
+                $this->assertStringStartsWith('No PO lines were found', $e->getMessage());
+            }
+        }
+
+        Http::assertSentCount(2);
     }
 
     // -------------------------------------------------------------------------

@@ -7,6 +7,7 @@ use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiResponse;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -27,8 +28,11 @@ class GeminiProvider implements AiProviderInterface
     /** Finish reasons that mean Gemini's safety filters withheld the answer. */
     private const BLOCKED = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII'];
 
+    /** Seconds a model lookup or connection check may take. */
+    private const CHECK_TIMEOUT = 20;
+
     /**
-     * @param array{key?: string|null, url?: string, model?: string, timeout?: int, thinking_level?: string|null, retry_ms?: int} $config
+     * @param array{key?: string|null, url?: string, model?: string, timeout?: int, effort?: string|null, retry_ms?: int} $config
      */
     public function __construct(private array $config)
     {
@@ -49,6 +53,11 @@ class GeminiProvider implements AiProviderInterface
         return (string) ($this->config['model'] ?? '');
     }
 
+    public function effortLevels(): array
+    {
+        return ['minimal', 'low', 'medium', 'high'];
+    }
+
     public function setupProblem(): ?string
     {
         return blank($this->config['key'] ?? null)
@@ -61,11 +70,40 @@ class GeminiProvider implements AiProviderInterface
         return (self::RETRIES + 1) * $this->timeout() + (int) ceil(($this->config['retry_ms'] ?? 0) / 1000);
     }
 
+    public function checkConnection(): string
+    {
+        $this->ensureReady();
+
+        $response = $this->send(fn () => $this->request(self::CHECK_TIMEOUT)->get('models/' . $this->model()));
+
+        if ($response->failed()) {
+            throw new AiUnavailableException($this->failureMessage($response));
+        }
+
+        return 'Connected. ' . $response->json('displayName', $this->model()) . ' (' . $this->model() . ') is ready.';
+    }
+
+    public function listModels(): array
+    {
+        $this->ensureReady();
+
+        $response = $this->send(fn () => $this->request(self::CHECK_TIMEOUT)->get('models', ['pageSize' => 1000]));
+
+        if ($response->failed()) {
+            throw new AiUnavailableException($this->failureMessage($response));
+        }
+
+        return collect($response->json('models', []))
+            ->filter(fn (array $model): bool => \in_array('generateContent', $model['supportedGenerationMethods'] ?? [], true))
+            ->map(fn (array $model): string => Str::after((string) $model['name'], 'models/'))
+            ->sort()
+            ->values()
+            ->all();
+    }
+
     public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens): AiResponse
     {
-        if (($problem = $this->setupProblem()) !== null) {
-            throw new AiUnavailableException($problem);
-        }
+        $this->ensureReady();
 
         $model = $this->model();
         $startedAt = hrtime(true);
@@ -76,7 +114,7 @@ class GeminiProvider implements AiProviderInterface
             'maxOutputTokens' => $maxOutputTokens,
         ];
 
-        if (filled($thinkingLevel = $this->config['thinking_level'] ?? null)) {
+        if (filled($thinkingLevel = $this->config['effort'] ?? null)) {
             $generationConfig['thinkingConfig'] = ['thinkingLevel' => $thinkingLevel];
         }
 
@@ -85,19 +123,13 @@ class GeminiProvider implements AiProviderInterface
         ], $documents);
         $parts[] = ['text' => $prompt];
 
-        try {
-            $response = Http::baseUrl(rtrim((string) ($this->config['url'] ?? ''), '/'))
-                ->withHeaders(['x-goog-api-key' => $this->config['key']])
-                ->timeout($this->timeout())
-                ->retry(self::RETRIES + 1, (int) ($this->config['retry_ms'] ?? 0), fn (Throwable $e): bool => $this->isTransient($e), false)
-                ->post("models/{$model}:generateContent", [
-                    'system_instruction' => ['parts' => [['text' => $instructions]]],
-                    'contents' => [['role' => 'user', 'parts' => $parts]],
-                    'generationConfig' => $generationConfig,
-                ]);
-        } catch (ConnectionException $e) {
-            throw new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e);
-        }
+        $response = $this->send(fn () => $this->request($this->timeout())
+            ->retry(self::RETRIES + 1, (int) ($this->config['retry_ms'] ?? 0), fn (Throwable $e): bool => $this->isTransient($e), false)
+            ->post("models/{$model}:generateContent", [
+                'system_instruction' => ['parts' => [['text' => $instructions]]],
+                'contents' => [['role' => 'user', 'parts' => $parts]],
+                'generationConfig' => $generationConfig,
+            ]));
 
         if ($response->failed()) {
             throw new AiUnavailableException($this->failureMessage($response));
@@ -137,6 +169,32 @@ class GeminiProvider implements AiProviderInterface
         );
     }
 
+    private function ensureReady(): void
+    {
+        if (($problem = $this->setupProblem()) !== null) {
+            throw new AiUnavailableException($problem);
+        }
+    }
+
+    private function request(int $timeout): PendingRequest
+    {
+        return Http::baseUrl(rtrim((string) ($this->config['url'] ?? ''), '/'))
+            ->withHeaders(['x-goog-api-key' => $this->config['key']])
+            ->timeout($timeout);
+    }
+
+    /**
+     * @param callable(): Response $call
+     */
+    private function send(callable $call): Response
+    {
+        try {
+            return $call();
+        } catch (ConnectionException $e) {
+            throw new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e);
+        }
+    }
+
     private function timeout(): int
     {
         return (int) ($this->config['timeout'] ?? 180);
@@ -151,8 +209,21 @@ class GeminiProvider implements AiProviderInterface
             || ($e instanceof RequestException && ($e->response->serverError() || $e->response->status() === 429));
     }
 
+    /**
+     * Gemini answers a bad key with 400 and the reason API_KEY_INVALID, or with 403.
+     */
     private function failureMessage(Response $response): string
     {
+        $reasons = collect($response->json('error.details', []))->pluck('reason');
+
+        if ($response->status() === 403 || $reasons->contains('API_KEY_INVALID')) {
+            return 'The AI service rejected the API key. Check GEMINI_API_KEY in the .env file.';
+        }
+
+        if ($response->status() === 404) {
+            return 'The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.';
+        }
+
         if ($response->status() === 429) {
             return 'The AI service is busy or its quota is used up. Try again later.';
         }

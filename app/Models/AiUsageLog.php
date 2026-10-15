@@ -19,6 +19,9 @@ class AiUsageLog extends Model
 
     public const STATUS_FAILED = 'failed';
 
+    /** Answered from a saved scan of the same file, so no tokens were used. */
+    public const STATUS_CACHED = 'cached';
+
     public const FEATURE_PO_SCAN = 'po_scan';
 
     protected $fillable = [
@@ -31,16 +34,18 @@ class AiUsageLog extends Model
         'input_tokens',
         'output_tokens',
         'total_tokens',
+        'estimated_cost',
         'status',
         'error',
         'duration_ms',
     ];
 
     protected $casts = [
-        'input_tokens'  => 'integer',
-        'output_tokens' => 'integer',
-        'total_tokens'  => 'integer',
-        'duration_ms'   => 'integer',
+        'input_tokens'   => 'integer',
+        'output_tokens'  => 'integer',
+        'total_tokens'   => 'integer',
+        'estimated_cost' => 'float',
+        'duration_ms'    => 'integer',
     ];
 
     /**

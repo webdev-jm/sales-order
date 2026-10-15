@@ -10,15 +10,21 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 use Illuminate\Support\Fluent;
 
+use App\Exceptions\AiUnavailableException;
 use App\Models\Product;
+use App\Models\SalesOrderAttachment;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\PurchaseOrderNumber;
 use App\Models\ShippingAddress;
 use App\Jobs\GenerateSalesOrderXml;
 
+use App\Services\Ai\AiClient;
+use App\Services\SalesOrderAttachmentService;
+use App\Services\SalesOrderPdfReader;
 use App\Services\SalesOrderService;
 use App\Helpers\UploadDateHelper;
+use Illuminate\Support\Facades\Validator;
 
 class Upload extends Component
 {
@@ -31,10 +37,16 @@ class Upload extends Component
     public $account;
     public $shipping_addresses;
     public $setting;
-    public $so_file;
+    public $so_files = [];
     public $so_data;
     public $err_data;
     public $success_data;
+
+    /** @var array<string, \Livewire\TemporaryUploadedFile> so_data entry key => its PO attachment */
+    public $attachments = [];
+
+    /** @var array<string, string> PDF file name => why it could not be read */
+    public array $scanErrors = [];
 
     protected $listeners = [
         'finalizeAll' => 'saveAll'
@@ -63,10 +75,30 @@ class Upload extends Component
 
     public function checkFileData() {
         $this->validate([
-            'so_file' => 'required|mimetypes:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel'
+            'so_files'   => 'required|array|min:1|max:' . config('ai.po_scan.max_files'),
+            'so_files.*' => 'file|mimes:xlsx,xls,pdf|max:' . config('ai.po_scan.max_file_kb'),
+        ], [
+            'so_files.required' => 'Please choose the Excel file or the PO PDFs to upload.',
+            'so_files.max'      => 'Upload at most :max PDFs at a time.',
+            'so_files.*.mimes'  => 'Upload the Excel format (.xlsx, .xls) or PO PDFs.',
+            'so_files.*.max'    => 'Each file must be smaller than :max KB.',
         ]);
 
-        $path1 = $this->so_file->storeAs('multiple-so', $this->so_file->getClientOriginalName());
+        $sheets = collect($this->so_files)->reject(fn ($file) => $this->isPdf($file));
+
+        if ($sheets->isEmpty()) {
+            $this->readPdfs();
+            return;
+        }
+
+        if (count($this->so_files) > 1) {
+            $this->addError('so_files', 'Upload one Excel file, or one or more PO PDFs.');
+            return;
+        }
+
+        $so_file = $sheets->first();
+
+        $path1 = $so_file->storeAs('multiple-so', $so_file->getClientOriginalName());
         $path = storage_path('app').'/'.$path1;
         $spreadsheet = IOFactory::load($path);
         $worksheet = $spreadsheet->getActiveSheet();
@@ -83,8 +115,77 @@ class Upload extends Component
         $this->processData($data);
     }
 
+    /**
+     * Reads each PO PDF with AI. Every purchase order found becomes one sales order, with the
+     * PDF it came from as its attachment.
+     */
+    private function readPdfs(): void {
+        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors']);
+
+        if (!auth()->user()->can('po scan access')) {
+            $this->addError('so_files', 'You do not have permission to scan PO PDFs. Upload the Excel format instead.');
+            return;
+        }
+
+        set_time_limit(30 + count($this->so_files) * app(AiClient::class)->maxDurationSeconds());
+
+        $reader = app(SalesOrderPdfReader::class);
+        $grouped_data = [];
+        $source_files = [];
+
+        foreach ($this->so_files as $file) {
+            $file_name = $file->getClientOriginalName();
+
+            try {
+                $orders = $reader->read($file, $this->account, auth()->user());
+            } catch (AiUnavailableException $e) {
+                $this->scanErrors[$file_name] = $e->getMessage();
+                continue;
+            }
+
+            foreach ($orders as $po_raw => $order) {
+                if ($po_raw === '') {
+                    $this->scanErrors[$file_name] = 'A purchase order in this PDF shows no PO number, so it was not loaded.';
+                    continue;
+                }
+
+                $po_number = !empty($this->account->po_prefix) ? $this->account->po_prefix . $po_raw : $po_raw;
+
+                if (isset($grouped_data[$po_number])) {
+                    $this->scanErrors[$file_name] = 'PO ' . $po_raw . ' was already read from ' . $source_files[$po_number]->getClientOriginalName() . ', so this copy was skipped.';
+                    continue;
+                }
+
+                $grouped_data[$po_number] = [
+                    'meta' => [
+                        'ship_date' => $order['ship_date'],
+                        'ship_date_error' => $order['ship_date_error'],
+                        'ship_to_address_code' => $order['address_code'],
+                        'po_value' => round($order['po_value'], 2),
+                        'paf_number' => '',
+                        'shipping_instruction' => $order['shipping_instruction'],
+                        'warnings' => $order['warnings'],
+                        'scanned_from' => $file_name,
+                    ],
+                    'items' => collect($order['items'])->map(fn ($uoms) => ['product' => null, 'uoms' => $uoms])->all(),
+                ];
+                $source_files[$po_number] = $file;
+            }
+        }
+
+        $this->buildSoData($grouped_data);
+
+        foreach ($this->so_data as $po_number => $data) {
+            $this->attachments[$data['key']] = $source_files[$po_number];
+        }
+    }
+
+    private function isPdf($file): bool {
+        return strtolower($file->getClientOriginalExtension()) === 'pdf';
+    }
+
     private function processData($data) {
-        $this->reset(['so_data', 'err_data', 'success_data']);
+        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors']);
 
         $grouped_data = [];
 
@@ -135,7 +236,17 @@ class Upload extends Component
             }
         }
 
+        $this->buildSoData($grouped_data);
+    }
+
+    /**
+     * Prices each PO group and builds the cards shown for review.
+     *
+     * @param array<string, array{meta: array<string, mixed>, items: array<string, array{uoms: array<string, float|int>}>}> $grouped_data
+     */
+    private function buildSoData(array $grouped_data): void {
         $final_data = [];
+        $index = 0;
 
         // 2. Process each PO Group using SalesOrderService
         foreach ($grouped_data as $po_number => $group) {
@@ -151,7 +262,7 @@ class Upload extends Component
 
             // Prepare Items for Service
             $service_items = [];
-            $warnings = [];
+            $warnings = $group['meta']['warnings'] ?? [];
 
             foreach ($group['items'] as $sku => $item_data) {
                 $product = Product::where('stock_code', $sku)->first();
@@ -204,6 +315,8 @@ class Upload extends Component
 
             // Populate Final Array
             $final_data[$po_number] = [
+                'key' => 'so' . $index++,
+                'scanned_from' => $group['meta']['scanned_from'] ?? null,
                 'ship_to_address' => $ship_to_code,
                 'shipping_address' => !empty($shipping_address) ? $shipping_address : [],
                 'ship_date' => $group['meta']['ship_date'],
@@ -276,6 +389,8 @@ class Upload extends Component
             $err['shipping_instruction'] = 'Shipping instruction must not exceed 50 characters';
         }
 
+        $attachment = $this->attachments[$data['key'] ?? ''] ?? null;
+
         // --- PROCESSING ---
         if(empty($err)) {
             try {
@@ -331,6 +446,14 @@ class Upload extends Component
                     $calculated_orders
                 );
 
+                if (!empty($attachment)) {
+                    $source = $attachment->getClientOriginalName() === ($data['scanned_from'] ?? null)
+                        ? SalesOrderAttachment::SOURCE_SCAN
+                        : SalesOrderAttachment::SOURCE_UPLOAD;
+
+                    app(SalesOrderAttachmentService::class)->attach($sales_order, $attachment, $source);
+                }
+
                 // Logs
                 activity('create')
                     ->performedOn($sales_order)
@@ -354,6 +477,45 @@ class Upload extends Component
         } else {
             $this->err_data[$po_number] = $err;
         }
+    }
+
+    /**
+     * Checks a PO attachment as soon as it is chosen for a card.
+     */
+    public function updatedAttachments($file, $key) {
+        $validator = Validator::make(['file' => $file], ['file' => SalesOrderAttachmentService::rules()], [
+            'file.mimes' => 'The PO attachment must be one of these file types: :values.',
+            'file.max'   => 'The PO attachment must not be larger than :max KB.',
+        ]);
+
+        if ($validator->fails()) {
+            unset($this->attachments[$key]);
+            $this->addError('attachments.' . $key, $validator->errors()->first('file'));
+        }
+    }
+
+    public function removeAttachment($key) {
+        unset($this->attachments[$key]);
+    }
+
+    /**
+     * Lets the user fill in a ship date or PO value the sheet or PDF did not give, before saving.
+     */
+    public function updateOrderField($key, $field, $value) {
+        $po_number = collect($this->so_data ?? [])->search(fn ($data) => ($data['key'] ?? null) === $key);
+
+        if ($po_number === false || !empty($this->success_data[$po_number]) || !in_array($field, ['ship_date', 'po_value'], true)) {
+            return;
+        }
+
+        if ($field === 'ship_date') {
+            $this->so_data[$po_number]['ship_date'] = UploadDateHelper::parse($value);
+            $this->so_data[$po_number]['ship_date_error'] = UploadDateHelper::error($value, 'Ship date');
+        } else {
+            $this->so_data[$po_number]['po_value'] = (float) str_replace(',', '', (string) $value);
+        }
+
+        unset($this->err_data[$po_number][$field]);
     }
 
     public function saveAll($status) {

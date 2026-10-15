@@ -26,6 +26,7 @@ class PoScan extends Component
     public $account_id = '';
     public $format_id = '';
     public $accountSearch = '';
+    public bool $readAgain = false;
 
     /** @var array<string, string> PDF file name => why it could not be scanned */
     public array $scanErrors = [];
@@ -85,7 +86,7 @@ class PoScan extends Component
             $fileName = $file->getClientOriginalName();
 
             try {
-                array_push($rows, ...$scanner->scan($file->get(), $fileName, $account, $format, auth()->user()));
+                array_push($rows, ...$scanner->scan($file->get(), $fileName, $account, $format, auth()->user(), ! $this->readAgain));
             } catch (AiUnavailableException $e) {
                 $this->scanErrors[$fileName] = $e->getMessage();
             }
@@ -97,7 +98,7 @@ class PoScan extends Component
 
         Session::put('so_template_rows', $rows);
         $this->emit('poScanned', SoTemplateLookup::summarize($rows), $this->scanErrors);
-        $this->reset('files', 'scanErrors');
+        $this->reset('files', 'scanErrors', 'readAgain');
     }
 
     private function canUseAccount(int $accountId): bool
@@ -146,6 +147,9 @@ class PoScan extends Component
             'aiProviders'   => $ai->setupProblem() === null ? $ai->chain() : [],
             'tokensUsed'    => $meter->usedInMonth(),
             'tokenLimit'    => $meter->monthlyLimit(),
+            'dailyLimit'    => $meter->dailyUserLimit(),
+            'tokensToday'   => $meter->usedByUserToday(auth()->user()),
+            'cacheDays'     => (int) config('ai.po_scan.cache_days'),
             'maxFiles'      => (int) config('ai.po_scan.max_files'),
             'maxFileMb'     => (int) round(config('ai.po_scan.max_file_kb') / 1024),
         ]);

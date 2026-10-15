@@ -25,6 +25,13 @@ interface AiProviderInterface
     public function model(): string;
 
     /**
+     * The effort levels this provider accepts, lowest first. A blank effort leaves the model's default.
+     *
+     * @return array<int, string>
+     */
+    public function effortLevels(): array;
+
+    /**
      * Why this provider cannot be called yet, or null when it is ready.
      */
     public function setupProblem(): ?string;
@@ -33,6 +40,24 @@ interface AiProviderInterface
      * Longest one call can take, retries included, in seconds.
      */
     public function maxDurationSeconds(): int;
+
+    /**
+     * Checks the key and the model without using tokens.
+     *
+     * @return string What was confirmed, to show to the user
+     *
+     * @throws AiUnavailableException with a message that can be shown to the user
+     */
+    public function checkConnection(): string;
+
+    /**
+     * The model IDs the key can use, sorted. Costs no tokens.
+     *
+     * @return array<int, string>
+     *
+     * @throws AiUnavailableException with a message that can be shown to the user
+     */
+    public function listModels(): array;
 
     /**
      * Asks for a JSON reply that follows the given schema.

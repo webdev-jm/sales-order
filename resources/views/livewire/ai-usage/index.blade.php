@@ -10,6 +10,7 @@
                 <option value="">All calls</option>
                 <option value="success">Successful</option>
                 <option value="failed">Failed</option>
+                <option value="cached">From a saved scan</option>
             </select>
         </div>
         <div class="col-auto ml-auto">
@@ -47,29 +48,36 @@
                 <div class="info-box-content">
                     <span class="info-box-text">AI calls</span>
                     <span class="info-box-number">{{ number_format($totals->calls) }}</span>
-                    <span class="progress-description small {{ $totals->failed ? 'text-danger' : 'text-muted' }}">
-                        {{ number_format($totals->failed) }} failed
+                    <span class="progress-description small">
+                        <span class="{{ $totals->failed ? 'text-danger' : 'text-muted' }}">{{ number_format($totals->failed) }} failed</span>
+                        <span class="text-muted">· {{ number_format($cachedScans) }} from saved scans</span>
                     </span>
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6">
             <div class="info-box">
-                <span class="info-box-icon bg-secondary"><i class="fas fa-file-import"></i></span>
+                <span class="info-box-icon bg-secondary"><i class="fas fa-exchange-alt"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Input tokens</span>
-                    <span class="info-box-number">{{ number_format($totals->input_tokens) }}</span>
-                    <span class="progress-description small text-muted">PDF pages and instructions sent</span>
+                    <span class="info-box-text">Input / output tokens</span>
+                    <span class="info-box-number">{{ number_format($totals->input_tokens) }} / {{ number_format($totals->output_tokens) }}</span>
+                    <span class="progress-description small text-muted">Pages sent / replies, including AI thinking</span>
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6">
             <div class="info-box">
-                <span class="info-box-icon bg-secondary"><i class="fas fa-file-export"></i></span>
+                <span class="info-box-icon bg-success"><i class="fas fa-dollar-sign"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Output tokens</span>
-                    <span class="info-box-number">{{ number_format($totals->output_tokens) }}</span>
-                    <span class="progress-description small text-muted">Replies, including AI thinking</span>
+                    <span class="info-box-text">Estimated cost</span>
+                    <span class="info-box-number">{{ $totals->estimated_cost !== null ? '$' . number_format((float) $totals->estimated_cost, 4) : '—' }}</span>
+                    <span class="progress-description small text-muted">
+                        @if($totals->unpriced)
+                            {{ number_format($totals->unpriced) }} call(s) had no price set
+                        @else
+                            From the prices on the AI Settings page
+                        @endif
+                    </span>
                 </div>
             </div>
         </div>
@@ -88,13 +96,13 @@
     @endif
 
     <div class="row">
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header"><h3 class="card-title">By provider and model</h3></div>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
                         <thead class="thead-light">
-                            <tr><th>Model</th><th class="text-right">Calls</th><th class="text-right">Tokens</th></tr>
+                            <tr><th>Model</th><th class="text-right">Calls</th><th class="text-right">Tokens</th><th class="text-right">Cost</th></tr>
                         </thead>
                         <tbody>
                             @forelse($byProvider as $row)
@@ -109,39 +117,17 @@
                                         @endif
                                     </td>
                                     <td class="text-right">{{ number_format($row->total_tokens) }}</td>
+                                    <td class="text-right">{{ $row->estimated_cost !== null ? '$' . number_format((float) $row->estimated_cost, 4) : '—' }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="3" class="text-center text-muted py-3">No AI calls this month.</td></tr>
+                                <tr><td colspan="4" class="text-center text-muted py-3">No AI calls this month.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header"><h3 class="card-title">By user</h3></div>
-                <div class="card-body p-0">
-                    <table class="table table-sm mb-0">
-                        <thead class="thead-light">
-                            <tr><th>User</th><th class="text-right">Calls</th><th class="text-right">Tokens</th></tr>
-                        </thead>
-                        <tbody>
-                            @forelse($byUser as $row)
-                                <tr wire:key="by-user-{{ $row->user_id ?? 'none' }}">
-                                    <td>{{ $row->user ? $row->user->firstname . ' ' . $row->user->lastname : '—' }}</td>
-                                    <td class="text-right">{{ number_format($row->calls) }}</td>
-                                    <td class="text-right">{{ number_format($row->total_tokens) }}</td>
-                                </tr>
-                            @empty
-                                <tr><td colspan="3" class="text-center text-muted py-3">No AI calls this month.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
+        <div class="col-lg-6">
             <div class="card">
                 <div class="card-header"><h3 class="card-title">By account</h3></div>
                 <div class="card-body p-0">
@@ -167,7 +153,109 @@
     </div>
 
     <div class="card">
-        <div class="card-header"><h3 class="card-title">AI calls — {{ $monthLabel }}</h3></div>
+        <div class="card-header">
+            <h3 class="card-title">Token usage per user — {{ $monthLabel }}</h3>
+        </div>
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-sm table-hover mb-0" style="font-size:0.85rem;">
+                <thead class="thead-light">
+                    <tr>
+                        <th>User</th>
+                        <th class="text-right">Calls</th>
+                        <th class="text-right">Input</th>
+                        <th class="text-right">Output</th>
+                        <th class="text-right">Total tokens</th>
+                        <th class="text-right">Share</th>
+                        <th class="text-right">Cost</th>
+                        <th>AI models used</th>
+                        @if($isCurrentMonth)
+                            <th style="min-width:140px;">Today</th>
+                        @endif
+                        <th>Last used</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($byUser as $row)
+                        @php
+                            $userKey = $row->user_id !== null ? (string) $row->user_id : 'none';
+                            $share = (int) $totals->total_tokens > 0 ? round($row->total_tokens / $totals->total_tokens * 100, 1) : 0;
+                            $todayPercent = $dailyLimit && $row->tokens_today !== null ? min(100, (int) round($row->tokens_today / $dailyLimit * 100)) : null;
+                        @endphp
+                        <tr wire:key="by-user-{{ $userKey }}" class="{{ $userId === $userKey ? 'table-active' : '' }}">
+                            <td class="text-nowrap">
+                                <a href="#" wire:click.prevent="showUser('{{ $userKey }}')" title="Show this user's calls below">
+                                    {{ $row->user ? $row->user->firstname . ' ' . $row->user->lastname : 'No user' }}
+                                </a>
+                            </td>
+                            <td class="text-right text-nowrap">
+                                {{ number_format($row->calls) }}
+                                @if($row->failed)
+                                    <span class="small text-danger">({{ number_format($row->failed) }} failed)</span>
+                                @endif
+                                @if($row->cached_scans)
+                                    <span class="small text-muted d-block">+{{ number_format($row->cached_scans) }} saved scans</span>
+                                @endif
+                            </td>
+                            <td class="text-right">{{ number_format($row->input_tokens) }}</td>
+                            <td class="text-right">{{ number_format($row->output_tokens) }}</td>
+                            <td class="text-right font-weight-bold">{{ number_format($row->total_tokens) }}</td>
+                            <td class="text-right">{{ $share }}%</td>
+                            <td class="text-right">{{ $row->estimated_cost !== null ? '$' . number_format((float) $row->estimated_cost, 4) : '—' }}</td>
+                            <td>
+                                @forelse($row->models as $model)
+                                    <span class="badge badge-light border mb-1" title="{{ number_format($model->calls) }} call(s)">
+                                        {{ $model->provider }} · {{ $model->model }}
+                                        <span class="text-muted">{{ number_format($model->total_tokens) }}</span>
+                                    </span>
+                                @empty
+                                    <span class="text-muted small">Saved scans only</span>
+                                @endforelse
+                            </td>
+                            @if($isCurrentMonth)
+                                <td>
+                                    @if($row->tokens_today === null)
+                                        <span class="text-muted">—</span>
+                                    @else
+                                        {{ number_format($row->tokens_today) }}
+                                        @if($todayPercent !== null)
+                                            <span class="small text-muted">/ {{ number_format($dailyLimit) }}</span>
+                                            <div class="progress progress-xs mb-0">
+                                                <div class="progress-bar {{ $todayPercent >= 100 ? 'bg-danger' : ($todayPercent >= 70 ? 'bg-warning' : 'bg-success') }}" style="width: {{ $todayPercent }}%"></div>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </td>
+                            @endif
+                            <td class="text-nowrap">{{ \Carbon\Carbon::parse($row->last_used_at)->format('Y-m-d H:i') }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="{{ $isCurrentMonth ? 10 : 9 }}" class="text-center text-muted py-3">No AI calls this month.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($isCurrentMonth)
+            <div class="card-footer small text-muted">
+                @if($dailyLimit)
+                    Each user may use {{ number_format($dailyLimit) }} tokens a day.
+                @else
+                    No daily limit per user is set.
+                @endif
+                Saved scans reuse an earlier read and use no tokens. Click a name to see that user's calls.
+            </div>
+        @endif
+    </div>
+
+    <div class="card">
+        <div class="card-header d-flex align-items-center">
+            <h3 class="card-title mr-auto">AI calls — {{ $monthLabel }}</h3>
+            <select wire:model="userId" class="form-control form-control-sm ml-2" style="width:auto;" aria-label="User">
+                <option value="">All users</option>
+                @foreach($byUser as $row)
+                    <option value="{{ $row->user_id ?? 'none' }}">{{ $row->user ? $row->user->firstname . ' ' . $row->user->lastname : 'No user' }}</option>
+                @endforeach
+            </select>
+        </div>
         <div class="card-body p-0 table-responsive">
             <table class="table table-sm table-hover mb-0 text-nowrap" style="font-size:0.85rem;">
                 <thead class="thead-light">
@@ -180,6 +268,7 @@
                         <th class="text-right">Input</th>
                         <th class="text-right">Output</th>
                         <th class="text-right">Total</th>
+                        <th class="text-right">Cost</th>
                         <th class="text-right">Time</th>
                         <th>Status</th>
                     </tr>
@@ -195,10 +284,13 @@
                             <td class="text-right">{{ number_format($log->input_tokens) }}</td>
                             <td class="text-right">{{ number_format($log->output_tokens) }}</td>
                             <td class="text-right font-weight-bold">{{ number_format($log->total_tokens) }}</td>
+                            <td class="text-right">{{ $log->estimated_cost !== null ? '$' . number_format($log->estimated_cost, 4) : '—' }}</td>
                             <td class="text-right">{{ $log->duration_ms !== null ? number_format($log->duration_ms / 1000, 1) . 's' : '—' }}</td>
                             <td>
                                 @if($log->status === \App\Models\AiUsageLog::STATUS_SUCCESS)
                                     <span class="badge badge-success">success</span>
+                                @elseif($log->status === \App\Models\AiUsageLog::STATUS_CACHED)
+                                    <span class="badge badge-info" title="Read from an earlier scan of the same file, no tokens used">saved scan</span>
                                 @else
                                     <span class="badge badge-danger" title="{{ $log->error }}">failed</span>
                                     <span class="small text-muted text-wrap">{{ \Illuminate\Support\Str::limit((string) $log->error, 80) }}</span>
@@ -206,7 +298,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="10" class="text-center text-muted py-3">No AI calls found.</td></tr>
+                        <tr><td colspan="11" class="text-center text-muted py-3">No AI calls found.</td></tr>
                     @endforelse
                 </tbody>
             </table>

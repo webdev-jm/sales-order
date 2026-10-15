@@ -61,9 +61,9 @@ class AiClientTest extends TestCase
 
     public function test_an_unknown_provider_is_reported_instead_of_ignored(): void
     {
-        config(['ai.failover' => 'openai']);
+        config(['ai.failover' => 'mistral']);
 
-        $this->assertSame('Unknown AI provider "openai" in AI_PROVIDER or AI_FAILOVER. Use gemini or anthropic.', $this->client()->setupProblem());
+        $this->assertSame('Unknown AI provider "mistral" in AI_PROVIDER or AI_FAILOVER. Use gemini, anthropic or openai.', $this->client()->setupProblem());
     }
 
     public function test_ai_can_be_turned_off_even_with_keys(): void

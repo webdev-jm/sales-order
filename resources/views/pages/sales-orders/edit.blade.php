@@ -44,7 +44,7 @@
 @section('content')
 
 @if($sales_order->status == 'draft')
-{!! Form::open(['method' => 'POST', 'route' => ['sales-order.update', $sales_order->id], 'id' => 'update_sales_order']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['sales-order.update', $sales_order->id], 'id' => 'update_sales_order', 'files' => true]) !!}
 {!! Form::close() !!}
 @endif
 
@@ -125,6 +125,27 @@
                             {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
                             {!! Form::textarea('shipping_instruction', session('shipping_instruction') ?? $sales_order->shipping_instruction, ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 1, 'form' => 'update_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('shipping_instruction')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            {!! Form::label('po_attachment', 'PO Attachment (optional)') !!}
+                            @if(!empty($sales_order->attachment))
+                                <div class="mb-2">
+                                    <a href="{{route('sales-order.attachment', $sales_order->id)}}" target="_blank">
+                                        <i class="fa {{$sales_order->attachment->isPdf() ? 'fa-file-pdf text-danger' : 'fa-file'}} mr-1"></i>{{$sales_order->attachment->file_name}}
+                                    </a>
+                                    <small class="text-muted ml-1">{{$sales_order->attachment->readableSize()}}</small>
+                                    <div class="custom-control custom-checkbox d-inline-block ml-3">
+                                        <input type="checkbox" class="custom-control-input" id="remove_attachment" name="remove_attachment" value="1" form="update_sales_order">
+                                        <label class="custom-control-label font-weight-normal" for="remove_attachment">Remove</label>
+                                    </div>
+                                </div>
+                            @endif
+                            <input type="file" name="po_attachment" id="po_attachment" form="update_sales_order" accept="{{\App\Services\SalesOrderAttachmentService::accept()}}" class="form-control-file{{$errors->has('po_attachment') ? ' is-invalid' : ''}}">
+                            <small class="text-muted">The customer's PO document.{{!empty($sales_order->attachment) ? ' Choosing a file replaces the current one.' : ''}}</small>
+                            <p class="text-danger">{{$errors->first('po_attachment')}}</p>
                         </div>
                     </div>
 

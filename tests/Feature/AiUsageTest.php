@@ -177,4 +177,129 @@ class AiUsageTest extends TestCase
             'ai_monthly_token_limit' => -5,
         ])->assertSessionHasErrors('ai_monthly_token_limit');
     }
+
+    public function test_each_users_tokens_cost_and_models_are_shown(): void
+    {
+        $ana = $this->actingAsUser();
+        $ben = User::factory()->create(['status' => 'active', 'firstname' => 'Ben', 'lastname' => 'Cruz']);
+
+        AiUsageLog::factory()->create(['user_id' => $ana->id, 'provider' => 'gemini', 'model' => 'gemini-3.5-flash', 'input_tokens' => 800, 'output_tokens' => 200, 'total_tokens' => 1000, 'estimated_cost' => 0.01]);
+        AiUsageLog::factory()->create(['user_id' => $ana->id, 'provider' => 'anthropic', 'model' => 'claude-haiku-5-5', 'input_tokens' => 2500, 'output_tokens' => 500, 'total_tokens' => 3000, 'estimated_cost' => 0.02]);
+        AiUsageLog::factory()->failed()->create(['user_id' => $ana->id, 'provider' => 'gemini', 'model' => 'gemini-3.5-flash', 'input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0]);
+        AiUsageLog::factory()->create(['user_id' => $ana->id, 'status' => AiUsageLog::STATUS_CACHED, 'input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0]);
+        AiUsageLog::factory()->create(['user_id' => $ben->id, 'provider' => 'gemini', 'model' => 'gemini-3.5-flash', 'input_tokens' => 900, 'output_tokens' => 100, 'total_tokens' => 1000, 'estimated_cost' => null]);
+        AiUsageLog::factory()->create(['user_id' => $ben->id, 'total_tokens' => 7777, 'created_at' => now()->subMonthNoOverflow()]);
+
+        Livewire::test(Index::class)
+            ->assertViewHas('byUser', function ($rows) use ($ana, $ben): bool {
+                $anaRow = $rows->firstWhere('user_id', $ana->id);
+                $benRow = $rows->firstWhere('user_id', $ben->id);
+
+                return $rows->first()->user_id === $ana->id
+                    && (int) $anaRow->calls === 3
+                    && (int) $anaRow->failed === 1
+                    && (int) $anaRow->cached_scans === 1
+                    && (int) $anaRow->input_tokens === 3300
+                    && (int) $anaRow->output_tokens === 700
+                    && (int) $anaRow->total_tokens === 4000
+                    && abs((float) $anaRow->estimated_cost - 0.03) < 0.000001
+                    && $anaRow->models->pluck('model')->all() === ['claude-haiku-5-5', 'gemini-3.5-flash']
+                    && (int) $anaRow->models->firstWhere('model', 'gemini-3.5-flash')->calls === 2
+                    && (int) $benRow->total_tokens === 1000
+                    && $benRow->estimated_cost === null
+                    && $benRow->models->pluck('model')->all() === ['gemini-3.5-flash'];
+            })
+            ->assertSee('Token usage per user')
+            ->assertSee('Ben Cruz')
+            ->assertSee('anthropic · claude-haiku-5-5')
+            ->assertSee('80%')
+            ->assertSee('+1 saved scans')
+            ->assertDontSee('7,777');
+    }
+
+    public function test_each_users_tokens_today_are_shown_against_the_daily_limit(): void
+    {
+        $user = $this->actingAsUser();
+        Setting::query()->orderBy('id')->first()->update(['ai_daily_user_token_limit' => 10000]);
+        AiUsageLog::factory()->create(['user_id' => $user->id, 'total_tokens' => 2500]);
+        AiUsageLog::factory()->create(['user_id' => $user->id, 'total_tokens' => 4000, 'created_at' => now()->subDay()]);
+
+        Livewire::test(Index::class)
+            ->assertViewHas('byUser', fn ($rows) => $rows->first()->tokens_today === 2500)
+            ->assertSee('Each user may use 10,000 tokens a day.')
+            ->assertSee('/ 10,000');
+    }
+
+    public function test_clicking_a_user_shows_only_their_calls(): void
+    {
+        $ana = $this->actingAsUser();
+        $ben = User::factory()->create(['status' => 'active', 'firstname' => 'Ben', 'lastname' => 'Cruz']);
+        AiUsageLog::factory()->create(['user_id' => $ana->id, 'reference' => 'ana-po.pdf']);
+        AiUsageLog::factory()->create(['user_id' => $ben->id, 'reference' => 'ben-po.pdf']);
+        AiUsageLog::factory()->create(['user_id' => null, 'reference' => 'system-po.pdf']);
+
+        Livewire::test(Index::class)
+            ->assertSee('ana-po.pdf')
+            ->assertSee('ben-po.pdf')
+            ->call('showUser', (string) $ben->id)
+            ->assertSet('userId', (string) $ben->id)
+            ->assertSee('ben-po.pdf')
+            ->assertDontSee('ana-po.pdf')
+            ->set('userId', 'none')
+            ->assertSee('system-po.pdf')
+            ->assertDontSee('ben-po.pdf')
+            ->set('userId', '')
+            ->assertSee('ana-po.pdf');
+    }
+
+    public function test_the_daily_user_limit_is_saved_from_settings(): void
+    {
+        $this->actingAsUser(['settings', 'settings access']);
+        $setting = Setting::query()->orderBy('id')->first();
+        $payload = [
+            'data_per_page'     => $setting->data_per_page,
+            'sales_order_limit' => $setting->sales_order_limit,
+            'mcp_deadline'      => $setting->mcp_deadline,
+        ];
+
+        $this->post(route('setting.update', $setting->id), $payload + ['ai_daily_user_token_limit' => 50000])->assertSessionHasNoErrors();
+        $this->assertSame(50000, (int) $setting->fresh()->ai_daily_user_token_limit);
+
+        $this->post(route('setting.update', $setting->id), $payload + ['ai_daily_user_token_limit' => 0])->assertSessionHasErrors('ai_daily_user_token_limit');
+
+        $this->post(route('setting.update', $setting->id), $payload + ['ai_daily_user_token_limit' => ''])->assertSessionHasNoErrors();
+        $this->assertNull($setting->fresh()->ai_daily_user_token_limit);
+    }
+
+    public function test_it_totals_the_estimated_cost_and_counts_calls_without_a_price(): void
+    {
+        $this->actingAsUser();
+        AiUsageLog::factory()->create(['total_tokens' => 1000, 'estimated_cost' => 0.0125]);
+        AiUsageLog::factory()->create(['total_tokens' => 1000, 'estimated_cost' => 0.0075]);
+        AiUsageLog::factory()->create(['total_tokens' => 1000, 'estimated_cost' => null]);
+
+        Livewire::test(Index::class)
+            ->assertViewHas('totals', fn ($totals) => abs((float) $totals->estimated_cost - 0.02) < 0.000001 && (int) $totals->unpriced === 1)
+            ->assertSee('$0.0200')
+            ->assertSee('1 call(s) had no price set');
+    }
+
+    public function test_saved_scans_are_counted_apart_from_ai_calls(): void
+    {
+        $this->actingAsUser();
+        AiUsageLog::factory()->create(['total_tokens' => 1000, 'reference' => 'first-read.pdf']);
+        AiUsageLog::factory()->create([
+            'status' => AiUsageLog::STATUS_CACHED, 'input_tokens' => 0, 'output_tokens' => 0, 'total_tokens' => 0, 'reference' => 'reused.pdf',
+        ]);
+
+        Livewire::test(Index::class)
+            ->assertViewHas('totals', fn ($totals) => (int) $totals->calls === 1)
+            ->assertViewHas('cachedScans', 1)
+            ->assertViewHas('byProvider', fn ($rows) => (int) $rows->sum('calls') === 1)
+            ->assertSee('1 from saved scans')
+            ->assertSee('reused.pdf')
+            ->set('status', AiUsageLog::STATUS_CACHED)
+            ->assertSee('reused.pdf')
+            ->assertDontSee('first-read.pdf');
+    }
 }

@@ -8,6 +8,7 @@ use App\Services\Ai\AiResponse;
 use App\Services\Ai\Providers\AnthropicProvider;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Client\ClientInterface;
 use Tests\Concerns\FakesAnthropic;
 use Tests\TestCase;
@@ -153,7 +154,7 @@ class AnthropicProviderTest extends TestCase
             'rate limited' => [[429, 'rate_limit_error', 'slow down'], 'The AI service is busy or its quota is used up. Try again later.'],
             'overloaded'   => [[529, 'overloaded_error', 'Overloaded'], 'The AI service is having problems. Try again in a minute.'],
             'bad key'      => [[401, 'authentication_error', 'invalid x-api-key'], 'The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.'],
-            'bad model'    => [[404, 'not_found_error', 'model: claude-test'], 'The AI model "claude-test" was not found. Check ANTHROPIC_MODEL in the .env file.'],
+            'bad model'    => [[404, 'not_found_error', 'model: claude-test'], 'The AI model "claude-test" was not found. Choose another model on the AI Settings page.'],
             'bad request'  => [[400, 'invalid_request_error', 'Schema is too complex'], 'The AI service refused the request: Schema is too complex'],
         ];
     }
@@ -205,5 +206,42 @@ class AnthropicProviderTest extends TestCase
     {
         $this->assertSame(30, $this->provider(['max_retries' => 0, 'timeout' => 30])->maxDurationSeconds());
         $this->assertSame(68, $this->provider(['max_retries' => 1, 'timeout' => 30])->maxDurationSeconds());
+    }
+
+    public function test_it_lists_the_models_the_key_can_use(): void
+    {
+        $this->fake([new Response(200, ['content-type' => 'application/json'], json_encode([
+            'data'     => [
+                ['type' => 'model', 'id' => 'claude-z', 'display_name' => 'Claude Z', 'created_at' => '2026-01-01T00:00:00Z'],
+                ['type' => 'model', 'id' => 'claude-a', 'display_name' => 'Claude A', 'created_at' => '2026-01-01T00:00:00Z'],
+            ],
+            'has_more' => false,
+            'first_id' => 'claude-z',
+            'last_id'  => 'claude-a',
+        ]))]);
+
+        $this->assertSame(['claude-a', 'claude-z'], $this->provider()->listModels());
+        $this->assertStringStartsWith('https://api.anthropic.com/v1/models', (string) $this->anthropicRequests[0]['request']->getUri());
+    }
+
+    public function test_the_connection_check_looks_up_the_model_without_using_tokens(): void
+    {
+        $this->fake([new Response(200, ['content-type' => 'application/json'], json_encode([
+            'type' => 'model', 'id' => 'claude-test', 'display_name' => 'Claude Test', 'created_at' => '2026-01-01T00:00:00Z',
+        ]))]);
+
+        $this->assertSame('Connected. Claude Test (claude-test) is ready.', $this->provider()->checkConnection());
+        $this->assertSame('GET', $this->anthropicRequests[0]['request']->getMethod());
+        $this->assertSame('https://api.anthropic.com/v1/models/claude-test', (string) $this->anthropicRequests[0]['request']->getUri());
+    }
+
+    public function test_the_connection_check_names_a_bad_key(): void
+    {
+        $this->fake([$this->claudeError(401, 'authentication_error', 'invalid x-api-key')]);
+
+        $this->expectException(AiUnavailableException::class);
+        $this->expectExceptionMessage('The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.');
+
+        $this->provider()->checkConnection();
     }
 }

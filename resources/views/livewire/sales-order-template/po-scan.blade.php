@@ -9,6 +9,11 @@
                         / {{ number_format($tokenLimit) }}
                     @endif
                 </span>
+                @if($dailyLimit)
+                    <span class="badge badge-light p-2">
+                        Your tokens today: {{ number_format($tokensToday) }} / {{ number_format($dailyLimit) }}
+                    </span>
+                @endif
             </div>
         </div>
 
@@ -119,6 +124,18 @@
                                 <i class="fas fa-spinner fa-spin"></i> Uploading…
                             </div>
                         </div>
+
+                        @if($cacheDays > 0)
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" wire:model.defer="readAgain" id="scan_read_again" class="custom-control-input">
+                                <label for="scan_read_again" class="custom-control-label font-weight-normal">
+                                    Read again with AI, even if this PDF was scanned before
+                                </label>
+                                <small class="form-text text-muted">
+                                    A PDF scanned in the last {{ $cacheDays }} days is reused at no token cost unless this is ticked.
+                                </small>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

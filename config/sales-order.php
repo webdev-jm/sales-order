@@ -104,4 +104,21 @@ return [
     */
     'xml_generation_enabled' => env('XML_GENERATION_ENABLED', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | PO Attachments
+    |--------------------------------------------------------------------------
+    |
+    | The optional customer PO document kept with each sales order. Files are
+    | stored privately on the local disk and served through an authenticated
+    | route, never from the public storage link.
+    |
+    */
+    'attachments' => [
+        'disk'      => 'local',
+        'directory' => 'sales-order-attachments',
+        'mimes'     => ['pdf', 'jpg', 'jpeg', 'png', 'xlsx', 'xls', 'csv', 'doc', 'docx'],
+        'max_kb'    => 10240,
+    ],
+
 ];

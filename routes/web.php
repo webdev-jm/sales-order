@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\{
-    AiUsageController, UserController, AccountController, SalesOrderController, CompanyController,
+    AiUsageController, AiSettingController, UserController, AccountController, SalesOrderController, CompanyController,
     DiscountController, BranchController, InvoiceTermController, ProductController,
     PriceCodeController, SalesPersonController, RoleController, SettingController,
     AccountLoginController, ShippingAddressController, SystemLogController, ProfileController,
@@ -85,6 +85,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // AI USAGE
     Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index')->middleware('permission:ai usage access');
+    Route::get('ai-settings', [AiSettingController::class, 'index'])->name('ai-settings.index')->middleware('permission:ai settings manage');
 
     // CREDIT MEMO
     Route::group(['middleware' => 'permission:cm access'], function() {
@@ -162,6 +163,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('sales-order/upload', [SalesOrderController::class, 'upload'])->name('sales-order.upload')->middleware('permission:sales order create');
 
         Route::get('sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales-order.show');
+        Route::get('sales-order/{id}/attachment', [SalesOrderController::class, 'attachment'])->name('sales-order.attachment');
 
         Route::get('sales-order/{id}/resubmit', [SalesOrderController::class, 'resubmit'])->name('sales-order.resubmit')->middleware('permission:sales order create');
 

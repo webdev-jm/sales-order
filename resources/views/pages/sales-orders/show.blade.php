@@ -64,6 +64,15 @@
 
         <div class="col-sm-4 invoice-col">
             <b>Reference:</b> {{$sales_order->reference}}<br>
+            <b>PO Attachment:</b>
+            @if(!empty($sales_order->attachment))
+                <a href="{{route('sales-order.attachment', $sales_order->id)}}" target="_blank">
+                    <i class="fa {{$sales_order->attachment->isPdf() ? 'fa-file-pdf text-danger' : 'fa-file'}} mx-1"></i>{{$sales_order->attachment->file_name}}
+                </a>
+            @else
+                <span class="text-muted">none</span>
+            @endif
+            <br>
             <b>Shipping Instruction:</b><br>
             <p>
                 {{$sales_order->shipping_instruction}}

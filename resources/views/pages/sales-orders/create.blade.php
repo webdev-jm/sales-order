@@ -44,9 +44,26 @@
 @section('content')
 <livewire:accounts.active-account-banner/>
 
-{!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order']) !!}
+{!! Form::open(['method' => 'POST', 'route' => ['sales-order.store'], 'id' => 'add_sales_order', 'files' => true]) !!}
 <input type="hidden" name="control_number" form="add_sales_order" value="">
 {!! Form::close() !!}
+
+@if(!empty(session('scan_notices')) || !empty(session('scan_warnings')))
+    <div class="alert alert-warning">
+        <h5><i class="fa fa-file-pdf mr-1"></i>Read from the PO PDF. Check the order before saving.</h5>
+        @foreach(session('scan_notices', []) as $notice)
+            <p class="mb-1">{{$notice}}</p>
+        @endforeach
+        @if(!empty(session('scan_warnings')))
+            <strong>These lines were not included:</strong>
+            <ul class="mb-0">
+                @foreach(session('scan_warnings') as $warning)
+                    <li>{{$warning['stock_code']}} &mdash; {{$warning['reason']}}</li>
+                @endforeach
+            </ul>
+        @endif
+    </div>
+@endif
 
 <div class="row">
     <div class="col-lg-6">
@@ -117,6 +134,24 @@
                             {!! Form::label('shipping_instruction', 'Shipping Instruction') !!}
                             {!! Form::textarea('shipping_instruction', session('shipping_instruction') ?? '', ['class' => 'form-control form-control-sm'.($errors->has('shipping_instruction') ? ' is-invalid' : ''), 'rows' => 1, 'form' => 'add_sales_order']) !!}
                             <p class="text-danger">{{$errors->first('shipping_instruction')}}</p>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                            {!! Form::label('po_attachment', 'PO Attachment (optional)') !!}
+                            @if(!empty($pending_attachment))
+                                <div class="mb-2" id="pending-attachment">
+                                    <i class="fa {{$pending_attachment['mime'] === 'application/pdf' ? 'fa-file-pdf text-danger' : 'fa-file'}} mr-1"></i>
+                                    {{$pending_attachment['name']}}
+                                    <span class="badge badge-info ml-1">{{$pending_attachment['source'] === 'scan' ? 'scanned PO' : 'from previous order'}}</span>
+                                    <a href="#" class="badge badge-danger ml-1" id="btn-discard-attachment"><i class="fa fa-times mr-1"></i>Remove</a>
+                                    {!! Form::hidden('discard_pending_attachment', 0, ['form' => 'add_sales_order', 'id' => 'discard_pending_attachment']) !!}
+                                </div>
+                            @endif
+                            <input type="file" name="po_attachment" id="po_attachment" form="add_sales_order" accept="{{\App\Services\SalesOrderAttachmentService::accept()}}" class="form-control-file{{$errors->has('po_attachment') ? ' is-invalid' : ''}}">
+                            <small class="text-muted">The customer's PO document. {{!empty($pending_attachment) ? 'Choosing a file replaces the one above.' : ''}}</small>
+                            <p class="text-danger">{{$errors->first('po_attachment')}}</p>
                         </div>
                     </div>
 
@@ -201,12 +236,21 @@
                     <div class="col-12">
                         <div class="form-group">
                             <div class="custom-file">
-                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form', 'accept' => '.xlsx, .xls, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']) !!}
-                                {!! Form::label('upload_file', 'Upload File', ['class' => 'custom-file-label']) !!}
+                                {!! Form::file('upload_file', ['class' => 'custom-file-input'.($errors->has('upload_file') ? ' is-invalid' : ''), 'form' => 'upload_form', 'accept' => '.xlsx, .xls, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'.(auth()->user()->can('po scan access') ? ', .pdf, application/pdf' : '')]) !!}
+                                {!! Form::label('upload_file', auth()->user()->can('po scan access') ? 'Excel file or PO PDF' : 'Upload File', ['class' => 'custom-file-label']) !!}
                             </div>
                             <p class="text-danger">{{$errors->first('upload_file')}}</p>
                         </div>
                     </div>
+
+                    @can('po scan access')
+                    <div class="col-12">
+                        <p class="text-muted small">
+                            <i class="fa fa-magic mr-1"></i>
+                            A PO PDF is read with AI to fill in the order, and is attached to it as the PO document.
+                        </p>
+                    </div>
+                    @endcan
 
                     <div class="col-12">
                         <a href="{{asset('/assets/SMS Sales Order Upload Format.xlsx')}}" class="">Download format <i class="fa fa-file-excel text-success ml-1"></i></a>
@@ -308,6 +352,18 @@
         $('#btn-upload').on('click', function(e) {
             e.preventDefault();
             $('#modal-upload').modal('show');
+        });
+
+        // reading a PDF with AI takes a few seconds
+        $('#upload_form').on('submit', function() {
+            $('#modal-upload').modal('hide');
+            $('#loadingModal').modal('show');
+        });
+
+        $('#btn-discard-attachment').on('click', function(e) {
+            e.preventDefault();
+            $('#discard_pending_attachment').val(1);
+            $('#pending-attachment').addClass('d-none');
         });
 
         // paf details

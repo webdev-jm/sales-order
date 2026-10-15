@@ -8,8 +8,9 @@ namespace Tests\Concerns;
 trait FakesGemini
 {
     /**
-     * Gemini as the only provider. The failover list and the Anthropic key are cleared so no test
-     * reaches the real Claude API through keys in the developer's .env file.
+     * Gemini as the only provider. The failover list and the other keys are cleared so no test
+     * reaches a real AI API through keys in the developer's .env file. Saved scans are off, so a
+     * test that scans the same bytes twice reaches the fake both times; cache tests turn them on.
      */
     protected function configureGemini(): void
     {
@@ -18,10 +19,12 @@ trait FakesGemini
             'ai.provider'               => 'gemini',
             'ai.failover'               => '',
             'ai.providers.anthropic.key' => null,
+            'ai.providers.openai.key'   => null,
             'ai.providers.gemini.key'   => 'test-key',
             'ai.providers.gemini.model' => 'gemini-test',
-            'ai.providers.gemini.thinking_level' => 'low',
+            'ai.providers.gemini.effort' => 'low',
             'ai.providers.gemini.retry_ms' => 0,
+            'ai.po_scan.cache_days'     => 0,
         ]);
     }
 
