@@ -25,13 +25,28 @@
 @endsection
 
 @section('content')
+@if($completedCancel = $sales_order->completed_cancel_request)
+    <div class="callout callout-danger">
+        <i class="fas fa-ban mr-1"></i>
+        Cancelled by {{ $completedCancel->processor?->fullName() ?? 'SCM' }} on {{ $completedCancel->closed_at?->format('M j, Y g:i A') }}
+        through cancel request
+        @if(auth()->user()->can('so cancel request process') || (int) $completedCancel->user_id === (int) auth()->id())
+            <a href="{{ route('so-cancel-request.show', $completedCancel->id) }}">{{ $completedCancel->request_number }}</a>.
+        @else
+            {{ $completedCancel->request_number }}.
+        @endif
+    </div>
+@endif
+
 <div class="invoice p-3 mb-3">
     <div class="row">
         <div class="col-12">
             <h4>
                 {{$sales_order->control_number}}
                 <small class="float-right">
-                    @if(!empty($sales_order->upload_status))
+                    @if($sales_order->status == 'cancelled')
+                    <span class="badge badge-danger">cancelled</span>
+                    @elseif(!empty($sales_order->upload_status))
                     <span class="badge {{$sales_order->upload_status == 1 ? 'badge-info' : 'badge-warning'}}">{{$sales_order->upload_status == 1 ? 'Uploaded' : 'Upload Error'}}</span>
                     @else
                     <span class="badge {{$sales_order->status == 'draft' ? 'badge-secondary' : 'badge-success'}}">{{$sales_order->status}}</span>
@@ -164,30 +179,10 @@
         </div>
     </div>
 
-    @if(auth()->user()->can('sales order create') && ($sales_order->status == 'for optimization' || $sales_order->status == 'finalized') && !empty(\Illuminate\Support\Facades\Session::get('logged_account')))
-    <div class="row">
-        <div class="col-12 text-right">
-            <a href="{{route('sales-order.resubmit', $sales_order->id)}}" class="btn btn-warning" id="btn-resubmit">Resubmit Sales Order</a>
-        </div>
-    </div>
-    @endif
-    
+    <livewire:sales-order-cancel-request.create :sales-order-id="$sales_order->id" />
+
 </div>
 
-@endsection
-
-@section('js')
-<script>
-    $(function() {
-        $('body').on('click', '#btn-resubmit', function(e) {
-            e.preventDefault();
-            if(confirm('This sales order will be cancelled. Do you wish to continue?')) {
-                var redirectUrl = $(this).attr('href');  // Get the href attribute from the clicked anchor tag
-                window.location.href = redirectUrl;  // Redirect to the route
-            }
-        });
-    });
-</script>
 @endsection
 
 @section('footer')

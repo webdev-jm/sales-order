@@ -317,6 +317,8 @@ return [
                 'cm access',
                 'invoice access',
                 'ppu form access',
+                'so cancel request create',
+                'so cancel request process',
             ],
             'submenu' => [
                 [
@@ -332,6 +334,14 @@ return [
                     'icon'   => 'fas fa-fw fa-cart-plus',
                     'can'    => 'sales order access',
                     'active' => ['sales-order*'],
+                ],
+                [
+                    'key'    => 'so-cancel-request',
+                    'text'   => 'SO Cancel Requests',
+                    'url'    => '/so-cancel-request',
+                    'icon'   => 'fas fa-fw fa-ban',
+                    'can'    => ['so cancel request create', 'so cancel request process'],
+                    'active' => ['so-cancel-request*'],
                 ],
                 [
                     'text'   => 'Invoice',
@@ -834,6 +844,7 @@ return [
         JeroenNoten\LaravelAdminLte\Menu\Filters\ClassesFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\LangFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\DataFilter::class,
+        App\Support\SoCancelRequestMenuFilter::class,
     ],
 
     /*
