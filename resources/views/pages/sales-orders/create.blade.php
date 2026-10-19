@@ -289,16 +289,10 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal-paf">
-    <div class="modal-dialog modal-lg">
-        <livewire:sales-order.sales-order-paf/>
-    </div>
-</div>
-
 @endsection
 
 @section('js')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script src="{{ asset('vendor/jquery-mask/jquery.mask.min.js') }}"></script>
 <script>
     $(function() {
 
@@ -364,15 +358,6 @@
             e.preventDefault();
             $('#discard_pending_attachment').val(1);
             $('#pending-attachment').addClass('d-none');
-        });
-
-        // paf details
-        $('body').on('click', '.btn-paf-details', function(e) {
-            e.preventDefault();
-            var product_id = $(this).data('product-id');
-            var uom = $(this).data('uom');
-            Livewire.emit('pafDetails', product_id, uom);
-            $('#modal-paf').modal('show');
         });
     });
 </script>

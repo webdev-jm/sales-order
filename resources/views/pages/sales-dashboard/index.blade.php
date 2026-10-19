@@ -7,7 +7,7 @@
 @section('css')
 <style>
 </style>
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="{{ asset('vendor/tailwindcss/tailwindcss.js') }}"></script>
 @endsection
 
 @section('content_header')

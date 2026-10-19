@@ -77,7 +77,7 @@ class WarHolidayDisplayTest extends TestCase
 
     public function test_show_view_renders_holiday_badge(): void
     {
-        $source = file_get_contents(resource_path('views/war/show.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/war/show.blade.php'));
 
         $this->assertStringContainsString(
             '$holiday_dates',
@@ -96,7 +96,7 @@ class WarHolidayDisplayTest extends TestCase
 
     public function test_pdf_view_renders_holiday_row(): void
     {
-        $source = file_get_contents(resource_path('views/war/pdf.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/war/pdf.blade.php'));
 
         $this->assertStringContainsString(
             '$holiday_dates',

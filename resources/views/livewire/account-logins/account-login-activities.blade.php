@@ -66,6 +66,9 @@
                 </tbody>
             </table>
         </div>
+        <div class="mt-2">
+            {{$sales_orders->links()}}
+        </div>
         @endisset
 
     </div>

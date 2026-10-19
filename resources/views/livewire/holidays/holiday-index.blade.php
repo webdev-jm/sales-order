@@ -118,7 +118,7 @@
     @if($activeView === 'calendar')
     <script>
         (function initCalendar() {
-            var holidays = {!! json_encode($calendarData) !!};
+            var holidays = @json($calendarData);
             var calendarEl = document.getElementById('calendar-container');
             if (!calendarEl || typeof FullCalendar === 'undefined') {
                 document.addEventListener('DOMContentLoaded', function() { initCalendar(); });

@@ -354,7 +354,7 @@
                 }
             },
             themeSystem: 'bootstrap',
-            events: {!! json_encode($schedule_data) !!}
+            events: @json($schedule_data)
         });
         calendar.render();
     });

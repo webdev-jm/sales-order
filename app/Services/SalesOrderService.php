@@ -8,7 +8,6 @@ use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
 use App\Models\SalesOrderProductUom;
-use App\Models\SalesOrderProductUomPAF;
 
 use Illuminate\Support\Facades\Session;
 
@@ -317,9 +316,6 @@ class SalesOrderService {
 
             // Hard-delete existing line items so they can be recreated cleanly.
             foreach ($sales_order->order_products as $order_product) {
-                foreach ($order_product->product_uoms as $uom) {
-                    SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
-                }
                 $order_product->product_uoms()->forceDelete();
             }
             $sales_order->order_products()->forceDelete();
@@ -410,7 +406,7 @@ class SalesOrderService {
     }
 
     /**
-     * Persist a single SalesOrderProduct with its UOM rows and optional PAF rows.
+     * Persist a single SalesOrderProduct with its UOM rows.
      */
     private function createOrderProduct(SalesOrder $sales_order, int $product_id, array $details, int $part): void
     {
@@ -423,26 +419,13 @@ class SalesOrderService {
         ]);
 
         foreach ($details['data'] as $uom => $data) {
-            $product_uom = SalesOrderProductUom::create([
+            SalesOrderProductUom::create([
                 'sales_order_product_id' => $order_product->id,
                 'uom'                    => $uom,
                 'quantity'               => $data['quantity'],
                 'uom_total'              => $data['total'],
                 'uom_total_less_disc'    => $data['discounted'],
             ]);
-
-            if (!empty($data['paf_rows'])) {
-                foreach ($data['paf_rows'] as $paf_row) {
-                    if (!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                        SalesOrderProductUomPAF::create([
-                            'sales_order_product_uom_id' => $product_uom->id,
-                            'paf_number'                 => $paf_row['paf_number'],
-                            'uom'                        => $paf_row['uom'],
-                            'quantity'                   => $paf_row['quantity'],
-                        ]);
-                    }
-                }
-            }
         }
     }
 

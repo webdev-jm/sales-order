@@ -52,7 +52,7 @@
             <tbody>
                 @foreach($discounts as $discount)
                 <tr>
-                    <td>{{$discount->company->name}}</td>
+                    <td>{{$discount->company->name ?? '-'}}</td>
                     <td>{{$discount->discount_code}}</td>
                     <td>{{$discount->description}}</td>
                     <td class="text-right">

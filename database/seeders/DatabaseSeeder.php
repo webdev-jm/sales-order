@@ -23,13 +23,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([AccountSeeder::class]);
 
-        $this->call([PafSupportTypeSeeder::class]);
-        $this->call([PafExpenseTypeSeeder::class]);
-        $this->call([PafActivitySeeder::class]);
-        $this->call([PafPrePlanSeeder::class]);
         $this->call([BrandSeeder::class]);
-
-        $this->call([CreditMemoReasonSeeder::class]);
 
         $this->call([CategorySeeder::class]);
         $this->call([RemittanceReasonSeeder::class]);
@@ -41,8 +35,6 @@ class DatabaseSeeder extends Seeder
         $this->call([AccountLoginSeeder::class]);
         $this->call([SalesOrderSeeder::class]);
         $this->call([PPUFormSeeder::class]);
-        $this->call([CreditMemoSeeder::class]);
-        $this->call([InvoiceSeeder::class]);
         $this->call([RemittanceSeeder::class]);
         $this->call([ActivityPlanSeeder::class]);
         $this->call([WeeklyActivityReportSeeder::class]);

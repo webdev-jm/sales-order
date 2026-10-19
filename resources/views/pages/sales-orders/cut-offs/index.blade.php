@@ -34,14 +34,14 @@
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Message</th>
-                    <th>{{date('h:m:s a')}}</th>
+                    <th>{{date('h:i:s a')}}</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($cut_offs as $cut_off)
                 <tr>
-                    <td>{{date('Y-m-d H:i:s a', $cut_off->start_date)}}</td>
-                    <td>{{date('Y-m-d H:i:s a', $cut_off->end_date)}}</td>
+                    <td>{{date('Y-m-d h:i:s a', $cut_off->start_date)}}</td>
+                    <td>{{date('Y-m-d h:i:s a', $cut_off->end_date)}}</td>
                     <td>{{$cut_off->message}}</td>
                     <td class="text-right">
                         @can('so cut-off edit')
@@ -60,11 +60,23 @@
         {{$cut_offs->links()}}
     </div>
 </div>
+
+<div class="modal fade" id="modal-delete">
+    <div class="modal-dialog">
+        <livewire:confirm-delete/>
+    </div>
+</div>
 @endsection
 
 @section('js')
 <script>
     $(function() {
+        $('body').on('click', '.btn-delete', function(e) {
+            e.preventDefault();
+            var id = $(this).data('id');
+            Livewire.emit('setDeleteModel', 'SalesOrderCutOff', id);
+            $('#modal-delete').modal('show');
+        });
     });
 </script>
 @endsection

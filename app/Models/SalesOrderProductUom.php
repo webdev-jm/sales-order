@@ -28,9 +28,5 @@ class SalesOrderProductUom extends Model
         'uom_total_less_disc',
         'warehouse'
     ];
-
-    public function uom_pafs() {
-        return $this->hasMany('App\Models\SalesOrderProductUomPAF', 'sales_order_product_uom_id');
-    }
 }
 

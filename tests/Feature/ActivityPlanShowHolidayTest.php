@@ -123,7 +123,7 @@ class ActivityPlanShowHolidayTest extends TestCase
      */
     public function test_show_view_has_holiday_legend_badges(): void
     {
-        $source = file_get_contents(resource_path('views/mcp/show.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/mcp/show.blade.php'));
 
         $this->assertStringContainsString(
             'No-Work Holiday',
@@ -143,7 +143,7 @@ class ActivityPlanShowHolidayTest extends TestCase
      */
     public function test_show_view_guards_event_click_for_holidays(): void
     {
-        $source = file_get_contents(resource_path('views/mcp/show.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/mcp/show.blade.php'));
 
         $this->assertStringContainsString(
             'is_holiday',
@@ -159,7 +159,7 @@ class ActivityPlanShowHolidayTest extends TestCase
      */
     public function test_pdf_view_references_holiday_key(): void
     {
-        $source = file_get_contents(resource_path('views/mcp/pdf.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/mcp/pdf.blade.php'));
 
         $this->assertStringContainsString(
             "\$data['holiday']",
@@ -179,7 +179,7 @@ class ActivityPlanShowHolidayTest extends TestCase
      */
     public function test_pdf_view_has_holiday_css_classes(): void
     {
-        $source = file_get_contents(resource_path('views/mcp/pdf.blade.php'));
+        $source = file_get_contents(resource_path('views/pages/mcp/pdf.blade.php'));
 
         $this->assertStringContainsString(
             'bg-holiday-nowork',

@@ -77,6 +77,9 @@
                             </a>
                         @endforeach
                     </div>
+                    <div class="mt-2">
+                        {{$schedules->links()}}
+                    </div>
 
                 @endif
             @endif

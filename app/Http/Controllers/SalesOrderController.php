@@ -221,7 +221,7 @@ class SalesOrderController extends Controller
             return $redirect;
         }
 
-        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs', 'attachment'])->findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms', 'attachment'])->findOrFail($id);
 
         if ($open_cancel_request = $sales_order->open_cancel_request) {
             return redirect()->route('sales-order.show', $sales_order->id)->with([
@@ -316,7 +316,7 @@ class SalesOrderController extends Controller
             return $redirect;
         }
 
-        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms.uom_pafs', 'attachment'])->findOrFail($id);
+        $sales_order = SalesOrder::with(['order_products.product', 'order_products.product_uoms', 'attachment'])->findOrFail($id);
 
         if ($sales_order->status == 'for optimization') {
             return redirect()->route('sales-order.show', $sales_order->id)->with([
@@ -702,22 +702,11 @@ class SalesOrderController extends Controller
             ];
 
             foreach ($order_product->product_uoms as $uom) {
-                $paf_rows = [];
-
-                foreach ($uom->uom_pafs as $paf_row) {
-                    $paf_rows[] = [
-                        'paf_number' => $paf_row->paf_number,
-                        'uom'        => $paf_row->uom,
-                        'quantity'   => $paf_row->quantity,
-                    ];
-                }
-
                 $order_data['items'][$order_product->product_id]['data'][$uom->uom] = [
                     'quantity'   => $uom->quantity,
                     'total'      => $uom->uom_total,
                     'discount'   => 0,
                     'discounted' => $uom->uom_total_less_disc,
-                    'paf_rows'   => $paf_rows,
                 ];
             }
 

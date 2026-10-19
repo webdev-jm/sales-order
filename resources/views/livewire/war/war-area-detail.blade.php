@@ -125,7 +125,7 @@
                                                 NAME
                                             </strong>
                                             <p class="text-muted">
-                                                {{$login->user->fullName() ?? '-'}}
+                                                {{$login->user?->fullName() ?? '-'}}
                                             </p>
                                             {{-- BRANCH --}}
                                             <hr>
@@ -320,7 +320,6 @@
                                     {{-- TRADE MARKETING ACTIVITIES--}}
                                     @php
                                     $trade_marketing_activities = $channel_operation->trade_marketing_activities()->first();
-                                    $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number)->first();
                                     @endphp
                                     <div class="card card-outline card-primary">
                                         <div class="card-header">
@@ -334,33 +333,6 @@
                                             </strong>
                                             <p class="text-muted">
                                                 {{$trade_marketing_activities->paf_number ?? 'NONE'}}
-                                            </p>
-                                            {{-- PROGRAM TITLE --}}
-                                            <hr>
-                                            <strong>
-                                                <i class="fas fa-tasks"></i>
-                                                PROGRAM TITLE
-                                            </strong>
-                                            <p class="text-muted">
-                                                {{$paf->title ?? ' - '}}
-                                            </p>
-                                            {{-- DURATION --}}
-                                            <hr>
-                                            <strong>
-                                                <i class="fas fa-history"></i>
-                                                DURATION
-                                            </strong>
-                                            <p class="text-muted">
-                                                {{$paf->start_date ?? ' - '}} to {{$paf->end_date ?? ' - '}}
-                                            </p>
-                                            {{-- TYPE OF ACTIVITY --}}
-                                            <hr>
-                                            <strong>
-                                                <i class="fas fa-atom"></i>
-                                                TYPE OF ACTIVITY
-                                            </strong>
-                                            <p class="text-muted">
-                                                {{$paf->type ?? ' - '}}
                                             </p>
 
                                             {{-- SKUs --}}

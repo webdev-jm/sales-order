@@ -19,7 +19,7 @@
                         <td class="p-1 text-center align-middle">
                             <span class="badge badge-secondary">{{$activity->log_name}}</span>
                         </td>
-                        <td class="p-1 text-center align-middle">{{$activity->causer->fullName() ?? '-'}}</td>
+                        <td class="p-1 text-center align-middle">{{$activity->causer?->fullName() ?? '-'}}</td>
                         <td class="p-1 text-left align-middle">{{$activity->description}}</td>
                         <td class="p-1 text-center align-middle text-nowrap">{{$activity->created_at->format('Y-m-d h:i A')}}</td>
                     </tr>

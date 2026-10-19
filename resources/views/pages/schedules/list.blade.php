@@ -74,9 +74,9 @@
                                 </span>
                             @else
                                 @php
-                                    $status = $schedule->approvals()->orderBy('id', 'DESC')->first()->status;
+                                    $status = optional($schedule->approvals()->orderBy('id', 'DESC')->first())->status;
                                 @endphp
-                                <span class="badge {{$status_colors[$status]}}">
+                                <span class="badge {{$status_colors[$status] ?? 'badge-secondary'}}">
                                     {{$status}}
                                 </span>
                             @endif

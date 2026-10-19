@@ -407,7 +407,7 @@
                         <td class="border-0 text-center">
                             <span class="text-muted">SUPERVISOR</span>
                             <br>
-                            <input type="text" class="signatory-line" value="{{strtoupper($approval->user->fullName() ?? '')}}">
+                            <input type="text" class="signatory-line" value="{{strtoupper($approval->user?->fullName() ?? '')}}">
                             <br>
                             <small>{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
                         </td>

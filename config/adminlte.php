@@ -311,11 +311,8 @@ return [
             'text'    => 'Transactions',
             'icon'    => 'fas fa-fw fa-exchange-alt',
             'can'     => [
-                'purchase order access',
                 'sales order access',
                 'sales order list',
-                'cm access',
-                'invoice access',
                 'ppu form access',
                 'so cancel request create',
                 'so cancel request process',
@@ -344,32 +341,11 @@ return [
                     'active' => ['so-cancel-request*'],
                 ],
                 [
-                    'text'   => 'Invoice',
-                    'url'    => '/invoice',
-                    'icon'   => 'fas fa-fw fa-file-invoice',
-                    'can'    => 'invoice access',
-                    'active' => ['invoice'],
-                ],
-                [
-                    'text'   => 'Purchase Orders',
-                    'url'    => '/purchase-order',
-                    'icon'   => 'fas fa-fw fa-shopping-cart',
-                    'can'    => 'purchase order access',
-                    'active' => ['purchase-order*'],
-                ],
-                [
                     'text'   => 'PPU',
                     'url'    => '/ppu-form',
                     'icon'   => 'fas fa-fw fa-file',
                     'can'    => 'ppu form access',
                     'active' => ['ppu-form*'],
-                ],
-                [
-                    'text'   => 'RUD',
-                    'url'    => '/credit-memo',
-                    'icon'   => 'fas fa-fw fa-credit-card',
-                    'can'    => 'cm access',
-                    'active' => ['credit-memo*'],
                 ],
             ],
         ],
@@ -382,9 +358,6 @@ return [
                 'schedule access',
                 'mcp access',
                 'trip access',
-                'paf access',
-                'pre plan access',
-                'paf activity access',
                 'war access',
             ],
             'submenu' => [
@@ -394,27 +367,6 @@ return [
                     'icon'   => 'fas fa-fw fa-clock',
                     'can'    => 'mcp access',
                     'active' => ['mcp*'],
-                ],
-                [
-                    'text'   => 'PAF',
-                    'url'    => '/paf',
-                    'icon'   => 'fas fa-fw fa-list',
-                    'can'    => 'paf access',
-                    'active' => ['paf*'],
-                ],
-                [
-                    'text'   => 'PAF Activities',
-                    'url'    => '/paf-activity',
-                    'icon'   => 'fas fa-fw fa-tasks',
-                    'can'    => 'paf activity access',
-                    'active' => ['paf-activity*'],
-                ],
-                [
-                    'text'   => 'Pre Plan',
-                    'url'    => '/pre-plan',
-                    'icon'   => 'fas fa-fw fa-balance-scale-right',
-                    'can'    => 'pre plan access',
-                    'active' => ['pre-plan*'],
                 ],
                 [
                     'text'   => 'Schedules',
@@ -506,7 +458,6 @@ return [
             'icon'    => 'fas fa-fw fa-chart-bar',
             'can'     => [
                 'report access',
-                'productivity report access',
                 'channel operation report',
             ],
             'submenu' => [
@@ -525,13 +476,6 @@ return [
                     'active' => ['combined*'],
                 ],
                 [
-                    'text'   => 'Productivity Reports',
-                    'url'    => '/productivity-report',
-                    'icon'   => 'fas fa-fw fa-chart-line',
-                    'can'    => 'productivity report access',
-                    'active' => ['productivity-report*'],
-                ],
-                [
                     'text'   => 'Reports',
                     'url'    => '/report',
                     'icon'   => 'fas fa-fw fa-chart-bar',
@@ -548,31 +492,6 @@ return [
             ],
         ],
 
-        // DMS
-        [
-            'text'    => 'DMS',
-            'icon'    => 'fas fa-fw fa-network-wired',
-            'can'     => [
-                'district access',
-                'territory access',
-            ],
-            'submenu' => [
-                [
-                    'text'   => 'Districts',
-                    'url'    => '/district',
-                    'icon'   => 'fas fa-fw fa-network-wired',
-                    'can'    => 'district access',
-                    'active' => ['district*'],
-                ],
-                [
-                    'text'   => 'Territories',
-                    'url'    => '/territory',
-                    'icon'   => 'fas fa-fw fa-map-pin',
-                    'can'    => 'territory access',
-                    'active' => ['territory*'],
-                ],
-            ],
-        ],
 
         // MAINTENANCE
         [
@@ -590,7 +509,6 @@ return [
                 'price code access',
                 'sales people access',
                 'operation process access',
-                'cm reason access',
                 'brand access',
                 'account reference access',
                 'ship address mapping access',
@@ -650,13 +568,6 @@ return [
                     'icon'   => 'fas fa-fw fa-store',
                     'can'    => 'classification access',
                     'active' => ['classification*'],
-                ],
-                [
-                    'text'   => 'CM Reasons',
-                    'url'    => '/cm-reason',
-                    'icon'   => 'fas fa-fw fa-comment',
-                    'can'    => 'cm reason access',
-                    'active' => ['cm-reason*'],
                 ],
                 [
                     'text'   => 'Companies',
@@ -811,6 +722,7 @@ return [
                     'text'   => 'Upload Templates',
                     'url'    => '/upload-template',
                     'icon'   => 'fas fa-fw fa-upload',
+                    'can'    => 'upload template access',
                     'active' => ['upload-template*'],
                 ],
                 [

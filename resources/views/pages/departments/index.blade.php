@@ -54,8 +54,8 @@
                     <tr>
                         <td>{{$department->department_code}}</td>
                         <td>{{$department->department_name}}</td>
-                        <td>{{$department->department_head->fullName() ?? '-'}}</td>
-                        <td>{{$department->department_admin->fullName() ?? '-'}}</td>
+                        <td>{{$department->department_head ? $department->department_head->fullName() : '-'}}</td>
+                        <td>{{$department->department_admin ? $department->department_admin->fullName() : '-'}}</td>
                         <td class="text-right">
                             <a href="{{route('department.show', $department->id)}}" title="view">
                                 <i class="fas fa-eye mx-1"></i>
@@ -73,6 +73,7 @@
         </table>
     </div>
     <div class="card-footer">
+        {{$departments->links()}}
     </div>
 </div>
 
@@ -108,7 +109,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Discount', id);
+            Livewire.emit('setDeleteModel', 'Department', id);
             $('#modal-delete').modal('show');
         });
     });

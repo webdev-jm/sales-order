@@ -385,7 +385,7 @@
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                     <button wire:click="deleteStoreMap({{ $map->id }})"
-                                            wire:confirm="Delete this store mapping?"
+                                            onclick="confirm('Delete this store mapping?') || event.stopImmediatePropagation()"
                                             type="button" class="btn btn-danger btn-xs">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>
@@ -568,7 +568,7 @@
                                         <i class="fas fa-edit"></i> Edit
                                     </button>
                                     <button wire:click="deleteProductMap({{ $ref->id }})"
-                                            wire:confirm="Delete this product mapping?"
+                                            onclick="confirm('Delete this product mapping?') || event.stopImmediatePropagation()"
                                             type="button" class="btn btn-danger btn-xs">
                                         <i class="fas fa-trash"></i> Delete
                                     </button>

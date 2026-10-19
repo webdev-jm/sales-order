@@ -206,9 +206,9 @@ class ActivityPlanOnLeaveTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            "'purpose' => 'ON LEAVE'",
+            "'purpose' => 'VACATION LEAVE'",
             $source,
-            'printPDF() must set purpose to "ON LEAVE" when the date has an on-leave sentinel row.'
+            'printPDF() must set purpose to "VACATION LEAVE" when the date has an on-leave sentinel row.'
         );
     }
 
@@ -335,7 +335,7 @@ class ActivityPlanOnLeaveTest extends TestCase
     public function test_show_view_skips_detail_modal_for_on_leave_events(): void
     {
         $source = file_get_contents(
-            resource_path('views/mcp/show.blade.php')
+            resource_path('views/pages/mcp/show.blade.php')
         );
 
         $this->assertStringContainsString(
