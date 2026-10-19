@@ -125,6 +125,50 @@
                 $('#online-users-modal').modal('show');
             });
         });
+
+        {{-- Stops a double click from posting a form twice. Livewire forms and forms whose submit
+             a page script cancelled are left alone, and the buttons come back after 10 seconds in
+             case the response was a file download rather than a new page. --}}
+        (function() {
+            function submitButtonsOf(form) {
+                var buttons = Array.prototype.slice.call(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
+                if (form.id) {
+                    buttons = buttons.concat(Array.prototype.slice.call(document.querySelectorAll('[type="submit"][form="' + form.id + '"]')));
+                }
+                return buttons;
+            }
+
+            document.addEventListener('submit', function(event) {
+                var form = event.target;
+                if (event.defaultPrevented || (form.getAttribute('method') || 'get').toLowerCase() !== 'post' || form.target || form.hasAttribute('data-allow-resubmit')) {
+                    return;
+                }
+
+                var buttons = submitButtonsOf(form).filter(function(button) { return !button.disabled; });
+                setTimeout(function() {
+                    buttons.forEach(function(button) {
+                        button.disabled = true;
+                        button.setAttribute('data-submit-lock', '1');
+                    });
+                }, 0);
+                setTimeout(function() { releaseSubmitButtons(buttons); }, 10000);
+            });
+
+            function releaseSubmitButtons(buttons) {
+                buttons.forEach(function(button) {
+                    if (button.hasAttribute('data-submit-lock')) {
+                        button.disabled = false;
+                        button.removeAttribute('data-submit-lock');
+                    }
+                });
+            }
+
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    releaseSubmitButtons(Array.prototype.slice.call(document.querySelectorAll('[data-submit-lock]')));
+                }
+            });
+        })();
     </script>
 
 </body>

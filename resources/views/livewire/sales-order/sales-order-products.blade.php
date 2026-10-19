@@ -110,13 +110,6 @@
                                     {{!empty($product->status) || empty($price_code) ? 'disabled' : ''}} 
                                     placeholder="{{empty($price_code) ? 'no price code' : ''}}"
                                 >
-                                <div class="input-group-prepend">
-                                    @if(isset($paf_data[$product->id]) && !empty($quantity[$product->id][$uom[$product->id] ?? $product->order_uom]))
-                                        <button class="btn btn-sm btn-primary btn-paf-details" data-product-id="{{$product->id}}" data-uom="{{$uom[$product->id] ?? $product->order_uom}}" type="button">
-                                            <i class="fa fa-list"></i>
-                                        </button>
-                                    @endif
-                                </div>
                             </div>
                             
                         </td>

@@ -29,9 +29,5 @@ class SalesmenLocation extends Model
     public function salesman() {
         return $this->belongsTo('App\Models\Salesman');
     }
-
-    public function productivity_report_data() {
-        return $this->hasMany('App\Models\ProductivityReportData');
-    }
 }
 

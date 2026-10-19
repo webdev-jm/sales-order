@@ -25,13 +25,18 @@ trait SeedsReferenceData
         }
     }
 
+    /**
+     * Migrations create a few permissions of their own, so "any permission exists" does not
+     * mean the seeder ran. Both seeders are idempotent, so they run whenever a core
+     * permission or the superadmin role is missing.
+     */
     protected function seedPermissionsAndRoles(): void
     {
-        if (Permission::count() === 0) {
-            $this->seed(PermissionSeeder::class);
-        }
+        $seeded = Permission::where('name', 'sales order access')->exists()
+            && Role::where('name', 'superadmin')->exists();
 
-        if (Role::count() === 0) {
+        if (!$seeded) {
+            $this->seed(PermissionSeeder::class);
             $this->seed(RoleSeeder::class);
         }
 

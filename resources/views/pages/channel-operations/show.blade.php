@@ -49,7 +49,7 @@
                             NAME
                         </strong>
                         <p class="text-muted">
-                            {{$channel_operation->branch_login->user->fullName() ?? '-'}}
+                            {{$channel_operation->branch_login?->user?->fullName() ?? '-'}}
                         </p>
                         <hr>
                         {{-- ACCOUNT --}}
@@ -255,8 +255,6 @@
                     <div class="card-body">
                         @php
                             $trade_marketing_activities = $channel_operation->trade_marketing_activities->first();
-                            $paf = \App\Models\Paf::where('PAFNo', $trade_marketing_activities->paf_number ?? '')
-                                ->first();
                         @endphp
                         {{-- PAF NUMBER --}}
                         <strong>
@@ -265,33 +263,6 @@
                         </strong>
                         <p class="text-muted">
                             {{$trade_marketing_activities['paf_number'] ?? 'NONE'}}
-                        </p>
-                        {{-- PROGRAM TITLE --}}
-                        <hr>
-                        <strong>
-                            <i class="fas fa-tasks"></i>
-                            PROGRAM TITLE
-                        </strong>
-                        <p class="text-muted">
-                            {{$paf->title ?? ' - '}}
-                        </p>
-                        {{-- DURATION --}}
-                        <hr>
-                        <strong>
-                            <i class="fas fa-history"></i>
-                            DURATION
-                        </strong>
-                        <p class="text-muted">
-                            {{$paf['start_date'] ?? ' - '}} to {{$paf['end_date'] ?? ' - '}}
-                        </p>
-                        {{-- TYPE OF ACTIVITY --}}
-                        <hr>
-                        <strong>
-                            <i class="fas fa-atom"></i>
-                            TYPE OF ACTIVITY
-                        </strong>
-                        <p class="text-muted">
-                            {{$paf['support_type'] ?? ' - '}}
                         </p>
 
                         {{-- SKUs --}}

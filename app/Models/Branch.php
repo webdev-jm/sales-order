@@ -58,10 +58,6 @@ class Branch extends Model
         return $this->hasMany('App\Models\UserBranchSchedule');
     }
 
-    public function territories() {
-        return $this->belongsToMany('App\Models\Territory');
-    }
-
     public function scopeBranchAjax($query, $search) {
         if($search == '') {
             $branches = $query->orderBy('branch_code', 'ASC')

@@ -99,12 +99,12 @@ class Structure extends Component
             [
                 'id' => 'HEAD',
                 'title' => 'DEPARTMENT HEAD',
-                'name' => $this->department->department_head->fullName() ?? '-'
+                'name' => $this->department?->department_head?->fullName() ?? '-'
             ],
             [
                 'id' => 'ADMIN',
                 'title' => 'DEPARTMENT ADMIN',
-                'name' => $this->department->department_admin->fullName() ?? '-'
+                'name' => $this->department?->department_admin?->fullName() ?? '-'
             ]
         ];
         
@@ -112,7 +112,7 @@ class Structure extends Component
             $nodes[] = [
                 'id' => $structure->id,
                 'title' => strtoupper($structure->designation),
-                'name' => $structure->user->fullName() ?? '-',
+                'name' => $structure->user?->fullName() ?? '-',
             ];
 
             if(!empty($structure->reports_to_ids)) {

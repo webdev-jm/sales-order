@@ -18,21 +18,6 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions_arr = [
-            'Credit Memo Reason' => [
-                'cm reason access'   => 'access to credit memo reason module',
-                'cm reason create'   => 'access to create credit memo reason',
-                'cm reason edit'     => 'access to edit credit memo reason',
-                'cm reason delete'   => 'access to delete credit memo reason',
-            ],
-            'Credit Memo'=> [
-                'cm access'         => 'access to credit memo module',
-                'cm create'         => 'access to create credit memo',
-                'cm edit'           => 'access to edit credit memo',
-                'cm delete'         => 'access to delete credit memo',
-                'cm review'         => 'access to review credit memo',
-                'cm approve'        => 'access to approve credit memo',
-                'cm print'          => 'access to print credit memo',
-            ],
             'Sales Order' => [
                 'sales order list'          => 'access to sales order lists',
                 'sales order change status' => 'access to change upload error status sales orders',
@@ -40,12 +25,6 @@ class PermissionSeeder extends Seeder
                 'sales order create'        => 'access to create sales order',
                 'sales order edit'          => 'access to edit sales order',
                 'sales order delete'        => 'access to delete sales order',
-            ],
-            'Purchase Order' => [
-                'purchase order access'     => 'access to purchase order list',
-            ],
-            'Invoice' => [
-                'invoice access'    => 'access to generating invoice data using po number.'
             ],
             'Schedule' => [
                 'schedule access'                   => 'access to schedule module',
@@ -82,10 +61,6 @@ class PermissionSeeder extends Seeder
                 'war delete'    => 'access to delete weekly activity report',
                 'war approve'   => 'access to approve weekly activity report',
             ],
-            'Productivity Report' => [
-                'productivity report access'    => 'access to productivity report module',
-                'productivity report upload'    => 'access to upload productivity report',
-            ],
             'Salesman' => [
                 'salesman access'   => 'access to salesman module',
                 'salesman create'   => 'access to create salesman',
@@ -93,10 +68,10 @@ class PermissionSeeder extends Seeder
                 'salesman delete'   => 'access to delete salesman',
             ],
             'Salesman Location' => [
-                'salesmen location access'  => 'access to salesman location module',
-                'salesmen location create'  => 'access to create salesman location',
-                'salesmen location edit'    => 'access to edit salesman location',
-                'salesmen location delete'  => 'access to delete salesman location',
+                'salesman location access'  => 'access to salesman location module',
+                'salesman location create'  => 'access to create salesman location',
+                'salesman location edit'    => 'access to edit salesman location',
+                'salesman location delete'  => 'access to delete salesman location',
             ],
             'Channel Operation' => [
                 'channel operation report'  => 'access to channel operation reports',
@@ -206,20 +181,6 @@ class PermissionSeeder extends Seeder
                 'cost center edit'      => 'access to edit cost center',
                 'cost center delete'    => 'access to delete cost center',
             ],
-            'District' => [
-                'district access'   => 'access to district module',
-                'district create'   => 'access to create district',
-                'district edit'     => 'access to edit district',
-                'district delete'   => 'access to delete district',
-                'district assign'   => 'assign districts',
-            ],
-            'Territory' => [
-                'territory access'  => 'access to territory module',
-                'territory create'  => 'access to create territory',
-                'territory edit'    => 'access to edit territory',
-                'territory delete'  => 'access to delete territory',
-                'territory assign'  => 'assign territories',
-            ],
             'Holiday' => [
                 'holiday access'    => 'access to holiday module',
                 'holiday create'    => 'access to create holiday',
@@ -254,7 +215,8 @@ class PermissionSeeder extends Seeder
                 'system logs' => 'system logs',
             ],
             'Setting' => [
-                'settings' => 'settings access',
+                'settings'        => 'settings access',
+                'settings access' => 'access to save the settings page',
             ],
             'Trip' => [
                 'trip access'           => 'access to trip module',
@@ -277,29 +239,11 @@ class PermissionSeeder extends Seeder
                 'ship address mapping edit'     => 'access to edit ship address mapping',
                 'ship address mapping delete'   => 'access to delete ship address mapping',
             ],
-            'Paf' => [
-                'paf access'    => 'access to paf module',
-                'paf create'    => 'access to create paf',
-                'paf edit'      => 'access to edit paf',
-                'paf delete'    => 'access to delete paf',
-            ],
             'Brand' => [
                 'brand access'  => 'access to brand module',
                 'brand create'  => 'access to create brand',
                 'brand edit'    => 'access to edit brand',
                 'brand delete'  => 'access to delete brand',
-            ],
-            'Pre Plan' => [
-                'pre plan access'   => 'access to pre plan module',
-                'pre plan create'   => 'access to create pre plan',
-                'pre plan edit'     => 'access to edit pre plan',
-                'pre plan delete'   => 'access to delete pre plan',
-            ],
-            'Paf Activity' => [
-                'paf activity access'   => 'access to paf activity module',
-                'paf activity create'   => 'access to create paf activity',
-                'paf activity edit'     => 'access to edit paf activity',
-                'paf activity delete'   => 'access to delete paf activity',
             ],
             'Remittances' => [
                 'remittance access' => 'access remittance module.'

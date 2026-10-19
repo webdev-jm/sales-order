@@ -14,10 +14,6 @@
     </div>
     <div class="col-md-6 text-right">
         @if(empty($cut_off) && !empty($logged_account))
-            <a href="{{route('purchase-order.index')}}" class="btn btn-info">
-                <i class="fa fa-list mr-1"></i>
-                PURCHASE ORDERS
-            </a>
             @if(empty($restricted))
                 @can('sales order create')
                     <a href="{{route('sales-order.create')}}" class="btn btn-primary">

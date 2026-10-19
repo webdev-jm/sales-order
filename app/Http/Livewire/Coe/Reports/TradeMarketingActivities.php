@@ -53,21 +53,17 @@ class TradeMarketingActivities extends Component
 
         $results = DB::table('channel_operation_trade_marketing_activities as cotma')
             ->select(
-                'pafs.PAFNo',
-                'pafs.title',
-                DB::raw('CONCAT(pafs.start_date, " to ", pafs.end_date) as duration'),
-                'pafs.support_type',
+                'cotma.paf_number',
                 DB::raw('CONCAT(cotmas.sku_code," ", cotmas.sku_description) as sku'),
                 DB::raw('SUM(cotmas.actual) as actual'),
                 DB::raw('SUM(cotmas.target_maxcap) as target'),
                 DB::raw('((SUM(cotmas.actual) / SUM(cotmas.target_maxcap)) * 100) as percent')
             )
-            ->join('pafs', 'pafs.PAFNo', '=', 'cotma.paf_number')
             ->join('channel_operation_trade_marketing_activity_skus as cotmas', 'cotmas.channel_operation_trade_marketing_activity_id', '=', 'cotma.id')
             ->join('channel_operations as co', 'co.id', '=', 'cotma.channel_operation_id')
             ->join('branch_logins as bl', 'bl.id', '=', 'co.branch_login_id')
             ->join('branches as b', 'b.id', '=', 'bl.branch_id')
-            ->groupBy('pafs.PAFNo', 'pafs.title', 'pafs.support_type', 'sku')
+            ->groupBy('cotma.paf_number', 'sku')
             ->when(!empty($this->user_data), function($query) {
                 $query->whereIn('bl.user_id', $this->user_data);
             })

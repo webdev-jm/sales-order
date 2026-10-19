@@ -79,7 +79,7 @@
 
 @section('js')
 <script src="{{asset('/vendor/orgchart/src/js/jquery.orgchart.js')}}"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="{{ asset('vendor/html2canvas/html2canvas.min.js') }}"></script>
 <script>
     $(function() {
         $('#btn-job-title-add').on('click', function(e) {

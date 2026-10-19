@@ -4,7 +4,6 @@ namespace App\Http\Livewire\SalesOrder;
 
 use Livewire\Component;
 use App\Models\Product;
-use App\Models\PafDetail;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +18,6 @@ class SalesOrderProducts extends Component
 
     public $account, $uom, $search = '', $brands, $brand = '';
     public $quantity;
-    public $paf_data;
 
     public function updatingSearch()
     {
@@ -78,22 +76,6 @@ class SalesOrderProducts extends Component
         }
 
         $this->emit('getTotal', $this->quantity);
-    }
-
-    private function checkPafData($products) {
-        $this->paf_data = [];
-        foreach($products as $product) {
-            $detail = PafDetail::leftJoin('pafs', 'pafs.PAFNo', '=', 'paf_details.PAFNo')
-            ->where('pafs.start_date', '<=', now())
-            ->where('pafs.end_date', '>=', now())
-            ->where('pafs.account_code', $this->account->account_code)
-            ->where('paf_details.sku_code', $product->stock_code)
-            ->first();
-            
-            if(!empty($detail)) {
-                $this->paf_data[$product->id] = $detail;
-            }
-        }
     }
 
     public function render()
@@ -177,8 +159,6 @@ class SalesOrderProducts extends Component
                 $query->where('company_id', $this->account->company_id)
                       ->where('code', $this->account->price_code);
             })->get('brand');
-
-        $this->checkPafData($products);
 
         return view('livewire.sales-order.sales-order-products')->with([
             'products' => $products,

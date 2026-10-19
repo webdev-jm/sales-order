@@ -153,7 +153,7 @@
                 <div class="col-lg-3 text-center">
                     <span class="text-muted font-weight-bold">SUPERVISOR</span>
                     <br>
-                    <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user->fullName() ?? '')}}">
+                    <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user?->fullName() ?? '')}}">
                     <br>
                     <small class="font-weight-bold">{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
                 </div>

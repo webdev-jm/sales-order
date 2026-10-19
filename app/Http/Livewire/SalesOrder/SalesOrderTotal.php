@@ -163,13 +163,10 @@ class SalesOrderTotal extends Component
     }
 
     /**
-     * Re-attach the per-line values the service does not compute: the warehouse
-     * shown on the order screen and any PAF rows the user already captured
-     * through the PAF modal (which are only held in the session).
+     * Re-attach the per-line value the service does not compute: the warehouse
+     * shown on the order screen.
      */
     private function restoreLineDetails(array &$orders, array $service_input): void {
-        $session_items = Session::get('order_data')['items'] ?? [];
-
         foreach($orders['items'] ?? [] as $product_id => $details) {
             $product = $service_input[$product_id]['product'] ?? null;
 
@@ -177,11 +174,6 @@ class SalesOrderTotal extends Component
                 $orders['items'][$product_id]['data'][$uom]['warehouse'] = !empty($product) && $product->order_uom !== $uom
                     ? $product->warehouse
                     : NULL;
-
-                $paf_rows = $session_items[$product_id]['data'][$uom]['paf_rows'] ?? [];
-                if(!empty($paf_rows)) {
-                    $orders['items'][$product_id]['data'][$uom]['paf_rows'] = $paf_rows;
-                }
             }
         }
     }

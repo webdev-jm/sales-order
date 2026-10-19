@@ -204,7 +204,7 @@ class UploadTest extends TestCase
 
         $errData = $component->instance()->err_data;
 
-        $this->assertStringContainsString('could not be read', $errData['rows'][0]['rtv_date']);
+        $this->assertStringContainsString('is not a valid date ("n/a")', $errData['rows'][0]['rtv_date']);
 
         $component->set('ppu_data', $component->instance()->ppu_data)
             ->call('savePPUForm', 'draft');
@@ -255,8 +255,8 @@ class UploadTest extends TestCase
 
         $errData = $component->instance()->err_data;
 
-        $this->assertStringContainsString('could not be read', $errData['date_submitted']);
-        $this->assertStringContainsString('could not be read', $errData['pickup_date']);
+        $this->assertStringContainsString('date is required', $errData['date_submitted']);
+        $this->assertStringContainsString('date is required', $errData['pickup_date']);
     }
 
     private function invokeProcessData(Upload $component, array $rows): void

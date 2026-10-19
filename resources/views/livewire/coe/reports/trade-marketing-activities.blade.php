@@ -7,9 +7,7 @@
             <table class="table table-bordered table-stripe table-sm">
                 <thead>
                     <tr class="text-center bg-dark text-white">
-                        <th class="align-middle">PROGRAM TITLE</th>
-                        <th class="align-middle">DURATION</th>
-                        <th class="align-middle">TYPES OF ACTIVITIES</th>
+                        <th class="align-middle">PAF NUMBER</th>
                         <th class="align-middle">PARTICIPATION SKU</th>
                         <th class="align-middle">ACTUAL</th>
                         <th class="align-middle">TARGET BASED ON MAXCAP</th>
@@ -19,9 +17,7 @@
                 <tbody>
                     @foreach($results as $result)
                     <tr class="text-center">
-                        <td>{{$result->title}}</td>
-                        <td>{{$result->duration}}</td>
-                        <td>{{$result->support_type}}</td>
+                        <td>{{$result->paf_number}}</td>
                         <td>{{$result->sku}}</td>
                         <td>{{$result->actual}}</td>
                         <td>{{$result->target}}</td>

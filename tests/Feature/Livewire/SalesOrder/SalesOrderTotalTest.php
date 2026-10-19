@@ -177,48 +177,6 @@ class SalesOrderTotalTest extends TestCase
     }
 
     /**
-     * PAF rows are captured by a separate component straight into the session.
-     * Recalculating the totals must not wipe them.
-     */
-    public function test_existing_paf_rows_survive_a_recalculation(): void
-    {
-        $product = $this->makeProduct();
-        $this->makePriceCode($product);
-
-        $paf_rows = [
-            ['paf_number' => '2026-A-00001', 'uom' => 'EA', 'quantity' => 2],
-        ];
-
-        // Mirrors the session left behind by SalesOrderPaf::savePAF().
-        Session::put('order_data', [
-            'items' => [
-                $product->id => [
-                    'stock_code'  => $product->stock_code,
-                    'description' => $product->description,
-                    'size'        => $product->size,
-                    'data'        => [
-                        'EA' => [
-                            'quantity'   => 3,
-                            'total'      => 300,
-                            'discount'   => '0',
-                            'discounted' => 300,
-                            'paf_rows'   => $paf_rows,
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        Livewire::test(SalesOrderTotal::class)
-            ->call('getTotal', [$product->id => ['EA' => 3]]);
-
-        $this->assertSame(
-            $paf_rows,
-            Session::get('order_data')['items'][$product->id]['data']['EA']['paf_rows']
-        );
-    }
-
-    /**
      * The warehouse shown per line is still attached for non-order UOMs.
      */
     public function test_warehouse_is_attached_to_non_order_uom_lines(): void

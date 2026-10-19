@@ -186,11 +186,11 @@
 @section('plugins.Fullcalendar', true)
 
 @section('js')
-<script src="https://code.highcharts.com/maps/highmaps.js"></script>
-<script src="https://code.highcharts.com/maps/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/maps/modules/offline-exporting.js"></script>
-<script src="https://code.highcharts.com/maps/modules/accessibility.js"></script>
-<script src="https://code.highcharts.com/maps/modules/tiledwebmap.js"></script>
+<script src="{{ asset('vendor/highcharts/highmaps.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/exporting.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/offline-exporting.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/accessibility.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/tiledwebmap.js') }}"></script>
 <script>
 $(function() {
 

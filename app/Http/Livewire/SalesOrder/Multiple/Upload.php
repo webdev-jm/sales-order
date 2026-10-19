@@ -272,7 +272,6 @@ class Upload extends Component
                     foreach ($item_data['uoms'] as $uom => $qty) {
                         $uom_data[$uom] = [
                             'quantity' => $qty,
-                            'paf_rows' => []
                         ];
                     }
 

@@ -7,7 +7,6 @@ use Livewire\Component;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProductUom;
 use App\Models\SalesOrderProduct;
-use App\Models\SalesOrderProductUomPAF;
 
 use Illuminate\Support\Facades\Session;
 
@@ -58,11 +57,6 @@ class Autosave extends Component
         $limit = $this->logged_account->account->company->order_limit ?? $this->setting->sales_order_limit;
         $curr_limit = $limit;
 
-        foreach($this->sales_order->order_products as $so_product) {
-            foreach($so_product->product_uoms as $uom) {
-                $paf_data = SalesOrderProductUomPAF::where('sales_order_product_uom_id', $uom->id)->forceDelete();
-            }
-        }
         $this->sales_order->order_products()->forceDelete();
 
         foreach($order_data['items'] as $product_id => $items) {
@@ -92,21 +86,6 @@ class Autosave extends Component
                     'uom_total_less_disc' => $data['discounted']
                 ]);
                 $sales_order_product_uom->save();
-
-                // check if there's a PAF row
-                if(!empty($data['paf_rows'])) {
-                    foreach($data['paf_rows'] as $paf_row) {
-                        if(!empty($paf_row['paf_number']) && !empty($paf_row['uom']) && !empty($paf_row['quantity'])) {
-                            $sales_order_product_uom_paf = new SalesOrderProductUomPAF([
-                                'sales_order_product_uom_id' => $sales_order_product_uom->id,
-                                'paf_number' => $paf_row['paf_number'],
-                                'uom' => $paf_row['uom'],
-                                'quantity' => $paf_row['quantity'],
-                            ]);
-                            $sales_order_product_uom_paf->save();
-                        }
-                    }
-                }
             }
         }
 

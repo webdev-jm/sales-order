@@ -30,10 +30,6 @@ class Salesman extends Model
         return $this->hasMany('App\Models\SalesmenLocation');
     }
 
-    public function productivity_report_data() {
-        return $this->hasMany('App\Models\ProductivityReportData');
-    }
-
     public function scopeSalesmanAjax($query, $search) {
 
         $salesmen = $query->select('id', 'code', 'name')

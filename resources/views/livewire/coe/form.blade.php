@@ -503,7 +503,6 @@
                     </div>
                     <div class="card-body">
 
-                        @if(!empty($pafs_data->count()))
                         <div class="row">
                             {{-- PAF --}}
                             <div class="col-lg-4">
@@ -512,104 +511,14 @@
                                         <h3 class="card-title">PAF NUMBER</h3>
                                     </div>
                                     <div class="card-body">
-                                        <select class="form-control form-underline{{$errors->has('trade_marketing_activities.paf_number') ? ' is-invalid' : ''}}" wire:model="paf_number">
-                                            <option value="">- PAF NUMBER -</option>
-                                            <option value="NONE">NONE</option>
-                                            @foreach($pafs_data as $paf_data)
-                                                <option value="{{$paf_data->PAFNo}}">{{$paf_data->PAFNo}}</option>
-                                            @endforeach
-                                        </select>
+                                        <input type="text" class="form-control form-underline text-uppercase{{$errors->has('trade_marketing_activities.paf_number') ? ' is-invalid' : ''}}" placeholder="LEAVE BLANK IF NONE" maxlength="50" wire:model.defer="trade_marketing_activities.paf_number">
                                         @if($errors->has('trade_marketing_activities.paf_number'))
-                                        <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
+                                        <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>{{ $errors->first('trade_marketing_activities.paf_number') }}</small>
                                         @endif
                                     </div>
                                 </div>
                             </div>
 
-                            {{-- PAF DETAILS --}}
-                            <div class="col-lg-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">PAF DETAILS</h3>
-                                    </div>
-                                    <div class="card-body py-0 px-2">
-                                        <ul class="list-group list-group-unbordered">
-                                            <li class="list-group-item p-1">
-                                                <b>PROGRAM TITLE</b>
-                                                <span class="float-right">{{$paf->title ?? '-'}}</span>
-                                            </li>
-                                            <li class="list-group-item p-1">
-                                                <b>DURATION</b>
-                                                <span class="float-right">{{($paf->start_date ?? '-').' to '.($paf->end_date ?? '-')}}</span>
-                                            </li>
-                                            <li class="list-group-item p-1">
-                                                <b>TYPE OF ACTIVITIES</b>
-                                                <span class="float-right">{{$paf->support_type ?? '-'}}</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                        </div>
-
-                        <div class="row">
-                            
-                            {{-- SKUs --}}
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3 class="card-title">PAF SKUs</h3>
-                                    </div>
-                                    <div class="card-body px-1">
-                                        @if(!empty($paf_skus))
-                                        <div class="row">
-                                            @foreach($paf_skus as $paf_sku)
-                                            <div class="col-lg-4">
-                                                <div class="card card-outline card-primary">
-                                                    <div class="card-header">
-                                                        <h3 class="card-title">[<b>{{$paf_sku->sku_code}}</b>] - {{$paf_sku->sku_description}}</h3>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="row">
-                                                            {{-- ACTUAL --}}
-                                                            <div class="col-12">
-                                                                <div class="form-group">
-                                                                    <label for="">ACTUAL</label>
-                                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_marketing_activities.skus.'.$paf_sku->id.'.actual') ? ' is-invalid' : ''}}" wire:model="trade_marketing_activities.skus.{{$paf_sku->id}}.actual">
-                                                                    @if($errors->has('trade_marketing_activities.skus.'.$paf_sku->id.'.actual'))
-                                                                        <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            {{-- TARGET MAXCAP --}}
-                                                            <div class="col-12">
-                                                                <div class="form-group">
-                                                                    <label for="">TARGET MAXCAP</label>
-                                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_marketing_activities.skus.'.$paf_sku->id.'.target_maxcap') ? ' is-invalid' : ''}}" wire:model="trade_marketing_activities.skus.{{$paf_sku->id}}.target_maxcap">
-                                                                    @if($errors->has('trade_marketing_activities.skus.'.$paf_sku->id.'.target_maxcap'))
-                                                                        <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                        @else
-                                        <ul class="list-froup list-group-unstyled">
-                                            <li class="list-group-item text-center">No available data.</li>
-                                        </ul>
-                                        @endif
-    
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
                             {{-- REMARKS --}}
                             <div class="col-lg-4">
                                 <div class="card">
@@ -625,13 +534,6 @@
                                 </div>
                             </div>
                         </div>
-                        @else
-                        <ul class="list-group">
-                            <li class="list-group-item text-center">
-                                No available data
-                            </li>
-                        </ul>
-                        @endif
 
                     </div>
                     <div class="card-footer">
@@ -1128,7 +1030,6 @@
             </div>
 
             {{-- TRADE MARKETING ACTIVITIES--}}
-            @if(!empty($pafs_data->count()))
                 <div class="row">
                     <div class="col-lg-3"></div>
                     <div class="col-lg-6">
@@ -1143,74 +1044,8 @@
                                     PAF NUMBER
                                 </strong>
                                 <p class="text-muted">
-                                    {{$trade_marketing_activities['paf_number'] ?? 'NONE'}}
+                                    {{($trade_marketing_activities['paf_number'] ?? '') !== '' ? $trade_marketing_activities['paf_number'] : 'NONE'}}
                                 </p>
-                                {{-- PROGRAM TITLE --}}
-                                <hr>
-                                <strong>
-                                    <i class="fas fa-tasks"></i>
-                                    PROGRAM TITLE
-                                </strong>
-                                <p class="text-muted">
-                                    {{$trade_marketing_activities['title'] ?? ' - '}}
-                                </p>
-                                {{-- DURATION --}}
-                                <hr>
-                                <strong>
-                                    <i class="fas fa-history"></i>
-                                    DURATION
-                                </strong>
-                                <p class="text-muted">
-                                    {{$trade_marketing_activities['start_date'] ?? ' - '}} to {{$trade_marketing_activities['end_date'] ?? ' - '}}
-                                </p>
-                                {{-- TYPE OF ACTIVITY --}}
-                                <hr>
-                                <strong>
-                                    <i class="fas fa-atom"></i>
-                                    TYPE OF ACTIVITY
-                                </strong>
-                                <p class="text-muted">
-                                    {{$trade_marketing_activities['type'] ?? ' - '}}
-                                </p>
-
-                                {{-- SKUs --}}
-                                <hr>
-                                <strong>
-                                    <i class="fas fa-box-open"></i>
-                                    PARTICIPATING SKUS
-                                </strong>
-                                <div class="row">
-                                    <div class="col-12 table-responsive">
-                                        <table class="table table-striped table-sm">
-                                            <thead>
-                                                <tr class="text-center">
-                                                    <th class="align-middle">SKU CODE</th>
-                                                    <th class="align-middle">SKU DESCRIPTION</th>
-                                                    <th class="align-middle">BRAND</th>
-                                                    <th class="align-middle">ACTUAL</th>
-                                                    <th class="align-middle">TARGET MAXCAP</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @if(!empty($trade_marketing_activities['skus']))
-                                                    @foreach($trade_marketing_activities['skus'] as $sku)
-                                                    <tr class="text-center">
-                                                        <td>{{$sku['sku_code'] ?? ' - '}}</td>
-                                                        <td>{{$sku['sku_description'] ?? ' - '}}</td>
-                                                        <td>{{$sku['brand'] ?? ' - '}}</td>
-                                                        <td>{{$sku['actual'] ?? ' - '}}</td>
-                                                        <td>{{$sku['target_maxcap'] ?? ' - '}}</td>
-                                                    </tr>
-                                                    @endforeach
-                                                @else
-                                                    <tr>
-                                                        <td class="text-center" colspan="5">No available data.</td>
-                                                    </tr>
-                                                @endif
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
                                 {{-- REMARKS --}}
                                 <hr>
                                 <strong>
@@ -1226,7 +1061,6 @@
                     </div>
                     <div class="col-lg-3"></div>
                 </div>
-            @endif
 
             {{-- DISPLAY RENTALS--}}
             <div class="row">

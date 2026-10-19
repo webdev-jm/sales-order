@@ -58,11 +58,11 @@
 @endsection
 
 @section('js')
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/highcharts-3d.js"></script>
-<script src="https://code.highcharts.com/modules/data.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="{{ asset('vendor/highcharts/highcharts.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/highcharts-3d.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/data.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/exporting.js') }}"></script>
+<script src="{{ asset('vendor/highcharts/modules/accessibility.js') }}"></script>
 <script>
     $(function() {
     });

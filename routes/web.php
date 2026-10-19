@@ -12,12 +12,12 @@ use App\Http\Controllers\{
     OperationProcessController, UserBranchScheduleController, DashboardController, RegionController,
     ClassificationController, AreaController, AccountProductReferenceController, ReportController,
     OrganizationStructureController, ActivityPlanController, WeeklyActivityReportController, SalesOrderCutOffController,
-    CostCenterController, HolidayController, DistrictController, TerritoryController,
-    ProductivityReportController, SalesmanController, SalesmenLocationController, ChannelOperationController,
+    CostCenterController, HolidayController,
+    SalesmanController, SalesmenLocationController, ChannelOperationController,
     SalesDashboardController, TripController, SalesOrderMultipleController, SalesOrderCancelRequestController, DepartmentController,
-    PurchaseOrderController, ShipAddressMappingController, PafController, BrandController,
-    PafPrePlanController, InvoiceController, RemittanceController, UploadTemplateController,
-    PPUFormController, PPUFormMultipleController, CreditMemoReasonController, CreditMemoController, BranchAddressController,
+    ShipAddressMappingController, BrandController,
+    RemittanceController, UploadTemplateController,
+    PPUFormController, PPUFormMultipleController, BranchAddressController,
     SalesOrderTemplateController
 };
 
@@ -46,16 +46,14 @@ Route::get('trip-user/{id}', [TripController::class, 'trip_user'])->name('trip.u
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-    Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index']);
+    Route::get('logs', [\Rap2hpoutre\LaravelLogViewer\LogViewerController::class, 'index'])->middleware('permission:role access');
     Route::get('profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('notifications', [ProfileController::class, 'notifications'])->name('notifications');
 
     // BRANCH LOCATION TRACKING
     Route::post('branch-location', [App\Http\Controllers\BranchLocationController::class, 'store'])->name('branch-location.store');
 
-    Route::get('generateXML', [SalesOrderController::class, 'generateXML']);
-
-    Route::get('get-xml', [SalesOrderController::class, 'getXml'])->name('sales-order.xml');
+    Route::get('get-xml', [SalesOrderController::class, 'getXml'])->name('sales-order.xml')->middleware('permission:sales order list');
 
     // SYSTEM LOGS
     Route::get('system-logs', [SystemLogController::class, 'index'])->name('system-logs')->middleware('permission:system logs');
@@ -87,32 +85,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('ai-usage', [AiUsageController::class, 'index'])->name('ai-usage.index')->middleware('permission:ai usage access');
     Route::get('ai-settings', [AiSettingController::class, 'index'])->name('ai-settings.index')->middleware('permission:ai settings manage');
 
-    // CREDIT MEMO
-    Route::group(['middleware' => 'permission:cm access'], function() {
-        Route::get('credit-memo', [CreditMemoController::class, 'index'])->name('cm.index');
-        Route::get('credit-memo/create', [CreditMemoController::class, 'create'])->name('cm.create')->middleware('permission:cm create');
-        Route::post('credit-memo', [CreditMemoController::class, 'store'])->name('cm.store')->middleware('permission:cm create');
-
-        Route::get('credit-memo/{id}', [CreditMemoController::class, 'show'])->name('cm.show');
-
-        Route::get('credit-memo/{id}/edit', [CreditMemoController::class, 'edit'])->name('cm.edit')->middleware('permission:cm edit');
-        Route::post('credit-memo/{id}', [CreditMemoController::class, 'update'])->name('cm.update')->middleware('permission:cm edit');
-
-        Route::get('credit-memo/{id}/print', [CreditMemoController::class, 'printPDF'])->name('cm.print')->middleware('permission:cm print');
-    });
-
-    // CREDIT MEMO REASON
-    Route::group(['middleware' => 'permission:cm reason access'], function() {
-        Route::get('cm-reason', [CreditMemoReasonController::class, 'index'])->name('cm-reason.index');
-        Route::get('cm-reason/create', [CreditMemoReasonController::class, 'create'])->name('cm-reason.create')->middleware('permission:cm reason create');
-        Route::post('cm-reason', [CreditMemoReasonController::class, 'store'])->name('cm-reason.store')->middleware('permission:cm reason create');
-
-        Route::get('cm-reason/{id}', [CreditMemoReasonController::class, 'show'])->name('cm-reason.show');
-
-        Route::get('cm-reason/{id}/edit', [CreditMemoReasonController::class,'edit'])->name('cm-reason.edit')->middleware('permission:cm reason edit');
-        Route::post('cm-reason/{id}', [CreditMemoReasonController::class, 'update'])->name('cm-reason.update')->middleware('permission:cm reason edit');
-    });
-
      // PPU
     Route::group(['middleware' => 'permission:ppu form access'], function() {
         Route::get('ppu-form', [PPUFormController::class, 'index'])->name('ppu.index');
@@ -129,29 +101,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     // REMITTANCE
     Route::get('remittance', [RemittanceController::class, 'index'])->name('remittance.index');
-
-    // PAF
-    Route::group(['middleware' => 'permission:paf access'], function() {
-        Route::get('paf', [PafController::class, 'index'])->name('paf.index');
-        Route::get('paf/create', [PafController::class, 'create'])->name('paf.create')->middleware('permission:paf create');
-
-        Route::get('paf/{id}', [PafController::class, 'show'])->name('paf.show');
-
-        Route::get('paf/{id}/edit', [PafController::class, 'edit'])->name('paf.edit')->middleware('permission:paf edit');
-    });
-
-    // PRE PLAN
-    Route::group(['middleware' => 'permission:pre plan access'], function() {
-        Route::get('pre-plan/template', [PafPrePlanController::class, 'downloadTemplate'])->name('pre-plan.template');
-        Route::get('pre-plan', [PafPrePlanController::class, 'index'])->name('pre-plan.index');
-        Route::get('pre-plan/create', [PafPrePlanController::class, 'create'])->name('pre-plan.create')->middleware('permission:pre plan create');
-        Route::post('pre-plan', [PafPrePlanController::class, 'store'])->name('pre-plan.store')->middleware('permission:pre plan create');
-
-        Route::get('pre-plan/{id}', [PafPrePlanController::class, 'show'])->name('pre-plan.show');
-
-        Route::get('pre-plan/{id}/edit', [PafPrePlanController::class, 'edit'])->name('pre-plan.edit')->middleware('permission:pre plan edit');
-        Route::post('pre-plan/{id}', [PafPrePlanController::class, 'update'])->name('pre-plan.update')->middleware('permission:pre plan edit');
-    });
 
     // SALES ORDER
     Route::group(['middleware' => 'permission:sales order access'], function() {
@@ -184,18 +133,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'permission:so cancel request create|so cancel request process'], function() {
         Route::get('so-cancel-request', [SalesOrderCancelRequestController::class, 'index'])->name('so-cancel-request.index');
         Route::get('so-cancel-request/{id}', [SalesOrderCancelRequestController::class, 'show'])->name('so-cancel-request.show');
-    });
-
-    // PURCHASE ORDERS
-    Route::group(['middleware' => 'permission:purchase order access'], function() {
-        Route::get('purchase-order', [PurchaseOrderController::class, 'index'])->name('purchase-order.index');
-        Route::get('purchase-order/create', [PurchaseOrderController::class, 'create'])->name('purchase-order.create');
-        Route::get('purchase-order/{id}', [PurchaseOrderController::class, 'show'])->name('purchase-order.show');
-    });
-
-    // INVOICES
-    Route::group(['middleware' => 'permission:invoice access'], function() {
-        Route::get('invoice', [InvoiceController::class, 'index'])->name('invoice.index');
     });
 
     // SCHEDULE
@@ -307,14 +244,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('war/{id}/print', [WeeklyActivityReportController::class, 'printPDF'])->name('war.print-pdf');
         Route::post('war/{id}/approval', [WeeklyActivityReportController::class, 'approval'])->name('war.approval');
 
-    });
-
-    // PRODUCTIVITY REPORT
-    Route::group(['middleware' => 'permission:productivity report access'], function() {
-        Route::get('productivity-report', [ProductivityReportController::class, 'index'])->name('productivity-report.index');
-        Route::get('productivity-report/upload', [ProductivityReportController::class, 'create'])->name('productivity-report.upload')->middleware('permission:productivity report upload');
-
-        Route::post('productivity-report', [ProductivityReportController::class, 'store'])->name('productivity-report.store')->middleware('permission:productivity report upload');
     });
 
     // SALESMEN
@@ -560,30 +489,6 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('cost-center/{id}', [CostCenterController::class, 'update'])->name('cost-center.update')->middleware('permission:cost center edit');
     });
 
-    // DISTRICT
-    Route::group(['middleware' => 'permission:district access'], function() {
-        Route::get('district', [DistrictController::class, 'index'])->name('district.index');
-
-        Route::get('district/create', [DistrictController::class, 'create'])->name('district.create')
-        ->middleware('permission:district create');
-        Route::post('district', [DistrictController::class, 'store'])->name('district.store')->middleware('permission:district create');
-
-        Route::get('district/{id}/edit', [DistrictController::class, 'edit'])->name('district.edit')->middleware('permission:district edit');
-        Route::post('district/{id}', [DistrictController::class, 'update'])->name('district.update')->middleware('permission:district edit');
-
-    });
-
-    // TERRITORIES
-    Route::group(['middleware' => 'permission:territory access'], function() {
-        Route::get('territory', [TerritoryController::class, 'index'])->name('territory.index');
-
-        Route::get('territory/create', [TerritoryController::class, 'create'])->name('territory.create')->middleware('permission:territory create');
-        Route::post('territory', [TerritoryController::class, 'store'])->name('territory.store')->middleware('permission:territory create');
-
-        Route::get('territory/{id}/edit', [TerritoryController::class, 'edit'])->name('territory.edit')->middleware('permission:territory edit');
-        Route::post('territory/{id}', [TerritoryController::class, 'update'])->name('territory.update')->middleware('permission:territory edit');
-    });
-
     // HOLIDAYS
     Route::group(['middleware' => 'permission:holiday access'], function() {
         Route::get('holiday', [HolidayController::class, 'index'])->name('holiday.index');
@@ -651,4 +556,4 @@ Route::get('/site-clear', function() {
     Artisan::call('config:cache');
     Artisan::call('view:clear');
     return "Cleared!";
-})->middleware('auth');
+})->middleware(['auth', 'permission:settings']);

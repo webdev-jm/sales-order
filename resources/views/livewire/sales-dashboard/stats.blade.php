@@ -162,10 +162,10 @@
 
     </div>
 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
-    <script src="https://code.highcharts.com/highcharts-more.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="{{ asset('vendor/highcharts/highcharts.js') }}"></script>
+    <script src="{{ asset('vendor/highcharts/highcharts-3d.js') }}"></script>
+    <script src="{{ asset('vendor/highcharts/highcharts-more.js') }}"></script>
+    <script src="{{ asset('vendor/highcharts/modules/accessibility.js') }}"></script>
     <script>
         var speed_chart = Highcharts.chart('container', {
             chart: {

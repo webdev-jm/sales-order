@@ -177,14 +177,14 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
             app_path('Http/Controllers/ActivityPlanController.php')
         );
 
-        $this->assertStringContainsString(
-            "\$missing_weekday_error = \$validation['missing_weekday_error']",
+        $this->assertMatchesRegularExpression(
+            "/\\\$missing_weekday_error\s*=\s*\\\$validation\['missing_weekday_error'\]/",
             $source,
             'store() must destructure missing_weekday_error from the validation result.'
         );
 
         $this->assertStringContainsString(
-            'All weekdays must have an entry or be marked as on leave. Missing:',
+            'All weekdays must have an entry or be marked as vacation leave. Missing:',
             $source,
             'store() must return the missing-weekday error message.'
         );
@@ -200,8 +200,8 @@ class ActivityPlanWeekdayRequirementTest extends TestCase
         );
 
         // The string appears twice (store + update) — assertStringContainsString passes if it appears at least once.
-        $this->assertStringContainsString(
-            "\$missing_weekday_dates = \$validation['missing_weekday_dates']",
+        $this->assertMatchesRegularExpression(
+            "/\\\$missing_weekday_dates\s*=\s*\\\$validation\['missing_weekday_dates'\]/",
             $source,
             'update() must destructure missing_weekday_dates from the validation result.'
         );

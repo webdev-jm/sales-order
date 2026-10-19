@@ -7,13 +7,10 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Session;
 use App\Helpers\BranchSalesHelper;
 
-use App\Models\Paf;
-use App\Models\PafDetail;
 use App\Models\ChannelOperation;
 use App\Models\ChannelOperationMerchUpdate;
 use App\Models\ChannelOperationTradeDisplay;
 use App\Models\ChannelOperationTradeMarketingActivity;
-use App\Models\ChannelOperationTradeMarketingActivitySku;
 use App\Models\ChannelOperationDisplayRental;
 use App\Models\ChannelOperationExtraDisplay;
 use App\Models\ChannelOperationCompetetiveReport;
@@ -24,7 +21,6 @@ class Form extends Component
     public $logged_branch;
     public $stage;
     public $average_sales;
-    public $paf_number, $paf, $paf_skus;
     public $total_findings;
     public $status;
 
@@ -40,7 +36,6 @@ class Form extends Component
     public $planogram_arr = ['IMPLEMENTED', 'NOT IMPLEMENTED'];
     public $bevi_pricing_arr = ['FOLLOW SRP', 'NOT FOLLOW SRP'];
     public $dra_status_arr = ['IMPLEMENTED', 'NOT IMPLEMENTED', 'NONE'];
-    public $pafs_data;
 
     public $coe_id;
 
@@ -151,24 +146,14 @@ class Form extends Component
                 break;
 
             case 4: // TRADE MARKETING ACTIVITIES
-                if(!empty($pafs_data)) {
-                    if((!empty($this->paf_number) && $this->paf_number == 'NONE') || (!empty($this->trade_marketing_activities['paf_number']) && $this->trade_marketing_activities['paf_number'] == 'NONE')) {
-                        $this->validate([
-                            'trade_marketing_activities.remarks' => 'required',
-                        ]);
-    
-                        $this->paf_number = 'NONE';
-                        $this->trade_marketing_activities['paf_number'] = 'NONE';
-                    } else {
-                        $this->validate([
-                            'trade_marketing_activities.paf_number' => 'required',
-                            'trade_marketing_activities.remarks' => 'required',
-                            'trade_marketing_activities.skus.*.actual' => 'required',
-                            'trade_marketing_activities.skus.*.target_maxcap' => 'required',
-                        ]);
-                    }
-                }
-                
+                $this->validate([
+                    'trade_marketing_activities.paf_number' => 'nullable|string|max:50',
+                    'trade_marketing_activities.remarks' => 'required',
+                ]);
+
+                $paf_number = strtoupper(trim((string) ($this->trade_marketing_activities['paf_number'] ?? '')));
+                $this->trade_marketing_activities['paf_number'] = $paf_number === '' ? 'NONE' : $paf_number;
+
                 $this->stage++;
                 break;
 
@@ -312,41 +297,20 @@ class Form extends Component
         //
 
         // TRADE MARKETING ACTIVITIES
-            if(!empty($this->pafs_data->count())) {
-                $trade_marketing_activity = ChannelOperationTradeMarketingActivity::where('channel_operation_id', $channel_operation->id)
-                    ->first();
-                if(empty($trade_marketing_activity)) {
-                    $trade_marketing_activity = new ChannelOperationTradeMarketingActivity([
-                        'channel_operation_id' => $channel_operation->id,
-                        'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                        'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
-                    ]);
-                    $trade_marketing_activity->save();
-                } else { // update
-                    $trade_marketing_activity->update([
-                        'paf_number' => $this->trade_marketing_activities['paf_number'] ?? '',
-                        'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
-                    ]);
-                }
-    
-                // SKUs
-                $trade_marketing_activity->skus()->forceDelete();
-                if(!empty($this->trade_marketing_activities['skus']) && $this->trade_marketing_activities['paf_number'] != 'NONE') {
-                    foreach($this->trade_marketing_activities['skus'] as $sku => $sku_data) {
-                        $sku = PafDetail::find($sku);
-    
-                        $trade_marketing_activity_sku = new ChannelOperationTradeMarketingActivitySku([
-                            'channel_operation_trade_marketing_activity_id' => $trade_marketing_activity->id,
-                            'paf_detail_id' => $sku->id,
-                            'sku_code' => $sku->sku_code,
-                            'sku_description' => $sku->sku_description,
-                            'brand' => $sku->brand,
-                            'actual' => $sku_data['actual'] ?: 0,
-                            'target_maxcap' => $sku_data['target_maxcap'] ?: 0,
-                        ]);
-                        $trade_marketing_activity_sku->save();
-                    }
-                }
+            $trade_marketing_activity = ChannelOperationTradeMarketingActivity::where('channel_operation_id', $channel_operation->id)
+                ->first();
+            if(empty($trade_marketing_activity)) {
+                $trade_marketing_activity = new ChannelOperationTradeMarketingActivity([
+                    'channel_operation_id' => $channel_operation->id,
+                    'paf_number' => $this->trade_marketing_activities['paf_number'] ?? 'NONE',
+                    'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
+                ]);
+                $trade_marketing_activity->save();
+            } else { // update
+                $trade_marketing_activity->update([
+                    'paf_number' => $this->trade_marketing_activities['paf_number'] ?? 'NONE',
+                    'remarks' => $this->trade_marketing_activities['remarks'] ?? '',
+                ]);
             }
         //
 
@@ -408,38 +372,6 @@ class Form extends Component
         // 
     }
 
-    public function updatedPafNumber() {
-        if(!empty($this->paf_number)) {
-            $this->reset([
-                'paf',
-                'paf_skus',
-            ]);
-
-            unset($this->trade_marketing_activities['skus']);
-
-            $this->paf = Paf::where('PAFNo', $this->paf_number)->first();
-            if(!empty($this->paf)) {
-                $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo)->get();
-
-                $this->trade_marketing_activities['paf_number'] = $this->paf_number;
-                $this->trade_marketing_activities['title'] = $this->paf->title;
-                $this->trade_marketing_activities['start_date'] = $this->paf->start_date;
-                $this->trade_marketing_activities['end_date'] = $this->paf->end_date;
-                $this->trade_marketing_activities['type'] = $this->paf->support_type;
-
-                foreach($this->paf_skus as $sku) {
-                    $this->trade_marketing_activities['skus'][$sku->id] = [
-                        'sku_code' => $sku->sku_code,
-                        'sku_description' => $sku->sku_description,
-                        'brand' => $sku->brand,
-                        'actual' => '',
-                        'target_maxcap' => '',
-                    ];
-                }
-            }
-        }
-    }
-
     public function computeSales() {
         $avg = 0;
         if(!empty($this->average_sales) && !empty($this->merch_updates['days_of_gaps'])) {
@@ -493,20 +425,6 @@ class Form extends Component
                     $this->coe_id = $channel_operation->id;
                 }
             }
-            
-            if(!empty($this->trade_marketing_activities['paf_number']) && $this->trade_marketing_activities['paf_number'] != 'NONE') {
-                $this->paf = Paf::where('PAFNo', $this->trade_marketing_activities['paf_number'])
-                    ->first();
-                if(!empty($this->paf)) {
-                    $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo)
-                        ->get();
-                }
-    
-                $this->paf_number = $this->trade_marketing_activities['paf_number'];
-            } else {
-                $this->paf_number = 'NONE';
-                $this->trade_marketing_activities['paf_number'] = 'NONE';
-            }
         } else {
             $this->coe_reports = [
                 'date' => date('Y-m-d', strtotime($this->logged_branch->time_in)),
@@ -556,33 +474,11 @@ class Form extends Component
 
                 // TRADE MARKETING ACTIVITIES
                 $trade_marketing_activity = $channel_operation->trade_marketing_activities()->first();
-                if(!empty($trade_marketing_activity) && $trade_marketing_activity->paf_number != 'NONE') {
-
-                    $this->paf = Paf::where('PAFNo', $trade_marketing_activity->paf_number)
-                        ->first();
-                    $this->paf_skus = PafDetail::where('PAFNo', $this->paf->PAFNo ?? '')
-                        ->get();
-
-                    $this->paf_number = $trade_marketing_activity->paf_number;
-
+                if(!empty($trade_marketing_activity)) {
                     $this->trade_marketing_activities = [
                         'paf_number' => $trade_marketing_activity->paf_number,
                         'remarks' => $trade_marketing_activity->remarks,
                     ];
-
-                    // SKU
-                    $sku_data = [];
-                    foreach($trade_marketing_activity->skus as $sku) {
-                        $sku_data[$sku->paf_detail_id] = [
-                            'sku_code' => $sku['sku_code'],
-                            'sku_description' => $sku['sku_description'],
-                            'brand' => $sku['brand'],
-                            'actual' => $sku->actual,
-                            'target_maxcap' => $sku->target_maxcap,
-                        ];
-                    }
-
-                    $this->trade_marketing_activities['skus'] = $sku_data;
                 }
 
                 // DISPLAY RENTALS
@@ -628,15 +524,6 @@ class Form extends Component
 
         $this->average_sales = BranchSalesHelper::getAverageSales($this->logged_branch->branch->branch_code, date('Y'));
 
-        $date = date('Y-m-d', strtotime($this->logged_branch->time_in));
-
-        $this->pafs_data = Paf::where('account_code', $this->logged_branch->branch->account->account_code)
-            ->where(function($query) use($date) {
-                $query->where('start_date', '<=', $date)
-                    ->where('end_date', '>=', $date);
-            })
-            ->get();
-        
         $this->loadFormData();
     }
 

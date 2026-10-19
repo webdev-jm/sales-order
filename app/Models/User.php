@@ -140,16 +140,6 @@ class User extends Authenticatable
         return $this->hasMany(CostCenter::class);
     }
 
-    public function districts()
-    {
-        return $this->belongsToMany(District::class);
-    }
-
-    public function territories()
-    {
-        return $this->hasMany(Territory::class);
-    }
-
     public function activity_plans()
     {
         return $this->hasMany(ActivityPlan::class);

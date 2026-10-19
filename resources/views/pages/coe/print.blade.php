@@ -111,7 +111,7 @@
         <tbody>
             <tr>
                 <th>NAME:</th>
-                <td class="text-uppercase">{{$branch_login->user->fullName() ?? '-'}}</td>
+                <td class="text-uppercase">{{$branch_login->user?->fullName() ?? '-'}}</td>
             </tr>
             <tr>
                 <th>ACCOUNT:</th>
@@ -249,18 +249,6 @@
             <tr>
                 <th>PAF NUMBER</th>
                 <td>{{$trade_marketing_activities->paf_number ?? '-'}}</td>
-            </tr>
-            <tr>
-                <th>PROGRAM TITLE</th>
-                <td>{{$paf->title ?? '-'}}</td>
-            </tr>
-            <tr>
-                <th>DURATION</th>
-                <td>{{$paf->start_date ?? '-'}} to {{$paf->end_date ?? '-'}}</td>
-            </tr>
-            <tr>
-                <th>TYPE OF ACTIVITY</th>
-                <td>{{$paf->support_type ?? '-'}}</td>
             </tr>
             <tr>
                 <th colspan="2">REMARKS</th>

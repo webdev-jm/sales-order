@@ -48,7 +48,7 @@
                         Department Head
                     </strong>
                     <p class="text-muted">
-                        {{$department->department_head->fullName() ?? '-'}}
+                        {{$department->department_head?->fullName() ?? '-'}}
                     </p>
             
                     <hr>
@@ -58,7 +58,7 @@
                         Department Admin
                     </strong>
                     <p class="text-muted">
-                        {{$department->department_admin->fullName() ?? '-'}}
+                        {{$department->department_admin?->fullName() ?? '-'}}
                     </p>
                     
                 </div>

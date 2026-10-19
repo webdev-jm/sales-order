@@ -6,7 +6,6 @@ use App\Models\ChannelOperation;
 use Illuminate\Http\Request;
 
 use Barryvdh\DomPDF\Facade\Pdf;
-use App\Models\Paf;
 
 class ChannelOperationController extends Controller
 {
@@ -88,8 +87,6 @@ class ChannelOperationController extends Controller
         $merch_updates = $channel_operation->merch_updates->first();
         $trade_displays = $channel_operation->trade_displays->first();
         $trade_marketing_activities = $channel_operation->trade_marketing_activities->first();
-        $paf = Paf::where('PAFNo', $trade_marketing_activities->paf_number ?? 'none')
-            ->first();
         $extra_displays = $channel_operation->extra_displays->first();
         $competetive_reports = $channel_operation->competetive_reports;
 
@@ -99,7 +96,6 @@ class ChannelOperationController extends Controller
             'merch_updates' => $merch_updates,
             'trade_displays' => $trade_displays,
             'trade_marketing_activities' => $trade_marketing_activities,
-            'paf' => $paf,
             'extra_displays' => $extra_displays,
             'competetive_reports' => $competetive_reports,
         ]);

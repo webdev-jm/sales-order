@@ -53,7 +53,7 @@
                 @foreach($cost_centers as $cost_center)
                 <tr>
                     <td>{{$cost_center->company->name ?? ''}}</td>
-                    <td>{{$cost_center->user->fullName() ?? ''}}</td>
+                    <td>{{$cost_center->user?->fullName() ?? ''}}</td>
                     <td>{{$cost_center->cost_center}}</td>
                     <td class="text-right">
                         @can('cost center edit')
