@@ -12,7 +12,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label for="date">Date</label>
-                        <input type="date" class="form-control @error('date') is-invalid @enderror" wire:model="date">
+                        <input type="date" class="form-control @error('date') is-invalid @enderror" wire:model.live="date">
                         @error('date')
                             <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -22,7 +22,7 @@
                 <div class="col-12">
                     <div class="form-group">
                         <label for="">Objective</label>
-                        <textarea class="form-control @error('objective') is-invalid @enderror" wire:model="objective"></textarea>
+                        <textarea class="form-control @error('objective') is-invalid @enderror" wire:model.live="objective"></textarea>
                         @error('objective')
                             <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -32,7 +32,7 @@
                 {{-- ACCOUNT FILTER --}}
                 <div class="col-12 mb-1">
                     <hr class="mb-1">
-                    <select class="form-control" wire:model="account_id">
+                    <select class="form-control" wire:model.live="account_id">
                         <option value="">- Account Filter -</option>
                         @foreach(auth()->user()->accounts as $account)
                         <option value="{{$account->id}}">[{{$account->account_code}}] {{$account->short_name}}</option>
@@ -42,7 +42,7 @@
 
                 {{-- search --}}
                 <div class="col-12">
-                    <input type="text" class="form-control @error('branch_id') is-invalid @enderror" placeholder="Search" wire:model="search">
+                    <input type="text" class="form-control @error('branch_id') is-invalid @enderror" placeholder="Search" wire:model.live="search">
                     @error('branch_id')
                     <p class="text-danger">{{$message}}</p>
                     @enderror

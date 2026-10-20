@@ -26,7 +26,7 @@
                     <div class="col-12">
                         <div class="form-group">
                             <label for="password">Please enter your password to continue.</label>
-                            <input type="password" id="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" wire:model.defer="password" autocomplete="current-password">
+                            <input type="password" id="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" wire:model="password" autocomplete="current-password">
                             @error('password') <span class="text-danger">{{ $message }}</span> @enderror
                             <p class="text-danger mb-0">{{$error_message}}</p>
                         </div>

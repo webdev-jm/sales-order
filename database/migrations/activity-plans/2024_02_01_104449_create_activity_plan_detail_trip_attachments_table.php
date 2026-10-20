@@ -13,6 +13,10 @@ class CreateActivityPlanDetailTripAttachmentsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('activity_plan_detail_trip_attachments')) {
+            return;
+        }
+
         Schema::create('activity_plan_detail_trip_attachments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('activity_plan_detail_trip_id')->nullable();

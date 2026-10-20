@@ -115,7 +115,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'ActivityPlan', id);
+            Livewire.dispatch('setDeleteModel', ['ActivityPlan', id]);
             $('#modal-delete').modal('show');
         });
     });

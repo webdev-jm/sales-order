@@ -26,7 +26,6 @@ class AiClientTest extends TestCase
         $this->configureGemini();
         $this->configureAnthropic();
         config(['ai.provider' => 'gemini', 'ai.failover' => 'claude']);
-        $this->fakeAnthropic([]);
     }
 
     private function client(): AiClient
@@ -87,13 +86,11 @@ class AiClientTest extends TestCase
         }
 
         Http::assertNothingSent();
-        $this->assertCount(0, $this->anthropicRequests);
     }
 
     public function test_a_provider_without_a_key_is_skipped(): void
     {
         config(['ai.providers.gemini.key' => null]);
-        Http::fake();
         $this->fakeAnthropic([$this->claudeReply(['ok' => true])]);
 
         $this->assertNull($this->client()->setupProblem());
@@ -103,7 +100,7 @@ class AiClientTest extends TestCase
 
         $this->assertSame('anthropic', $response->provider);
         $this->assertSame([], $this->failures, 'Skipping a provider without a key is not a failed call.');
-        Http::assertNothingSent();
+        Http::assertNotSent(fn (\Illuminate\Http\Client\Request $request): bool => str_contains($request->url(), 'googleapis.com'));
     }
 
     public function test_the_longest_wait_adds_up_every_ready_provider(): void
@@ -125,7 +122,7 @@ class AiClientTest extends TestCase
 
         $this->assertSame('gemini', $response->provider);
         $this->assertSame([], $this->failures);
-        $this->assertCount(0, $this->anthropicRequests);
+        Http::assertNotSent(fn (\Illuminate\Http\Client\Request $request): bool => str_contains($request->url(), 'api.anthropic.com'));
     }
 
     public function test_when_the_main_provider_fails_the_request_goes_to_the_failover(): void
@@ -138,7 +135,8 @@ class AiClientTest extends TestCase
         $this->assertSame('anthropic', $response->provider);
         $this->assertSame(['ok' => true], $response->json());
         $this->assertSame([['gemini', 'The AI service is having problems. Try again in a minute.']], $this->failures);
-        $this->assertSame('Read this.', $this->anthropicRequestBody()['messages'][0]['content'][0]['text']);
+        Http::assertSent(fn (\Illuminate\Http\Client\Request $request): bool => str_contains($request->url(), 'api.anthropic.com/v1/messages')
+            && data_get($request->data(), 'messages.0.content.0.text') === 'Read this.');
     }
 
     public function test_failover_works_the_other_way_round_too(): void

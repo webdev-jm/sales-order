@@ -53,7 +53,7 @@ class PpuSummary extends Component
             'total_amount' => $this->total_amount,
         ]);
 
-        $this->dispatchBrowserEvent('order-confirmed');
+        $this->dispatch('order-confirmed');
     }
 
 

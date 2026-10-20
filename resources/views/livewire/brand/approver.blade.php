@@ -16,7 +16,7 @@
                     <div class="col-lg-12">
                         <div class="form-group">
                             <label class="mb-0">Approver</label>
-                            <select class="form-control form-control-sm" wire:model="approver_id">
+                            <select class="form-control form-control-sm" wire:model.live="approver_id">
                                 @foreach($select_users as $option)
                                     <option value="{{$option->id}}">{{$option->fullName()}}</option>
                                 @endforeach

@@ -13,6 +13,10 @@ class CreateChannelOperationMerchUpdatesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('channel_operation_merch_updates')) {
+            return;
+        }
+
         Schema::create('channel_operation_merch_updates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('channel_operation_id')->nullable();

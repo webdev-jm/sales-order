@@ -23,7 +23,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label for="">User</label>
-                            <select class="form-control" wire:model="user_id" wire:change="filter">
+                            <select class="form-control" wire:model.live="user_id" wire:change="filter">
                                 @foreach($users as $key => $user)
                                 <option value="{{$key}}">{{$user}}</option>
                                 @endforeach
@@ -34,7 +34,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label for="">Branch</label>
-                            <select class="form-control" wire:model="branch_id" wire:change="filter">
+                            <select class="form-control" wire:model.live="branch_id" wire:change="filter">
                                 @foreach($branches as $key => $branch)
                                 <option value="{{$key}}">{{$branch}}</option>
                                 @endforeach
@@ -72,7 +72,7 @@
     @section('plugins.Fullcalendar', true)
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
 
             var events = @this.schedule_data;
 
@@ -97,10 +97,10 @@
                     if(type == 'holiday' || type == 'on_leave') {
                         return;
                     } else if(type == 'schedule') {
-                        Livewire.emit('showEvents', date_format);
+                        Livewire.dispatch('showEvents', [date_format]);
                         $('#event-modal').modal('show');
                     } else if(type == 'reschedule') {
-                        Livewire.emit('setDate', date_format);
+                        Livewire.dispatch('setDate', [date_format]);
                         $('#reschedule-modal').modal('show');
                     }
                 },

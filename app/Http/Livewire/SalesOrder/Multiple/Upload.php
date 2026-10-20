@@ -42,7 +42,7 @@ class Upload extends Component
     public $err_data;
     public $success_data;
 
-    /** @var array<string, \Livewire\TemporaryUploadedFile> so_data entry key => its PO attachment */
+    /** @var array<string, \Livewire\Features\SupportFileUploads\TemporaryUploadedFile> so_data entry key => its PO attachment */
     public $attachments = [];
 
     /** @var array<string, string> PDF file name => why it could not be read */
@@ -525,7 +525,7 @@ class Upload extends Component
     }
 
     public function setSoData() {
-        $this->emit('setSummary', $this->so_data, $this->logged_account);
+        $this->dispatch('setSummary', $this->so_data, $this->logged_account);
     }
 
     public function render() {

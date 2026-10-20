@@ -145,7 +145,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Discount', id);
+            Livewire.dispatch('setDeleteModel', ['Discount', id]);
             $('#modal-delete').modal('show');
         });
     });

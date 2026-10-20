@@ -12,7 +12,7 @@
                 <div class="row">
                     <div class="col">
                         <div class="input-group input-group-sm">
-                            <select name="" class="form-control form-control-sm" wire:model="brand">
+                            <select name="" class="form-control form-control-sm" wire:model.live="brand">
                                 <option value="ALL">ALL BRANDS</option>
                                 @foreach($brands as $brand)
                                 <option value="{{$brand->brand}}">{{$brand->brand}}</option>
@@ -22,7 +22,7 @@
                     </div>
                     <div class="col">
                         <div class="input-group input-group-sm" style="width: 150px;">
-                            <input type="text" name="table_search" wire:model="search" class="form-control float-right" placeholder="Search">
+                            <input type="text" name="table_search" wire:model.live="search" class="form-control float-right" placeholder="Search">
                             <div class="input-group-append">
                                 <button type="submit" class="btn btn-default">
                                     <i class="fas fa-search" wire:loading.remove></i>
@@ -90,7 +90,7 @@
                             {{$product->brand}}
                         </td>
                         <td class="p-0 align-middle"> 
-                            <select class="form-control border-0 px-1 w100" wire:change="change" wire:model="uom.{{$product->id}}">
+                            <select class="form-control border-0 px-1 w100" wire:change="change" wire:model.live="uom.{{$product->id}}">
                                 @php
                                     $product_uom = $product->uom;
                                 @endphp
@@ -124,7 +124,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             @this.so_type = $('#so-title').text();
         });
     </script>

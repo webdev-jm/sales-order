@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Livewire\SalesOrder;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Http\Livewire\SalesOrder\SalesOrderTotal;
 use App\Models\Account;
 use App\Models\AccountLogin;
@@ -133,8 +135,8 @@ class SalesOrderTotalTest extends TestCase
      * to fatal with "Unsupported operand types: int + string"; it must simply drop
      * the line from the order instead.
      *
-     * @dataProvider nonNumericQuantityProvider
      */
+    #[DataProvider('nonNumericQuantityProvider')]
     public function test_non_numeric_quantity_does_not_throw($quantity): void
     {
         $product = $this->makeProduct();

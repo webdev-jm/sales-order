@@ -13,6 +13,10 @@ class CreateDepartmentsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('departments')) {
+            return;
+        }
+
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('department_head_id')->nullable();

@@ -13,6 +13,10 @@ class CreatePurchaseOrderNumbersTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('purchase_order_numbers')) {
+            return;
+        }
+
         Schema::create('purchase_order_numbers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id')->nullable();

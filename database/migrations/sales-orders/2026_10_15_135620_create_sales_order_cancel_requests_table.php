@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('sales_order_cancel_requests')) {
+            return;
+        }
+
         Schema::create('sales_order_cancel_requests', function (Blueprint $table) {
             $table->id();
             $table->string('request_number', 20)->unique();

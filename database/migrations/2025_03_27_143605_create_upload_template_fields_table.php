@@ -13,6 +13,10 @@ class CreateUploadTemplateFieldsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('upload_template_fields')) {
+            return;
+        }
+
         Schema::create('upload_template_fields', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('upload_template_id')->nullable();

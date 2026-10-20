@@ -9,7 +9,7 @@
                 <div class="col-lg-3">
                     <div class="form-group">
                         {!! Form::label('name', 'Template Name') !!}
-                        {!! Form::text('name', '', ['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''), 'wire:model' => 'name']) !!}
+                        {!! Form::text('name', '', ['class' => 'form-control'.($errors->has('name') ? ' is-invalid' : ''), 'wire:model.live' => 'name']) !!}
                         <small class="text-danger">{{$errors->first('name')}}</small>
                     </div>
                 </div>
@@ -17,7 +17,7 @@
                 <div class="col-lg-3">
                     <div class="form-group">
                         {!! Form::label('breakpoint', 'Breakpoint') !!}
-                        {!! Form::text('breakpoint', '', ['class' => 'form-control'.($errors->has('breakpoint') ? ' is-invalid' : ''), 'wire:model' => 'breakpoint']) !!}
+                        {!! Form::text('breakpoint', '', ['class' => 'form-control'.($errors->has('breakpoint') ? ' is-invalid' : ''), 'wire:model.live' => 'breakpoint']) !!}
                         <small class="text-danger">{{$errors->first('breakpoint')}}</small>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                 <div class="col-lg-3">
                     <div class="form-group">
                         {!! Form::label('breakpoint_col', 'Breakpoint Column') !!}
-                        {!! Form::number('breakpoint_col', '', ['class' => 'form-control'.($errors->has('breakpoint_col') ? ' is-invalid' : ''), 'wire:model' => 'breakpoint_col']) !!}
+                        {!! Form::number('breakpoint_col', '', ['class' => 'form-control'.($errors->has('breakpoint_col') ? ' is-invalid' : ''), 'wire:model.live' => 'breakpoint_col']) !!}
                         <small class="text-danger">{{$errors->first('breakpoint_col')}}</small>
                     </div>
                 </div>
@@ -63,10 +63,10 @@
                                         {{$num}}
                                     </td>
                                     <td class="p-0">
-                                        <input type="text" class="form-control border-0" wire:model="lines.{{$key}}.column_name">
+                                        <input type="text" class="form-control border-0" wire:model.live="lines.{{$key}}.column_name">
                                     </td>
                                     <td class="p-0">
-                                        <input type="number" class="form-control border-0" wire:model="lines.{{$key}}.column_number">
+                                        <input type="number" class="form-control border-0" wire:model.live="lines.{{$key}}.column_number">
                                     </td>
                                     <td class="p-1 text-center align-middle">
                                         <button class="btn btn-danger btn-sm btn-block" wire:click.prevent="removeLine({{$key}})">

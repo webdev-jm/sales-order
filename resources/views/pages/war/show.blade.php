@@ -377,7 +377,7 @@
         $('body').on('click', '.btn-area-modal', function(e) {
             e.preventDefault();
             var date = $(this).data('date');
-            Livewire.emit('setDate', date);
+            Livewire.dispatch('setDate', [date]);
             $('#area-activity-modal').modal('show');
         });
 
@@ -393,7 +393,7 @@
         $('body').on('click', '.btn-show-details', function(e) {
             e.preventDefault();
             var login_id = $(this).data('id');
-            Livewire.emit('showDetail', login_id);
+            Livewire.dispatch('showDetail', [login_id]);
             $('#detail-modal').modal('show');
         });
     });

@@ -13,6 +13,10 @@ class CreateClassificationsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('classifications')) {
+            return;
+        }
+
         Schema::create('classifications', function (Blueprint $table) {
             $table->id();
             $table->string('classification_name');

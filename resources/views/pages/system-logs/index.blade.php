@@ -82,7 +82,7 @@
         $('body').on('click', '.btn-changes', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('showChanges', id);
+            Livewire.dispatch('showChanges', [id]);
             $('#modal-changes').modal('show');
         });
     });

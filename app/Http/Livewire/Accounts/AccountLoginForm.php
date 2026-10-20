@@ -20,7 +20,7 @@ class AccountLoginForm extends Component
      */
     public $logged_account;
 
-    protected $listeners = ['loginForm' => 'set'];
+    protected $listeners = ['loginForm' => 'selectAccount'];
 
     public function login() {
         $this->validate([
@@ -40,7 +40,10 @@ class AccountLoginForm extends Component
         return redirect()->to('/sales-order');
     }
 
-    public function set($account_id) {
+    /**
+     * Not named set(), which Livewire's JavaScript keeps for $wire.set().
+     */
+    public function selectAccount($account_id) {
         $this->account = Account::findOrFail($account_id);
         $this->logged_account = AccountLoginModel::where('user_id', auth()->user()->id)
             ->whereNull('time_out')

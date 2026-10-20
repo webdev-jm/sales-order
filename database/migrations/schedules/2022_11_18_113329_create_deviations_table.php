@@ -13,6 +13,10 @@ class CreateDeviationsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('deviations')) {
+            return;
+        }
+
         Schema::create('deviations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

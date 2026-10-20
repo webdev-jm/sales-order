@@ -13,6 +13,10 @@ class CreateWeeklyActivityReportAttachmentsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('weekly_activity_report_attachments')) {
+            return;
+        }
+
         Schema::create('weekly_activity_report_attachments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('weekly_activity_report_branch_id')->nullable();

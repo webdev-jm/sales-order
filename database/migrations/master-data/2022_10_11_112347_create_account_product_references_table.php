@@ -13,6 +13,10 @@ class CreateAccountProductReferencesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('account_product_references')) {
+            return;
+        }
+
         Schema::create('account_product_references', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id')->nullable();

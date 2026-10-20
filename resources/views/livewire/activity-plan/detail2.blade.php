@@ -143,7 +143,7 @@
                                                             {{-- search input --}}
                                                             <div class="input-group input-group-sm">
                                                                 <input type="text" class="form-control border-0"
-                                                                    wire:model="account_query.{{$date}}.{{$line_key}}"
+                                                                    wire:model.live="account_query.{{$date}}.{{$line_key}}"
                                                                     wire:keyup.debounce.200ms="setAccountQuery('{{$date}}', '{{$line_key}}')"
                                                                     wire:keydown.escape="resetAccountQuery"
                                                                     wire:keydown.tab.prevent="resetAccountQuery"
@@ -179,7 +179,7 @@
                                                             {{-- search input --}}
                                                             <div class="input-group input-group-sm">
                                                                 <input type="text" class="form-control border-0"
-                                                                    wire:model="branch_query.{{$date}}.{{$line_key}}"
+                                                                    wire:model.live="branch_query.{{$date}}.{{$line_key}}"
                                                                     wire:keyup.debounce.200ms="setBranchQuery('{{$date}}', '{{$line_key}}')"
                                                                     wire:keydown.escape="resetBranchQuery"
                                                                     wire:keydown.tab.prevent="resetBranchQuery"

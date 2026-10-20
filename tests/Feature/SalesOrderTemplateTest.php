@@ -80,7 +80,7 @@ class SalesOrderTemplateTest extends TestCase
 
         Livewire::test(Index::class)
             ->set('account_ids', [])
-            ->call('upload')
+            ->call('uploadFile')
             ->assertHasErrors(['account_ids' => 'required']);
     }
 
@@ -92,7 +92,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', null)
-            ->call('upload')
+            ->call('uploadFile')
             ->assertHasErrors(['file' => 'required']);
     }
 
@@ -104,7 +104,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', UploadedFile::fake()->create('data.xlsx', 100, 'application/vnd.ms-excel'))
-            ->call('upload')
+            ->call('uploadFile')
             ->assertHasErrors(['file']);
     }
 
@@ -133,7 +133,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload')
+            ->call('uploadFile')
             ->assertSet('step', 2);
 
         $rows = Session::get('so_template_rows');
@@ -185,7 +185,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload')
+            ->call('uploadFile')
             ->assertSet('step', 2);
 
         $rows = Session::get('so_template_rows');
@@ -223,7 +223,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload');
+            ->call('uploadFile');
 
         $row = Session::get('so_template_rows')[0];
         $this->assertEquals('sku_not_found', $row['lookup_status']);
@@ -241,7 +241,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload');
+            ->call('uploadFile');
 
         $row = Session::get('so_template_rows')[0];
         $this->assertEquals('address_not_found', $row['lookup_status']);
@@ -258,7 +258,7 @@ class SalesOrderTemplateTest extends TestCase
         Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload');
+            ->call('uploadFile');
 
         $row = Session::get('so_template_rows')[0];
         $this->assertEquals('both_not_found', $row['lookup_status']);
@@ -289,7 +289,7 @@ class SalesOrderTemplateTest extends TestCase
         $component = Livewire::test(Index::class)
             ->set('account_ids', [$account->id])
             ->set('file', $file)
-            ->call('upload');
+            ->call('uploadFile');
 
         $summary = $component->get('summary');
         $this->assertEquals(2, $summary['total']);

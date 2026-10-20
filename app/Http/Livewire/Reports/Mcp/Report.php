@@ -32,7 +32,7 @@ class Report extends Component
     public function filter() {
         $this->resetPage('report-page');
 
-        $this->emit('setFilter', $this->user_id, $this->date_from, $this->date_to);
+        $this->dispatch('setFilter', $this->user_id, $this->date_from, $this->date_to);
     }
 
     public function export() {
@@ -40,13 +40,13 @@ class Report extends Component
     }
 
     public function showDetail($login_id) {
-        $this->emit('showDetail', $login_id);
-        $this->dispatchBrowserEvent('showDetail');
+        $this->dispatch('showDetail', $login_id);
+        $this->dispatch('showDetail');
     }
 
     public function showScheduleDetail($schedule_id, $type) {
-        $this->emit('showScheduleDetail', $schedule_id, $type);
-        $this->dispatchBrowserEvent('showScheduleDetail');
+        $this->dispatch('showScheduleDetail', $schedule_id, $type);
+        $this->dispatch('showScheduleDetail');
     }
 
     public function updatedUserId() {

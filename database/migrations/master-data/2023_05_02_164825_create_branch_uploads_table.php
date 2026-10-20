@@ -13,6 +13,10 @@ class CreateBranchUploadsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('branch_uploads')) {
+            return;
+        }
+
         Schema::create('branch_uploads', function (Blueprint $table) {
             $table->id();
             $table->string('account_code')->nullable();

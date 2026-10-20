@@ -40,16 +40,19 @@ class GeminiProviderTest extends TestCase
 
         $this->generate([AiDocument::pdf('%PDF-1.4')], $schema);
 
-        Http::assertSent(function (Request $request) use ($schema): bool {
-            return $request->url() === 'https://generativelanguage.googleapis.com/v1beta/models/gemini-test:generateContent'
+        Http::assertSent(function (Request $request): bool {
+            $content = collect(data_get($request->data(), 'input.0.content', []));
+
+            return $request->url() === 'https://generativelanguage.googleapis.com/v1beta/interactions'
                 && $request->header('x-goog-api-key') === ['test-key']
-                && data_get($request->data(), 'system_instruction.parts.0.text') === 'Be exact.'
-                && data_get($request->data(), 'contents.0.parts.0.inlineData') === ['mimeType' => 'application/pdf', 'data' => base64_encode('%PDF-1.4')]
-                && data_get($request->data(), 'contents.0.parts.1.text') === 'Read this.'
-                && data_get($request->data(), 'generationConfig.response_mime_type') === 'application/json'
-                && data_get($request->data(), 'generationConfig.response_json_schema') === $schema
-                && data_get($request->data(), 'generationConfig.maxOutputTokens') === 1000
-                && data_get($request->data(), 'generationConfig.thinkingConfig') === ['thinkingLevel' => 'low'];
+                && data_get($request->data(), 'model') === 'gemini-test'
+                && data_get($request->data(), 'system_instruction') === 'Be exact.'
+                && $content->contains(fn (array $part): bool => $part === ['type' => 'document', 'mime_type' => 'application/pdf', 'data' => base64_encode('%PDF-1.4')])
+                && $content->contains(fn (array $part): bool => $part === ['type' => 'text', 'text' => 'Read this.'])
+                && data_get($request->data(), 'response_format.mime_type') === 'application/json'
+                && data_get($request->data(), 'response_format.schema.properties') === ['ok' => ['type' => 'boolean']]
+                && data_get($request->data(), 'generation_config.max_output_tokens') === 1000
+                && data_get($request->data(), 'generation_config.thinking_level') === 'low';
         });
     }
 
@@ -60,7 +63,7 @@ class GeminiProviderTest extends TestCase
 
         $this->generate();
 
-        Http::assertSent(fn (Request $request): bool => !array_key_exists('thinkingConfig', $request->data()['generationConfig']));
+        Http::assertSent(fn (Request $request): bool => !array_key_exists('thinking_level', (array) data_get($request->data(), 'generation_config')));
     }
 
     public function test_it_reads_the_reply_and_counts_thinking_tokens_as_output(): void
@@ -71,7 +74,7 @@ class GeminiProviderTest extends TestCase
 
         $this->assertSame(['ok' => true], $response->json());
         $this->assertSame('gemini', $response->provider);
-        $this->assertSame('gemini-test-001', $response->model);
+        $this->assertSame('gemini-test', $response->model);
         $this->assertSame(1000, $response->inputTokens);
         $this->assertSame(230, $response->outputTokens);
         $this->assertSame(1230, $response->totalTokens);
@@ -79,19 +82,20 @@ class GeminiProviderTest extends TestCase
         $this->assertFalse($response->wasRefused());
     }
 
-    public function test_thought_parts_are_left_out_of_the_reply_text(): void
+    public function test_thought_steps_are_left_out_of_the_reply_text(): void
     {
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([
-            'candidates' => [['content' => ['parts' => [
-                ['text' => 'Let me think…', 'thought' => true],
-                ['text' => '{"a":1}'],
-            ]], 'finishReason' => 'STOP']],
+            'status' => 'completed',
+            'steps'  => [
+                ['type' => 'thought', 'summary' => [['type' => 'text', 'text' => 'Let me think…']]],
+                ['type' => 'model_output', 'content' => [['type' => 'text', 'text' => '{"a":1}']]],
+            ],
         ])]);
 
-        $response = $this->generate();
+        $response = $this->generate([], ['type' => 'object', 'properties' => ['a' => ['type' => 'integer']]]);
 
         $this->assertSame(['a' => 1], $response->json());
-        $this->assertSame('gemini-test', $response->model, 'Without modelVersion the configured model is reported.');
+        $this->assertSame('gemini-test', $response->model);
     }
 
     public function test_cut_off_and_blocked_replies_are_flagged(): void
@@ -133,14 +137,29 @@ class GeminiProviderTest extends TestCase
         Http::assertSentCount(2);
     }
 
-    public function test_a_rate_limit_reply_becomes_a_friendly_message(): void
+    public function test_a_rate_limit_reply_is_retried_once_then_becomes_a_friendly_message(): void
     {
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response(['error' => ['message' => 'Quota exceeded']], 429)]);
 
-        $this->expectException(AiUnavailableException::class);
-        $this->expectExceptionMessage('busy or its quota is used up');
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException $e) {
+            $this->assertStringContainsString('busy or its quota is used up', $e->getMessage());
+        }
 
-        $this->generate();
+        Http::assertSentCount(2);
+    }
+
+    public function test_a_server_error_is_retried_once(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::sequence()
+            ->push(['error' => ['message' => 'internal']], 500)
+            ->push($this->geminiReply(['ok' => true])),
+        ]);
+
+        $this->assertSame(['ok' => true], $this->generate()->json());
+        Http::assertSentCount(2);
     }
 
     public function test_a_bad_request_passes_the_provider_reason_on_and_is_not_retried(): void

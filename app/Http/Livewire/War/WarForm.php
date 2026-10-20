@@ -35,8 +35,8 @@ class WarForm extends Component
     }
 
     public function showDetail($login_id) {
-        $this->emit('showDetail', $login_id);
-        $this->dispatchBrowserEvent('showDetail');
+        $this->dispatch('showDetail', $login_id);
+        $this->dispatch('showDetail');
     }
 
     public function changeDate() {

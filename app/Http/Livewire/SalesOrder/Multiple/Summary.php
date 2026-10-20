@@ -89,7 +89,7 @@ class Summary extends Component
     }
 
     public function finalizeAll() {
-        $this->emit('finalizeAll', 'finalized');
+        $this->dispatch('finalizeAll', 'finalized');
     }
 
     public function render()

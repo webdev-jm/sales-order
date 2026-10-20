@@ -147,10 +147,7 @@ class TradeDisplays extends Component
             ],
         ];
 
-        $this->dispatchBrowserEvent('setChart', [
-            'category' => $trade_reports,
-            'data' => $chart_data
-        ]);
+        $this->dispatch('setChart', category: $trade_reports, data: $chart_data);
 
         return view('livewire.coe.reports.trade-displays')->with([
             'trade_reports' => $trade_reports,

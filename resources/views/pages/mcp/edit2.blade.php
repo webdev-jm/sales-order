@@ -89,7 +89,7 @@ Activity Plan - Edit
             var month = $(this).data('month');
             var date = $(this).data('date');
             var key = $(this).data('key');
-            Livewire.emit('setTrip', year, month, date, key);
+            Livewire.dispatch('setTrip', [year, month, date, key]);
             $('#modal-trip').modal('show');
         });
 

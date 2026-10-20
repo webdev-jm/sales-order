@@ -24,7 +24,7 @@
         <div class="col-lg-3">
             <div class="form-group">
                 <label for="company_id">COMPANY</label>
-                <select id="company_id" class="form-control{{$errors->has('company_id') ? ' is-invalid' : ''}}" wire:model="company_id">
+                <select id="company_id" class="form-control{{$errors->has('company_id') ? ' is-invalid' : ''}}" wire:model.live="company_id">
                     <option value="">-select-</option>
                     @foreach($companies as $company)
                         <option value="{{$company->id}}">{{$company->name}}</option>
@@ -65,7 +65,7 @@
                             <div class="col-lg-12 row mb-2">
                                 <div class="col-2">
                                     <div class="input-group">
-                                        <input type="number" class="form-control{{$errors->has('passenger') ? ' is-invalid' : ''}}" placeholder="Passenger/s" wire:model="passenger">
+                                        <input type="number" class="form-control{{$errors->has('passenger') ? ' is-invalid' : ''}}" placeholder="Passenger/s" wire:model.live="passenger">
                                         <div class="input-group-append">
                                             <div class="input-group-text">
                                                 <i class="fas fa-user"></i>
@@ -84,7 +84,7 @@
                             <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
                                 <div class="form-group">
                                     <label>FROM<i class="fa fa-plane-departure ml-1"></i></label>
-                                    <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="from" wire:model="from">
+                                    <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="from" wire:model.live="from">
                                     <p class="text-danger mb-0">{{$errors->first('from')}}</p>
                                 </div>
                             </div>
@@ -92,7 +92,7 @@
                             <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
                                 <div class="form-group">
                                     <label>TO<i class="fa fa-plane-arrival ml-1"></i></label>
-                                    <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="to" wire:model="to">
+                                    <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="to" wire:model.live="to">
                                     <p class="text-danger mb-0">{{$errors->first('to')}}</p>
                                 </div>
                             </div>
@@ -100,7 +100,7 @@
                             <div class="{{$type == 'round_trip' ? 'col-lg-3' : 'col-lg-4'}}">
                                 <div class="form-group">
                                     <label>DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
-                                    <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model="departure">
+                                    <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model.live="departure">
                                     <p class="text-danger mb-0">{{$errors->first('departure')}}</p>
                                 </div>
                             </div>
@@ -109,7 +109,7 @@
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label>RETURN<i class="fa fa-calendar-alt ml-1"></i></label>
-                                        <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model="return">
+                                        <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model.live="return">
                                         <p class="text-danger mb-0">{{$errors->first('return')}}</p>
                                     </div>
                                 </div>
@@ -118,7 +118,7 @@
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="purpose">OBJECTIVE</label>
-                                    <textarea rows="2" class="form-control{{$errors->has('purpose') ? ' is-invalid' : ''}}" wire:model="purpose" placeholder="Purpose"></textarea>
+                                    <textarea rows="2" class="form-control{{$errors->has('purpose') ? ' is-invalid' : ''}}" wire:model.live="purpose" placeholder="Purpose"></textarea>
                                     <p class="text-danger mb-0">{{$errors->first('purpose')}}</p>
                                 </div>
                             </div>
@@ -132,7 +132,7 @@
                                                 {{$trip_attachment->url}}
                                             </a>
                                         @endif
-                                        <input type="file" class="form-control{{$errors->has('attachment') ? ' is-invalid' : ''}}" wire:model="attachment">
+                                        <input type="file" class="form-control{{$errors->has('attachment') ? ' is-invalid' : ''}}" wire:model.live="attachment">
                                         <p class="text-danger mb-0">{{$errors->first('attachment')}}</p>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>PASSENGER<i class="fa fa-user ml-1"></i></label>
-                                                    <select class="form-control" wire:model="passenger_other.{{$i}}">
+                                                    <select class="form-control" wire:model.live="passenger_other.{{$i}}">
                                                         <option value=""> - select - </option>
                                                         @foreach($users as $user)
                                                             <option value="{{$user->id}}">{{$user->fullName()}}</option>
@@ -163,7 +163,7 @@
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>FROM<i class="fa fa-plane-departure ml-1"></i></label>
-                                                    <input type="text" class="form-control{{$errors->has('from_other') ? ' is-invalid' : ''}}" placeholder="from" wire:model="from_other.{{$i}}">
+                                                    <input type="text" class="form-control{{$errors->has('from_other') ? ' is-invalid' : ''}}" placeholder="from" wire:model.live="from_other.{{$i}}">
                                                     <p class="text-danger mb-0">{{$errors->first('from_other')}}</p>
                                                 </div>
                                             </div>
@@ -171,7 +171,7 @@
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>TO<i class="fa fa-plane-arrival ml-1"></i></label>
-                                                    <input type="text" class="form-control{{$errors->has('to_other') ? ' is-invalid' : ''}}" placeholder="to" wire:model="to_other.{{$i}}">
+                                                    <input type="text" class="form-control{{$errors->has('to_other') ? ' is-invalid' : ''}}" placeholder="to" wire:model.live="to_other.{{$i}}">
                                                     <p class="text-danger mb-0">{{$errors->first('to_other')}}</p>
                                                 </div>
                                             </div>
@@ -179,7 +179,7 @@
                                             <div class="col-lg-3">
                                                 <div class="form-group">
                                                     <label>DEPARTURE<i class="fa fa-calendar-alt ml-1"></i></label>
-                                                    <input type="date" class="form-control{{$errors->has('departure_other') ? ' is-invalid' : ''}}" wire:model="departure_other.{{$i}}">
+                                                    <input type="date" class="form-control{{$errors->has('departure_other') ? ' is-invalid' : ''}}" wire:model.live="departure_other.{{$i}}">
                                                     <p class="text-danger mb-0">{{$errors->first('departure_other')}}</p>
                                                 </div>
                                             </div>
@@ -188,7 +188,7 @@
                                                 <div class="col-lg-3">
                                                     <div class="form-group">
                                                         <label>RETURN<i class="fa fa-calendar-alt ml-1"></i></label>
-                                                        <input type="date" class="form-control{{$errors->has('return_other') ? ' is-invalid' : ''}}" wire:model="return_other.{{$i}}">
+                                                        <input type="date" class="form-control{{$errors->has('return_other') ? ' is-invalid' : ''}}" wire:model.live="return_other.{{$i}}">
                                                         <p class="text-danger mb-0">{{$errors->first('return_other')}}</p>
                                                     </div>
                                                 </div>
@@ -220,7 +220,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             $('body').on('click', '#switch', function(e) {
                 $(this).find('i')
                     .addClass('animate__animated animate__flipInY')

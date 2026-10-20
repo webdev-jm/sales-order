@@ -13,6 +13,10 @@ class CreateAccountLoginsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('account_logins')) {
+            return;
+        }
+
         Schema::create('account_logins', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

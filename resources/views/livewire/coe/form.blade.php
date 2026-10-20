@@ -93,7 +93,7 @@
                                         <h3 class="card-title">DATE</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="date" class="form-control form-underline readonly" wire:model="coe_reports.date" readonly>
+                                        <input type="date" class="form-control form-underline readonly" wire:model.live="coe_reports.date" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -104,7 +104,7 @@
                                         <h3 class="card-title">COE NAME</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline readonly" placeholder="COE NAME" wire:model="coe_reports.name" readonly>
+                                        <input type="text" class="form-control form-underline readonly" placeholder="COE NAME" wire:model.live="coe_reports.name" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +115,7 @@
                                         <h3 class="card-title">ACCOUNT NAME</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline readonly" placeholder="ACCOUNT NAME" wire:model="coe_reports.account_name" readonly>
+                                        <input type="text" class="form-control form-underline readonly" placeholder="ACCOUNT NAME" wire:model.live="coe_reports.account_name" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +126,7 @@
                                         <h3 class="card-title">BRANCH CODE</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline readonly" placeholder="BRANCH CODE" wire:model="coe_reports.branch_code" readonly>
+                                        <input type="text" class="form-control form-underline readonly" placeholder="BRANCH CODE" wire:model.live="coe_reports.branch_code" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +137,7 @@
                                         <h3 class="card-title">BRANCH NAME</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline readonly" placeholder="BRANCH NAME" wire:model="coe_reports.branch_name" readonly>
+                                        <input type="text" class="form-control form-underline readonly" placeholder="BRANCH NAME" wire:model.live="coe_reports.branch_name" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
                                         <h3 class="card-title">STORE IN CHARGE</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline{{$errors->has('coe_reports.store_in_charge') ? ' is-invalid' : ''}}" placeholder="STORE IN CHARGE" wire:model="coe_reports.store_in_charge">
+                                        <input type="text" class="form-control form-underline{{$errors->has('coe_reports.store_in_charge') ? ' is-invalid' : ''}}" placeholder="STORE IN CHARGE" wire:model.live="coe_reports.store_in_charge">
                                         @if($errors->has('coe_reports.store_in_charge'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -162,7 +162,7 @@
                                         <h3 class="card-title">POSITION</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline{{$errors->has('coe_reports.position') ? ' is-invalid' : ''}}" placeholder="POSITION" wire:model="coe_reports.position">
+                                        <input type="text" class="form-control form-underline{{$errors->has('coe_reports.position') ? ' is-invalid' : ''}}" placeholder="POSITION" wire:model.live="coe_reports.position">
                                         @if($errors->has('coe_reports.position'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -195,7 +195,7 @@
                                         <h3 class="card-title">MERCH STATUS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <select class="form-control form-underline{{$errors->has('merch_updates.status') ? ' is-invalid' : ''}}" wire:model="merch_updates.status">
+                                        <select class="form-control form-underline{{$errors->has('merch_updates.status') ? ' is-invalid' : ''}}" wire:model.live="merch_updates.status">
                                             <option value="">-- MERCH STATUS --</option>
                                             @foreach($merch_status_arr as $status)
                                                 <option value="{{$status}}">{{$status}}</option>
@@ -214,7 +214,7 @@
                                         <h3 class="card-title">ACTUAL</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('merch_updates.actual') ? ' is-invalid' : ''}}" placeholder="ACTUAL" wire:model="merch_updates.actual">
+                                        <input type="number" class="form-control form-underline{{$errors->has('merch_updates.actual') ? ' is-invalid' : ''}}" placeholder="ACTUAL" wire:model.live="merch_updates.actual">
                                         @if($errors->has('merch_updates.actual'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -228,7 +228,7 @@
                                         <h3 class="card-title">TARGET</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('merch_updates.target') ? ' is-invalid' : ''}}" placeholder="TARGET" wire:model="merch_updates.target">
+                                        <input type="number" class="form-control form-underline{{$errors->has('merch_updates.target') ? ' is-invalid' : ''}}" placeholder="TARGET" wire:model.live="merch_updates.target">
                                         @if($errors->has('merch_updates.target'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -243,7 +243,7 @@
                                             <h3 class="card-title">DAYS OF GAPS</h3>
                                         </div>
                                         <div class="card-body">
-                                            <input type="number" class="form-control form-underline{{$errors->has('merch_updates.days_of_gaps') ? ' is-invalid' : ''}}" placeholder="DAYS OF GAPS" wire:model="merch_updates.days_of_gaps" wire:change="computeSales">
+                                            <input type="number" class="form-control form-underline{{$errors->has('merch_updates.days_of_gaps') ? ' is-invalid' : ''}}" placeholder="DAYS OF GAPS" wire:model.live="merch_updates.days_of_gaps" wire:change="computeSales">
                                             @if($errors->has('merch_updates.days_of_gaps'))
                                                 <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                             @endif
@@ -257,7 +257,7 @@
                                             <h3 class="card-title">SALES OPPORTUNITIES</h3>
                                         </div>
                                         <div class="card-body">
-                                            <input type="text" class="form-control form-underline readonly{{$errors->has('merch_updates.sales_opportunities') ? ' is-invalid' : ''}}" placeholder="SALES OPPORTUNITIES" wire:model="merch_updates.sales_opportunities" readonly>
+                                            <input type="text" class="form-control form-underline readonly{{$errors->has('merch_updates.sales_opportunities') ? ' is-invalid' : ''}}" placeholder="SALES OPPORTUNITIES" wire:model.live="merch_updates.sales_opportunities" readonly>
                                             @if($errors->has('merch_updates.sales_opportunities'))
                                                 <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                             @endif
@@ -272,7 +272,7 @@
                                         <h3 class="card-title">REMARKS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control form-underline{{$errors->has('merch_updates.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model="merch_updates.remarks"></textarea>
+                                        <textarea class="form-control form-underline{{$errors->has('merch_updates.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model.live="merch_updates.remarks"></textarea>
                                         @if($errors->has('merch_updates.remarks'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -306,7 +306,7 @@
                                         <h3 class="card-title">PLANOGRAM</h3>
                                     </div>
                                     <div class="card-body">
-                                        <select class="form-control form-underline{{$errors->has('trade_displays.planogram') ? ' is-invalid' : ''}}" wire:model="trade_displays.planogram">
+                                        <select class="form-control form-underline{{$errors->has('trade_displays.planogram') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.planogram">
                                             <option value="">-- PLANOGRAM --</option>
                                             @foreach($planogram_arr as $planogram)
                                                 <option value="{{$planogram}}">{{$planogram}}</option>
@@ -325,7 +325,7 @@
                                         <h3 class="card-title">BEVI PRICING</h3>
                                     </div>
                                     <div class="card-body">
-                                        <select class="form-control form-underline{{$errors->has('trade_displays.bevi_pricing') ? ' is-invalid' : ''}}" wire:model="trade_displays.bevi_pricing">
+                                        <select class="form-control form-underline{{$errors->has('trade_displays.bevi_pricing') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.bevi_pricing">
                                             <option value="">-- BEVI PRICING --</option>
                                             @foreach($bevi_pricing_arr as $pricing)
                                                 <option value="{{$pricing}}">{{$pricing}}</option>
@@ -362,7 +362,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">ACTUAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_bath_actual') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_bath_actual" placeholder="ACTUAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_bath_actual') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_bath_actual" placeholder="ACTUAL">
                                                     @if($errors->has('trade_displays.osa_bath_actual'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -372,7 +372,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">TOTAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_bath_target') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_bath_target" placeholder="TOTAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_bath_target') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_bath_target" placeholder="TOTAL">
                                                     @if($errors->has('trade_displays.osa_bath_target'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -404,7 +404,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">ACTUAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_face_actual') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_face_actual" placeholder="ACTUAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_face_actual') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_face_actual" placeholder="ACTUAL">
                                                     @if($errors->has('trade_displays.osa_face_actual'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -414,7 +414,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">TOTAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_face_target') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_face_target" placeholder="TOTAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_face_target') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_face_target" placeholder="TOTAL">
                                                     @if($errors->has('trade_displays.osa_face_target'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -446,7 +446,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">ACTUAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_body_actual') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_body_actual" placeholder="ACTUAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_body_actual') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_body_actual" placeholder="ACTUAL">
                                                     @if($errors->has('trade_displays.osa_body_actual'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -456,7 +456,7 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="">TOTAL</label>
-                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_body_target') ? ' is-invalid' : ''}}" wire:model="trade_displays.osa_body_target" placeholder="TOTAL">
+                                                    <input type="number" class="form-control form-underline{{$errors->has('trade_displays.osa_body_target') ? ' is-invalid' : ''}}" wire:model.live="trade_displays.osa_body_target" placeholder="TOTAL">
                                                     @if($errors->has('trade_displays.osa_body_target'))
                                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                                     @endif
@@ -477,7 +477,7 @@
                                         <h3 class="card-title">REMARKS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control form-underline{{$errors->has('trade_displays.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model="trade_displays.remarks"></textarea>
+                                        <textarea class="form-control form-underline{{$errors->has('trade_displays.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model.live="trade_displays.remarks"></textarea>
                                         @if($errors->has('trade_displays.remarks'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -511,7 +511,7 @@
                                         <h3 class="card-title">PAF NUMBER</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline text-uppercase{{$errors->has('trade_marketing_activities.paf_number') ? ' is-invalid' : ''}}" placeholder="LEAVE BLANK IF NONE" maxlength="50" wire:model.defer="trade_marketing_activities.paf_number">
+                                        <input type="text" class="form-control form-underline text-uppercase{{$errors->has('trade_marketing_activities.paf_number') ? ' is-invalid' : ''}}" placeholder="LEAVE BLANK IF NONE" maxlength="50" wire:model="trade_marketing_activities.paf_number">
                                         @if($errors->has('trade_marketing_activities.paf_number'))
                                         <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>{{ $errors->first('trade_marketing_activities.paf_number') }}</small>
                                         @endif
@@ -526,7 +526,7 @@
                                         <h3 class="card-title">REMARKS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control form-underline{{$errors->has('trade_marketing_activities.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model="trade_marketing_activities.remarks"></textarea>
+                                        <textarea class="form-control form-underline{{$errors->has('trade_marketing_activities.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model.live="trade_marketing_activities.remarks"></textarea>
                                         @if($errors->has('trade_marketing_activities.remarks'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -560,7 +560,7 @@
                                         <h3 class="card-title">DRA STATUS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <select class="form-control form-underline{{$errors->has('display_rentals.status') ? ' is-invalid' : ''}}" wire:model="display_rentals.status">
+                                        <select class="form-control form-underline{{$errors->has('display_rentals.status') ? ' is-invalid' : ''}}" wire:model.live="display_rentals.status">
                                             <option value="">-- DRA STATUS --</option>
                                             @foreach($dra_status_arr as $status)
                                                 <option value="{{$status}}">{{$status}}</option>
@@ -579,7 +579,7 @@
                                         <h3 class="card-title">DRA LOCATION</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline{{$errors->has('display_rentals.location') ? ' is-invalid' : ''}}" wire:model="display_rentals.location" placeholder=" DRA LOCATION">
+                                        <input type="text" class="form-control form-underline{{$errors->has('display_rentals.location') ? ' is-invalid' : ''}}" wire:model.live="display_rentals.location" placeholder=" DRA LOCATION">
                                         @if($errors->has('display_rentals.location'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -593,7 +593,7 @@
                                         <h3 class="card-title">% STOCKS DISPLAYED</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('display_rentals.stocks_displayed') ? ' is-invalid' : ''}}" wire:model="display_rentals.stocks_displayed" placeholder="% STOCKS DISPLAYED">
+                                        <input type="number" class="form-control form-underline{{$errors->has('display_rentals.stocks_displayed') ? ' is-invalid' : ''}}" wire:model.live="display_rentals.stocks_displayed" placeholder="% STOCKS DISPLAYED">
                                         @if($errors->has('display_rentals.stocks_displayed'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -607,7 +607,7 @@
                                         <h3 class="card-title">REMARKS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control form-underline{{$errors->has('display_rentals.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model="display_rentals.remarks"></textarea>
+                                        <textarea class="form-control form-underline{{$errors->has('display_rentals.remarks') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model.live="display_rentals.remarks"></textarea>
                                         @if($errors->has('display_rentals.remarks'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -641,7 +641,7 @@
                                         <h3 class="card-title">DISPLAY LOCATION</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="text" class="form-control form-underline{{$errors->has('extra_displays.location') ? ' is-invalid' : ''}}" wire:model="extra_displays.location" placeholder="DISPLAY LOCATION">
+                                        <input type="text" class="form-control form-underline{{$errors->has('extra_displays.location') ? ' is-invalid' : ''}}" wire:model.live="extra_displays.location" placeholder="DISPLAY LOCATION">
                                         @if($errors->has('extra_displays.location'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -655,7 +655,7 @@
                                         <h3 class="card-title">RATE PER MONTH IF RENTED</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('extra_displays.rate_per_month') ? ' is-invalid' : ''}}" wire:model="extra_displays.rate_per_month" placeholder="RATE PER MONTH">
+                                        <input type="number" class="form-control form-underline{{$errors->has('extra_displays.rate_per_month') ? ' is-invalid' : ''}}" wire:model.live="extra_displays.rate_per_month" placeholder="RATE PER MONTH">
                                         @if($errors->has('extra_displays.rate_per_month'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -669,7 +669,7 @@
                                         <h3 class="card-title">AMOUNT OF BEVI PRODUCTS DISPLAYED</h3>
                                     </div>
                                     <div class="card-body">
-                                        <input type="number" class="form-control form-underline{{$errors->has('extra_displays.amount') ? ' is-invalid' : ''}}" wire:model="extra_displays.amount" placeholder="AMOUNT">
+                                        <input type="number" class="form-control form-underline{{$errors->has('extra_displays.amount') ? ' is-invalid' : ''}}" wire:model.live="extra_displays.amount" placeholder="AMOUNT">
                                         @if($errors->has('extra_displays.amount'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif
@@ -711,35 +711,35 @@
                                                 <div class="row">
                                                     <div class="col-lg-2">
                                                         <label for="">COMPANY NAME</label>
-                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.company_name') ? ' is-invalid' : ''}}" placeholder="COMPANY NAME" wire:model="competetive_reports.{{$key}}.company_name">
+                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.company_name') ? ' is-invalid' : ''}}" placeholder="COMPANY NAME" wire:model.live="competetive_reports.{{$key}}.company_name">
                                                         @if($errors->has('competetive_reports.'.$key.'.company_name'))
                                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
                                                         @endif
                                                     </div>
                                                     <div class="col-lg-3">
                                                         <label for="">PRODUCT DESCRIPTION</label>
-                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.product_description') ? ' is-invalid' : ''}}" placeholder="PRODUCT DESCRIPTION" wire:model="competetive_reports.{{$key}}.product_description">
+                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.product_description') ? ' is-invalid' : ''}}" placeholder="PRODUCT DESCRIPTION" wire:model.live="competetive_reports.{{$key}}.product_description">
                                                         @if($errors->has('competetive_reports.'.$key.'.product_description'))
                                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
                                                         @endif
                                                     </div>
                                                     <div class="col-lg-2">
                                                         <label for="">SRP</label>
-                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.srp') ? ' is-invalid' : ''}}" placeholder="SRP" wire:model="competetive_reports.{{$key}}.srp">
+                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.srp') ? ' is-invalid' : ''}}" placeholder="SRP" wire:model.live="competetive_reports.{{$key}}.srp">
                                                         @if($errors->has('competetive_reports.'.$key.'.srp'))
                                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
                                                         @endif
                                                     </div>
                                                     <div class="col-lg-2">
                                                         <label for="">TYPE OF PROMOTION</label>
-                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.type_of_promotion') ? ' is-invalid' : ''}}" placeholder="TYPE OF PROMOTION" wire:model="competetive_reports.{{$key}}.type_of_promotion">
+                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.type_of_promotion') ? ' is-invalid' : ''}}" placeholder="TYPE OF PROMOTION" wire:model.live="competetive_reports.{{$key}}.type_of_promotion">
                                                         @if($errors->has('competetive_reports.'.$key.'.type_of_promotion'))
                                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
                                                         @endif
                                                     </div>
                                                     <div class="col-lg-2">
                                                         <label for="">IMPACT TO OUR PRODUCT</label>
-                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.impact_to_our_product') ? ' is-invalid' : ''}}" placeholder="IMPACT TO OUR PRODUCT" wire:model="competetive_reports.{{$key}}.impact_to_our_product">
+                                                        <input type="text" class="form-control form-underline{{$errors->has('competetive_reports.'.$key.'.impact_to_our_product') ? ' is-invalid' : ''}}" placeholder="IMPACT TO OUR PRODUCT" wire:model.live="competetive_reports.{{$key}}.impact_to_our_product">
                                                         @if($errors->has('competetive_reports.'.$key.'.impact_to_our_product'))
                                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This is a required field.</small>
                                                         @endif
@@ -763,7 +763,7 @@
                                         <h3 class="card-title">TOTAL FINDINGS</h3>
                                     </div>
                                     <div class="card-body">
-                                        <textarea class="form-control form-underline{{$errors->has('total_findings') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model="total_findings"></textarea>
+                                        <textarea class="form-control form-underline{{$errors->has('total_findings') ? ' is-invalid' : ''}}" placeholder="REMARKS" wire:model.live="total_findings"></textarea>
                                         @if($errors->has('total_findings'))
                                             <small class="text-danger"><i class="fa fa-exclamation-circle mr-1"></i>This field is required</small>
                                         @endif

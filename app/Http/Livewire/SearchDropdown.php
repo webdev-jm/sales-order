@@ -93,7 +93,7 @@ class SearchDropdown extends Component
         }
 
         $this->showDropdown = false;
-        $this->emitUp($this->emitEvent, $id);
+        $this->dispatch($this->emitEvent, $id);
     }
 
     public function render()

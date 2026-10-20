@@ -3,7 +3,7 @@
 namespace Tests\Concerns;
 
 /**
- * Builds Gemini generateContent replies for Http::fake().
+ * Builds Gemini Interactions API replies (the endpoint laravel/ai calls) for Http::fake().
  */
 trait FakesGemini
 {
@@ -21,6 +21,7 @@ trait FakesGemini
             'ai.providers.anthropic.key' => null,
             'ai.providers.openai.key'   => null,
             'ai.providers.gemini.key'   => 'test-key',
+            'ai.providers.gemini.url'   => 'https://generativelanguage.googleapis.com/v1beta/',
             'ai.providers.gemini.model' => 'gemini-test',
             'ai.providers.gemini.effort' => 'low',
             'ai.providers.gemini.retry_ms' => 0,
@@ -30,22 +31,32 @@ trait FakesGemini
 
     /**
      * @param array<string, mixed> $json The structured answer the model returns
+     * @param string $finishReason STOP, MAX_TOKENS (cut off) or SAFETY (withheld)
      * @return array<string, mixed>
      */
     protected function geminiReply(array $json, string $finishReason = 'STOP', int $input = 1200, int $output = 300, int $thoughts = 50): array
     {
-        return [
-            'candidates' => [[
-                'content'      => ['role' => 'model', 'parts' => [['text' => json_encode($json)]]],
-                'finishReason' => $finishReason,
-            ]],
-            'usageMetadata' => [
-                'promptTokenCount'     => $input,
-                'candidatesTokenCount' => $output,
-                'thoughtsTokenCount'   => $thoughts,
-                'totalTokenCount'      => $input + $output + $thoughts,
+        $reply = [
+            'status' => match ($finishReason) {
+                'MAX_TOKENS' => 'incomplete',
+                'SAFETY'     => 'failed',
+                default      => 'completed',
+            },
+            'steps' => [
+                ['type' => 'thought', 'summary' => [['type' => 'text', 'text' => 'Reading the order.']]],
+                ['type' => 'model_output', 'content' => [['type' => 'text', 'text' => json_encode($json)]]],
             ],
-            'modelVersion' => 'gemini-test-001',
+            'usage' => [
+                'total_input_tokens'   => $input,
+                'total_output_tokens'  => $output,
+                'total_thought_tokens' => $thoughts,
+            ],
         ];
+
+        if ($finishReason === 'SAFETY') {
+            $reply['errors'] = [['code' => 'SAFETY', 'message' => 'The response was blocked for safety reasons.']];
+        }
+
+        return $reply;
     }
 }

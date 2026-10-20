@@ -63,10 +63,10 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="fas fa-search"></i></span>
                                 </div>
-                                <input type="text" wire:model.debounce.300ms="accountSearch"
+                                <input type="text" wire:model.live.debounce.300ms="accountSearch"
                                        class="form-control" placeholder="Filter accounts…">
                             </div>
-                            <select wire:model="account_id" id="scan_account_id" size="6"
+                            <select wire:model.live="account_id" id="scan_account_id" size="6"
                                     class="form-control @error('account_id') is-invalid @enderror"
                                     style="height:auto;">
                                 @foreach($accounts as $account)
@@ -90,11 +90,11 @@
                                 <p class="form-control-plaintext text-muted">
                                     This account has no PO format yet, so general reading rules are used.
                                     @can('po scan format manage')
-                                        <a href="#" wire:click.prevent="$emitUp('openTab', 'formats')">Add a format</a>
+                                        <a href="#" wire:click.prevent="$dispatch('openTab', ['formats'])">Add a format</a>
                                     @endcan
                                 </p>
                             @else
-                                <select wire:model="format_id" id="scan_format_id"
+                                <select wire:model.live="format_id" id="scan_format_id"
                                         class="form-control @error('format_id') is-invalid @enderror">
                                     <option value="">General rules (no format)</option>
                                     @foreach($formats as $format)
@@ -109,7 +109,7 @@
 
                         <div class="form-group">
                             <label for="scan_files">PO PDF <span class="text-danger">*</span></label>
-                            <input type="file" wire:model="files" id="scan_files" accept=".pdf,application/pdf" multiple
+                            <input type="file" wire:model.live="files" id="scan_files" accept=".pdf,application/pdf" multiple
                                    class="form-control @error('files') is-invalid @enderror @error('files.*') is-invalid @enderror">
                             <small class="form-text text-muted">
                                 Up to {{ $maxFiles }} PDFs, {{ $maxFileMb }} MB each.
@@ -127,7 +127,7 @@
 
                         @if($cacheDays > 0)
                             <div class="custom-control custom-checkbox">
-                                <input type="checkbox" wire:model.defer="readAgain" id="scan_read_again" class="custom-control-input">
+                                <input type="checkbox" wire:model="readAgain" id="scan_read_again" class="custom-control-input">
                                 <label for="scan_read_again" class="custom-control-label font-weight-normal">
                                     Read again with AI, even if this PDF was scanned before
                                 </label>

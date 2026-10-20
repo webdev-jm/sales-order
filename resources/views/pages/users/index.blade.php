@@ -179,21 +179,21 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'User', id);
+            Livewire.dispatch('setDeleteModel', ['User', id]);
             $('#modal-delete').modal('show');
         });
 
         $('body').on('click', '.btn-assign-account', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('userAccount', id);
+            Livewire.dispatch('userAccount', [id]);
             $('#modal-accounts').modal('show');
         });
 
         $('body').on('click', '.btn-branch-assign', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('userBranch', id);
+            Livewire.dispatch('userBranch', [id]);
             $('#modal-branches').modal('show');
         });
 
@@ -201,7 +201,7 @@
         $('body').on('click', '.btn-change-pass', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setUser', id);
+            Livewire.dispatch('setUser', [id]);
             $('#modal-change-pass').modal('show');
         });
         @endcan

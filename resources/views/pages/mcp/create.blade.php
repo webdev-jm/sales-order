@@ -149,7 +149,7 @@
             var month = $(this).data('month');
             var date = $(this).data('date');
             var key = $(this).data('key');
-            Livewire.emit('setActivities', year, month, date, key);
+            Livewire.dispatch('setActivities', [year, month, date, key]);
             $('#modal-activities').modal('show');
         });
 

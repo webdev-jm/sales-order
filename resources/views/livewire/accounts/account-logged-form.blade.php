@@ -15,7 +15,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Accuracy (m.)</label>
-                        <input type="text" wire:model="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
+                        <input type="text" wire:model.live="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
                         <p class="text-danger">{{$errors->first('accuracy')}}</p>
                     </div>
                 </div>
@@ -23,7 +23,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Longitude</label>
-                        <input type="text" wire:model="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
+                        <input type="text" wire:model.live="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
                         <p class="text-danger">{{$errors->first('longitude')}}</p>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Latitude</label>
-                        <input type="text" wire:model="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
+                        <input type="text" wire:model.live="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
                         <p class="text-danger">{{$errors->first('latitude')}}</p>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <label for="activities">Activities</label>
-                        <textarea wire:model="activities" id="activities" rows="5" class="form-control {{$errors->has('activities') ? 'is-invalid' : ''}}"></textarea>
+                        <textarea wire:model.live="activities" id="activities" rows="5" class="form-control {{$errors->has('activities') ? 'is-invalid' : ''}}"></textarea>
                         <p class="text-danger">{{$errors->first('activities')}}</p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                 <div class="col-md-12">
                     <div class="form-group">
                         <div class="custom-file">
-                            <input type="file" wire:model="picture_file" id="picture" class="custom-file-input {{$errors->has('picture_file') ? 'is-invalid' : ''}}" accept="image/png, image/gif, image/jpeg">
+                            <input type="file" wire:model.live="picture_file" id="picture" class="custom-file-input {{$errors->has('picture_file') ? 'is-invalid' : ''}}" accept="image/png, image/gif, image/jpeg">
                             <label for="picture" class="custom-file-label">Upload Picture</label>
                             <p class="text-danger">{{$errors->first('picture_file')}}</p>
                         </div>
@@ -83,7 +83,7 @@
     </form>
 
     <script>
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
             // getLocation();
             // $('body').on('click', '#btn-reload-location', function(e) {
             //     e.preventDefault();

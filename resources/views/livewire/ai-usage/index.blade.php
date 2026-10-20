@@ -2,11 +2,11 @@
     <div class="form-row align-items-end mb-3">
         <div class="col-auto">
             <label for="usage_month" class="small font-weight-bold mb-1">Month</label>
-            <input type="month" wire:model="month" id="usage_month" class="form-control form-control-sm" style="width:180px;">
+            <input type="month" wire:model.live="month" id="usage_month" class="form-control form-control-sm" style="width:180px;">
         </div>
         <div class="col-auto">
             <label for="usage_status" class="small font-weight-bold mb-1">Status</label>
-            <select wire:model="status" id="usage_status" class="form-control form-control-sm">
+            <select wire:model.live="status" id="usage_status" class="form-control form-control-sm">
                 <option value="">All calls</option>
                 <option value="success">Successful</option>
                 <option value="failed">Failed</option>
@@ -94,6 +94,34 @@
             @endcan
         </div>
     @endif
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">By feature</h3></div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead class="thead-light">
+                    <tr><th>Feature</th><th class="text-right">Calls</th><th class="text-right">Tokens</th><th class="text-right">Cost</th></tr>
+                </thead>
+                <tbody>
+                    @forelse($byFeature as $row)
+                        <tr wire:key="by-feature-{{ $row->feature }}">
+                            <td>{{ \App\Models\AiUsageLog::FEATURES[$row->feature] ?? $row->feature }}</td>
+                            <td class="text-right">
+                                {{ number_format($row->calls) }}
+                                @if($row->failed)
+                                    <span class="small text-danger">({{ number_format($row->failed) }} failed)</span>
+                                @endif
+                            </td>
+                            <td class="text-right">{{ number_format($row->total_tokens) }}</td>
+                            <td class="text-right">{{ $row->estimated_cost !== null ? '$' . number_format((float) $row->estimated_cost, 4) : '—' }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="text-center text-muted py-3">No AI calls this month.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-lg-6">
@@ -249,7 +277,7 @@
     <div class="card">
         <div class="card-header d-flex align-items-center">
             <h3 class="card-title mr-auto">AI calls — {{ $monthLabel }}</h3>
-            <select wire:model="userId" class="form-control form-control-sm ml-2" style="width:auto;" aria-label="User">
+            <select wire:model.live="userId" class="form-control form-control-sm ml-2" style="width:auto;" aria-label="User">
                 <option value="">All users</option>
                 @foreach($byUser as $row)
                     <option value="{{ $row->user_id ?? 'none' }}">{{ $row->user ? $row->user->firstname . ' ' . $row->user->lastname : 'No user' }}</option>

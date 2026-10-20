@@ -90,7 +90,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="user">User</label>
-                                            <select id="user" class="form-control{{$errors->has('user_select') ? ' is-invalid' : ''}}" wire:model="user_select">
+                                            <select id="user" class="form-control{{$errors->has('user_select') ? ' is-invalid' : ''}}" wire:model.live="user_select">
                                                 <option value="">- Select user -</option>
                                                 @foreach($users as $user)
                                                     <option value="{{$user->id}}">{{$user->fullName()}}</option>
@@ -103,7 +103,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="designation">Designation</label>
-                                            <input type="text" class="form-control{{$errors->has('designation') ? ' is-invalid' : ''}}" id="designation" wire:model="designation">
+                                            <input type="text" class="form-control{{$errors->has('designation') ? ' is-invalid' : ''}}" id="designation" wire:model.live="designation">
                                             <p class="text-danger">{{$errors->first('designation')}}</p>
                                         </div>
                                     </div>
@@ -111,7 +111,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label for="reports_to">Reports to</label>
-                                            <select id="reports_to" class="form-control{{$errors->has('reports_to_ids') ? ' is-invalid' : ''}}" multiple wire:model="reports_to_ids">
+                                            <select id="reports_to" class="form-control{{$errors->has('reports_to_ids') ? ' is-invalid' : ''}}" multiple wire:model.live="reports_to_ids">
                                                 <option value="NULL">- Select user -</option>
                                                 @foreach($structures_option as $option)
                                                     <option value="{{$option->id}}">{{$option->user->fullName()}} - {{$option->designation}}</option>
@@ -218,7 +218,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             Highcharts.chart('container', {
                 chart: {
                     height: 700,

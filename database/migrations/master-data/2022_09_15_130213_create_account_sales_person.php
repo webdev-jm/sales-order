@@ -13,6 +13,10 @@ class CreateAccountSalesPerson extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('account_sales_person')) {
+            return;
+        }
+
         Schema::create('account_sales_person', function (Blueprint $table) {
             $table->unsignedBigInteger('sales_person_id');
             $table->unsignedBigInteger('account_id');

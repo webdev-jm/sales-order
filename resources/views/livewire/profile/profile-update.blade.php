@@ -9,7 +9,7 @@
         <div class="form-group row">
             <label for="firstname" class="col-sm-2 col-form-label">First Name</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control @error('firstname') is-invalid @enderror" id="firstname" placeholder="First Name" wire:model.defer="firstname">
+                <input type="text" class="form-control @error('firstname') is-invalid @enderror" id="firstname" placeholder="First Name" wire:model="firstname">
                 @error('firstname')
                 <p class="text-danger">{{$message}}</p>
                 @enderror
@@ -18,7 +18,7 @@
         <div class="form-group row">
             <label for="lastname" class="col-sm-2 col-form-label">Last Name</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control @error('lastname') is-invalid @enderror" id="lastname" placeholder="Last Name" wire:model.defer="lastname">
+                <input type="text" class="form-control @error('lastname') is-invalid @enderror" id="lastname" placeholder="Last Name" wire:model="lastname">
                 @error('lastname')
                 <p class="text-danger">{{$message}}</p>
                 @enderror
@@ -27,7 +27,7 @@
         <div class="form-group row">
             <label for="email" class="col-sm-2 col-form-label">Username</label>
             <div class="col-sm-10">
-                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="Email" wire:model.defer="email">
+                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" placeholder="Email" wire:model="email">
                 @error('email')
                 <p class="text-danger">{{$message}}</p>
                 @enderror
@@ -36,7 +36,7 @@
         <div class="form-group row">
             <label for="notify_email" class="col-sm-2 col-form-label">Email Notification</label>
             <div class="col-sm-10">
-                <input type="email" class="form-control @error('notify_email') is-invalid @enderror" id="notify_email" placeholder="Email" wire:model.defer="notify_email">
+                <input type="email" class="form-control @error('notify_email') is-invalid @enderror" id="notify_email" placeholder="Email" wire:model="notify_email">
                 @error('notify_email')
                 <p class="text-danger">{{$message}}</p>
                 @enderror

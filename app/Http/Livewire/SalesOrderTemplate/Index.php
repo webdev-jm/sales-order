@@ -35,8 +35,9 @@ class Index extends Component
     public string $activeTab    = 'upload';
 
     protected $listeners = [
-        'poScanned' => 'showScannedRows',
-        'openTab'   => 'setTab',
+        'poScanned'           => 'showScannedRows',
+        'openTab'             => 'setTab',
+        'templateRowsChanged' => 'refreshSummary',
     ];
 
     // Store Map
@@ -84,7 +85,10 @@ class Index extends Component
         // accounts loaded reactively in render()
     }
 
-    public function upload(): void
+    /**
+     * Not named upload(), which Livewire's JavaScript keeps for $wire.upload().
+     */
+    public function uploadFile(): void
     {
         $this->validate();
 
@@ -123,6 +127,14 @@ class Index extends Component
         $this->scanWarnings = $warnings;
         $this->step         = 2;
         $this->activeTab    = 'upload';
+    }
+
+    /**
+     * Recounts the review badges after AI mapping help matched more rows.
+     */
+    public function refreshSummary(): void
+    {
+        $this->summary = SoTemplateLookup::summarize(Session::get('so_template_rows', []));
     }
 
     public function setTab(string $tab): void

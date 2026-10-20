@@ -59,7 +59,7 @@
                 @else
                     <div class="modal-body text-left">
                         <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" placeholder="Search account code or name" wire:model.debounce.400ms="search">
+                            <input type="text" class="form-control" placeholder="Search account code or name" wire:model.live.debounce.400ms="search">
                             <div class="input-group-append">
                                 <span class="input-group-text">
                                     <i class="fas fa-search" wire:loading.remove wire:target="search"></i>

@@ -56,7 +56,7 @@
         </div>
 
         <script>
-            document.addEventListener('livewire:load', function () {
+            document.addEventListener('livewire:initialized', function () {
             });
         </script>
     </div>

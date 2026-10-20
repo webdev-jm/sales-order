@@ -36,14 +36,14 @@
                 <div class="col-lg-6">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="switch-repeat"
-                            wire:model="repeat" value="1">
+                            wire:model.live="repeat" value="1">
                         <label class="custom-control-label" for="switch-repeat">Repeat annually</label>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="custom-control custom-switch">
                         <input type="checkbox" class="custom-control-input" id="switch-work-day"
-                            wire:model="is_work_day" value="1">
+                            wire:model.live="is_work_day" value="1">
                         <label class="custom-control-label" for="switch-work-day">Work day</label>
                     </div>
                 </div>

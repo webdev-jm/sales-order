@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Http\Traits\GlobalTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -51,10 +53,10 @@ class SpreadsheetDateParsingTest extends TestCase
     }
 
     /**
-     * @dataProvider dateProvider
      *
      * @param  mixed  $value
      */
+    #[DataProvider('dateProvider')]
     public function test_parse_spreadsheet_date_normalizes_every_supported_shape($value, ?string $expected): void
     {
         $this->assertSame($expected, $this->parseSpreadsheetDate($value));

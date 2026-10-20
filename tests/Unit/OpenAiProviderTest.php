@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiResponse;
@@ -172,9 +174,7 @@ class OpenAiProviderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider failures
-     */
+    #[DataProvider('failures')]
     public function test_errors_become_messages_users_can_read(int $status, string $message): void
     {
         Http::fake(['api.openai.com/*' => Http::response(['error' => ['message' => 'Invalid schema.']], $status)]);

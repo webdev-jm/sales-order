@@ -13,6 +13,10 @@ class CreateBranchLoginActivitiesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('branch_login_activities')) {
+            return;
+        }
+
         Schema::create('branch_login_activities', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('branch_login_id')->nullable();

@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('puregold_store_maps')) {
+            return;
+        }
+
         Schema::create('puregold_store_maps', function (Blueprint $table) {
             $table->id();
             $table->string('store_code')->unique();

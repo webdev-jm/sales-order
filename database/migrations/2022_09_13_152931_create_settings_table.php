@@ -13,6 +13,10 @@ class CreateSettingsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('settings')) {
+            return;
+        }
+
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
             $table->integer('data_per_page');

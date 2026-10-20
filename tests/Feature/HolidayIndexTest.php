@@ -141,10 +141,12 @@ class HolidayIndexTest extends TestCase
             'source'      => 'philippine',
         ]);
 
-        $this->expectException(\Illuminate\Database\Eloquent\ModelNotFoundException::class);
-
+        // Livewire 4 turns a ModelNotFoundException into a 404 response, as a browser request would get.
         Livewire::test(HolidayIndex::class)
-            ->call('deleteHoliday', $override->id);
+            ->call('deleteHoliday', $override->id)
+            ->assertStatus(404);
+
+        $this->assertDatabaseHas('holidays', ['id' => $override->id]);
     }
 
     // ── Add custom holiday ────────────────────────────────────────────────────

@@ -136,7 +136,7 @@
                                     <div class="col-lg-6 mt-2">
                                         <div class="form-group">
                                             <label for="">Schedule Date</label>
-                                            <input type="date" class="form-control @error('reschedule_date') is-invalid @enderror" wire:model.defer="reschedule_date">
+                                            <input type="date" class="form-control @error('reschedule_date') is-invalid @enderror" wire:model="reschedule_date">
                                             @error('reschedule_date')
                                             <p class="text-danger">{{$message}}</p>
                                             @enderror
@@ -146,7 +146,7 @@
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="">Remarks</label>
-                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model.defer="remarks"></textarea>
+                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model="remarks"></textarea>
                                             @error('remarks')
                                             <p class="text-danger">{{$message}}</p>
                                             @enderror
@@ -169,7 +169,7 @@
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="">Remarks</label>
-                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model.defer="remarks"></textarea>
+                                            <textarea class="form-control @error('remarks') is-invalid @enderror" rows="4" wire:model="remarks"></textarea>
                                             @error('remarks')
                                             <p class="text-danger">{{$message}}</p>
                                             @enderror
@@ -194,7 +194,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Accuracy (m.)</label>
-                                            <input type="text" wire:model="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
+                                            <input type="text" wire:model.live="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
                                             <p class="text-danger">{{$errors->first('accuracy')}}</p>
                                         </div>
                                     </div>
@@ -202,7 +202,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Longitude</label>
-                                            <input type="text" wire:model="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
+                                            <input type="text" wire:model.live="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
                                             <p class="text-danger">{{$errors->first('longitude')}}</p>
                                         </div>
                                     </div>
@@ -210,7 +210,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label>Latitude</label>
-                                            <input type="text" wire:model="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
+                                            <input type="text" wire:model.live="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
                                             <p class="text-danger">{{$errors->first('latitude')}}</p>
                                         </div>
                                     </div>
@@ -237,7 +237,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Departure <i class="fa fa-plane-departure text-primary"></i></label>
-                                            <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model="departure">
+                                            <input type="text" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" placeholder="Departure" wire:model.live="departure">
                                             <p class="text-danger">{{$errors->first('departure')}}</p>
                                         </div>
                                     </div>
@@ -245,7 +245,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Arrival <i class="fa fa-plane-arrival text-primary"></i></label>
-                                            <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model="arrival">
+                                            <input type="text" class="form-control{{$errors->has('arrival') ? ' is-invalid' : ''}}" placeholder="Arrival" wire:model.live="arrival">
                                             <p class="text-danger">{{$errors->first('arrival')}}</p>
                                         </div>
                                     </div>
@@ -253,7 +253,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Transportation Type</label>
-                                            <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model="transportation_type">
+                                            <select class="form-control{{$errors->has('transportation_type') ? ' is-invalid' : ''}}" wire:model.live="transportation_type">
                                                 <option value="" selected="selected">Select transportation type</option>
                                                 @foreach($transportation_types as $type)
                                                     <option value="{{$type}}">{{$type}}</option>
@@ -266,7 +266,7 @@
                                     <div class="col-lg-6">
                                         <div class="form-group">
                                             <label>Reference Number</label>
-                                            <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number"  wire:model="reference_number">
+                                            <input type="text" class="form-control{{$errors->has('reference_number') ? ' is-invalid' : ''}}" placeholder="Reference Number"  wire:model.live="reference_number">
                                             <p class="text-danger">{{$errors->first('reference_number')}}</p>
                                         </div>
                                     </div>
@@ -327,7 +327,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
 
             window.addEventListener('reloadLocation', event => {
                 getLocation();

@@ -14,7 +14,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             Highcharts.chart('container-brand', {
                 chart: {
                     type: 'pie',

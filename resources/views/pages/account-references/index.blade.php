@@ -147,7 +147,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'AccountProductReference', id);
+            Livewire.dispatch('setDeleteModel', ['AccountProductReference', id]);
             $('#modal-delete').modal('show');
         });
     });

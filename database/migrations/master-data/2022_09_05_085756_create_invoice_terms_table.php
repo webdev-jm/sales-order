@@ -13,6 +13,10 @@ class CreateInvoiceTermsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('invoice_terms')) {
+            return;
+        }
+
         Schema::create('invoice_terms', function (Blueprint $table) {
             $table->id();
             $table->string('term_code');

@@ -13,6 +13,10 @@ class CreateUploadTemplatesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('upload_templates')) {
+            return;
+        }
+
         Schema::create('upload_templates', function (Blueprint $table) {
             $table->id();
             $table->string('name');

@@ -155,7 +155,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'PPUForm', id);
+            Livewire.dispatch('setDeleteModel', ['PPUForm', id]);
             $('#modal-delete').modal('show');
         });
     });

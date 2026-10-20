@@ -319,7 +319,7 @@
 
                 console.log(data);
 
-                Livewire.emit('setDataSummary', data);
+                Livewire.dispatch('setDataSummary', [data]);
                 $('#modal-summary').modal('show');
             } else {
                 status_val = 'draft';

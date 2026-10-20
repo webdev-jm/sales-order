@@ -13,6 +13,10 @@ class CreateRemindersTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('reminders')) {
+            return;
+        }
+
         Schema::create('reminders', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

@@ -89,21 +89,21 @@
 
         $('#btn-structure-add').on('click', function(e) {
             e.preventDefault();
-            Livewire.emit('setStructureForm', 0);
+            Livewire.dispatch('setStructureForm', [0]);
             $('#structure-modal').modal('show');
         });
 
         $('body').on('click', '.btn-structure-edit', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setStructureForm', id);
+            Livewire.dispatch('setStructureForm', [id]);
             $('#structure-modal').modal('show');
         });
 
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'OrganizationStructure', id);
+            Livewire.dispatch('setDeleteModel', ['OrganizationStructure', id]);
             $('#modal-delete').modal('show');
         });
     })

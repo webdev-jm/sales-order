@@ -13,6 +13,10 @@ class CreateRegionsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('regions')) {
+            return;
+        }
+
         Schema::create('regions', function (Blueprint $table) {
             $table->id();
             $table->string('region_name');

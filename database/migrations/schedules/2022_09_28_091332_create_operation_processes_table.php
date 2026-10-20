@@ -13,6 +13,10 @@ class CreateOperationProcessesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('operation_processes')) {
+            return;
+        }
+
         Schema::create('operation_processes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id')->nullable();

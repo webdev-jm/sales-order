@@ -10,7 +10,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label>Job Title</label>
-                            <select class="form-control @error('job_title_id') is-invalid @enderror" wire:model.defer="job_title_id">
+                            <select class="form-control @error('job_title_id') is-invalid @enderror" wire:model="job_title_id">
                                 <option value=""></option>
                                 @foreach($job_titles as $job_title)
                                 <option value="{{$job_title->id}}">{{$job_title->job_title}}</option>
@@ -25,7 +25,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label>User</label>
-                            <select class="form-control @error('user_id') is-invalid @enderror" wire:model.defer="user_id">
+                            <select class="form-control @error('user_id') is-invalid @enderror" wire:model="user_id">
                                 <option value="">Vacant</option>
                                 @foreach($users as $user)
                                 <option value="{{$user->id}}">{{$user->fullName()}}</option>
@@ -40,7 +40,7 @@
                     <div class="col-lg-12">
                         <div class="form-group">
                             <label>Reports To</label>
-                            <select class="form-control @error('reports_to_id') is-invalid @enderror" wire:model.defer="reports_to_id">
+                            <select class="form-control @error('reports_to_id') is-invalid @enderror" wire:model="reports_to_id">
                                 <option value="">None</option>
                                 @foreach($structures as $structure)
                                 <option value="{{$structure->id}}">{{$structure->job_title->job_title}} - 

@@ -109,7 +109,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Department', id);
+            Livewire.dispatch('setDeleteModel', ['Department', id]);
             $('#modal-delete').modal('show');
         });
     });

@@ -13,6 +13,10 @@ class CreateWeeklyActivityReportsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('weekly_activity_reports')) {
+            return;
+        }
+
         Schema::create('weekly_activity_reports', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

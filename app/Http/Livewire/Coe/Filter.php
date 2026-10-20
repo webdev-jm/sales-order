@@ -27,7 +27,7 @@ class Filter extends Component
             $this->account_data[] = $account_id;
         }
 
-        $this->emit('setAccount', $this->account_data);
+        $this->dispatch('setAccount', $this->account_data);
     }
 
     public function selectUser($user_id) {
@@ -37,31 +37,31 @@ class Filter extends Component
             $this->user_data[] = $user_id;
         }
 
-        $this->emit('setUser', $this->user_data);
+        $this->dispatch('setUser', $this->user_data);
     }
     
     public function clearUserFilter() {
         $this->reset('user_data');
-        $this->emit('setUser', $this->user_data);
+        $this->dispatch('setUser', $this->user_data);
     }
 
     public function clearAccountFilter() {
         $this->reset('account_data');
-        $this->emit('setAccount', $this->account_data);
+        $this->dispatch('setAccount', $this->account_data);
     }
 
     public function updatedDateFrom() {
-        $this->emit('setDateFrom', $this->date_from);
+        $this->dispatch('setDateFrom', $this->date_from);
     }
 
     public function updatedDateTo() {
-        $this->emit('setDateTo', $this->date_to);
+        $this->dispatch('setDateTo', $this->date_to);
     }
 
     public function mount() {
         $this->date_from = date('Y-m').'-01';
 
-        $this->emit('setDateFrom', $this->date_from);
+        $this->dispatch('setDateFrom', $this->date_from);
     }
 
     public function render()

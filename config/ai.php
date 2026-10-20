@@ -38,17 +38,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Laravel AI SDK Default
+    |--------------------------------------------------------------------------
+    |
+    | This file is shared with the laravel/ai package. The application never
+    | relies on its default: App\Services\Ai\AiClient builds the providers
+    | from the blocks below (and the AI Settings page) for every call.
+    |
+    */
+
+    'default' => env('AI_PROVIDER', 'gemini'),
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Providers
     |--------------------------------------------------------------------------
     |
-    | Gemini is called over its REST API with Laravel's HTTP client; use the
-    | same key as the PAF application. Claude is called through the official
-    | Anthropic PHP SDK (anthropic-ai/sdk).
+    | Each block is read by both the application and laravel/ai ("driver",
+    | "key" and "url" are laravel/ai's names). Gemini and Claude are called
+    | through laravel/ai; use the same Gemini key as the PAF application.
     |
     */
 
     'providers' => [
         'gemini' => [
+            'driver'  => 'gemini',
             'key'     => env('GEMINI_API_KEY'),
             'url'     => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/'),
             'model'   => env('GEMINI_MODEL', 'gemini-3.5-flash'),
@@ -63,7 +77,9 @@ return [
         ],
 
         'anthropic' => [
+            'driver'  => 'anthropic',
             'key'     => env('ANTHROPIC_API_KEY'),
+            'url'     => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
             'model'   => env('ANTHROPIC_MODEL', 'claude-haiku-5-5'),
             'timeout' => (int) env('ANTHROPIC_TIMEOUT', 180),
 
@@ -71,15 +87,17 @@ return [
             // spends. Copying a PO needs little. Leave empty for the model's default.
             'effort' => env('ANTHROPIC_EFFORT', 'low'),
 
-            // Retries the SDK makes after an overload, rate limit or timeout, and the first pause.
+            // Retries after an overload, rate limit or timeout, and the pause before each.
             'max_retries' => (int) env('ANTHROPIC_MAX_RETRIES', 1),
             'retry_ms'    => (int) env('ANTHROPIC_RETRY_MS', 500),
         ],
 
         // Any server with the OpenAI Chat Completions API: OpenAI itself, OpenRouter, Groq,
         // DeepSeek or a local Ollama (any key works there). Reading PDFs needs a model and server
-        // that accept PDF files, such as OpenAI or OpenRouter.
+        // that accept PDF files, such as OpenAI or OpenRouter. PDFs are sent by the application's
+        // own Chat Completions request, because laravel/ai's compatible driver only attaches images.
         'openai' => [
+            'driver'  => 'openai-compatible',
             'key'     => env('OPENAI_API_KEY'),
             'url'     => env('OPENAI_BASE_URL', 'https://api.openai.com/v1/'),
             'model'   => env('OPENAI_MODEL', 'gpt-5-mini'),

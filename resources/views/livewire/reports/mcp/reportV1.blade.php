@@ -301,7 +301,7 @@
             $('#schedule-detail-modal').modal('show');
         });
 
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>

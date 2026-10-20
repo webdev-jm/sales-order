@@ -46,7 +46,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             Highcharts.chart('container', {
                 series: @php echo json_encode($chart_data); @endphp,
                 chart: {

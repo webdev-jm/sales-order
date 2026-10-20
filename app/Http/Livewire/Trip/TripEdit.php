@@ -325,7 +325,7 @@ class TripEdit extends Component
         if (!empty($this->departure)) {
             $currentDate = Carbon::today();
             $departureDate = Carbon::parse($this->departure);
-            if($departureDate->diffInDays($currentDate) < 14) {
+            if(abs($departureDate->diffInDays($currentDate)) < 14) {
                 // Show a note for the user
                 $this->form_errors = 'The date provided should be at least two weeks in advance to facilitate ticket processing.';
             } else {

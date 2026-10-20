@@ -119,7 +119,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             $('#btn-online-users').on('click', function(e) {
                 e.preventDefault();
                 $('#online-users-modal').modal('show');

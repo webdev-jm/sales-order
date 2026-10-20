@@ -59,7 +59,7 @@ class HousekeepingFixesTest extends TestCase
         $this->get(route('department.index'))
             ->assertOk()
             ->assertSee('Headless Department')
-            ->assertSee("Livewire.emit('setDeleteModel', 'Department', id)", false);
+            ->assertSee("Livewire.dispatch('setDeleteModel', ['Department', id])", false);
     }
 
     public function test_the_cut_off_list_shows_minutes_and_twelve_hour_times(): void
@@ -76,7 +76,7 @@ class HousekeepingFixesTest extends TestCase
             ->assertOk()
             ->assertSee('2026-10-01 08:30:00 am')
             ->assertSee('2026-10-01 05:45:00 pm')
-            ->assertSee("Livewire.emit('setDeleteModel', 'SalesOrderCutOff', id)", false);
+            ->assertSee("Livewire.dispatch('setDeleteModel', ['SalesOrderCutOff', id])", false);
     }
 
     public function test_the_error_log_viewer_needs_the_permission_the_menu_checks(): void

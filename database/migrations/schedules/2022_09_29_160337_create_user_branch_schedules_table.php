@@ -13,6 +13,10 @@ class CreateUserBranchSchedulesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('user_branch_schedules')) {
+            return;
+        }
+
         Schema::create('user_branch_schedules', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Http\Livewire\Coe\Form;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
@@ -31,9 +33,7 @@ class RemovedModulesTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider removedRouteNames
-     */
+    #[DataProvider('removedRouteNames')]
     public function test_the_module_route_is_gone(string $name): void
     {
         $this->assertFalse(Route::has($name));

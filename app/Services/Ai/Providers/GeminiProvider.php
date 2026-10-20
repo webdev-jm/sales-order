@@ -4,29 +4,23 @@ namespace App\Services\Ai\Providers;
 
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
-use App\Services\Ai\AiDocument;
-use App\Services\Ai\AiResponse;
+use App\Services\Ai\Concerns\GeneratesJsonWithLaravelAi;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Throwable;
 
 /**
- * Google Gemini over its generateContent REST endpoint. Built on Laravel's HTTP client because the
- * laravel/ai SDK used by the PAF application needs Laravel 12, and its request shape is copied
- * from that SDK so the two applications ask Gemini the same way.
+ * Google Gemini. Replies are generated through laravel/ai (Gemini's Interactions API); the model
+ * list and connection check use the REST models endpoint directly, since they cost no tokens and
+ * laravel/ai has no call for them.
  */
 class GeminiProvider implements AiProviderInterface
 {
+    use GeneratesJsonWithLaravelAi;
+
     public const NAME = 'gemini';
-
-    private const RETRIES = 1;
-
-    /** Finish reasons that mean Gemini's safety filters withheld the answer. */
-    private const BLOCKED = ['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII'];
 
     /** Seconds a model lookup or connection check may take. */
     private const CHECK_TIMEOUT = 20;
@@ -67,7 +61,31 @@ class GeminiProvider implements AiProviderInterface
 
     public function maxDurationSeconds(): int
     {
-        return (self::RETRIES + 1) * $this->timeout() + (int) ceil(($this->config['retry_ms'] ?? 0) / 1000);
+        return 2 * $this->timeoutSeconds() + (int) ceil($this->retryDelayMs() / 1000);
+    }
+
+    public function timeoutSeconds(): int
+    {
+        return (int) ($this->config['timeout'] ?? 180);
+    }
+
+    public function laravelAiConfig(): array
+    {
+        return [
+            'driver' => 'gemini',
+            'key'    => $this->config['key'] ?? null,
+            'url'    => $this->config['url'] ?? null,
+        ];
+    }
+
+    /**
+     * How much Gemini thinks before it answers. Thinking tokens are billed as output.
+     */
+    public function laravelAiOptions(): array
+    {
+        return filled($level = $this->config['effort'] ?? null)
+            ? ['generation_config' => ['thinking_level' => $level]]
+            : [];
     }
 
     public function checkConnection(): string
@@ -101,72 +119,17 @@ class GeminiProvider implements AiProviderInterface
             ->all();
     }
 
-    public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens): AiResponse
+    /**
+     * Gemini is often briefly overloaded; one retry after a short pause usually gets through.
+     */
+    private function retryCount(): int
     {
-        $this->ensureReady();
-
-        $model = $this->model();
-        $startedAt = hrtime(true);
-
-        $generationConfig = [
-            'response_mime_type' => 'application/json',
-            'response_json_schema' => $schema,
-            'maxOutputTokens' => $maxOutputTokens,
-        ];
-
-        if (filled($thinkingLevel = $this->config['effort'] ?? null)) {
-            $generationConfig['thinkingConfig'] = ['thinkingLevel' => $thinkingLevel];
-        }
-
-        $parts = array_map(fn (AiDocument $document): array => [
-            'inlineData' => ['mimeType' => $document->mimeType, 'data' => base64_encode($document->contents)],
-        ], $documents);
-        $parts[] = ['text' => $prompt];
-
-        $response = $this->send(fn () => $this->request($this->timeout())
-            ->retry(self::RETRIES + 1, (int) ($this->config['retry_ms'] ?? 0), fn (Throwable $e): bool => $this->isTransient($e), false)
-            ->post("models/{$model}:generateContent", [
-                'system_instruction' => ['parts' => [['text' => $instructions]]],
-                'contents' => [['role' => 'user', 'parts' => $parts]],
-                'generationConfig' => $generationConfig,
-            ]));
-
-        if ($response->failed()) {
-            throw new AiUnavailableException($this->failureMessage($response));
-        }
-
-        return $this->responseFrom((array) $response->json(), $model, (int) ((hrtime(true) - $startedAt) / 1_000_000));
+        return 1;
     }
 
-    /**
-     * Thinking tokens are billed as output, so they are counted with the output tokens.
-     *
-     * @param array<string, mixed> $data
-     */
-    private function responseFrom(array $data, string $model, int $durationMs): AiResponse
+    private function retryDelayMs(): int
     {
-        $usage = $data['usageMetadata'] ?? [];
-        $input = (int) ($usage['promptTokenCount'] ?? 0);
-        $output = (int) ($usage['candidatesTokenCount'] ?? 0) + (int) ($usage['thoughtsTokenCount'] ?? 0);
-        $finishReason = $data['candidates'][0]['finishReason'] ?? null;
-
-        $text = collect($data['candidates'][0]['content']['parts'] ?? [])
-            ->reject(fn (array $part): bool => (bool) ($part['thought'] ?? false))
-            ->pluck('text')
-            ->filter()
-            ->implode('');
-
-        return new AiResponse(
-            text: $text,
-            provider: self::NAME,
-            model: (string) ($data['modelVersion'] ?? $model),
-            inputTokens: $input,
-            outputTokens: $output,
-            totalTokens: (int) ($usage['totalTokenCount'] ?? $input + $output),
-            durationMs: $durationMs,
-            cutOff: $finishReason === 'MAX_TOKENS',
-            refused: \in_array($finishReason, self::BLOCKED, true) || filled($data['promptFeedback']['blockReason'] ?? null),
-        );
+        return (int) ($this->config['retry_ms'] ?? 0);
     }
 
     private function ensureReady(): void
@@ -193,20 +156,6 @@ class GeminiProvider implements AiProviderInterface
         } catch (ConnectionException $e) {
             throw new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e);
         }
-    }
-
-    private function timeout(): int
-    {
-        return (int) ($this->config['timeout'] ?? 180);
-    }
-
-    /**
-     * Gemini is often briefly overloaded; one retry after a short pause usually gets through.
-     */
-    private function isTransient(Throwable $e): bool
-    {
-        return $e instanceof ConnectionException
-            || ($e instanceof RequestException && ($e->response->serverError() || $e->response->status() === 429));
     }
 
     /**

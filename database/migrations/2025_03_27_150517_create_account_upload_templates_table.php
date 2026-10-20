@@ -13,6 +13,10 @@ class CreateAccountUploadTemplatesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('account_upload_templates')) {
+            return;
+        }
+
         Schema::create('account_upload_templates', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id')->nullable();

@@ -13,6 +13,10 @@ class CreateRemittancesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('remittances')) {
+            return;
+        }
+
         Schema::create('remittances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id')->nullable();

@@ -19,10 +19,10 @@
                         <div class="form-group">
                             <label for="">UPLOAD FILE</label>
                             @can('po scan access')
-                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model.defer="so_files" accept=".xls, .xlsx, .pdf" multiple>
+                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model="so_files" accept=".xls, .xlsx, .pdf" multiple>
                                 <small class="text-muted">One Excel file, or up to {{config('ai.po_scan.max_files')}} PO PDFs.</small>
                             @else
-                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model.defer="so_files" accept=".xls, .xlsx" multiple>
+                                <input type="file" class="form-control{{$errors->has('so_files') || $errors->has('so_files.*') ? ' is-invalid' : ''}}" wire:model="so_files" accept=".xls, .xlsx" multiple>
                             @endcan
                             @error('so_files')<p class="text-danger mb-0">{{$message}}</p>@enderror
                             @foreach($errors->get('so_files.*') as $messages)
@@ -216,7 +216,7 @@
                                             @endif
                                         </div>
                                     @elseif(empty($success_data[$po_number]))
-                                        <input type="file" class="form-control-file" wire:model="attachments.{{$data['key']}}" accept="{{\App\Services\SalesOrderAttachmentService::accept()}}">
+                                        <input type="file" class="form-control-file" wire:model.live="attachments.{{$data['key']}}" accept="{{\App\Services\SalesOrderAttachmentService::accept()}}">
                                         <small class="text-muted" wire:loading wire:target="attachments.{{$data['key']}}">Uploading&hellip;</small>
                                     @else
                                         <span class="text-muted">none</span>

@@ -147,7 +147,7 @@
         $('body').on('click', '.btn-assign-account', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('userAccount', id);
+            Livewire.dispatch('userAccount', [id]);
             $('#modal-accounts').modal('show');
         });
     });

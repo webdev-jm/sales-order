@@ -93,7 +93,7 @@ class Activities extends Component
             $this->logged_branch->login_activities()->whereNotNull('activity_id')->delete();
         }
 
-        $this->emit('setSignout');
+        $this->dispatch('setSignout');
     }
 
     public function mount($logged_branch) {

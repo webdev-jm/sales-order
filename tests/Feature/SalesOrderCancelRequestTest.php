@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Http\Livewire\SalesOrderCancelRequest\Create;
 use App\Http\Livewire\SalesOrderCancelRequest\Index;
 use App\Http\Livewire\SalesOrderCancelRequest\Show;
@@ -209,10 +211,10 @@ class SalesOrderCancelRequestTest extends TestCase
     }
 
     /**
-     * @dataProvider ineligibleOrders
      *
      * @param array<string, mixed> $attributes
      */
+    #[DataProvider('ineligibleOrders')]
     public function test_orders_that_are_not_in_syspro_or_already_cancelled_cannot_be_requested(array $attributes, string $error): void
     {
         $this->order->update($attributes);

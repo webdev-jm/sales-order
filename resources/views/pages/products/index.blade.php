@@ -147,13 +147,13 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Product', id);
+            Livewire.dispatch('setDeleteModel', ['Product', id]);
             $('#modal-delete').modal('show');
         });
 
     });
 
-    document.addEventListener('livewire:load', function() {
+    document.addEventListener('livewire:initialized', function() {
         $('body').on('click', '.btn-add-row', function(e) {
             e.preventDefault();
             var body = $(this).closest('table').find('tbody');
@@ -164,11 +164,11 @@
             var i = 0;
             tr.each(function(key) {
                 $(this).find('input').each(function() {
-                    var model = $(this).attr('wire:model.defer');
+                    var model = $(this).attr('wire:model');
                     var model_arr = model.split('.');
                     model_arr.pop();
                     model_arr.push(i);
-                    $(this).attr('wire:model.defer', model_arr.join('.'));
+                    $(this).attr('wire:model', model_arr.join('.'));
                 });
                 i++;
             });

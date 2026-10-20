@@ -205,7 +205,7 @@
         $('body').on('click', '.btn-area-modal', function(e) {
             e.preventDefault();
             var date = $(this).data('date');
-            Livewire.emit('setDate', date);
+            Livewire.dispatch('setDate', [date]);
             $('#area-activity-modal').modal('show');
         });
     });

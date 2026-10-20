@@ -108,7 +108,7 @@
     </form>
 
     <script>
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
 
             $('body').on('click', '[data-toggle="lightbox"]', function(event) {
                 event.preventDefault();
@@ -138,7 +138,7 @@
 
         });
 
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
             let stream = null;
             const openBtn = document.getElementById('openCameraBtn');
             const closeBtn = document.getElementById('closeCameraBtn');
@@ -192,7 +192,7 @@
                     const file = new File([blob], 'camera.jpg', { type: blob.type || 'image/jpeg' });
 
                     // Robust upload: prefer global Livewire.upload (capital or lowercase), otherwise fallback to emitting base64 data
-                    const lw = (window.Livewire || window.livewire);
+                    const lw = (window.Livewire || Livewire);
 
                     if (lw && typeof lw.upload === 'function') {
                         lw.upload('picture_file', file,
@@ -209,12 +209,12 @@
                                 alert('Upload failed: ' + error);
                             }
                         );
-                    } else if (window.livewire && typeof window.livewire.emit === 'function') {
+                    } else if (Livewire && typeof Livewire.emit === 'function') {
                         // Fallback: convert to base64 and emit an event; handle it in Livewire component (e.g. listen for 'pictureFileCaptured')
                         const reader = new FileReader();
                         reader.onload = function(e) {
                             // emit base64 payload to Livewire; implement server-side handler to accept it
-                            window.livewire.emit('pictureFileCaptured', e.target.result);
+                            Livewire.dispatch('pictureFileCaptured', [e.target.result]);
                             previewImg.src = URL.createObjectURL(file);
                             preview.style.display = '';
                             retakeBtn.style.display = '';

@@ -149,7 +149,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'InvoiceTerm', id);
+            Livewire.dispatch('setDeleteModel', ['InvoiceTerm', id]);
             $('#modal-delete').modal('show');
         });
     });
