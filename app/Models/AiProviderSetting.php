@@ -56,14 +56,22 @@ class AiProviderSetting extends Model
     }
 
     /**
-     * Estimated cost in US dollars of a call with these token counts, or null when no price is set.
+     * Estimated cost in US dollars of a call with these token counts, or null when no price is set. Cached input
+     * tokens are part of the input tokens; they are billed at the provider's cache rates (config ai.providers.*.cache_*_price).
      */
-    public function costOf(int $inputTokens, int $outputTokens): ?float
+    public function costOf(int $inputTokens, int $outputTokens, int $cachedInputTokens = 0, int $cacheWriteTokens = 0): ?float
     {
         if ($this->input_price === null && $this->output_price === null) {
             return null;
         }
 
-        return ($inputTokens * (float) $this->input_price + $outputTokens * (float) $this->output_price) / 1_000_000;
+        $inputPrice = (float) $this->input_price;
+        $readRate = (float) config("ai.providers.{$this->name}.cache_read_price", 1.0);
+        $writeRate = (float) config("ai.providers.{$this->name}.cache_write_price", 1.0);
+        $fresh = max(0, $inputTokens - $cachedInputTokens - $cacheWriteTokens);
+
+        $input = $fresh * $inputPrice + $cachedInputTokens * $inputPrice * $readRate + $cacheWriteTokens * $inputPrice * $writeRate;
+
+        return ($input + $outputTokens * (float) $this->output_price) / 1_000_000;
     }
 }

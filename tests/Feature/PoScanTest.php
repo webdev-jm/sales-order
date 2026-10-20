@@ -457,6 +457,32 @@ class PoScanTest extends TestCase
         $this->assertSame([AiUsageLog::STATUS_SUCCESS, AiUsageLog::STATUS_SUCCESS], $this->usageLogs()->sortBy('id')->pluck('status')->all());
     }
 
+    public function test_the_scan_asks_for_ratings_and_returns_them_with_each_row(): void
+    {
+        $user = $this->actingAsUser();
+        $json = $this->purchaseOrder([
+            ['sku' => 'X1', 'barcode' => '', 'description' => 'ITEM', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => 10, 'amount' => 20, 'page' => 2, 'confidence' => 63.4, 'unclear' => 'faded quantity'],
+            ['sku' => 'X2', 'barcode' => '', 'description' => 'ITEM 2', 'quantity' => 1, 'uom' => 'CS', 'unit_price' => 10, 'amount' => 10],
+        ]);
+        $json['purchase_orders'][0] += ['printed_total' => '30.00', 'page' => 1, 'confidence' => ['po_number' => 99, 'delivery_date' => 140], 'unclear' => 'stamp over the date'];
+        $this->fakeGemini($json);
+
+        $rows = app(PoScanner::class)->scan(self::PDF_CONTENT, 'po.pdf', $this->account, null, $user);
+
+        $this->assertSame(63, $rows[0]['ai_confidence']);
+        $this->assertSame('faded quantity', $rows[0]['ai_unclear']);
+        $this->assertSame(2, $rows[0]['page']);
+        $this->assertNull($rows[1]['ai_confidence'], 'A line the AI did not rate stays unrated.');
+        $this->assertSame(1, $rows[1]['page'], 'A line without a page takes the page of its PO.');
+        $this->assertSame(['po_number' => 99, 'delivery_date' => 100], $rows[0]['po_confidence']);
+        $this->assertSame('stamp over the date', $rows[0]['po_unclear']);
+        $this->assertSame('30', $rows[0]['po_printed_total']);
+
+        $schema = json_encode(PoScanner::schema());
+        $this->assertStringContainsString('"confidence"', $schema);
+        $this->assertStringContainsString('"printed_total"', $schema);
+    }
+
     public function test_editing_the_format_reads_the_pdf_again(): void
     {
         config(['ai.po_scan.cache_days' => 30]);

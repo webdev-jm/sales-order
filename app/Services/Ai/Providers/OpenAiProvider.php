@@ -224,6 +224,7 @@ class OpenAiProvider implements AiProviderInterface
             durationMs: $durationMs,
             cutOff: $finishReason === 'length',
             refused: $finishReason === 'content_filter' || filled($message['refusal'] ?? null),
+            cachedInputTokens: (int) data_get($data, 'usage.prompt_tokens_details.cached_tokens', 0),
         );
     }
 

@@ -62,6 +62,16 @@ class AnthropicProviderTest extends TestCase
         $this->assertSame('low', $body['output_config']['effort']);
     }
 
+    public function test_requests_ask_anthropic_to_cache_the_prompt(): void
+    {
+        $this->fakeAnthropic([$this->claudeReply(['ok' => true], 'end_turn', 900, 250, 100)]);
+
+        $response = $this->generate([AiDocument::pdf('%PDF-1.4')], ['type' => 'object', 'properties' => ['ok' => ['type' => 'boolean']]]);
+
+        $this->assertSame(['type' => 'ephemeral'], $this->anthropicRequestBody()['cache_control']);
+        $this->assertSame(100, $response->cachedInputTokens, 'Cache reads come back with the reply.');
+    }
+
     public function test_a_blank_effort_leaves_the_model_default(): void
     {
         $this->fakeAnthropic([$this->claudeReply(['ok' => true])]);

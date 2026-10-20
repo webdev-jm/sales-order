@@ -48,6 +48,15 @@ class Upload extends Component
     /** @var array<string, string> PDF file name => why it could not be read */
     public array $scanErrors = [];
 
+    /** @var array<string, array<string, mixed>> so_data entry key => the scanned PO: its lines and the confidence of each value */
+    public array $scans = [];
+
+    /** @var array<string, array<string, bool>> so_data entry key => "field-<key>" or "line-<index>" => checked by the user */
+    public array $scanChecks = [];
+
+    /** so_data entry key shown in the scan review window */
+    public ?string $reviewKey = null;
+
     protected $listeners = [
         'finalizeAll' => 'saveAll'
     ];
@@ -120,7 +129,7 @@ class Upload extends Component
      * PDF it came from as its attachment.
      */
     private function readPdfs(): void {
-        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors']);
+        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors', 'scans', 'scanChecks', 'reviewKey']);
 
         if (!auth()->user()->can('po scan access')) {
             $this->addError('so_files', 'You do not have permission to scan PO PDFs. Upload the Excel format instead.');
@@ -132,6 +141,7 @@ class Upload extends Component
         $reader = app(SalesOrderPdfReader::class);
         $grouped_data = [];
         $source_files = [];
+        $scanned = [];
 
         foreach ($this->so_files as $file) {
             $file_name = $file->getClientOriginalName();
@@ -170,6 +180,12 @@ class Upload extends Component
                     'items' => collect($order['items'])->map(fn ($uoms) => ['product' => null, 'uoms' => $uoms])->all(),
                 ];
                 $source_files[$po_number] = $file;
+                $scanned[$po_number] = [
+                    'po_number'  => $po_raw,
+                    'file'       => $file_name,
+                    'lines'      => $order['lines'],
+                    'confidence' => $order['confidence'],
+                ];
             }
         }
 
@@ -177,6 +193,8 @@ class Upload extends Component
 
         foreach ($this->so_data as $po_number => $data) {
             $this->attachments[$data['key']] = $source_files[$po_number];
+            $this->scans[$data['key']] = $scanned[$po_number];
+            $this->scanChecks[$data['key']] = [];
         }
     }
 
@@ -185,7 +203,7 @@ class Upload extends Component
     }
 
     private function processData($data) {
-        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors']);
+        $this->reset(['so_data', 'err_data', 'success_data', 'attachments', 'scanErrors', 'scans', 'scanChecks', 'reviewKey']);
 
         $grouped_data = [];
 
@@ -351,6 +369,9 @@ class Upload extends Component
         if(empty($data['po_value']) || $data['po_value'] <= 0) {
             $err['po_value'] = 'PO value is required';
         }
+        if(($open = $this->uncheckedScanValues($data['key'] ?? '')) > 0) {
+            $err['scan'] = 'Review the scanned PO first: ' . $open . ' ' . ($open === 1 ? 'value is' : 'values are') . ' marked Low and not checked yet.';
+        }
 
         // Date Validation
         if(!empty($data['ship_date_error'])) {
@@ -450,7 +471,16 @@ class Upload extends Component
                         ? SalesOrderAttachment::SOURCE_SCAN
                         : SalesOrderAttachment::SOURCE_UPLOAD;
 
-                    app(SalesOrderAttachmentService::class)->attach($sales_order, $attachment, $source);
+                    $scan = $source === SalesOrderAttachment::SOURCE_SCAN ? ($this->scans[$data['key']] ?? null) : null;
+
+                    app(SalesOrderAttachmentService::class)->attach($sales_order, $attachment, $source, $scan === null ? null : SalesOrderAttachmentService::scanRecord(
+                        ['po_number' => $scan['po_number'], 'lines' => $scan['lines']],
+                        $scan['confidence'],
+                        $scan['file'],
+                        [],
+                        [],
+                        $this->scanChecks[$data['key']] ?? []
+                    ));
                 }
 
                 // Logs
@@ -515,6 +545,38 @@ class Upload extends Component
         }
 
         unset($this->err_data[$po_number][$field]);
+    }
+
+    /**
+     * Opens the scan review window for one card: the PO PDF beside what the AI read.
+     */
+    public function reviewScan(string $key): void {
+        if (isset($this->scans[$key])) {
+            $this->reviewKey = $key;
+            $this->dispatch('openScanReview');
+        }
+    }
+
+    /**
+     * Low values of a card's scan that the user has not ticked.
+     */
+    public function uncheckedScanValues(string $key): int {
+        if (!isset($this->scans[$key])) {
+            return 0;
+        }
+
+        $confidence = $this->scans[$key]['confidence'];
+        $checks = $this->scanChecks[$key] ?? [];
+        $open = 0;
+
+        foreach ($confidence['fields'] as $field => $rated) {
+            $open += ($rated['level'] === 'low' && empty($checks['field-' . $field])) ? 1 : 0;
+        }
+        foreach ($confidence['lines'] as $index => $rated) {
+            $open += ($rated['level'] === 'low' && empty($checks['line-' . $index])) ? 1 : 0;
+        }
+
+        return $open;
     }
 
     public function saveAll($status) {

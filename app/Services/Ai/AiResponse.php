@@ -22,6 +22,10 @@ class AiResponse
         public readonly int $durationMs,
         public readonly bool $cutOff = false,
         public readonly bool $refused = false,
+        /** Input tokens read from the provider's prompt cache; part of inputTokens. */
+        public readonly int $cachedInputTokens = 0,
+        /** Input tokens written to the provider's prompt cache (Anthropic); part of inputTokens. */
+        public readonly int $cacheWriteTokens = 0,
     ) {
     }
 
@@ -48,6 +52,8 @@ class AiResponse
             durationMs: $durationMs,
             cutOff: $finishReason === FinishReason::Length,
             refused: $finishReason === FinishReason::ContentFilter,
+            cachedInputTokens: (int) ($usage->cacheReadInputTokens ?? 0),
+            cacheWriteTokens: (int) ($usage->cacheWriteInputTokens ?? 0),
         );
     }
 

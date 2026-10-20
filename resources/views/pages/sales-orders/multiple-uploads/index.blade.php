@@ -6,6 +6,7 @@
 
 @section('css')
 <script src="{{ asset('js/gsap.min.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/so-scan-review.css') }}">
 @endsection
 
 @section('content_header')
@@ -34,6 +35,7 @@
 @endsection
 
 @section('js')
+<script src="{{ asset('js/po-pdf-preview.js') }}"></script>
 <script>
     $(function() {
         $('body').on('click', '#btn-summary-modal', function(e) {

@@ -46,6 +46,8 @@ class AiUsageLog extends Model
         'model',
         'reference',
         'input_tokens',
+        'cached_input_tokens',
+        'cache_write_tokens',
         'output_tokens',
         'total_tokens',
         'estimated_cost',

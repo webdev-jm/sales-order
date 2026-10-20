@@ -18,12 +18,13 @@ use Livewire\Component;
 
 /**
  * "Explain these figures" on the SO Dashboard and the Sales Order report. The same figures are
- * explained once; asking again within the hour reuses the answer without using tokens.
+ * explained once; asking again within a day, by anyone who sees the same figures, reuses the answer without
+ * using tokens. A new or changed order changes the figures, so it gets a fresh explanation.
  */
 class Insights extends Component
 {
     /** Saved answers are reused for this long. */
-    private const CACHE_MINUTES = 60;
+    private const CACHE_MINUTES = 60 * 24;
 
     /** "so-dashboard" (follows the selected dates) or "so-report" (follows year, month and group). */
     public $source = 'so-dashboard';
@@ -97,7 +98,8 @@ class Insights extends Component
         }
 
         $user = auth()->user();
-        $cacheKey = 'ai-insights:' . hash('sha256', json_encode($data) . $user->id);
+        // The same figures get the same explanation, whoever asks, so the reply is shared by its figures.
+        $cacheKey = 'ai-insights:' . hash('sha256', json_encode($data));
 
         if (\is_array($saved = Cache::get($cacheKey))) {
             $meter->record(['user_id' => $user->id, 'feature' => AiUsageLog::FEATURE_INSIGHTS, 'reference' => $data['report'] . ': ' . $label, 'status' => AiUsageLog::STATUS_CACHED],
@@ -110,7 +112,7 @@ class Insights extends Component
         try {
             $response = $runner->prompt(
                 new ReportInsights,
-                "Explain these figures:\n" . json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                "Explain these figures:\n" . json_encode($data, JSON_UNESCAPED_UNICODE),
                 AiUsageLog::FEATURE_INSIGHTS,
                 $user,
                 reference: $data['report'] . ': ' . $label,

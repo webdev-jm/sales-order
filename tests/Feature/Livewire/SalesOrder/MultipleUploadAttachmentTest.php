@@ -400,4 +400,55 @@ class MultipleUploadAttachmentTest extends TestCase
             ],
         ];
     }
+
+    public function test_a_scanned_card_shows_how_sure_the_ai_was(): void
+    {
+        $order = $this->purchaseOrder('PO-CONF-1');
+        $order['lines'][0] += ['confidence' => 97];
+        $order['confidence'] = ['po_number' => 98, 'po_date' => 97, 'delivery_date' => 96, 'store' => 95, 'total' => 95];
+        $this->fakeGemini([$order]);
+
+        $uploader = $this->uploader()
+            ->set('so_files', [$this->pdf('scanned.pdf')])
+            ->call('checkFileData');
+
+        $key = $uploader->get('so_data')['PH-PO-CONF-1']['key'];
+        $this->assertSame('PO-CONF-1', $uploader->get('scans')[$key]['po_number']);
+        $uploader->assertSee('AI Medium 85')->assertSee('Review');
+    }
+
+    public function test_a_card_with_a_low_value_is_saved_only_after_the_value_is_checked(): void
+    {
+        $order = $this->purchaseOrder('PO-GATE-1');
+        $order['lines'][] = ['sku' => 'NOPE-1', 'barcode' => '', 'description' => 'MYSTERY', 'quantity' => 1, 'uom' => 'CS', 'unit_price' => 1, 'amount' => 1];
+        $this->fakeGemini([$order]);
+
+        $uploader = $this->uploader()
+            ->set('so_files', [$this->pdf('scanned.pdf')])
+            ->call('checkFileData')
+            ->assertSee('1 to check')
+            ->call('saveSalesOrder', 'draft', 'PH-PO-GATE-1')
+            ->assertSet('err_data.PH-PO-GATE-1.scan', 'Review the scanned PO first: 1 value is marked Low and not checked yet.');
+
+        $this->assertFalse(SalesOrder::where('po_number', 'PH-PO-GATE-1')->exists());
+
+        $key = $uploader->get('so_data')['PH-PO-GATE-1']['key'];
+        $uploader->call('reviewScan', $key)
+            ->assertSet('reviewKey', $key)
+            ->assertDispatched('openScanReview')
+            ->assertSee('Review scanned PO PO-GATE-1')
+            ->assertSee('No product for item code NOPE-1')
+            ->set('scanChecks.' . $key . '.line-1', true)
+            ->call('saveSalesOrder', 'draft', 'PH-PO-GATE-1');
+
+        $attachment = SalesOrder::where('po_number', 'PH-PO-GATE-1')->firstOrFail()->attachment;
+        $this->assertSame('PO-GATE-1', $attachment->scan_result['po_number']);
+        $this->assertTrue($attachment->scan_result['lines'][1]['confirmed']);
+        $this->assertSame('low', $attachment->scanLevel());
+    }
+
+    public function test_a_card_from_an_excel_sheet_has_no_scan_to_review(): void
+    {
+        $this->assertSame(0, $this->uploader()->instance()->uncheckedScanValues('so0'));
+    }
 }

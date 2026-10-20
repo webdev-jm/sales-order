@@ -132,6 +132,7 @@ class Index extends Component
             ->selectRaw('COUNT(*) as calls')
             ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as failed', [AiUsageLog::STATUS_FAILED])
             ->selectRaw('COALESCE(SUM(input_tokens), 0) as input_tokens')
+            ->selectRaw('COALESCE(SUM(cached_input_tokens), 0) as cached_input_tokens')
             ->selectRaw('COALESCE(SUM(output_tokens), 0) as output_tokens')
             ->selectRaw('COALESCE(SUM(total_tokens), 0) as total_tokens')
             ->selectRaw('SUM(estimated_cost) as estimated_cost')

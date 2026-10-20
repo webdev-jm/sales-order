@@ -82,6 +82,18 @@
                     <div class="card-header">
                         <div class="card-title">CONTROL NUMBER: <b>{{$success_data[$po_number]['control_number'] ?? 'N/A'}}</b></div>
                         <div class="card-tools">
+                            @if(isset($data['key'], $scans[$data['key']]))
+                                @php
+                                    $scan_rating = $scans[$data['key']]['confidence'];
+                                    $scan_open = $this->uncheckedScanValues($data['key']);
+                                @endphp
+                                <span class="confidence-chip confidence-{{ $scan_rating['level'] }} mr-1" title="How sure the AI is about what it read from {{ $scans[$data['key']]['file'] }}">
+                                    AI {{ \App\Services\ScanConfidence::LEVELS[$scan_rating['level']] }} {{ $scan_rating['score'] }}{{ $scan_open > 0 ? ' · ' . $scan_open . ' to check' : '' }}
+                                </span>
+                                <button type="button" class="btn {{ $scan_open > 0 ? 'btn-warning' : 'btn-outline-secondary' }} mr-1" wire:click="reviewScan('{{ $data['key'] }}')" wire:loading.attr="disabled">
+                                    <i class="fa fa-search mr-1"></i>Review
+                                </button>
+                            @endif
                             @if(empty($success_data[$po_number]['control_number']))
                                 <button class="btn btn-secondary" wire:loading.attr="disabled" wire:click.prevent="saveSalesOrder('draft', '{{$po_number}}')">
                                     <i class="fa fa-spinner fa-spin mr-1" wire:loading></i>
@@ -325,5 +337,113 @@
         @endforeach
     </div>
     @endif
+
+
+    {{-- Scan review window: the PO PDF of one card beside what the AI read and how sure it was. --}}
+    <div class="modal fade" id="scan-review-modal" tabindex="-1" wire:ignore.self aria-labelledby="scan-review-title">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                @if($reviewKey && isset($scans[$reviewKey]))
+                    @php
+                        $review = $scans[$reviewKey];
+                        $review_file = $attachments[$reviewKey] ?? null;
+                        $review_pdf = ($review_file && $review_file->getClientOriginalName() === $review['file']) ? $review_file->temporaryUrl() : null;
+                        $review_open = $this->uncheckedScanValues($reviewKey);
+                        $levels = \App\Services\ScanConfidence::LEVELS;
+                    @endphp
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="scan-review-title">Review scanned PO {{ $review['po_number'] }} <small class="text-muted">{{ $review['file'] }}</small></h4>
+                        <span class="confidence-chip confidence-{{ $review['confidence']['level'] }} ml-2 mt-2">Overall {{ $levels[$review['confidence']['level']] }} {{ $review['confidence']['score'] }}</span>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-6 mb-3" wire:key="scan-viewer-{{ $reviewKey }}">
+                                @if($review_pdf)
+                                    <div wire:ignore>
+                                        <div x-data="poPdfPreview(@js($review_pdf), @js(asset('vendor/pdfjs/pdf.min.js')), @js(asset('vendor/pdfjs/pdf.worker.min.js')))"
+                                            x-on:pdf-find.window="find($event.detail)">
+                                            <p class="text-muted small mb-2" x-show="status" x-text="status"></p>
+                                            <p class="text-muted small mb-2" x-show="message" x-text="message"></p>
+                                            <div class="po-pages" x-ref="pages"></div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="alert alert-light border">The scanned PDF was replaced on this card, so it cannot be shown.</div>
+                                @endif
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="scan-fields mb-3">
+                                    @foreach($review['confidence']['fields'] as $field_key => $field)
+                                        <div class="scan-field confidence-border-{{ $field['level'] }}" wire:key="scan-field-{{ $reviewKey }}-{{ $field_key }}" role="button" tabindex="0"
+                                            x-on:click="$dispatch('pdf-find', { terms: @js($field['find']), page: @js($field['page']), row: false })">
+                                            <div class="d-flex align-items-start justify-content-between" style="gap:.4rem">
+                                                <span class="scan-label">{{ $field['label'] }}</span>
+                                                <span class="confidence-chip confidence-{{ $field['level'] }}">{{ $levels[$field['level']] }} {{ $field['score'] }}</span>
+                                            </div>
+                                            <div class="scan-value">{{ $field['value'] !== '' ? $field['value'] : '-' }}</div>
+                                            @foreach($field['reasons'] as $reason)
+                                                <small class="d-block text-muted" wire:key="scan-field-reason-{{ $field_key }}-{{ $loop->index }}">{{ $reason }}</small>
+                                            @endforeach
+                                            @if($field['level'] === 'low')
+                                                <div class="custom-control custom-checkbox mt-1" x-on:click.stop>
+                                                    <input type="checkbox" class="custom-control-input" id="scan-check-{{ $reviewKey }}-field-{{ $field_key }}" wire:model.live="scanChecks.{{ $reviewKey }}.field-{{ $field_key }}">
+                                                    <label class="custom-control-label small" for="scan-check-{{ $reviewKey }}-field-{{ $field_key }}">I checked this</label>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover scan-lines mb-0">
+                                        <thead><tr><th>Line read</th><th class="text-right">Qty</th><th>Unit</th><th>Product</th><th>Confidence</th></tr></thead>
+                                        <tbody>
+                                            @foreach($review['lines'] as $line_index => $line)
+                                                @php($rated = $review['confidence']['lines'][$line_index] ?? null)
+                                                <tr wire:key="scan-line-{{ $reviewKey }}-{{ $line_index }}"
+                                                    x-on:click="$dispatch('pdf-find', { terms: @js(array_values(array_filter([$line['sku'], $line['description']]))), page: @js($line['page']), row: true })">
+                                                    <td><span class="scan-code">{{ $line['sku'] }}</span><span class="d-block small">{{ $line['description'] }}</span></td>
+                                                    <td class="text-right">{{ $line['quantity'] + 0 }}</td>
+                                                    <td>{{ $line['so_uom'] }}</td>
+                                                    <td>{!! $line['product_id'] ? '<span class="scan-code">' . e($line['stock_code']) . '</span>' : '<span class="text-danger small">Not found</span>' !!}</td>
+                                                    <td>
+                                                        @if($rated)
+                                                            <span class="confidence-chip confidence-{{ $rated['level'] }}">{{ $levels[$rated['level']] }} {{ $rated['score'] }}</span>
+                                                            @foreach($rated['reasons'] as $reason)
+                                                                <small class="d-block text-muted" wire:key="scan-line-reason-{{ $line_index }}-{{ $loop->index }}">{{ $reason }}</small>
+                                                            @endforeach
+                                                            @if($rated['level'] === 'low')
+                                                                <div class="custom-control custom-checkbox mt-1" x-on:click.stop>
+                                                                    <input type="checkbox" class="custom-control-input" id="scan-check-{{ $reviewKey }}-line-{{ $line_index }}" wire:model.live="scanChecks.{{ $reviewKey }}.line-{{ $line_index }}">
+                                                                    <label class="custom-control-label small" for="scan-check-{{ $reviewKey }}-line-{{ $line_index }}">I checked this</label>
+                                                                </div>
+                                                            @endif
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-muted small mt-2 mb-0">Click a value or a line to mark it on the PDF. Correct quantities on the card itself.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <span class="mr-auto small {{ $review_open > 0 ? 'text-danger' : 'text-success' }}">
+                            {{ $review_open > 0 ? $review_open . ' marked Low to check before this order can be saved.' : 'Nothing left to check on this PO.' }}
+                        </span>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('openScanReview', function () {
+            $('#scan-review-modal').modal('show');
+        });
+    </script>
 
 </div>

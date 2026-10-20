@@ -1,0 +1,30 @@
+/* Scanned PO review: the PDF preview (public/js/po-pdf-preview.js) and the confidence of what the AI read. */
+
+.po-pages { max-height: 78vh; overflow-y: auto; background: #e9ecef; border-radius: .25rem; padding: .5rem; }
+.po-page { position: relative; margin: 0 auto .5rem; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .2); }
+.po-page canvas { display: block; }
+.po-page-number { position: absolute; right: .4rem; bottom: .3rem; font-size: .7rem; color: #6c757d; background: rgba(255, 255, 255, .85); padding: 0 .3rem; border-radius: .2rem; }
+.po-mark { position: absolute; background: rgba(255, 193, 7, .35); box-shadow: 0 0 0 2px rgba(255, 193, 7, .9); border-radius: 2px; pointer-events: none; }
+.po-mark-row { background: rgba(255, 193, 7, .22); }
+
+.confidence-chip { display: inline-flex; align-items: center; gap: .3rem; font-size: .72rem; font-weight: 600; padding: .1rem .5rem; border-radius: 1rem; white-space: nowrap; }
+.confidence-chip::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; display: inline-block; }
+.confidence-dot { width: .45rem; height: .45rem; border-radius: 50%; display: inline-block; background: currentColor; vertical-align: middle; }
+.confidence-high { color: #1e7e34; background-color: #d4edda; }
+.confidence-medium { color: #8a5a00; background-color: #fff3cd; }
+.confidence-low { color: #b21f2d; background-color: #f8d7da; }
+.confidence-dot.confidence-high, .confidence-dot.confidence-medium, .confidence-dot.confidence-low { background-color: currentColor; }
+
+.scan-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr)); gap: .5rem; }
+.scan-field { border: 1px solid #dee2e6; border-left-width: 4px; border-radius: .3rem; padding: .45rem .6rem; cursor: pointer; background: #fff; }
+.scan-field:hover, .scan-field:focus { border-color: #007bff; outline: none; }
+.scan-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: #6c757d; font-weight: 600; }
+.scan-value { font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: .88rem; word-break: break-word; }
+.scan-code { font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: .82rem; }
+.scan-lines tbody tr { cursor: pointer; }
+.scan-lines td { vertical-align: top; }
+.scan-line-open td:first-child { box-shadow: inset 4px 0 0 #dc3545; }
+.scan-line-dropped td { opacity: .5; }
+.confidence-border-high { border-left-color: #28a745; }
+.confidence-border-medium { border-left-color: #ffc107; }
+.confidence-border-low { border-left-color: #dc3545; }
