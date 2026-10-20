@@ -30,7 +30,7 @@
                     </thead>
                     <tbody>
                         @foreach($activities as $activity)
-                        <tr class="{{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'bg-light'}}">
+                        <tr wire:key="activity-{{ $activity->id }}" class="{{isset($activity_val[$activity->id]['number']) && $activity_val[$activity->id]['number'] == true ? '' : 'bg-light'}}">
                             <td class="p-0 text-center align-middle">
                                 <div class="form-group m-0">
                                     <div class="custom-control custom-switch">

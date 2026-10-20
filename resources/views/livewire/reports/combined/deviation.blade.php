@@ -19,7 +19,7 @@
                 </thead>
                 <tbody>
                     @foreach($deviations as $deviation)
-                    <tr>
+                    <tr wire:key="deviation-{{ $deviation->id }}">
                         <td>{{$deviation->user->fullName()}}</td>
                         <td>{{$deviation->date}}</td>
                         <td>{{$deviation->reason_for_deviation}}</td>

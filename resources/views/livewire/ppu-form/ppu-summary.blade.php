@@ -33,7 +33,7 @@
                 </thead>
                 <tbody>
                     @foreach($items as $index => $item)
-                        <tr>
+                        <tr wire:key="item-{{ $index }}">
                             <td>{{ $index + 1 }}</td>
                             <td>{{ $item['rs'] }}</td>
                             <td>{{ $item['rtv'] }}</td>

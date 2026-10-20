@@ -38,7 +38,7 @@
                             </thead>
                             <tbody>
                                 @foreach($approvals as $approval)
-                                <tr>
+                                <tr wire:key="approval-{{ $loop->index }}">
                                     <td>
                                         {{$approval->user->fullName()}}
                                     </td>

@@ -94,7 +94,9 @@
         </div>
         @else
         <div class="card-body p-0">
-            <div id="calendar-container"></div>
+            {{-- Rebuilt by Alpine whenever this view or its holidays change; Livewire leaves the calendar's own DOM alone. --}}
+            <div id="calendar-container" wire:ignore wire:key="holiday-calendar-{{ md5(json_encode($calendarData)) }}"
+                x-data x-init="renderHolidayCalendar($el, @js($calendarData))"></div>
         </div>
         <div class="card-footer">
             <div class="d-flex flex-wrap" style="gap:16px">
@@ -115,13 +117,10 @@
         @endif
     </div>
 
-    @if($activeView === 'calendar')
     <script>
-        (function initCalendar() {
-            var holidays = @json($calendarData);
-            var calendarEl = document.getElementById('calendar-container');
-            if (!calendarEl || typeof FullCalendar === 'undefined') {
-                document.addEventListener('DOMContentLoaded', function() { initCalendar(); });
+        window.renderHolidayCalendar = function (calendarEl, holidays) {
+            if (typeof FullCalendar === 'undefined') {
+                document.addEventListener('DOMContentLoaded', function () { window.renderHolidayCalendar(calendarEl, holidays); });
                 return;
             }
             var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -138,7 +137,6 @@
                 events: holidays,
             });
             calendar.render();
-        })();
+        };
     </script>
-    @endif
 </div>

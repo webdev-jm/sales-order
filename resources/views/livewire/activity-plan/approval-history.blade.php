@@ -9,7 +9,7 @@
 
                 @foreach($approvals as $date => $data)
                     {{-- DATE LABEL --}}
-                    <div class="time-label">
+                    <div wire:key="data-{{ $date }}" class="time-label">
                         <span class="bg-primary text-uppercase">
                             {{date('M j Y', strtotime($date))}}
                         </span>
@@ -17,7 +17,7 @@
 
                     @foreach($data as $approval)
                         <!-- timeline item -->
-                        <div>
+                        <div wire:key="approval-{{ $loop->index }}">
                             <i class="fas fa-user bg-{{$status_arr[$approval->status]}}"></i>
 
                             <div class="timeline-item">

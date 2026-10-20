@@ -2,13 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Http\Livewire\Accounts\AccountBranchLoginForm;
+use App\Http\Requests\StoreBranchLocationRequest;
 use App\Models\Account;
 use App\Models\Branch;
 use App\Models\BranchLogin;
 use App\Models\Company;
 use App\Models\OrganizationStructure;
 use App\Models\User;
+use App\Services\Maps\LocationTrail;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Carbon;
+use Livewire\Livewire;
 use Tests\Concerns\SeedsReferenceData;
 use Tests\TestCase;
 
@@ -77,7 +82,7 @@ class StoreLocationRecordsTest extends TestCase
         $this->assertCount(1, $trail);
         $this->assertEquals(14.6760, $trail[0]['latitude']);
         $this->assertEquals(121.0437, $trail[0]['longitude']);
-        $this->assertEquals('8.5 m', $trail[0]['accuracy']);
+        $this->assertSame(8.5, $trail[0]['accuracy']);
         $this->assertArrayHasKey('recorded_at', $trail[0]);
     }
 
@@ -128,6 +133,190 @@ class StoreLocationRecordsTest extends TestCase
             ])
             ->assertStatus(422)
             ->assertJsonValidationErrors(['latitude', 'longitude']);
+    }
+
+    // ── Readings kept on the phone ────────────────────────────────────────────
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function phoneReadings(Carbon $from, int $count, float $latitude = 14.6760): array
+    {
+        $points = [];
+        for ($i = 0; $i < $count; $i++) {
+            $points[] = [
+                'latitude'    => $latitude + $i * 0.005,
+                'longitude'   => 121.0437,
+                'accuracy'    => 9.5,
+                'recorded_at' => $from->copy()->addMinutes($i)->getTimestampMs(),
+            ];
+        }
+
+        return $points;
+    }
+
+    public function test_a_batch_kept_offline_is_saved_with_the_phone_times(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = $this->openBranchLogin($user);
+        $login->update(['time_in' => now()->subHour()]);
+
+        $this->actingAs($user)
+            ->postJson(route('branch-location.store'), [
+                'branch_login_id' => $login->id,
+                'points'          => $this->phoneReadings(now()->subMinutes(50), 3),
+            ])
+            ->assertOk()
+            ->assertJson(['recorded' => true, 'points' => 3, 'added' => 3]);
+
+        $trail = $login->fresh()->location_trail;
+        $this->assertSame(now()->subMinutes(50)->toDateTimeString(), $trail[0]['recorded_at']);
+        $this->assertSame(9.5, $trail[0]['accuracy']);
+    }
+
+    public function test_readings_still_reach_a_branch_login_after_sign_out(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = BranchLogin::factory()->create([
+            'user_id'   => $user->id,
+            'branch_id' => $this->makeBranch()->id,
+            'time_in'   => now()->subHours(3),
+            'time_out'  => now()->subHour(),
+        ]);
+
+        $readings = array_merge(
+            $this->phoneReadings(now()->subHours(2), 2),
+            $this->phoneReadings(now()->subMinutes(30), 1, 14.70),
+        );
+
+        $this->actingAs($user)
+            ->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $readings])
+            ->assertOk()
+            ->assertJson(['added' => 2, 'ignored' => 1]);
+
+        $this->assertCount(2, $login->fresh()->location_trail, 'A reading taken after sign-out belongs to no visit.');
+    }
+
+    public function test_the_same_batch_sent_twice_is_stored_once(): void
+    {
+        $user     = $this->makeUser('Field', 'Rep');
+        $login    = $this->openBranchLogin($user);
+        $login->update(['time_in' => now()->subHour()]);
+        $readings = $this->phoneReadings(now()->subMinutes(20), 4);
+
+        $this->actingAs($user)->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $readings])->assertOk();
+        $this->actingAs($user)->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $readings])
+            ->assertOk()
+            ->assertJson(['added' => 0, 'ignored' => 4, 'points' => 4]);
+    }
+
+    public function test_readings_at_the_same_spot_are_merged_into_one_point(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = $this->openBranchLogin($user);
+        $login->update(['time_in' => now()->subHour()]);
+
+        $readings = array_map(fn (int $i) => [
+            'latitude'    => 14.6760 + ($i % 2) * 0.00002,
+            'longitude'   => 121.0437,
+            'accuracy'    => 12,
+            'recorded_at' => now()->subMinutes(40 - $i)->getTimestampMs(),
+        ], range(0, 29));
+
+        $this->actingAs($user)
+            ->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $readings])
+            ->assertOk()
+            ->assertJson(['points' => 1, 'added' => 1, 'merged' => 29]);
+
+        $this->assertSame(30, $login->fresh()->location_trail[0]['samples']);
+    }
+
+    public function test_another_users_branch_login_is_refused(): void
+    {
+        $owner    = $this->makeUser('Owner', 'Rep');
+        $intruder = $this->makeUser('Other', 'Rep');
+        $login    = $this->openBranchLogin($owner);
+
+        $this->actingAs($intruder)
+            ->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $this->phoneReadings(now(), 1)])
+            ->assertStatus(409);
+
+        $this->assertNull($login->fresh()->location_trail);
+    }
+
+    public function test_a_branch_login_older_than_the_late_sync_window_is_refused(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = BranchLogin::factory()->create([
+            'user_id'   => $user->id,
+            'branch_id' => $this->makeBranch()->id,
+            'time_in'   => now()->subDays(LocationTrail::LATE_SYNC_DAYS + 1),
+            'time_out'  => now()->subDays(LocationTrail::LATE_SYNC_DAYS + 1)->addHours(8),
+        ]);
+
+        $this->actingAs($user)
+            ->postJson(route('branch-location.store'), ['branch_login_id' => $login->id, 'points' => $this->phoneReadings(now(), 1)])
+            ->assertStatus(409);
+    }
+
+    public function test_a_batch_larger_than_the_limit_is_rejected(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = $this->openBranchLogin($user);
+
+        $this->actingAs($user)
+            ->postJson(route('branch-location.store'), [
+                'branch_login_id' => $login->id,
+                'points'          => $this->phoneReadings(now(), StoreBranchLocationRequest::MAX_BATCH + 1),
+            ])
+            ->assertStatus(422)
+            ->assertJsonValidationErrors(['points']);
+    }
+
+    public function test_branch_sign_out_saves_the_readings_still_on_the_phone(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = $this->openBranchLogin($user);
+        $login->update(['time_in' => now()->subHours(2)]);
+        session(['logged_branch' => $login]);
+
+        Livewire::actingAs($user)
+            ->test(AccountBranchLoginForm::class, ['logged_branch' => $login->fresh()])
+            ->call('logout', $this->phoneReadings(now()->subMinutes(90), 3));
+
+        $login->refresh();
+        $this->assertNotNull($login->time_out);
+        $this->assertCount(3, $login->location_trail);
+    }
+
+    public function test_branch_sign_out_without_readings_still_signs_out(): void
+    {
+        $user  = $this->makeUser('Field', 'Rep');
+        $login = $this->openBranchLogin($user);
+
+        Livewire::actingAs($user)
+            ->test(AccountBranchLoginForm::class, ['logged_branch' => $login])
+            ->call('logout');
+
+        $this->assertNotNull($login->fresh()->time_out);
+        $this->assertNull($login->fresh()->location_trail);
+    }
+
+    public function test_the_tracker_is_on_every_page_and_records_only_in_a_branch_session(): void
+    {
+        $user = $this->makeUser('Field', 'Rep');
+        $user->givePermissionTo('location report access');
+
+        $this->actingAs($user)->get(route('report.locations'))
+            ->assertOk()
+            ->assertSee('window.SmsLocationTrail', false)
+            ->assertSee('var branchLoginId = null;', false);
+
+        $login = $this->openBranchLogin($user);
+
+        $this->actingAs($user)->withSession(['logged_branch' => $login])->get(route('report.locations'))
+            ->assertOk()
+            ->assertSee('var branchLoginId = ' . $login->id . ';', false);
     }
 
     // ── Locations report gating ───────────────────────────────────────────────

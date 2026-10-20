@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                     @foreach($results as $result)
-                    <tr class="text-center">
+                    <tr wire:key="result-{{ $loop->index }}" class="text-center">
                         <td>{{$result->short_name}}</td>
                         <td>{{$result->company_name}}</td>
                         <td>{{$result->product_description}}</td>

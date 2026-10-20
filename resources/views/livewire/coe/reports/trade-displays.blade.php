@@ -18,7 +18,7 @@
                         </thead>
                         <tbody>
                             @foreach($trade_reports as $report)
-                            <tr class="text-center">
+                            <tr wire:key="report-{{ $loop->index }}" class="text-center">
                                 <td>{{$report}}</td>
                                 <td>{{$data[$report]['actual']}}</td>
                                 <td>{{$data[$report]['target']}}</td>

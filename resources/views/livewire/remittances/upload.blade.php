@@ -24,7 +24,7 @@
 
     @if(!empty($remittance_data)) 
         @foreach($remittance_data as $remittance)
-            <div class="card">
+            <div wire:key="remittance-{{ $loop->index }}" class="card">
                 <div class="card-header">
                     <h3 class="card-title">REMITTANCE DETAILS</h3>
                     <div class="card-tools">
@@ -41,7 +41,7 @@
                         <div class="col-lg-6 mb-2">
                             <ul class="list-group">
                                 @foreach($remittance['header'] as $title => $header)
-                                    <li class="list-group-item py-2">
+                                    <li wire:key="header-{{ $title }}" class="list-group-item py-2">
                                         <strong>{{$title}}</strong>
                                         <span class="float-right">{{$header}}</span>
                                     </li>
@@ -72,9 +72,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach($remittance['details'] as $details)
-                                        <tr class="text-center">
+                                        <tr wire:key="details-{{ $loop->index }}" class="text-center">
                                             @foreach($details as $col => $val)
-                                                <td class="align-middle py-0 px-1{{ is_numeric($val) ? ' text-right' : ''}}">
+                                                <td wire:key="val-{{ $col }}" class="align-middle py-0 px-1{{ is_numeric($val) ? ' text-right' : ''}}">
                                                     {{ $val }}
                                                 </td>
                                             @endforeach

@@ -16,7 +16,7 @@
                 </thead>
                 <tbody>
                     @foreach($results as $result)
-                    <tr class="text-center">
+                    <tr wire:key="result-{{ $loop->index }}" class="text-center">
                         <td>{{$result->paf_number}}</td>
                         <td>{{$result->sku}}</td>
                         <td>{{$result->actual}}</td>

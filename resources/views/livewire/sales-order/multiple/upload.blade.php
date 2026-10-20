@@ -26,7 +26,7 @@
                             @endcan
                             @error('so_files')<p class="text-danger mb-0">{{$message}}</p>@enderror
                             @foreach($errors->get('so_files.*') as $messages)
-                                <p class="text-danger mb-0">{{$messages[0]}}</p>
+                                <p wire:key="messages-{{ $loop->index }}" class="text-danger mb-0">{{$messages[0]}}</p>
                             @endforeach
                         </div>
                     </div>
@@ -45,7 +45,7 @@
                         <strong class="ml-3">These PDFs could not be fully read:</strong>
                         <ul class="mb-0">
                             @foreach($scanErrors as $file_name => $message)
-                                <li>{{$file_name}} &mdash; {{$message}}</li>
+                                <li wire:key="message-{{ $file_name }}">{{$file_name}} &mdash; {{$message}}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -102,7 +102,7 @@
                                     <div class="alert alert-danger pl-0">
                                         <ul class="mb-0">
                                             @foreach($err_data[$po_number] as $err)
-                                                <li class="">{{$err}}</li>
+                                                <li wire:key="err-{{ $loop->index }}" class="">{{$err}}</li>
                                             @endforeach
                                         </ul>
                                     </div>
@@ -117,7 +117,7 @@
                                         <strong class="ml-3">The following SKUs were not included in this order:</strong>
                                         <ul class="mb-0">
                                             @foreach($data['warnings'] as $warning)
-                                                <li>{{$warning['stock_code']}} &mdash; {{$warning['reason']}}</li>
+                                                <li wire:key="warning-{{ $loop->index }}">{{$warning['stock_code']}} &mdash; {{$warning['reason']}}</li>
                                             @endforeach
                                         </ul>
                                     </div>
@@ -252,7 +252,7 @@
                                             @php
                                                 $num++;
                                             @endphp
-                                            <tr>
+                                            <tr wire:key="val-{{ $key }}">
                                                 <td class="align-middle text-center">{{$num}}</td>
                                                 <td class="align-middle">{{$val['sku_code']}}</td>
                                                 @if(!empty($val['product']))

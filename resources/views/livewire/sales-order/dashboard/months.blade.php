@@ -101,7 +101,7 @@
                         @foreach($days as $year => $months)
                             @foreach($months as $month => $days)
                                 @foreach($days as $day)
-                                <span class="badge badge-primary">{{$year.'-'.$month.'-'.($day < 10 ? '0'.(int)$day : $day)}}</span>
+                                <span wire:key="day-{{ $loop->index }}" class="badge badge-primary">{{$year.'-'.$month.'-'.($day < 10 ? '0'.(int)$day : $day)}}</span>
                                 @endforeach
                             @endforeach
                         @endforeach

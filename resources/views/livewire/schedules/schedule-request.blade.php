@@ -71,7 +71,7 @@
                     {{-- schedule list --}}
                     <div class="list-group">
                         @foreach($schedules as $schedule)
-                            <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="selectSchedule({{$schedule->id}})" wire:loading.attr="disabled">
+                            <a wire:key="schedule-{{ $schedule->id }}" href="#" class="list-group-item list-group-item-action" wire:click.prevent="selectSchedule({{$schedule->id}})" wire:loading.attr="disabled">
                                 {{ $schedule->branch ? $schedule->branch->branch_code . ' ' . $schedule->branch->branch_name : 'On Leave' }}
                                 <span class="float-right">{{$schedule->user->fullName()}}</span>
                             </a>

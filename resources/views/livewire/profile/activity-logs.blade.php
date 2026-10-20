@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                     @foreach($activities as $activity)
-                    <tr>
+                    <tr wire:key="activity-{{ $loop->index }}">
                         <td>{{$activity->log_name}}</td>
                         <td>{{$activity->causer->fullName()}}</td>
                         <td>{{$activity->description}}</td>

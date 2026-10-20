@@ -147,7 +147,7 @@
                     <p class="mb-1"><strong>These PDFs could not be scanned and are not in the table:</strong></p>
                     <ul class="mb-0 pl-3">
                         @foreach($scanWarnings as $fileName => $message)
-                            <li><strong>{{ $fileName }}</strong> — {{ $message }}</li>
+                            <li wire:key="message-{{ $fileName }}"><strong>{{ $fileName }}</strong> — {{ $message }}</li>
                         @endforeach
                     </ul>
                 </div>

@@ -81,7 +81,7 @@
                 @else
                     <div class="list-group">
                         @foreach($schedules as $schedule)
-                        <a href="#" class="list-group-item list-group-item-action" wire:click.prevent="showDetail({{$schedule->id}})" wire:loading.attr="disabled">
+                        <a wire:key="schedule-{{ $schedule->id }}" href="#" class="list-group-item list-group-item-action" wire:click.prevent="showDetail({{$schedule->id}})" wire:loading.attr="disabled">
                             <span>{{ $schedule->branch ? '[' . $schedule->branch->branch_code . '] ' . $schedule->branch->branch_name : 'On Leave' }}</span>
                             <span class="float-right">{{$schedule->user->fullName()}}</span>
                         </a>

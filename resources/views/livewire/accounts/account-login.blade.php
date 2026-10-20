@@ -18,7 +18,7 @@
 
             <div class="row">
             @foreach($accounts as $account)
-                <div class="col-lg-3">
+                <div wire:key="account-{{ $account->id }}" class="col-lg-3">
                     <div class="small-box h-90">
                         <div class="inner h-80">
                             <h3>{{$account->account_code}}</h3>

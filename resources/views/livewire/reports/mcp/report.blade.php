@@ -105,7 +105,7 @@
                             @foreach($paginatedData as $key => $date)
                                 @if(!empty($schedules[$date]))
                                     @foreach($schedules[$date] as $user_id => $val)
-                                        <tr class="bg-secondary">
+                                        <tr wire:key="val-{{ $user_id }}" class="bg-secondary">
                                             <td></td>
                                             <td class="font-weight-bold text-center">
                                                 {{$date}}
@@ -122,7 +122,7 @@
                                             @php
                                                 $schedule_count++;
                                             @endphp
-                                            <tr>
+                                            <tr wire:key="schedule-{{ $schedule->id }}">
                                                 <td class="p-0 text-center align-middle">
                                                     <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$schedule->id}}, 'schedule')">
                                                         <i class="fa fa-list-alt {{$schedule->source == 'deviation' ? 'text-danger' : ($schedule->source == 'request' ? 'text-warning' : 'text-info')}}" title="{{$schedule->source}}"></i>
@@ -141,7 +141,7 @@
                                                 @if(isset($actuals[$schedule->id]))
                                                     <td class="text-left">
                                                         @foreach($actuals[$schedule->id] as $actual)
-                                                        <p class="mb-0">
+                                                        <p wire:key="actual-1-{{ $actual->id }}" class="mb-0">
                                                             <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual->id}})">
                                                                 <i class="fa fa-info-circle text-primary mr-2"></i>
                                                             </a>
@@ -151,7 +151,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         @foreach($actuals[$schedule->id] as $actual)
-                                                        <p class="mb-0">
+                                                        <p wire:key="actual-2-{{ $loop->index }}" class="mb-0">
                                                             {{date('h:i:s a', strtotime($actual->time_in))}}
                                                         </p>
                                                         @endforeach
@@ -159,7 +159,7 @@
                                                     <td class="text-center">
                                                         @foreach($actuals[$schedule->id] as $actual)
                                                             @if(!empty($actual->time_out))
-                                                            <p class="mb-0">
+                                                            <p wire:key="actual-3-{{ $loop->index }}" class="mb-0">
                                                                 {{date('h:i:s a', strtotime($actual->time_out))}}
                                                             </p>
                                                             @endif
@@ -192,7 +192,7 @@
 
                                         @isset($deviations[$date][$user_id])
                                             @foreach($deviations[$date][$user_id] as $branch_id => $deviation)
-                                                <tr>
+                                                <tr wire:key="deviation-{{ $deviation['id'] }}">
                                                     <td class="p-0 text-center align-middle">
                                                         <a href="#" data-toggle="tooltip" data-placement="right" wire:click.prevent="showScheduleDetail({{$deviation['id']}}, 'unscheduled')">
                                                             <i class="fa fa-list-alt {{$deviation['source'] == 'deviation' ? 'text-danger' : ($deviation['source'] == 'request' ? 'text-warning' : 'text-info')}}" title="{{$deviation['source']}}"></i>
@@ -206,7 +206,7 @@
                                                     </td>
                                                     <td class="text-left">
                                                         @foreach($deviation['actuals'] as $actual)
-                                                        <p class="mb-0">
+                                                        <p wire:key="actual-4-{{ $actual['id'] }}" class="mb-0">
                                                             <a href="#" data-toggle="tooltip" data-placement="right" title="View Details" wire:click.prevent="showDetail({{$actual['id']}})">
                                                                 <i class="fa fa-info-circle text-primary mr-2"></i>
                                                             </a>
@@ -216,7 +216,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         @foreach($deviation['actuals'] as $actual)
-                                                        <p class="mb-0">
+                                                        <p wire:key="actual-5-{{ $loop->index }}" class="mb-0">
                                                             {{date('h:i:s a', strtotime($actual['time_in']))}}
                                                         </p>
                                                         @endforeach
@@ -224,7 +224,7 @@
                                                     <td class="text-center">
                                                         @foreach($deviation['actuals'] as $actual)
                                                             @if(!empty($actual['time_out']))
-                                                            <p class="mb-0">
+                                                            <p wire:key="actual-6-{{ $loop->index }}" class="mb-0">
                                                                 {{date('h:i:s a', strtotime($actual['time_out']))}}
                                                             </p>
                                                             @endif

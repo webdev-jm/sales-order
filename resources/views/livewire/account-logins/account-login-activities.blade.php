@@ -35,7 +35,7 @@
                 </thead>
                 <tbody>
                     @foreach($sales_orders as $sales_order)
-                    <tr>
+                    <tr wire:key="sales-order-{{ $sales_order->id }}">
                         <td>
                             @if(auth()->user()->can('sales order access'))
                             <a href="{{route('sales-order.show', $sales_order->id)}}">

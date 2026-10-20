@@ -9,7 +9,7 @@
                 <div class="col-lg-8 mb-2 mb-lg-0">
                     <ul class="nav nav-pills">
                         @foreach($tabs as $key => $label)
-                            <li class="nav-item">
+                            <li wire:key="label-{{ $key }}" class="nav-item">
                                 <a href="#" wire:click.prevent="setStatus('{{ $key }}')" class="nav-link py-1 px-2 {{ $status === $key ? 'active' : '' }}">
                                     {{ $label }}
                                     <span class="badge {{ $status === $key ? 'badge-light' : 'badge-secondary' }} ml-1">{{ $key === '' ? $counts->sum() : ($counts[$key] ?? 0) }}</span>

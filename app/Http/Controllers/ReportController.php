@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-use App\Models\UserBranchSchedule;
 use App\Models\BranchLogin;
-use App\Models\BranchAddress;
 use App\Models\ActivityPlan;
 use App\Models\User;
 use App\Models\WeeklyActivityReport;
 use App\Models\Deviation;
+use App\Services\Maps\Geo;
+use App\Services\Maps\RouteSummary;
+use App\Services\Maps\VisitMap;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -114,106 +114,22 @@ class ReportController extends Controller
     }
 
     /**
+     * MCP MAP: each branch sign-in plotted against the branch's pinned address, with the scheduled branches
+     * marked visited or missed.
+     *
      * @param  Request  $request
      * @return \Illuminate\View\View
      */
     public function map(Request $request) {
-        $date_from = trim($request->input('date_from'));
-        $date_to = trim($request->input('date_to'));
-        $user_id = trim($request->input('user_id'));
+        $date_from = trim((string) $request->input('date_from'));
+        $date_to = trim((string) $request->input('date_to'));
+        $user_id = trim((string) $request->input('user_id'));
 
         $restricted_ids = $this->restrictedUserIds();
 
-        $chart_data = [];
-        $branch_data = [];
-        if(!empty($date_from) || !empty($date_to) || !empty($user_id)) {
-
-            $results = DB::table('branch_logins as bl')
-                ->select(
-                    DB::raw('CONCAT(u.firstname, " ", u.lastname) as name'),
-                    'bl.id',
-                    'bl.latitude',
-                    'bl.longitude',
-                    'bl.time_in',
-                    'bl.time_out',
-                    'bl.accuracy',
-                    DB::raw('CONCAT(a.short_name, " ", b.branch_code, " ", b.branch_name) as branch'),
-                    'bl.branch_id'
-                )
-                ->join('users as u', 'u.id', '=', 'bl.user_id')
-                ->join('branches as b', 'b.id', '=', 'bl.branch_id')
-                ->join('accounts as a', 'a.id', '=', 'b.account_id')
-                ->when(!empty($date_from), function($query) use($date_from) {
-                    $query->where(DB::raw('DATE(time_in)'), '>=', $date_from);
-                })
-                ->when(!empty($date_to), function($query) use($date_to) {
-                    $query->where(DB::raw('DATE(time_in)'), '<=', $date_to);
-                })
-                ->when(!empty($user_id), function($query) use($user_id) {
-                    $query->where('u.id', $user_id);
-                })
-                ->when(!is_null($restricted_ids), function($query) use($restricted_ids) {
-                    $query->whereIn('u.id', $restricted_ids);
-                })
-                ->get();
-
-            foreach($results as $result) {
-                // Actual login marker
-                $chart_data[] = [
-                    'lat' => (float)$result->latitude,
-                    'lon' => (float)$result->longitude,
-                    'z' => (float)str_replace('m', '', $result->accuracy),
-                    'time_in' => $result->time_in,
-                    'time_out' => $result->time_out,
-                    'accuracy' => $result->accuracy,
-                    'branch' => $result->branch,
-                    'user' => $result->name,
-                    'color' => '#ff1100ff', // Red for actual login
-                ];
-
-                // Branch address marker
-                // $branch_address = BranchAddress::where('branch_id', $result->branch_id)->first();
-                // if(!empty($branch_address)) {
-                //     $chart_data[] = [
-                //         'lat' => (float)$branch_address->latitude,
-                //         'lon' => (float)$branch_address->longitude,
-                //         'z' => 10,
-                //         'branch' => $result->branch,
-                //         'color' => '#f02c2cff', // Red for branch address
-                //     ];
-                // }
-            }
-
-            // get user branch schedules
-            $schedules = UserBranchSchedule::with('branch')
-                ->when(!empty($date_from), function($query) use($date_from) {
-                    $query->where('date', '>=', $date_from);
-                })
-                ->when(!empty($date_to), function($query) use($date_to) {
-                    $query->where('date', '<=', $date_to);
-                })
-                ->when(!empty($user_id), function($query) use($user_id) {
-                    $query->where('user_id', $user_id);
-                })
-                ->when(!is_null($restricted_ids), function($query) use($restricted_ids) {
-                    $query->whereIn('user_id', $restricted_ids);
-                })
-                ->get();
-
-            foreach($schedules as $schedule) {
-                $branch_address = $schedule->branch->addresses->first();
-                if(!empty($branch_address)) {
-                    $branch_data[] = [
-                        'lat' => (float)$branch_address->latitude,
-                        'lon' => (float)$branch_address->longitude,
-                        'name' => $schedule->branch->branch_code.' '.$schedule->branch->branch_name,
-                        'user' => $schedule->user->fullName(),
-                        'schedule_date' => $schedule->date,
-                        'objective' => $schedule->objective,
-                        'source' => $schedule->source,
-                    ];
-                }
-            }
+        $report = null;
+        if (!empty($date_from) || !empty($date_to) || !empty($user_id)) {
+            $report = VisitMap::build($date_from, $date_to, $user_id, $restricted_ids);
         }
 
         $users = User::orderBy('firstname', 'ASC')
@@ -224,8 +140,10 @@ class ReportController extends Controller
             ->get();
 
         return view('pages.reports.map')->with([
-            'chart_data' => $chart_data,
-            'branch_data' => $branch_data,
+            'report' => $report,
+            'statuses' => VisitMap::STATUSES,
+            'on_site_m' => VisitMap::ON_SITE_M,
+            'near_m' => VisitMap::NEAR_M,
             'date_from' => $date_from,
             'date_to' => $date_to,
             'user_id' => $user_id,
@@ -234,31 +152,28 @@ class ReportController extends Controller
     }
 
     /**
-     * Store location records report: traces the per-minute GPS trail captured
-     * for each branch login as a route on the map, filterable by user and date.
+     * Store location records report: traces the GPS trail captured for each branch login as a route on the map,
+     * with the places the user stayed and the distance covered, filterable by user and date.
      *
      * @param  Request  $request
      * @return \Illuminate\View\View
      */
     public function locations(Request $request) {
-        $date_from = trim($request->input('date_from'));
-        $date_to = trim($request->input('date_to'));
-        $user_id = trim($request->input('user_id'));
+        $date_from = trim((string) $request->input('date_from'));
+        $date_to = trim((string) $request->input('date_to'));
+        $user_id = trim((string) $request->input('user_id'));
 
         $restricted_ids = $this->restrictedUserIds();
 
-        $route_data = [];
-        $point_data = [];
-        $start_data = [];
-        $end_data = [];
+        $routes = [];
         if (!empty($date_from) || !empty($date_to) || !empty($user_id)) {
-            $logins = BranchLogin::with(['user', 'branch', 'branch.account'])
+            $logins = BranchLogin::with(['user:id,firstname,lastname', 'branch:id,account_id,branch_code,branch_name', 'branch.account:id,short_name'])
                 ->whereNotNull('location_trail')
                 ->when(!empty($date_from), function ($query) use ($date_from) {
-                    $query->where(DB::raw('DATE(time_in)'), '>=', $date_from);
+                    $query->where('time_in', '>=', $date_from.' 00:00:00');
                 })
                 ->when(!empty($date_to), function ($query) use ($date_to) {
-                    $query->where(DB::raw('DATE(time_in)'), '<=', $date_to);
+                    $query->where('time_in', '<=', $date_to.' 23:59:59');
                 })
                 ->when(!empty($user_id), function ($query) use ($user_id) {
                     $query->where('user_id', $user_id);
@@ -270,63 +185,39 @@ class ReportController extends Controller
                 ->get();
 
             foreach ($logins as $login) {
-                $trail = $login->location_trail ?? [];
-                if (count($trail) < 1) {
+                $summary = RouteSummary::for($login);
+                if (count($summary['points']) < 1 && count($summary['coordinates']) < 2) {
                     continue;
                 }
 
                 $user_name = trim(($login->user->firstname ?? '').' '.($login->user->lastname ?? ''));
                 $branch_name = trim(($login->branch->account->short_name ?? '').' '.($login->branch->branch_code ?? '').' '.($login->branch->branch_name ?? ''));
 
-                // The full route runs sign-in -> per-minute trail -> sign-out so
-                // the connecting line always begins and ends where the user did.
-                $coordinates = [];
-
-                $coordinates[] = [(float) $login->longitude, (float) $login->latitude];
-                $start_data[] = [
-                    'lat'     => (float) $login->latitude,
-                    'lon'     => (float) $login->longitude,
-                    'user'    => $user_name,
-                    'branch'  => $branch_name,
-                    'time_in' => (string) $login->time_in,
-                ];
-
-                foreach ($trail as $index => $point) {
-                    $coordinates[] = [(float) $point['longitude'], (float) $point['latitude']];
-
-                    $point_data[] = [
-                        'lat'         => (float) $point['latitude'],
-                        'lon'         => (float) $point['longitude'],
-                        'user'        => $user_name,
-                        'branch'      => $branch_name,
-                        'accuracy'    => $point['accuracy'] ?? null,
-                        'recorded_at' => $point['recorded_at'] ?? null,
-                        'sequence'    => $index + 1,
-                    ];
-                }
-
-                if (!is_null($login->time_out_latitude) && !is_null($login->time_out_longitude)) {
-                    $coordinates[] = [(float) $login->time_out_longitude, (float) $login->time_out_latitude];
-                    $end_data[] = [
-                        'lat'      => (float) $login->time_out_latitude,
-                        'lon'      => (float) $login->time_out_longitude,
-                        'user'     => $user_name,
-                        'branch'   => $branch_name,
-                        'time_out' => (string) $login->time_out,
-                    ];
-                }
-
-                $route_data[] = [
-                    'name'     => $user_name.' - '.$branch_name,
-                    'user'     => $user_name,
-                    'branch'   => $branch_name,
-                    'time_in'  => (string) $login->time_in,
-                    'time_out' => (string) $login->time_out,
-                    'points'   => count($trail),
-                    'geometry' => [
-                        'type'        => 'LineString',
-                        'coordinates' => $coordinates,
-                    ],
+                $routes[] = [
+                    'id'                  => $login->id,
+                    'user_id'             => $login->user_id,
+                    'user'                => $user_name,
+                    'branch'              => $branch_name,
+                    'time_in'             => (string) $login->time_in,
+                    'time_out'            => (string) $login->time_out,
+                    'start'               => Geo::isUsable($login->latitude, $login->longitude) ? ['lat' => (float) $login->latitude, 'lon' => (float) $login->longitude] : null,
+                    'end'                 => (!is_null($login->time_out) && Geo::isUsable($login->time_out_latitude, $login->time_out_longitude)) ? ['lat' => (float) $login->time_out_latitude, 'lon' => (float) $login->time_out_longitude] : null,
+                    'coordinates'         => $summary['coordinates'],
+                    'points'              => array_map(fn ($point) => [
+                        'lat'          => $point['latitude'],
+                        'lon'          => $point['longitude'],
+                        'accuracy'     => $point['accuracy'],
+                        'recorded_at'  => $point['recorded_at'],
+                        'last_seen_at' => $point['last_seen_at'],
+                        'samples'      => $point['samples'],
+                    ], $summary['points']),
+                    'stops'               => $summary['stops'],
+                    'distance_km'         => round($summary['distance_m'] / 1000, 2),
+                    'duration_minutes'    => $summary['duration_minutes'],
+                    'tracked_points'      => $summary['tracked_points'],
+                    'vague_points'        => $summary['vague_points'],
+                    'gaps'                => $summary['gaps'],
+                    'longest_gap_minutes' => $summary['longest_gap_minutes'],
                 ];
             }
         }
@@ -341,10 +232,15 @@ class ReportController extends Controller
             ->get();
 
         return view('pages.reports.locations')->with([
-            'route_data' => $route_data,
-            'point_data' => $point_data,
-            'start_data' => $start_data,
-            'end_data'   => $end_data,
+            'routes'     => $routes,
+            'totals'     => [
+                'routes'      => count($routes),
+                'users'       => count(array_unique(array_column($routes, 'user_id'))),
+                'distance_km' => round(array_sum(array_column($routes, 'distance_km')), 2),
+                'hours'       => round(array_sum(array_column($routes, 'duration_minutes')) / 60, 1),
+                'stops'       => array_sum(array_map(fn ($route) => count($route['stops']), $routes)),
+                'gaps'        => array_sum(array_column($routes, 'gaps')),
+            ],
             'date_from'  => $date_from,
             'date_to'    => $date_to,
             'user_id'    => $user_id,

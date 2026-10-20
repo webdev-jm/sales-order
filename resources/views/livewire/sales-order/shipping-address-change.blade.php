@@ -41,7 +41,7 @@
                 </div>
 
                 @foreach($shipping_addresses as $shipping_address)
-                <div class="col-lg-6">
+                <div wire:key="shipping-address-{{ $shipping_address->id }}" class="col-lg-6">
                     <div class="card address-option {{$shipping_address_id == $shipping_address->id ? 'border border-success' : ''}}" data-id="{{$shipping_address->id}}" data-val="{{$shipping_address->address_code}} - {{$shipping_address->ship_to_name}}::{{$shipping_address->building}}::{{$shipping_address->street}}::{{$shipping_address->city}}::{{$shipping_address->postal}}">
                         <div class="card-header">
                             <h3 class="card-title">{{$shipping_address->address_code}} - {{$shipping_address->ship_to_name}}</h3>

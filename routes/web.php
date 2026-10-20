@@ -51,7 +51,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('notifications', [ProfileController::class, 'notifications'])->name('notifications');
 
     // BRANCH LOCATION TRACKING
-    Route::post('branch-location', [App\Http\Controllers\BranchLocationController::class, 'store'])->name('branch-location.store');
+    Route::post('branch-location', [App\Http\Controllers\BranchLocationController::class, 'store'])->name('branch-location.store')->middleware('throttle:20,1');
 
     Route::get('get-xml', [SalesOrderController::class, 'getXml'])->name('sales-order.xml')->middleware('permission:sales order list');
 

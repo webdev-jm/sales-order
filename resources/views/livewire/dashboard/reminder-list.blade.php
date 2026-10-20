@@ -7,7 +7,7 @@
             <ul class="list-group">
                 @if(!empty($reminders->count()))
                     @foreach($reminders as $reminder)
-                    <li class="list-group-item">
+                    <li wire:key="reminder-{{ $loop->index }}" class="list-group-item">
                         <a href="{{$reminder->link}}">[{{$reminder->user->fullName()}}]</a>
                         {{$reminder->message}}
 

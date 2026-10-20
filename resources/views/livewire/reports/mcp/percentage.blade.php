@@ -6,7 +6,7 @@
         <div class="card-body">
             <div class="row">
                 @foreach($data as $key => $value)
-                <div class="col-lg-3 col-md-4">
+                <div wire:key="value-{{ $key }}" class="col-lg-3 col-md-4">
                     <div class="info-box bg-gradient-secondary">
                         <span class="info-box-icon"><i class="fa fa-percentage"></i></span>
           

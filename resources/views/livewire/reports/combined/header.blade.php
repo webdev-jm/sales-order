@@ -22,7 +22,7 @@
                     <a href="" class="page-link" wire:click.prevent="selectYear({{$prev_year}})">«</a>
                 </li>
                 @foreach($months as $key => $mon)
-                <li class="page-item{{$key == $month && $selected_year == $year ? ' active' : ''}}">
+                <li wire:key="mon-{{ $key }}" class="page-item{{$key == $month && $selected_year == $year ? ' active' : ''}}">
                     <a href="" class="page-link" wire:click.prevent="selectDate('{{$key}}', {{$year}})">
                         <p class="page-month">{{$mon}}</p>
                         <p class="page-year">{{$year}}</p>

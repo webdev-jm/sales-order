@@ -48,7 +48,8 @@ return [
     */
 
     'google_fonts' => [
-        'allowed' => true,
+        // Source Sans Pro is served from public/vendor/source-sans-pro instead.
+        'allowed' => false,
     ],
 
     /*

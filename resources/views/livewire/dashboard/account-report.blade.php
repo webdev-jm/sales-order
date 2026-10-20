@@ -10,7 +10,7 @@
         @if(!empty($data))
         <ul class="list-group">
             @foreach($data as $val)
-            <li class="list-group-item">
+            <li wire:key="val-{{ $loop->index }}" class="list-group-item">
                 {{$val['name']}}
                 <span class="badge badge-primary float-right">{{$val['count']}}</span>
             </li>

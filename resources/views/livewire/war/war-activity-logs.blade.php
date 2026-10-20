@@ -15,7 +15,7 @@
                 </thead>
                 <tbody>
                     @foreach($activities as $activity)
-                    <tr>
+                    <tr wire:key="activity-{{ $loop->index }}">
                         <td class="p-1 text-center align-middle">
                             <span class="badge badge-secondary">{{$activity->log_name}}</span>
                         </td>

@@ -34,18 +34,18 @@
                     <div class="col-5 col-sm-3">
                         <div class="nav flex-column nav-tabs h-100" id="vert-tabs-tab" role="tablist" aria-orientation="vertical">
                             @foreach($accounts as $key => $account)
-                                <a class="nav-link" id="vert-tabs-{{$account->id}}-tab" data-toggle="pill" href="#vert-tabs-{{$account->id}}" role="tab" aria-controls="vert-tabs-{{$account->id}}" aria-selected="true">{{$account->account_code}} {{$account->short_name}}</a>
+                                <a wire:key="account-1-{{ $account->id }}" class="nav-link" id="vert-tabs-{{$account->id}}-tab" data-toggle="pill" href="#vert-tabs-{{$account->id}}" role="tab" aria-controls="vert-tabs-{{$account->id}}" aria-selected="true">{{$account->account_code}} {{$account->short_name}}</a>
                             @endforeach
                         </div>
                     </div>
                     <div class="col-7 col-sm-9">
                         <div class="tab-content" id="vert-tabs-tabContent">
                             @foreach($accounts as $key => $account)
-                            <div class="tab-pane text-left fade" id="vert-tabs-{{$account->id}}" role="tabpanel" aria-labelledby="vert-tabs-{{$account->id}}-tab">
+                            <div wire:key="account-2-{{ $account->id }}" class="tab-pane text-left fade" id="vert-tabs-{{$account->id}}" role="tabpanel" aria-labelledby="vert-tabs-{{$account->id}}-tab">
                                 <label>Branches</label>
                                 <div class="row">
                                     @foreach($account->branches as $branch)
-                                    <div class="col-lg-4">
+                                    <div wire:key="branch-{{ $loop->index }}" class="col-lg-4">
                                         <button class="btn btn-default btn-block">{{$branch->branch_code}} {{$branch->branch_name}}</button>
                                     </div>
                                     @endforeach

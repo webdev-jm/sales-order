@@ -92,7 +92,7 @@
                                             @endif
                                             @foreach($err_data['rows'] ?? [] as $idx => $fields)
                                                 @foreach($fields as $field => $msg)
-                                                    <li>Row {{ $ppu_data['lines'][$idx]['row_number'] ?? ($idx + 1) }}: {{ $msg }}</li>
+                                                    <li wire:key="msg-{{ $field }}">Row {{ $ppu_data['lines'][$idx]['row_number'] ?? ($idx + 1) }}: {{ $msg }}</li>
                                                 @endforeach
                                             @endforeach
                                         </ul>
@@ -179,7 +179,7 @@
                                                 $num++;
                                                 $rowErr = $err_data['rows'][$key] ?? [];
                                             @endphp
-                                            <tr class="{{ !empty($rowErr) ? 'table-danger' : '' }}">
+                                            <tr wire:key="val-{{ $key }}" class="{{ !empty($rowErr) ? 'table-danger' : '' }}">
                                                 <td class="align-middle text-center">{{ $val['row_number'] ?? $num }}</td>
                                                 <td class="align-middle">
                                                     <input type="text"
