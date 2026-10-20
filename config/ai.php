@@ -63,6 +63,10 @@ return [
     'providers' => [
         'gemini' => [
             'driver'  => 'gemini',
+            // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
+            // input price (see the model's price page).
+            'cache_read_price'  => (float) env('GEMINI_CACHE_READ_PRICE', 0.1),
+            'cache_write_price' => (float) env('GEMINI_CACHE_WRITE_PRICE', 1.0),
             'key'     => env('GEMINI_API_KEY'),
             'url'     => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/'),
             'model'   => env('GEMINI_MODEL', 'gemini-3.5-flash'),
@@ -78,6 +82,10 @@ return [
 
         'anthropic' => [
             'driver'  => 'anthropic',
+            // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
+            // input price (see the model's price page).
+            'cache_read_price'  => (float) env('ANTHROPIC_CACHE_READ_PRICE', 0.1),
+            'cache_write_price' => (float) env('ANTHROPIC_CACHE_WRITE_PRICE', 1.25),
             'key'     => env('ANTHROPIC_API_KEY'),
             'url'     => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
             'model'   => env('ANTHROPIC_MODEL', 'claude-haiku-5-5'),
@@ -98,6 +106,10 @@ return [
         // own Chat Completions request, because laravel/ai's compatible driver only attaches images.
         'openai' => [
             'driver'  => 'openai-compatible',
+            // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
+            // input price (see the model's price page).
+            'cache_read_price'  => (float) env('OPENAI_CACHE_READ_PRICE', 0.1),
+            'cache_write_price' => (float) env('OPENAI_CACHE_WRITE_PRICE', 1.0),
             'key'     => env('OPENAI_API_KEY'),
             'url'     => env('OPENAI_BASE_URL', 'https://api.openai.com/v1/'),
             'model'   => env('OPENAI_MODEL', 'gpt-5-mini'),

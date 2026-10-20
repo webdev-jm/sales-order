@@ -82,6 +82,18 @@ class GeminiProviderTest extends TestCase
         $this->assertFalse($response->wasRefused());
     }
 
+    public function test_input_read_from_geminis_implicit_cache_is_counted(): void
+    {
+        $reply = $this->geminiReply(['ok' => true], input: 3000);
+        $reply['usage']['total_cached_tokens'] = 2048;
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($reply)]);
+
+        $response = $this->generate();
+
+        $this->assertSame(3000, $response->inputTokens);
+        $this->assertSame(2048, $response->cachedInputTokens);
+    }
+
     public function test_thought_steps_are_left_out_of_the_reply_text(): void
     {
         Http::fake(['generativelanguage.googleapis.com/*' => Http::response([

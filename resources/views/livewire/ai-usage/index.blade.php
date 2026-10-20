@@ -61,7 +61,12 @@
                 <div class="info-box-content">
                     <span class="info-box-text">Input / output tokens</span>
                     <span class="info-box-number">{{ number_format($totals->input_tokens) }} / {{ number_format($totals->output_tokens) }}</span>
-                    <span class="progress-description small text-muted">Pages sent / replies, including AI thinking</span>
+                    <span class="progress-description small text-muted">
+                        Pages sent / replies, including AI thinking.
+                        @if($totals->input_tokens > 0)
+                            {{ number_format($totals->cached_input_tokens) }} input ({{ round(100 * $totals->cached_input_tokens / max(1, $totals->input_tokens)) }}%) came from the provider's prompt cache at a lower price.
+                        @endif
+                    </span>
                 </div>
             </div>
         </div>

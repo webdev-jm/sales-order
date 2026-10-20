@@ -10,6 +10,7 @@ use App\Models\ShippingAddress;
 use App\Models\User;
 use App\Services\Ai\Agents\MappingHelper;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -31,7 +32,10 @@ class MappingSuggester
     /** @var array<int, Account|null> Accounts looked up while building one request */
     private array $accounts = [];
 
-    public function __construct(private AgentRunner $runner)
+    /** Suggestions for the same unmatched lines and candidates are reused for this long. */
+    private const CACHE_HOURS = 24;
+
+    public function __construct(private AgentRunner $runner, private AiUsageMeter $meter)
     {
     }
 
@@ -51,21 +55,34 @@ class MappingSuggester
             return ['products' => [], 'stores' => []];
         }
 
-        $response = $this->runner->prompt(
-            new MappingHelper,
-            "Match these unmatched upload lines:\n" . json_encode([
-                'products' => array_map(fn (array $item): array => array_intersect_key($item, array_flip(['item', 'account', 'sku', 'description', 'candidates'])), $products),
-                'stores'   => array_map(fn (array $item): array => array_intersect_key($item, array_flip(['item', 'account', 'store_code', 'store_name', 'candidates'])), $stores),
-            ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
-            AiUsageLog::FEATURE_MAPPING,
-            $user,
-            $fallbackAccountId,
-            'SO Template: ' . \count($products) . ' SKUs, ' . \count($stores) . ' stores',
-        );
+        $prompt = "Match these unmatched upload lines:\n" . json_encode([
+            'products' => array_map(fn (array $item): array => array_intersect_key($item, array_flip(['item', 'account', 'sku', 'description', 'candidates'])), $products),
+            'stores'   => array_map(fn (array $item): array => array_intersect_key($item, array_flip(['item', 'account', 'store_code', 'store_name', 'candidates'])), $stores),
+        ], JSON_UNESCAPED_UNICODE);
+        $reference = 'SO Template: ' . \count($products) . ' SKUs, ' . \count($stores) . ' stores';
+
+        // Asking again for the same lines and candidates (another click, the same upload re-checked) reuses the
+        // earlier answer. A product or store added since changes the candidates, so it asks again.
+        $cacheKey = 'ai-mapping:' . hash('sha256', (new MappingHelper)->instructions() . $prompt);
+
+        if (\is_array($saved = Cache::get($cacheKey))) {
+            $this->meter->record(['user_id' => $user->id, 'account_id' => $fallbackAccountId, 'feature' => AiUsageLog::FEATURE_MAPPING, 'reference' => $reference, 'status' => AiUsageLog::STATUS_CACHED],
+                new AiResponse('', (string) ($saved['provider'] ?? ''), (string) ($saved['model'] ?? ''), 0, 0, 0, 0));
+            $answer = $saved['answer'];
+        } else {
+            $response = $this->runner->prompt(new MappingHelper, $prompt, AiUsageLog::FEATURE_MAPPING, $user, $fallbackAccountId, $reference);
+            $answer = ['products' => (array) ($response['products'] ?? []), 'stores' => (array) ($response['stores'] ?? [])];
+
+            Cache::put($cacheKey, [
+                'answer'   => $answer,
+                'provider' => Str::after((string) $response->meta->provider, AiClient::LARAVEL_AI_PREFIX),
+                'model'    => $response->meta->model,
+            ], now()->addHours(self::CACHE_HOURS));
+        }
 
         return [
-            'products' => $this->accept($products, (array) ($response['products'] ?? []), 'stock_code'),
-            'stores'   => $this->accept($stores, (array) ($response['stores'] ?? []), 'address_code'),
+            'products' => $this->accept($products, $answer['products'], 'stock_code'),
+            'stores'   => $this->accept($stores, $answer['stores'], 'address_code'),
         ];
     }
 

@@ -96,7 +96,7 @@ class Report extends Component
     }
 
     private function paginateArray($data, $perPage) {
-        $currentPage = $this->page ?: 1;
+        $currentPage = max(1, (int) $this->getPage('report-page'));
         $items = collect($data);
         $offset = ($currentPage - 1) * $perPage;
         $itemsForCurrentPage = $items->slice($offset, $perPage);
@@ -106,7 +106,7 @@ class Report extends Component
             $items->count(),
             $perPage,
             $currentPage,
-            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'onEachSide' => 1]
+            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'pageName' => 'report-page', 'onEachSide' => 1]
         );
 
         return $paginator;

@@ -28,6 +28,7 @@ use App\Services\AccountLoginResolver;
 use App\Services\Ai\AiClient;
 use App\Services\SalesOrderAttachmentService;
 use App\Services\SalesOrderPdfReader;
+use App\Services\SalesOrderScanHandoff;
 use App\Services\SalesOrderRestriction;
 use App\Services\SalesOrderService;
 use Illuminate\Http\UploadedFile;
@@ -507,8 +508,8 @@ class SalesOrderController extends Controller
     }
 
     /**
-     * Fills the order form from a customer PO PDF read with AI. The PDF is held and attached
-     * to the order when it is saved.
+     * Reads a customer PO PDF with AI and opens the review screen, where the user checks what was read
+     * against the PDF before the order form is filled. The PDF is held and attached when the order is saved.
      */
     private function uploadPdf(UploadedFile $file, $logged_account): \Illuminate\Http\RedirectResponse
     {
@@ -526,68 +527,52 @@ class SalesOrderController extends Controller
             return back()->with('message_error', $e->getMessage());
         }
 
-        $order    = reset($orders);
-        $products = Product::whereIn('stock_code', array_keys($order['items']))->get()->keyBy('stock_code');
-        $data     = [];
-
-        foreach ($order['items'] as $stock_code => $uoms) {
-            $product = $products->get($stock_code);
-
-            $data[$product->id] = [
-                'product'          => $product,
-                'stock_code'       => $stock_code,
-                'description'      => $product->description,
-                'size'             => $product->size,
-                'data'             => collect($uoms)->map(fn ($quantity) => [
-                    'quantity'   => $quantity,
-                    'total'      => 0,
-                    'discount'   => 0,
-                    'discounted' => 0,
-                ])->all(),
-                'product_total'    => 0,
-                'product_quantity' => 0,
-            ];
-        }
-
-        $po_value = $order['po_value'] > 0 ? round($order['po_value'], 2) : '';
-
-        $order_data             = $this->salesOrderService->calculateOrderTotals($data, $account);
-        $order_data['po_value'] = $po_value;
-
-        Session::put('order_data', $order_data);
         $this->attachmentService->holdPending($file, SalesOrderAttachment::SOURCE_SCAN);
 
-        $address = !empty($order['shipping_address_id'])
-            ? $account->shipping_addresses()->find($order['shipping_address_id'])
-            : null;
+        Session::put(SalesOrderScanHandoff::REVIEW_SESSION_KEY, [
+            'account_id' => $account->id,
+            'file_name'  => $file->getClientOriginalName(),
+            'orders'     => $orders,
+        ]);
 
-        $notices = [];
+        return redirect()->route('sales-order.scan-review');
+    }
 
-        if (count($orders) > 1) {
-            $notices[] = 'This PDF holds ' . count($orders) . ' purchase orders. Only PO ' . $order['po_number']
-                . ' was loaded; use Upload Multiple SO for the others.';
+    /**
+     * The review screen for a scanned PO PDF.
+     */
+    public function scanReview()
+    {
+        $logged_account = $this->accountLoginResolver->resolve();
+
+        if ($redirect = $this->accountRedirect($logged_account)) {
+            return $redirect;
         }
 
-        if ($po_value === '') {
-            $notices[] = 'The PDF shows no line amounts, so enter the PO value before saving.';
+        $review = Session::get(SalesOrderScanHandoff::REVIEW_SESSION_KEY);
+
+        if (!\is_array($review) || (int) ($review['account_id'] ?? 0) !== (int) $logged_account->account_id || $this->attachmentService->pending() === null) {
+            return redirect()->route('sales-order.create')->with('message_error', 'There is no scanned PO to review. Upload the PO PDF again.');
         }
 
-        $flash = $order['ship_date_error'] !== null ? ['message_error' => $order['ship_date_error']] : [];
+        return view('pages.sales-orders.scan-review')->with([
+            'logged_account' => $logged_account,
+        ]);
+    }
 
-        return redirect()->route('sales-order.create')->with($flash + [
-            'po_number'            => $order['po_number'],
-            'paf_number'           => '',
-            'ship_date'            => $order['ship_date'] ?? '',
-            'shipping_instruction' => $order['shipping_instruction'],
-            'shipping_address_id'  => $address->id ?? 'default',
-            'po_value'             => $po_value,
-            'ship_to_name'         => $address ? $address->address_code . ' - ' . $address->ship_to_name : $account->account_name,
-            'ship_to_address1'     => $address ? $address->building : $account->ship_to_address1,
-            'ship_to_address2'     => $address ? $address->street : $account->ship_to_address2,
-            'ship_to_address3'     => $address ? $address->city : $account->ship_to_address3,
-            'postal_code'          => $address ? $address->postal : $account->postal_code,
-            'scan_notices'         => $notices,
-            'scan_warnings'        => array_merge($order['warnings'], $order_data['skipped_items'] ?? []),
+    /**
+     * The PDF being reviewed, for the preview on the review screen.
+     */
+    public function scanReviewPdf()
+    {
+        $pending = $this->attachmentService->pending();
+
+        abort_if($pending === null || !Session::has(SalesOrderScanHandoff::REVIEW_SESSION_KEY), 404);
+
+        return $this->attachmentService->disk()->response($pending['path'], $pending['name'], [
+            'Content-Type'        => $pending['mime'] ?? 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . addslashes($pending['name']) . '"',
+            'Cache-Control'       => 'private, no-store',
         ]);
     }
 

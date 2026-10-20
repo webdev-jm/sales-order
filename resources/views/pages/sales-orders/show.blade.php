@@ -84,6 +84,14 @@
                 <a href="{{route('sales-order.attachment', $sales_order->id)}}" target="_blank">
                     <i class="fa {{$sales_order->attachment->isPdf() ? 'fa-file-pdf text-danger' : 'fa-file'}} mx-1"></i>{{$sales_order->attachment->file_name}}
                 </a>
+                @if($sales_order->attachment->scanLevel())
+                    @php
+                        $scan_badge = ['high' => 'badge-success', 'medium' => 'badge-warning', 'low' => 'badge-danger'][$sales_order->attachment->scanLevel()];
+                    @endphp
+                    <span class="badge {{ $scan_badge }}" title="How sure the AI was about what it read from this PO">
+                        AI scan {{ \App\Services\ScanConfidence::LEVELS[$sales_order->attachment->scanLevel()] }} {{ $sales_order->attachment->scan_confidence }}
+                    </span>
+                @endif
             @else
                 <span class="text-muted">none</span>
             @endif

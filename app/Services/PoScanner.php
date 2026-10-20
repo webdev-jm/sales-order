@@ -53,6 +53,13 @@ class PoScanner
         - store_code and store_name: the store or warehouse the goods are delivered to (ship-to
           or deliver-to), not the account's head office.
         - remarks: delivery instructions or notes printed on the PO, on one line.
+        - printed_total: the PO grand total as printed, or null when there is none.
+        - page: the page number (from 1) the PO header or the line is printed on.
+        - confidence: for each line, and for the header fields in the PO's confidence object, a
+          number from 0 to 100 for how sure you are that the value matches the print. Lower it for
+          blurred, faded, handwritten, overwritten or cut-off print, or when a column is ambiguous.
+          Do not lower it only because a field is empty on the document.
+        - unclear: a few words on what was hard to read, or an empty string when nothing was.
         - The account notes describe this account's layout. They take priority over these rules.
         INSTRUCTIONS;
 
@@ -146,6 +153,7 @@ class PoScanner
     {
         $text   = ['type' => 'string'];
         $number = ['type' => ['number', 'null']];
+        $rating = ['type' => ['number', 'null']];
 
         return [
             'type'       => 'object',
@@ -163,6 +171,19 @@ class PoScanner
                             'store_name'        => $text,
                             'delivery_location' => $text,
                             'remarks'           => $text,
+                            'printed_total'     => $number,
+                            'page'              => $number,
+                            'confidence'        => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'po_number'     => $rating,
+                                    'po_date'       => $rating,
+                                    'delivery_date' => $rating,
+                                    'store'         => $rating,
+                                    'total'         => $rating,
+                                ],
+                            ],
+                            'unclear'           => $text,
                             'lines'             => [
                                 'type'  => 'array',
                                 'items' => [
@@ -175,6 +196,9 @@ class PoScanner
                                         'uom'         => ['type' => 'string', 'enum' => [...self::UOMS, '']],
                                         'unit_price'  => $number,
                                         'amount'      => $number,
+                                        'page'        => $number,
+                                        'confidence'  => $rating,
+                                        'unclear'     => $text,
                                     ],
                                     'required' => ['sku', 'description', 'quantity'],
                                 ],
@@ -262,6 +286,16 @@ class PoScanner
 
             $addressData = $this->lookup->shippingAddress($storeCode, $storeName, $accountIds, $storeMap);
 
+            $header = [
+                'po_page'          => $this->page($order['page'] ?? null),
+                'po_confidence'    => array_map(fn ($rating) => $this->rating($rating), array_intersect_key(
+                    \is_array($order['confidence'] ?? null) ? $order['confidence'] : [],
+                    array_flip(['po_number', 'po_date', 'delivery_date', 'store', 'total'])
+                )),
+                'po_unclear'       => $this->text($order['unclear'] ?? ''),
+                'po_printed_total' => $this->number($order['printed_total'] ?? null),
+            ];
+
             foreach ($order['lines'] ?? [] as $line) {
                 $sku     = $this->text($line['sku'] ?? '');
                 $barcode = $this->text($line['barcode'] ?? '');
@@ -290,7 +324,10 @@ class PoScanner
                     'qty'               => $qty,
                     'list_price'        => $this->number($line['unit_price'] ?? null),
                     'amount'            => $this->number($line['amount'] ?? null),
-                ], $productData, $addressData, [
+                ], $productData, $addressData, $header, [
+                    'page'          => $this->page($line['page'] ?? null) ?? $header['po_page'],
+                    'ai_confidence' => $this->rating($line['confidence'] ?? null),
+                    'ai_unclear'    => $this->text($line['unclear'] ?? ''),
                     'lookup_status' => $this->lookup->status($productData, $addressData),
                     'account_code'  => $account->account_code,
                     'account_name'  => $account->account_name,
@@ -315,6 +352,19 @@ class PoScanner
         $uom = strtoupper(trim((string) $value));
 
         return \in_array($uom, self::UOMS, true) ? $uom : $this->defaultUom($format);
+    }
+
+    /**
+     * The AI's own rating of a value, 0 to 100, or null when it gave none.
+     */
+    private function rating(mixed $value): ?int
+    {
+        return is_numeric($value) ? (int) round(max(0, min(100, (float) $value))) : null;
+    }
+
+    private function page(mixed $value): ?int
+    {
+        return is_numeric($value) && (int) $value >= 1 ? (int) $value : null;
     }
 
     private function text(mixed $value): string

@@ -8,6 +8,7 @@ use App\Http\Livewire\AiAssistant\Chat;
 use App\Models\Account;
 use App\Models\AccountLogin;
 use App\Models\AccountProductReference;
+use App\Models\AiProviderSetting;
 use App\Models\AiUsageLog;
 use App\Models\Company;
 use App\Models\Product;
@@ -18,6 +19,9 @@ use App\Models\User;
 use App\Services\Ai\Agents\MappingHelper;
 use App\Services\Ai\Agents\ReportInsights;
 use App\Services\Ai\Agents\SalesAssistant;
+use App\Services\Ai\AiResponse;
+use App\Services\Ai\AiUsageMeter;
+use App\Services\Ai\Providers\AnthropicProvider;
 use App\Services\Ai\SalesFigures;
 use App\Services\Ai\Tools\SalesOrderDetail;
 use App\Services\Ai\Tools\SalesSummary;
@@ -242,8 +246,8 @@ class AiFeaturesTest extends TestCase
             ->assertSee('September net sales reached PHP 900.')
             ->assertSee('AI TEST placed every order.');
 
-        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"period": "September 2026"')
-            && str_contains($prompt->prompt, '"orders": 1')
+        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"period":"September 2026"')
+            && str_contains($prompt->prompt, '"orders":1')
             && str_contains($prompt->prompt, 'August 2026'));
 
         $component->call('dismiss')->call('explain')->assertSee('September net sales reached PHP 900.');
@@ -265,8 +269,8 @@ class AiFeaturesTest extends TestCase
             ->call('explain')
             ->assertSee('Two days of orders.');
 
-        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"period": "Oct 5, 2026"')
-            && str_contains($prompt->prompt, '"orders": 1'));
+        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"period":"Oct 5, 2026"')
+            && str_contains($prompt->prompt, '"orders":1'));
     }
 
     public function test_a_period_without_orders_is_not_sent_to_ai(): void
@@ -381,5 +385,103 @@ class AiFeaturesTest extends TestCase
         Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])
             ->call('suggest')
             ->assertForbidden();
+    }
+    // -------------------------------------------------------------------------
+    // Token efficiency: provider prompt caching and reused replies
+    // -------------------------------------------------------------------------
+
+    public function test_the_same_figures_are_explained_once_for_everyone_who_sees_them(): void
+    {
+        $this->order($this->login, ['order_date' => '2026-09-10', 'grand_total' => 900]);
+        ReportInsights::fake([['headline' => 'September net sales reached PHP 900.', 'highlights' => [], 'watch' => []]]);
+
+        $this->actingAsUser(['ai insights access']);
+        Livewire::test(Insights::class, ['source' => 'so-report', 'year' => '2026', 'month' => '09'])->call('explain');
+
+        $colleague = $this->actingAsUser(['ai insights access']);
+        Livewire::test(Insights::class, ['source' => 'so-report', 'year' => '2026', 'month' => '09'])
+            ->call('explain')
+            ->assertSee('September net sales reached PHP 900.');
+
+        ReportInsights::assertPromptedTimes(1);
+        $this->assertSame(AiUsageLog::STATUS_CACHED, AiUsageLog::where('user_id', $colleague->id)->sole()->status);
+    }
+
+    public function test_insight_figures_are_sent_as_compact_json(): void
+    {
+        $this->actingAsUser(['ai insights access']);
+        $this->order($this->login, ['order_date' => '2026-09-10']);
+        ReportInsights::fake([['headline' => 'Fine.', 'highlights' => [], 'watch' => []]]);
+
+        Livewire::test(Insights::class, ['source' => 'so-report', 'year' => '2026', 'month' => '09'])->call('explain');
+
+        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => !str_contains($prompt->prompt, "\n    ") && str_contains($prompt->prompt, '{"report"'));
+    }
+
+    public function test_mapping_suggestions_for_the_same_lines_are_reused(): void
+    {
+        $this->actingAsUser(['ai mapping help']);
+        Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G', 'brand' => 'GLOW']);
+        $this->unmatchedRows();
+        MappingHelper::fake([['products' => [['item' => 1, 'stock_code' => 'BV-SOAP-90', 'confidence' => 'high', 'reason' => 'Same soap.']], 'stores' => []]]);
+
+        Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])->call('suggest')->assertSee('BV-SOAP-90');
+        Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])->call('suggest')->assertSee('Same soap.');
+
+        MappingHelper::assertPromptedTimes(1);
+        $this->assertSame([AiUsageLog::STATUS_SUCCESS, AiUsageLog::STATUS_CACHED], $this->logs()->pluck('status')->all());
+    }
+
+    public function test_cached_input_tokens_are_logged_and_priced_at_the_cache_rate(): void
+    {
+        $this->actingAsUser([]);
+        AiProviderSetting::create(['name' => 'gemini', 'is_enabled' => true, 'priority' => 1, 'model' => 'gemini-test', 'input_price' => 1.0, 'output_price' => 10.0]);
+        Config::set('ai.providers.gemini.cache_read_price', 0.1);
+
+        $log = app(AiUsageMeter::class)->record(
+            ['user_id' => auth()->id(), 'feature' => AiUsageLog::FEATURE_ASSISTANT, 'status' => AiUsageLog::STATUS_SUCCESS],
+            new AiResponse('ok', 'gemini', 'gemini-test', 10_000, 1_000, 11_000, 50, cachedInputTokens: 8_000)
+        );
+
+        $this->assertSame(8_000, $log->fresh()->cached_input_tokens);
+        // 2,000 fresh input at $1/M + 8,000 cached at 10% of that + 1,000 output at $10/M.
+        $this->assertEqualsWithDelta((2_000 * 1.0 + 8_000 * 0.1 + 1_000 * 10.0) / 1_000_000, (float) $log->estimated_cost, 0.0000001);
+    }
+
+    public function test_anthropic_cache_writes_cost_more_and_reads_less(): void
+    {
+        Config::set('ai.providers.anthropic.cache_read_price', 0.1);
+        Config::set('ai.providers.anthropic.cache_write_price', 1.25);
+        $setting = new AiProviderSetting(['name' => 'anthropic', 'input_price' => 1.0, 'output_price' => 5.0]);
+
+        $this->assertEqualsWithDelta((1_000 + 2_000 * 0.1 + 1_000 * 1.25) / 1_000_000, $setting->costOf(4_000, 0, 2_000, 1_000), 0.0000001);
+        $this->assertEqualsWithDelta(4_000 / 1_000_000, $setting->costOf(4_000, 0), 0.0000001);
+    }
+
+    public function test_claude_calls_ask_for_automatic_prompt_caching(): void
+    {
+        $options = (new AnthropicProvider(['key' => 'test', 'effort' => 'low']))->laravelAiOptions();
+
+        $this->assertSame(['type' => 'ephemeral'], $options['cache_control']);
+        $this->assertSame(['effort' => 'low'], $options['output_config']);
+        $this->assertSame(['type' => 'ephemeral'], (new AnthropicProvider(['key' => 'test']))->laravelAiOptions()['cache_control']);
+    }
+
+    public function test_the_assistant_keeps_the_changing_parts_of_its_instructions_last(): void
+    {
+        $ana = User::factory()->make(['firstname' => 'Ana', 'middlename' => null, 'lastname' => 'Reyes']);
+        $ben = User::factory()->make(['firstname' => 'Ben', 'middlename' => null, 'lastname' => 'Cruz']);
+
+        $first = (new SalesAssistant($ana, [1]))->instructions();
+        $this->travel(1)->days();
+        $second = (new SalesAssistant($ben, [2]))->instructions();
+
+        $sharedLines = fn (string $text): string => implode("\n", array_slice(explode("\n", $text), 0, -1));
+        $this->assertSame($sharedLines($first), $sharedLines($second), 'Everything but the last line is the same for every user and day.');
+        $this->assertStringContainsString('Ana Reyes', last(explode("\n", $first)));
+        $this->assertStringNotContainsString('Ana Reyes', $sharedLines($first));
+
+        $attributes = array_map(fn ($a) => $a->getName(), (new \ReflectionClass(SalesAssistant::class))->getAttributes());
+        $this->assertContains(\Laravel\Ai\Attributes\CacheToolDefinitions::class, $attributes);
     }
 }

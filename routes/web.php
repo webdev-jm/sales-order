@@ -111,6 +111,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('sales-order-store', [SalesOrderController::class, 'store'])->name('sales-order.store')->middleware('permission:sales order create');
 
         Route::post('sales-order/upload', [SalesOrderController::class, 'upload'])->name('sales-order.upload')->middleware('permission:sales order create');
+        Route::get('sales-order/scan-review', [SalesOrderController::class, 'scanReview'])->name('sales-order.scan-review')->middleware(['permission:sales order create', 'permission:po scan access']);
+        Route::get('sales-order/scan-review/pdf', [SalesOrderController::class, 'scanReviewPdf'])->name('sales-order.scan-review.pdf')->middleware(['permission:sales order create', 'permission:po scan access']);
 
         Route::get('sales-order/{id}', [SalesOrderController::class, 'show'])->name('sales-order.show');
         Route::get('sales-order/{id}/attachment', [SalesOrderController::class, 'attachment'])->name('sales-order.attachment');

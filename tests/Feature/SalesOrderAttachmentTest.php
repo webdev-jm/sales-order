@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Livewire\SalesOrder\ScanReview;
 use App\Models\Account;
 use App\Models\AccountLogin;
 use App\Models\AiUsageLog;
@@ -14,6 +15,7 @@ use App\Models\SalesOrderAttachment;
 use App\Models\ShippingAddress;
 use App\Models\User;
 use App\Services\SalesOrderAttachmentService;
+use App\Services\SalesOrderScanHandoff;
 use App\Services\SalesOrderService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
@@ -21,6 +23,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\Concerns\FakesGemini;
@@ -438,13 +441,16 @@ class SalesOrderAttachmentTest extends TestCase
 
         $this->actingAs($this->user)
             ->post('/sales-order/upload', ['upload_file' => $this->pdf()])
-            ->assertRedirect(route('sales-order.create'))
-            ->assertSessionHas('po_number', 'PO-55501')
-            ->assertSessionHas('ship_date', now()->addWeekdays(3)->format('Y-m-d'))
-            ->assertSessionHas('shipping_instruction', 'Deliver before 10AM')
-            ->assertSessionHas('shipping_address_id', $address->id)
-            ->assertSessionHas('ship_to_name', 'STORE-7 - METRO CEBU')
-            ->assertSessionHas('po_value', 520.0);
+            ->assertRedirect(route('sales-order.scan-review'));
+
+        $this->createFromReview();
+
+        $this->assertSame('PO-55501', session('po_number'));
+        $this->assertSame(now()->addWeekdays(3)->format('Y-m-d'), session('ship_date'));
+        $this->assertSame('Deliver before 10AM', session('shipping_instruction'));
+        $this->assertSame($address->id, session('shipping_address_id'));
+        $this->assertSame('STORE-7 - METRO CEBU', session('ship_to_name'));
+        $this->assertSame(520.0, session('po_value'));
 
         $orderData = session('order_data');
         $product   = Product::where('stock_code', 'KS-ATT-01')->first();
@@ -485,6 +491,32 @@ class SalesOrderAttachmentTest extends TestCase
     }
 
     /**
+     * Ticks every value marked Low on the review screen, as the user would after comparing them with the
+     * PDF, then opens the order form.
+     */
+    private function createFromReview(): void
+    {
+        $review = Livewire::actingAs($this->user)->test(ScanReview::class);
+
+        foreach (array_values(session(SalesOrderScanHandoff::REVIEW_SESSION_KEY)['orders']) as $position => $order) {
+            foreach ($order['confidence']['fields'] as $key => $field) {
+                if ($field['level'] === 'low') {
+                    $review->set('confirmed.' . $position . '.field-' . $key, true);
+                }
+            }
+            foreach ($order['confidence']['lines'] as $index => $line) {
+                if ($line['level'] === 'low') {
+                    $review->set('confirmed.' . $position . '.line-' . $index, true);
+                }
+            }
+            break;
+        }
+
+        $review->call('createSalesOrder');
+        $review->assertRedirect(route('sales-order.create'));
+    }
+
+    /**
      * The order form looks every listed product up in the legacy pafs columns, which the
      * migrations do not create, so form-rendering tests run without catalog products.
      */
@@ -500,8 +532,11 @@ class SalesOrderAttachmentTest extends TestCase
         $this->fakeGemini($this->purchaseOrder('PO-1'), $this->purchaseOrder('PO-2'));
 
         $this->actingAs($this->user)
-            ->post('/sales-order/upload', ['upload_file' => $this->pdf()])
-            ->assertSessionHas('po_number', 'PO-1');
+            ->post('/sales-order/upload', ['upload_file' => $this->pdf()]);
+
+        $this->createFromReview();
+
+        $this->assertSame('PO-1', session('po_number'));
 
         $this->assertStringContainsString('Upload Multiple SO', implode(' ', session('scan_notices')));
     }
@@ -513,8 +548,11 @@ class SalesOrderAttachmentTest extends TestCase
         $this->fakeGemini($order);
 
         $this->actingAs($this->user)
-            ->post('/sales-order/upload', ['upload_file' => $this->pdf()])
-            ->assertSessionHas('po_value', '');
+            ->post('/sales-order/upload', ['upload_file' => $this->pdf()]);
+
+        $this->createFromReview();
+
+        $this->assertSame('', session('po_value'));
 
         $this->assertStringContainsString('enter the PO value', implode(' ', session('scan_notices')));
     }
@@ -566,5 +604,171 @@ class SalesOrderAttachmentTest extends TestCase
 
         $this->assertFalse($this->disk()->exists('sales-order-attachments/pending/held.pdf'));
         $this->assertNull(session(SalesOrderAttachmentService::PENDING_SESSION_KEY));
+    }
+
+    // -------------------------------------------------------------------------
+    // Reviewing a scanned PO before the order form is filled
+    // -------------------------------------------------------------------------
+
+    private function scanToReview(array ...$purchaseOrders): void
+    {
+        $this->fakeGemini(...($purchaseOrders ?: [$this->purchaseOrder()]));
+
+        $this->actingAs($this->user)
+            ->post('/sales-order/upload', ['upload_file' => $this->pdf()])
+            ->assertRedirect(route('sales-order.scan-review'));
+    }
+
+    public function test_the_review_screen_shows_the_pdf_beside_what_was_read(): void
+    {
+        $this->scanToReview();
+
+        $this->actingAs($this->user)
+            ->get(route('sales-order.scan-review'))
+            ->assertOk()
+            ->assertSee('What the AI read')
+            ->assertSee('metro-po.pdf')
+            ->assertSee('KS-ATT-01')
+            ->assertSee('Not found')
+            ->assertSee('pdf.min.js', false)
+            ->assertSee('js/po-pdf-preview.js', false)
+            ->assertSee('css/so-scan-review.css', false);
+    }
+
+    public function test_the_ai_rating_and_its_note_show_on_the_review(): void
+    {
+        $order = $this->purchaseOrder();
+        $order['lines'][0] += ['confidence' => 55, 'unclear' => 'quantity is smudged', 'page' => 1];
+        $this->scanToReview($order);
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->assertSee('The AI noted: quantity is smudged.')
+            ->assertSee('Low 55');
+    }
+
+    public function test_creating_the_order_waits_until_every_low_value_is_checked(): void
+    {
+        $this->scanToReview();
+
+        $review = Livewire::actingAs($this->user)->test(ScanReview::class);
+        $review->call('createSalesOrder')->assertHasErrors('review')->assertNoRedirect();
+        $this->assertNull(session('order_data'));
+
+        $review->set('confirmed.0.field-ship_to', true)
+            ->set('confirmed.0.line-1', true)
+            ->call('createSalesOrder')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('sales-order.create'));
+    }
+
+    public function test_quantities_and_left_out_lines_on_the_review_reach_the_order(): void
+    {
+        $this->scanToReview();
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->set('quantities.0.0', '8')
+            ->set('included.0.1', false)
+            ->set('confirmed.0.field-ship_to', true)
+            ->call('createSalesOrder')
+            ->assertRedirect(route('sales-order.create'));
+
+        $product = Product::where('stock_code', 'KS-ATT-01')->first();
+        $this->assertSame(8.0, session('order_data')['items'][$product->id]['data']['CS']['quantity']);
+    }
+
+    public function test_a_ship_date_changed_on_the_review_reaches_the_form(): void
+    {
+        $this->scanToReview();
+        $date = now()->addWeekdays(6)->format('Y-m-d');
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->set('shipDates.0', $date)
+            ->set('confirmed.0.field-ship_to', true)
+            ->set('confirmed.0.line-1', true)
+            ->call('createSalesOrder');
+
+        $this->assertSame($date, session('ship_date'));
+    }
+
+    public function test_another_po_in_the_pdf_can_be_picked_on_the_review(): void
+    {
+        $this->scanToReview($this->purchaseOrder('PO-1'), $this->purchaseOrder('PO-2'));
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->assertSee('PO PO-2')
+            ->call('selectPo', 1)
+            ->set('confirmed.1.field-ship_to', true)
+            ->set('confirmed.1.line-1', true)
+            ->call('createSalesOrder')
+            ->assertRedirect(route('sales-order.create'));
+
+        $this->assertSame('PO-2', session('po_number'));
+    }
+
+    public function test_discarding_the_review_drops_the_held_pdf(): void
+    {
+        $this->scanToReview();
+        $path = session(SalesOrderAttachmentService::PENDING_SESSION_KEY)['path'];
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->call('discard')
+            ->assertRedirect(route('sales-order.create'));
+
+        $this->assertFalse($this->disk()->exists($path));
+        $this->assertNull(session(SalesOrderScanHandoff::REVIEW_SESSION_KEY));
+    }
+
+    public function test_the_review_screen_needs_a_scanned_po(): void
+    {
+        $this->actingAs($this->user)
+            ->get(route('sales-order.scan-review'))
+            ->assertRedirect(route('sales-order.create'))
+            ->assertSessionHas('message_error');
+    }
+
+    public function test_the_reviewed_pdf_opens_inline_and_only_while_it_is_reviewed(): void
+    {
+        $this->actingAs($this->user)->get(route('sales-order.scan-review.pdf'))->assertNotFound();
+
+        $this->scanToReview();
+
+        $response = $this->actingAs($this->user)->get(route('sales-order.scan-review.pdf'))->assertOk();
+        $this->assertStringStartsWith('inline;', $response->headers->get('Content-Disposition'));
+        $this->assertSame(self::PDF_CONTENT, $response->streamedContent());
+    }
+
+    public function test_the_review_needs_the_po_scan_permission(): void
+    {
+        $user = $this->userWith(self::ORDER_PERMISSIONS);
+
+        $this->actingAs($user)->get(route('sales-order.scan-review'))->assertForbidden();
+        $this->actingAs($user)->get(route('sales-order.scan-review.pdf'))->assertForbidden();
+    }
+
+    public function test_the_reviewed_scan_is_kept_with_the_saved_order(): void
+    {
+        $this->scanToReview();
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->set('quantities.0.0', '6')
+            ->set('confirmed.0.field-ship_to', true)
+            ->set('confirmed.0.line-1', true)
+            ->call('createSalesOrder')
+            ->assertRedirect(route('sales-order.create'));
+
+        // Livewire::test() runs the component without the session middleware, so save what it put in the
+        // session before the next request reloads it, as a real Livewire request does.
+        session()->save();
+        [, $salesOrder] = $this->storeOrder();
+
+        $attachment = $salesOrder->fresh()->attachment;
+        $this->assertSame(SalesOrderAttachment::SOURCE_SCAN, $attachment->source);
+        $this->assertSame('PO-55501', $attachment->scan_result['po_number']);
+        $this->assertEquals(6, $attachment->scan_result['lines'][0]['quantity']);
+        $this->assertEquals(5, $attachment->scan_result['lines'][0]['read']);
+        $this->assertTrue($attachment->scan_result['lines'][1]['confirmed']);
+        $this->assertTrue($attachment->scan_result['fields']['ship_to']['confirmed']);
+        $this->assertSame($attachment->scan_result['score'], $attachment->scan_confidence);
+        $this->assertSame('low', $attachment->scanLevel());
     }
 }

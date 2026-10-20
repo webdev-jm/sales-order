@@ -88,10 +88,12 @@ class AiUsageMeter
         return AiUsageLog::create(array_merge([
             'provider'       => $provider,
             'model'          => $response?->model ?? $source->model(),
-            'input_tokens'   => $response?->inputTokens ?? 0,
-            'output_tokens'  => $response?->outputTokens ?? 0,
-            'total_tokens'   => $response?->totalTokens ?? 0,
-            'estimated_cost' => $this->manager->costOf($provider, $response?->inputTokens ?? 0, $response?->outputTokens ?? 0),
+            'input_tokens'        => $response?->inputTokens ?? 0,
+            'cached_input_tokens' => $response?->cachedInputTokens ?? 0,
+            'cache_write_tokens'  => $response?->cacheWriteTokens ?? 0,
+            'output_tokens'       => $response?->outputTokens ?? 0,
+            'total_tokens'        => $response?->totalTokens ?? 0,
+            'estimated_cost'      => $this->manager->costOf($provider, $response?->inputTokens ?? 0, $response?->outputTokens ?? 0, $response?->cachedInputTokens ?? 0, $response?->cacheWriteTokens ?? 0),
             'duration_ms'    => $response?->durationMs,
         ], $attributes));
     }

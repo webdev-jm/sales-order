@@ -89,9 +89,13 @@ class AiManager
      * Estimated cost in US dollars of a call, from the prices saved on the AI Settings page, or
      * null when the provider has no price.
      */
-    public function costOf(string $provider, int $inputTokens, int $outputTokens): ?float
+    /**
+     * @param int $cachedInputTokens input tokens read from the prompt cache, billed at the provider's cache read rate
+     * @param int $cacheWriteTokens input tokens written to the prompt cache, billed at its cache write rate
+     */
+    public function costOf(string $provider, int $inputTokens, int $outputTokens, int $cachedInputTokens = 0, int $cacheWriteTokens = 0): ?float
     {
-        return $this->savedSettings()->get($provider)?->costOf($inputTokens, $outputTokens);
+        return $this->savedSettings()->get($provider)?->costOf($inputTokens, $outputTokens, $cachedInputTokens, $cacheWriteTokens);
     }
 
     /**

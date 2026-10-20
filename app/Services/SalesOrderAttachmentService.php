@@ -45,7 +45,10 @@ class SalesOrderAttachmentService
         return collect(config('sales-order.attachments.mimes'))->map(fn ($ext) => '.' . $ext)->implode(',');
     }
 
-    public function attach(SalesOrder $salesOrder, UploadedFile $file, string $source = SalesOrderAttachment::SOURCE_UPLOAD): SalesOrderAttachment
+    /**
+     * @param array<string, mixed>|null $scan what the AI read and the user reviewed (see scanRecord())
+     */
+    public function attach(SalesOrder $salesOrder, UploadedFile $file, string $source = SalesOrderAttachment::SOURCE_UPLOAD, ?array $scan = null): SalesOrderAttachment
     {
         $path = $this->disk()->putFileAs(
             $this->directory() . '/' . $salesOrder->id,
@@ -59,7 +62,48 @@ class SalesOrderAttachmentService
             'mime_type' => $file->getMimeType(),
             'file_size' => $file->getSize(),
             'source'    => $source,
-        ]);
+        ] + $this->scanColumns($scan));
+    }
+
+    /**
+     * The scan of a reviewed PO as it is kept with the order: what the AI read, the confidence of each value,
+     * and what the user changed or confirmed.
+     *
+     * @param array<string, mixed> $order one entry of SalesOrderPdfReader::read()
+     * @param array<int, bool> $included
+     * @param array<int, mixed> $quantities
+     * @param array<string, bool> $confirmed
+     * @return array<string, mixed>
+     */
+    public static function scanRecord(array $order, array $confidence, string $fileName, array $included = [], array $quantities = [], array $confirmed = []): array
+    {
+        return [
+            'file'       => $fileName,
+            'po_number'  => $order['po_number'],
+            'reviewed_at'=> now()->toDateTimeString(),
+            'score'      => $confidence['score'],
+            'level'      => $confidence['level'],
+            'fields'     => collect($confidence['fields'])->map(fn (array $field, string $key) => [
+                'label'     => $field['label'],
+                'value'     => $field['value'],
+                'score'     => $field['score'],
+                'reasons'   => $field['reasons'],
+                'confirmed' => (bool) ($confirmed['field-' . $key] ?? false),
+            ])->all(),
+            'lines'      => collect($order['lines'])->map(fn (array $line, int $index) => [
+                'sku'        => $line['sku'],
+                'description'=> $line['description'],
+                'read'       => $line['read_quantity'] ?? $line['quantity'],
+                'quantity'   => is_numeric($quantities[$index] ?? null) ? (float) $quantities[$index] : $line['quantity'],
+                'uom'        => $line['so_uom'],
+                'amount'     => $line['amount'],
+                'stock_code' => $line['stock_code'],
+                'included'   => ($included[$index] ?? true) !== false,
+                'score'      => $confidence['lines'][$index]['score'] ?? null,
+                'reasons'    => $confidence['lines'][$index]['reasons'] ?? [],
+                'confirmed'  => (bool) ($confirmed['line-' . $index] ?? false),
+            ])->all(),
+        ];
     }
 
     public function remove(SalesOrder $salesOrder): void
@@ -73,7 +117,7 @@ class SalesOrderAttachmentService
     /**
      * Keeps an uploaded file until the order it belongs to is saved.
      */
-    public function holdPending(UploadedFile $file, string $source = SalesOrderAttachment::SOURCE_SCAN): void
+    public function holdPending(UploadedFile $file, string $source = SalesOrderAttachment::SOURCE_SCAN, ?array $scan = null): void
     {
         $this->discardPending();
 
@@ -90,7 +134,22 @@ class SalesOrderAttachmentService
             'size'      => $file->getSize(),
             'source'    => $source,
             'temporary' => true,
+            'scan'      => $scan,
         ]);
+    }
+
+    /**
+     * Records the reviewed scan on the held PDF, so it is kept when the order is saved.
+     *
+     * @param array<string, mixed> $scan
+     */
+    public function setPendingScan(array $scan): void
+    {
+        $pending = Session::get(self::PENDING_SESSION_KEY);
+
+        if (\is_array($pending)) {
+            Session::put(self::PENDING_SESSION_KEY, ['scan' => $scan] + $pending);
+        }
     }
 
     /**
@@ -108,6 +167,7 @@ class SalesOrderAttachmentService
             'size'      => $attachment->file_size,
             'source'    => $attachment->source,
             'temporary' => false,
+            'scan'      => $attachment->scan_result,
         ]);
     }
 
@@ -156,7 +216,7 @@ class SalesOrderAttachmentService
             'mime_type' => $pending['mime'],
             'file_size' => $pending['size'],
             'source'    => $pending['source'],
-        ]);
+        ] + $this->scanColumns($pending['scan'] ?? null));
     }
 
     public function disk(): FilesystemAdapter
@@ -167,6 +227,15 @@ class SalesOrderAttachmentService
     /**
      * @param array<string, mixed> $attributes
      */
+    /**
+     * @param array<string, mixed>|null $scan
+     * @return array{scan_result?: array<string, mixed>, scan_confidence?: int}
+     */
+    private function scanColumns(?array $scan): array
+    {
+        return $scan === null ? [] : ['scan_result' => $scan, 'scan_confidence' => (int) ($scan['score'] ?? 0)];
+    }
+
     private function record(SalesOrder $salesOrder, array $attributes): SalesOrderAttachment
     {
         $previous = SalesOrderAttachment::where('sales_order_id', $salesOrder->id)->get();

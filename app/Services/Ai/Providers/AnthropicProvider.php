@@ -85,11 +85,19 @@ class AnthropicProvider implements AiProviderInterface
     /**
      * Claude's effort level: how much it thinks and spends.
      */
+    /**
+     * Claude's effort level, and Anthropic's automatic prompt caching: one cache breakpoint after the last block
+     * of the request, so each step of a tool loop and each follow-up reads the earlier part from the cache.
+     */
     public function laravelAiOptions(): array
     {
-        return filled($effort = $this->config['effort'] ?? null)
-            ? ['output_config' => ['effort' => $effort]]
-            : [];
+        $options = ['cache_control' => ['type' => 'ephemeral']];
+
+        if (filled($effort = $this->config['effort'] ?? null)) {
+            $options['output_config'] = ['effort' => $effort];
+        }
+
+        return $options;
     }
 
     public function checkConnection(): string

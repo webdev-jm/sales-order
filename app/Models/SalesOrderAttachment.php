@@ -23,6 +23,15 @@ class SalesOrderAttachment extends Model
         'mime_type',
         'file_size',
         'source',
+        'scan_result',
+        'scan_confidence',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'scan_result' => 'array',
     ];
 
     /**
@@ -41,6 +50,14 @@ class SalesOrderAttachment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * High, Medium or Low for a scanned PO, or null when the file was not scanned.
+     */
+    public function scanLevel(): ?string
+    {
+        return $this->scan_confidence === null ? null : \App\Services\ScanConfidence::level((int) $this->scan_confidence);
     }
 
     public function isPdf(): bool
