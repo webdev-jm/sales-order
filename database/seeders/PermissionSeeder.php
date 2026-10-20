@@ -268,6 +268,10 @@ class PermissionSeeder extends Seeder
                 'po scan access'        => 'access to scan account PO PDFs into a sales order template with AI',
                 'po scan format manage' => 'access to manage the per-account PO scan formats',
                 'ai usage access'       => 'access to the AI token usage monitor',
+                'ai settings manage'    => 'access to choose the AI providers, models and prices',
+                'ai assistant access'   => 'access to the AI sales assistant, which answers questions about the sales orders of the user\'s accounts',
+                'ai insights access'    => 'access to the AI summaries of the SO Dashboard and the Sales Order report',
+                'ai mapping help'       => 'access to AI suggestions for SKUs and store codes that an upload could not match',
             ],
             'SO Cancel Request' => [
                 'so cancel request create'  => 'access to request the cancelation of sales orders in the accounts assigned to the user',

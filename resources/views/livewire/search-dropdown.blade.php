@@ -8,7 +8,7 @@
             type="text"
             class="form-control"
             placeholder="{{ $placeholder }}"
-            wire:model.debounce.300ms="search"
+            wire:model.live.debounce.300ms="search"
             wire:focus="$set('showDropdown', true)"
             autocomplete="off"
         >

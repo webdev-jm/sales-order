@@ -16,7 +16,7 @@
                     </button>
                 </div>
                 <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modal-add"
-                    wire:click="$emit('openAddHoliday')">
+                    wire:click="$dispatch('openAddHoliday')">
                     <i class="fas fa-plus mr-1"></i> Add Custom Holiday
                 </button>
             </div>
@@ -131,7 +131,7 @@
                     right : 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 dateClick: function(info) {
-                    Livewire.emit('setHolidayAdd', info.dateStr);
+                    Livewire.dispatch('setHolidayAdd', [info.dateStr]);
                     $('#modal-add').modal('show');
                 },
                 themeSystem: 'bootstrap',

@@ -13,13 +13,13 @@
                         <div class="col-xl-6">
                             <div class="form-group">
                                 <label class="text-muted mb-1">Year</label>
-                                <input type="number" class="form-control" wire:model="year" wire:change="change_date" min="{{date('Y')}}">
+                                <input type="number" class="form-control" wire:model.live="year" wire:change="change_date" min="{{date('Y')}}">
                             </div>
                         </div>
                         <div class="col-xl-6">
                             <div class="form-group">
                                 <label class="text-muted mb-1">Month</label>
-                                <select class="form-control" wire:model="month" wire:change="change_date">
+                                <select class="form-control" wire:model.live="month" wire:change="change_date">
                                     @foreach($months_arr as $key => $mon)
                                     <option value="{{$key}}">{{$mon}}</option>
                                     @endforeach
@@ -43,7 +43,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
         });
     </script>
 </div>

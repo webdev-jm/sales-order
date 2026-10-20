@@ -13,6 +13,10 @@ class CreateHolidaysTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('holidays')) {
+            return;
+        }
+
         Schema::create('holidays', function (Blueprint $table) {
             $table->id();
             $table->integer('year')->nullable();

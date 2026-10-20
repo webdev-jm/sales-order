@@ -7,7 +7,7 @@
         <h4 class="modal-title">Assign Special Products</h4>
         <div class="card-tools">
             <div class="input-group input-group-sm" style="width: 150px;">
-                <input type="text" class="form-control" wire:model="search" placeholder="Search">
+                <input type="text" class="form-control" wire:model.live="search" placeholder="Search">
                 <div class="input-group-append">
                     <button type="submit" class="btn btn-default" form="search_form">
                         <i class="fas fa-search"></i>

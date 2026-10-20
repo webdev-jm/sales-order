@@ -13,6 +13,10 @@ class CreateDeviationSchedulesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('deviation_schedules')) {
+            return;
+        }
+
         Schema::create('deviation_schedules', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('deviation_id')->nullable();

@@ -13,6 +13,10 @@ class CreatePpuformItemsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('ppuform_items')) {
+            return;
+        }
+
         Schema::create('ppuform_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ppuform_id')->nullable();

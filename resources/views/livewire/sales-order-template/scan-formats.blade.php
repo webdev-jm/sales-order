@@ -25,10 +25,10 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                             </div>
-                            <input type="text" wire:model.debounce.300ms="accountSearch"
+                            <input type="text" wire:model.live.debounce.300ms="accountSearch"
                                    class="form-control" placeholder="Filter accounts…">
                         </div>
-                        <select wire:model="account_id" id="format_account_id" size="6"
+                        <select wire:model.live="account_id" id="format_account_id" size="6"
                                 class="form-control @error('account_id') is-invalid @enderror"
                                 style="height:auto;">
                             @foreach($accounts as $account)
@@ -47,7 +47,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="format_name">Format Name <span class="text-danger">*</span></label>
-                            <input type="text" wire:model.defer="name" id="format_name"
+                            <input type="text" wire:model="name" id="format_name"
                                    class="form-control @error('name') is-invalid @enderror"
                                    placeholder="e.g. Standard PO">
                             @error('name')
@@ -56,7 +56,7 @@
                         </div>
                         <div class="form-group col-md-3">
                             <label for="format_uom">Default Unit</label>
-                            <select wire:model.defer="default_uom" id="format_uom"
+                            <select wire:model="default_uom" id="format_uom"
                                     class="form-control @error('default_uom') is-invalid @enderror">
                                 @foreach($uoms as $uom)
                                     <option value="{{ $uom }}">{{ $uom }}</option>
@@ -69,14 +69,14 @@
                         <div class="form-group col-md-3">
                             <label class="d-block">&nbsp;</label>
                             <div class="custom-control custom-switch mt-2">
-                                <input type="checkbox" wire:model.defer="is_active" class="custom-control-input" id="format_active">
+                                <input type="checkbox" wire:model="is_active" class="custom-control-input" id="format_active">
                                 <label class="custom-control-label" for="format_active">Active</label>
                             </div>
                         </div>
                     </div>
                     <div class="form-group mb-0">
                         <label for="format_instructions">Notes for the AI</label>
-                        <textarea wire:model.defer="instructions" id="format_instructions" rows="6"
+                        <textarea wire:model="instructions" id="format_instructions" rows="6"
                                   class="form-control @error('instructions') is-invalid @enderror"
                                   placeholder="e.g. The PO number is labelled &quot;Order No.&quot;. The item code is in the &quot;Article&quot; column; ignore the &quot;Vendor Item&quot; column. Quantities are in pieces. The store code is the 4-digit number before the store name under &quot;Deliver To&quot;. Dates are DD/MM/YYYY."></textarea>
                         @error('instructions')
@@ -106,7 +106,7 @@
                     <div class="input-group-prepend">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
                     </div>
-                    <input type="text" wire:model.debounce.300ms="search" class="form-control" placeholder="Account or format…">
+                    <input type="text" wire:model.live.debounce.300ms="search" class="form-control" placeholder="Account or format…">
                 </div>
             </div>
         </div>

@@ -247,7 +247,7 @@
                     'shipping_address_id' : $('#shipping_address_id').val()
                 }
 
-                Livewire.emit('setDataSummary', data);
+                Livewire.dispatch('setDataSummary', [data]);
                 $('#modal-summary').modal('show');
             } else {
                 status_val = 'draft';
@@ -266,7 +266,7 @@
         });
 
         $('body').on('change', '[form="update_sales_order"]', function(e) {
-            Livewire.emit('saveData');
+            Livewire.dispatch('saveData');
         });
 
         // format PRF Number

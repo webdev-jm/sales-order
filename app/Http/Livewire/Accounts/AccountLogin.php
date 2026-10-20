@@ -23,13 +23,13 @@ class AccountLogin extends Component
 
     public function loginModal($account_id) {
         $this->account = Account::findOrFail($account_id);
-        $this->emit('loginForm', $account_id);
-        $this->dispatchBrowserEvent('openFormModal');
+        $this->dispatch('loginForm', $account_id);
+        $this->dispatch('openFormModal');
     }
 
     public function branchModal($account_id) {
-        $this->emit('setAccount', $account_id);
-        $this->dispatchBrowserEvent('openBranchModal');
+        $this->dispatch('setAccount', $account_id);
+        $this->dispatch('openBranchModal');
     }
 
     public function render()

@@ -13,6 +13,10 @@ class CreateSalesOrderProductUomsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('sales_order_product_uoms')) {
+            return;
+        }
+
         Schema::create('sales_order_product_uoms', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sales_order_product_id')->nullable();

@@ -18,7 +18,7 @@ class ProductPriceCode extends Component
     }
 
     public function managePriceCode() {
-        $this->dispatchBrowserEvent('openFormModal'.$this->product_id);
+        $this->dispatch('openFormModal'.$this->product_id);
     }
 
     public function mount() {

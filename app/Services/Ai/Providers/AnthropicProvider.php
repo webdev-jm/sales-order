@@ -2,49 +2,35 @@
 
 namespace App\Services\Ai\Providers;
 
-use Anthropic\Client;
-use Anthropic\Core\Exceptions\AnthropicException;
-use Anthropic\Core\Exceptions\APIConnectionException;
-use Anthropic\Core\Exceptions\APIStatusException;
-use Anthropic\Core\Exceptions\AuthenticationException;
-use Anthropic\Core\Exceptions\InternalServerException;
-use Anthropic\Core\Exceptions\NotFoundException;
-use Anthropic\Core\Exceptions\PermissionDeniedException;
-use Anthropic\Core\Exceptions\RateLimitException;
-use Anthropic\Messages\Base64ImageSource;
-use Anthropic\Messages\Base64PDFSource;
-use Anthropic\Messages\DocumentBlockParam;
-use Anthropic\Messages\ImageBlockParam;
-use Anthropic\Messages\Message;
-use Anthropic\Messages\TextBlockParam;
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
-use App\Services\Ai\AiDocument;
-use App\Services\Ai\AiResponse;
-use GuzzleHttp\Client as GuzzleClient;
+use App\Services\Ai\Concerns\GeneratesJsonWithLaravelAi;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Psr\Http\Client\ClientInterface;
 
 /**
- * Anthropic Claude through the official Anthropic PHP SDK (Messages API, structured outputs).
+ * Anthropic Claude. Replies are generated through laravel/ai (Messages API with structured
+ * output); the model list and connection check call the Models API directly, since they cost no
+ * tokens and laravel/ai has no call for them.
  */
 class AnthropicProvider implements AiProviderInterface
 {
+    use GeneratesJsonWithLaravelAi;
+
     public const NAME = 'anthropic';
 
-    private const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-
-    /** The SDK backs off at most this long between retries. */
-    private const MAX_RETRY_DELAY_SECONDS = 8;
+    private const API_VERSION = '2023-06-01';
 
     /** Seconds a model lookup or connection check may take. */
     private const CHECK_TIMEOUT = 20;
 
     /**
-     * @param array{key?: string|null, model?: string, timeout?: int, effort?: string|null, max_retries?: int, retry_ms?: int} $config
-     * @param ClientInterface|null $transporter HTTP client for the SDK; tests pass a mocked one
+     * @param array{key?: string|null, url?: string, model?: string, timeout?: int, effort?: string|null, max_retries?: int, retry_ms?: int} $config
      */
-    public function __construct(private array $config, private ?ClientInterface $transporter = null)
+    public function __construct(private array $config)
     {
     }
 
@@ -77,102 +63,74 @@ class AnthropicProvider implements AiProviderInterface
 
     public function maxDurationSeconds(): int
     {
-        $retries = $this->maxRetries();
+        $retries = $this->retryCount();
 
-        return ($retries + 1) * $this->timeout() + $retries * self::MAX_RETRY_DELAY_SECONDS;
+        return ($retries + 1) * $this->timeoutSeconds() + $retries * (int) ceil($this->retryDelayMs() / 1000);
+    }
+
+    public function timeoutSeconds(): int
+    {
+        return (int) ($this->config['timeout'] ?? 180);
+    }
+
+    public function laravelAiConfig(): array
+    {
+        return [
+            'driver' => 'anthropic',
+            'key'    => $this->config['key'] ?? null,
+            'url'    => $this->baseUrl(),
+        ];
+    }
+
+    /**
+     * Claude's effort level: how much it thinks and spends.
+     */
+    public function laravelAiOptions(): array
+    {
+        return filled($effort = $this->config['effort'] ?? null)
+            ? ['output_config' => ['effort' => $effort]]
+            : [];
     }
 
     public function checkConnection(): string
     {
         $this->ensureReady();
 
-        try {
-            $model = $this->client(self::CHECK_TIMEOUT)->models->retrieve($this->model());
-        } catch (AnthropicException $e) {
-            throw $this->failureFor($e);
+        $response = $this->send(fn () => $this->request()->get('models/' . $this->model()));
+
+        if ($response->failed()) {
+            throw new AiUnavailableException($this->failureMessage($response));
         }
 
-        return 'Connected. ' . $model->displayName . ' (' . $model->id . ') is ready.';
+        return 'Connected. ' . $response->json('display_name', $this->model()) . ' (' . $response->json('id', $this->model()) . ') is ready.';
     }
 
     public function listModels(): array
     {
         $this->ensureReady();
 
-        try {
-            $models = $this->client(self::CHECK_TIMEOUT)->models->list(limit: 1000)->getItems();
-        } catch (AnthropicException $e) {
-            throw $this->failureFor($e);
+        $response = $this->send(fn () => $this->request()->get('models', ['limit' => 1000]));
+
+        if ($response->failed()) {
+            throw new AiUnavailableException($this->failureMessage($response));
         }
 
-        return collect($models)->pluck('id')->sort()->values()->all();
+        return collect($response->json('data', []))->pluck('id')->filter()->map(fn ($id): string => (string) $id)->sort()->values()->all();
     }
 
-    public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens): AiResponse
+    private function retryCount(): int
     {
-        $this->ensureReady();
-
-        $content = array_map(fn (AiDocument $document): DocumentBlockParam|ImageBlockParam => $this->blockFor($document), $documents);
-        $content[] = TextBlockParam::with(text: $prompt);
-
-        $outputConfig = ['format' => ['type' => 'json_schema', 'schema' => self::strictSchema($schema)]];
-
-        if (filled($effort = $this->config['effort'] ?? null)) {
-            $outputConfig['effort'] = $effort;
-        }
-
-        $startedAt = hrtime(true);
-
-        try {
-            $message = $this->client($this->timeout(), $this->maxRetries())->messages->create(
-                maxTokens: $maxOutputTokens,
-                messages: [['role' => 'user', 'content' => $content]],
-                model: $this->model(),
-                system: $instructions,
-                outputConfig: $outputConfig,
-            );
-        } catch (AnthropicException $e) {
-            throw $this->failureFor($e);
-        }
-
-        return $this->responseFrom($message, (int) ((hrtime(true) - $startedAt) / 1_000_000));
+        return max(0, (int) ($this->config['max_retries'] ?? 1));
     }
 
-    /**
-     * Claude's structured outputs need every object closed with additionalProperties false, and
-     * take a nullable type as anyOf rather than a list of types.
-     *
-     * @param array<string, mixed> $schema
-     * @return array<string, mixed>
-     */
-    public static function strictSchema(array $schema): array
+    private function retryDelayMs(): int
     {
-        if (isset($schema['type']) && \is_array($schema['type'])) {
-            $rest = $schema;
-            unset($rest['type']);
+        return (int) ($this->config['retry_ms'] ?? 500);
+    }
 
-            return ['anyOf' => array_map(
-                fn (string $type): array => self::strictSchema($type === 'null' ? ['type' => 'null'] : ['type' => $type] + $rest),
-                $schema['type']
-            )];
-        }
-
-        if (($schema['type'] ?? null) === 'object') {
-            $schema['additionalProperties'] = false;
-            $schema['properties'] = array_map(fn (array $property): array => self::strictSchema($property), $schema['properties'] ?? []);
-        }
-
-        if (isset($schema['items']) && \is_array($schema['items'])) {
-            $schema['items'] = self::strictSchema($schema['items']);
-        }
-
-        foreach (['anyOf', 'allOf'] as $keyword) {
-            if (isset($schema[$keyword])) {
-                $schema[$keyword] = array_map(fn (array $branch): array => self::strictSchema($branch), $schema[$keyword]);
-            }
-        }
-
-        return $schema;
+    private function baseUrl(): string
+    {
+        return rtrim((string) ($this->config['url'] ?? 'https://api.anthropic.com/v1'), '/');
     }
 
     private function ensureReady(): void
@@ -182,84 +140,45 @@ class AnthropicProvider implements AiProviderInterface
         }
     }
 
-    private function client(int $timeout, int $maxRetries = 0): Client
+    private function request(): PendingRequest
     {
-        return new Client(
-            apiKey: (string) $this->config['key'],
-            requestOptions: [
-                'transporter'       => $this->transporter ?? new GuzzleClient(['timeout' => $timeout, 'connect_timeout' => 15]),
-                'timeout'           => (float) $timeout,
-                'maxRetries'        => $maxRetries,
-                'initialRetryDelay' => ($this->config['retry_ms'] ?? 500) / 1000,
-            ],
-        );
-    }
-
-    private function failureFor(AnthropicException $e): AiUnavailableException
-    {
-        return match (true) {
-            $e instanceof RateLimitException => new AiUnavailableException('The AI service is busy or its quota is used up. Try again later.'),
-            $e instanceof InternalServerException => new AiUnavailableException('The AI service is having problems. Try again in a minute.'),
-            $e instanceof AuthenticationException,
-            $e instanceof PermissionDeniedException => new AiUnavailableException('The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.'),
-            $e instanceof NotFoundException => new AiUnavailableException('The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.'),
-            $e instanceof APIStatusException => new AiUnavailableException('The AI service refused the request: '
-                . Str::limit((string) data_get($e->body, 'error.message', $e->getMessage()), 200)),
-            $e instanceof APIConnectionException => new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e),
-            default => new AiUnavailableException('The AI service failed: ' . Str::limit($e->getMessage(), 200), 0, $e),
-        };
-    }
-
-    private function blockFor(AiDocument $document): DocumentBlockParam|ImageBlockParam
-    {
-        $data = base64_encode($document->contents);
-
-        if ($document->mimeType === 'application/pdf') {
-            return DocumentBlockParam::with(source: Base64PDFSource::with(data: $data));
-        }
-
-        if (\in_array($document->mimeType, self::IMAGE_TYPES, true)) {
-            return ImageBlockParam::with(source: Base64ImageSource::with(data: $data, mediaType: $document->mimeType));
-        }
-
-        throw new AiUnavailableException('Claude cannot read ' . $document->mimeType . ' files.');
+        return Http::baseUrl($this->baseUrl())
+            ->withHeaders(['x-api-key' => (string) $this->config['key'], 'anthropic-version' => self::API_VERSION])
+            ->acceptJson()
+            ->timeout(self::CHECK_TIMEOUT);
     }
 
     /**
-     * Cache reads and writes are input too, so they count towards the input tokens.
+     * @param callable(): Response $call
      */
-    private function responseFrom(Message $message, int $durationMs): AiResponse
+    private function send(callable $call): Response
     {
-        $text = collect($message->content)
-            ->filter(fn (object $block): bool => $block->type === 'text')
-            ->pluck('text')
-            ->implode('');
-
-        $input = $message->usage->inputTokens
-            + (int) $message->usage->cacheCreationInputTokens
-            + (int) $message->usage->cacheReadInputTokens;
-        $output = $message->usage->outputTokens;
-
-        return new AiResponse(
-            text: $text,
-            provider: self::NAME,
-            model: $message->model,
-            inputTokens: $input,
-            outputTokens: $output,
-            totalTokens: $input + $output,
-            durationMs: $durationMs,
-            cutOff: $message->stopReason === 'max_tokens',
-            refused: $message->stopReason === 'refusal',
-        );
+        try {
+            return $call();
+        } catch (ConnectionException $e) {
+            throw new AiUnavailableException('The AI service could not be reached. Try again in a minute.', 0, $e);
+        }
     }
 
-    private function timeout(): int
+    private function failureMessage(Response $response): string
     {
-        return (int) ($this->config['timeout'] ?? 180);
-    }
+        if (\in_array($response->status(), [401, 403], true)) {
+            return 'The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.';
+        }
 
-    private function maxRetries(): int
-    {
-        return (int) ($this->config['max_retries'] ?? 1);
+        if ($response->status() === 404) {
+            return 'The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.';
+        }
+
+        if ($response->status() === 429) {
+            return 'The AI service is busy or its quota is used up. Try again later.';
+        }
+
+        if ($response->serverError() || $response->status() === 529) {
+            return 'The AI service is having problems. Try again in a minute.';
+        }
+
+        return 'The AI service refused the request: '
+            . Str::limit((string) $response->json('error.message', $response->reason()), 200);
     }
 }

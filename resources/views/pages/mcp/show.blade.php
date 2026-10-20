@@ -198,13 +198,13 @@ $(function() {
     // reject
     $('#btn-reject').on('click', function(e) {
         e.preventDefault();
-        Livewire.emit('setApproval', 'reject', {{$activity_plan->id}});
+        Livewire.dispatch('setApproval', ['reject', {{$activity_plan->id}}]);
         $('#modal-approval').modal('show');
     });
     // approve
     $('#btn-approve').on('click', function(e) {
         e.preventDefault();
-        Livewire.emit('setApproval', 'approve', {{$activity_plan->id}});
+        Livewire.dispatch('setApproval', ['approve', {{$activity_plan->id}}]);
         $('#modal-approval').modal('show');
     });
 
@@ -235,7 +235,7 @@ $(function() {
             }
 
             var id = eventObj.id;
-            Livewire.emit('setDetail', id);
+            Livewire.dispatch('setDetail', [id]);
             $('#modal-detail').modal('show');
         },
         themeSystem: 'bootstrap',

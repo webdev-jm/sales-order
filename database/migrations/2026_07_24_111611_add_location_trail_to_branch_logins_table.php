@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('branch_logins', 'location_trail')) {
+            return;
+        }
+
         Schema::table('branch_logins', function (Blueprint $table) {
             $table->json('location_trail')->nullable()->after('time_out_accuracy');
         });

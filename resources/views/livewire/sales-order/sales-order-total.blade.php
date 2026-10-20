@@ -17,7 +17,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>TOTAL</label>
-                        <input type="text" class="form-control bg-white text-right" readonly wire:model="total">
+                        <input type="text" class="form-control bg-white text-right" readonly wire:model.live="total">
                     </div>
                 </div>
 
@@ -31,7 +31,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label>TOTAL NET DISCOUNT</label>
-                        <input type="text" class="form-control bg-white text-right" readonly wire:model="grand_total">
+                        <input type="text" class="form-control bg-white text-right" readonly wire:model.live="grand_total">
                     </div>
                 </div>
 

@@ -13,6 +13,10 @@ class CreateDeviationApprovalsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('deviation_approvals')) {
+            return;
+        }
+
         Schema::create('deviation_approvals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('deviation_id')->nullable();

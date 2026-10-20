@@ -48,7 +48,7 @@
                             <td class="p-0">
                                 <div class="input-group">
                                     <input type="text" class="form-control border-0 {{$line['class']}}"
-                                        wire:model="account_query.{{$date}}.{{$key}}"
+                                        wire:model.live="account_query.{{$date}}.{{$key}}"
                                         wire:keyup.debounce.400ms="setAccountQuery('{{$date}}', {{$key}})"
                                         wire:keydown.escape="resetAccountQuery"
                                         wire:keydown.tab.prevent="resetAccountQuery"
@@ -85,7 +85,7 @@
                             <td class="p-0">
                                 <div class="input-group">
                                     <input type="text" class="form-control border-0 {{$line['class']}}"
-                                        wire:model="branch_query.{{$date}}.{{$key}}"
+                                        wire:model.live="branch_query.{{$date}}.{{$key}}"
                                         wire:keyup.debounce.400ms="setQuery('{{$date}}', '{{$key}}')"
                                         wire:keydown.escape="resetQuery"
                                         wire:keydown.tab.prevent="resetQuery"
@@ -140,7 +140,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
 
         });
     </script>

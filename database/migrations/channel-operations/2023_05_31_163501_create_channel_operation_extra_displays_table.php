@@ -13,6 +13,10 @@ class CreateChannelOperationExtraDisplaysTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('channel_operation_extra_displays')) {
+            return;
+        }
+
         Schema::create('channel_operation_extra_displays', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('channel_operation_id')->nullable();

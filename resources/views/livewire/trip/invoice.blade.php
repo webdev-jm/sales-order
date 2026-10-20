@@ -58,7 +58,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label for="invoice_number">Invoice Number</label>
-                        <input type="text" class="form-control{{$errors->has('invoice') ? ' is-invalid' : ''}}" id="invoice_number" wire:model="invoice" placeholder="Enter Invoice Number">
+                        <input type="text" class="form-control{{$errors->has('invoice') ? ' is-invalid' : ''}}" id="invoice_number" wire:model.live="invoice" placeholder="Enter Invoice Number">
                         <small class="text-danger mb-0">{{$errors->first('invoice')}}</small>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                 <div class="col-lg-6">
                     <div class="form-group">
                         <label for="supplier">Supplier</label>
-                        <input type="text" class="form-control{{$errors->has('supplier') ? ' is-invalid' : ''}}" id="supplier" wire:model="supplier" placeholder="Enter Supplier Name">
+                        <input type="text" class="form-control{{$errors->has('supplier') ? ' is-invalid' : ''}}" id="supplier" wire:model.live="supplier" placeholder="Enter Supplier Name">
                         <small class="text-danger mb-0">{{$errors->first('supplier')}}</small>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function () { 
+        document.addEventListener('livewire:initialized', function () { 
         });
     </script>
 </div>

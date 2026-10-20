@@ -47,13 +47,13 @@ class AccountLogged extends Component
 
     public function loggedForm()
     {
-        $this->dispatchBrowserEvent('openLoggedModal' . $this->logged->id);
+        $this->dispatch('openLoggedModal' . $this->logged->id);
     }
 
     public function loggedBranchForm()
     {
-        $this->emit('reloadActivities');
-        $this->dispatchBrowserEvent('openLoggedModal' . $this->logged_branch->id);
+        $this->dispatch('reloadActivities');
+        $this->dispatch('openLoggedModal' . $this->logged_branch->id);
     }
 
     public function mount()

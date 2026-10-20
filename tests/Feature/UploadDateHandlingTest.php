@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Imports\ScheduleImport;
 use App\Models\Branch;
 use App\Models\User;
@@ -48,10 +50,10 @@ class UploadDateHandlingTest extends TestCase
     }
 
     /**
-     * @dataProvider scheduleDateProvider
      *
      * @param  mixed  $value
      */
+    #[DataProvider('scheduleDateProvider')]
     public function test_schedule_upload_accepts_any_date_format($value, string $expected): void
     {
         $import = new ScheduleImport;

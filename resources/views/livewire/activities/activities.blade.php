@@ -3,7 +3,7 @@
         <div class="col-lg-3">
             <div class="form-group">
                 <label>Operation Process</label>
-                <select class="form-control" wire:change="selectOperationProcess" wire:model="operation_process_id">
+                <select class="form-control" wire:change="selectOperationProcess" wire:model.live="operation_process_id">
                     <option value=""></option>
                     @foreach($operation_processes as $operation_process)
                     <option {{$operation_process_id == $operation_process->id ? 'selected' : ''}} value="{{$operation_process->id}}">{{$operation_process->operation_process}}</option>
@@ -34,7 +34,7 @@
                             <td class="p-0 text-center align-middle">
                                 <div class="form-group m-0">
                                     <div class="custom-control custom-switch">
-                                        <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model="activity_val.{{$activity->id}}.number" checked="{{$activity_val[$activity->id]['number'] ?? 'false'}}" wire:change="updateData">
+                                        <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model.live="activity_val.{{$activity->id}}.number" checked="{{$activity_val[$activity->id]['number'] ?? 'false'}}" wire:change="updateData">
                                         <label class="custom-control-label" for="switch{{$activity->id}}"></label>
                                     </div>
                                 </div>

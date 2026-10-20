@@ -54,7 +54,7 @@
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="upload_template_id">Upload Template</label>
-                            <select class="form-control{{$errors->has('upload_template_id') ? ' is-invalid' : ''}}" wire:model="upload_template_id">   
+                            <select class="form-control{{$errors->has('upload_template_id') ? ' is-invalid' : ''}}" wire:model.live="upload_template_id">   
                                 <option value="">-select upload template-</option>
                                 @foreach($templates as $template)
                                     <option value="{{$template->id}}">{{$template->name}}</option>
@@ -67,7 +67,7 @@
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="type">Type</label>
-                            <select class="form-control{{$errors->has('type') ? ' is-invalid' : ''}}" wire:model="type">
+                            <select class="form-control{{$errors->has('type') ? ' is-invalid' : ''}}" wire:model.live="type">
                                 <option value="">-select type-</option>
                                 <option value="number">Column Number</option>
                                 <option value="name">Column Name</option>
@@ -79,7 +79,7 @@
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="start_row">Start Row</label>
-                            <input type="number" class="form-control{{$errors->has('start_row') ? ' is-invalid' : ''}}" wire:model="start_row">
+                            <input type="number" class="form-control{{$errors->has('start_row') ? ' is-invalid' : ''}}" wire:model.live="start_row">
                             <small class="text-danger">{{$errors->first('start_row')}}</small>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="breakpoint">Breakpoint (if multiple one in file)</label>
-                            <input type="text" class="form-control{{$errors->has('breakpoint') ? ' is-invalid' : ''}}" wire:model="breakpoint">
+                            <input type="text" class="form-control{{$errors->has('breakpoint') ? ' is-invalid' : ''}}" wire:model.live="breakpoint">
                             <small class="text-danger">{{$errors->first('breakpoint')}}</small>
                         </div>
                     </div>
@@ -95,7 +95,7 @@
                     <div class="col-lg-4">
                         <div class="form-group">
                             <label for="breakpoint_col">Breakpoint Column</label>
-                            <input type="text" class="form-control{{$errors->has('breakpoint_col') ? ' is-invalid' : ''}}" wire:model="breakpoint_col">
+                            <input type="text" class="form-control{{$errors->has('breakpoint_col') ? ' is-invalid' : ''}}" wire:model.live="breakpoint_col">
                             <small class="text-danger">{{$errors->first('breakpoint_col')}}</small>
                         </div>
                     </div>
@@ -121,10 +121,10 @@
                                         <td>{{$field->number}}</td>
                                         <td>{{$field->column_name}}</td>
                                         <td class="p-0">
-                                            <input type="text" class="form-control border-0" wire:model="account_template_fields.{{$field->id}}.name">
+                                            <input type="text" class="form-control border-0" wire:model.live="account_template_fields.{{$field->id}}.name">
                                         </td>
                                         <td class="p-0">
-                                            <input type="text" class="form-control border-0" wire:model="account_template_fields.{{$field->id}}.number">
+                                            <input type="text" class="form-control border-0" wire:model.live="account_template_fields.{{$field->id}}.number">
                                         </td>
                                     </tr>
                                 @endforeach

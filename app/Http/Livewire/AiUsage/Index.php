@@ -159,6 +159,15 @@ class Index extends Component
             ->orderByDesc('total_tokens')
             ->get();
 
+        $byFeature = $this->callQuery($month)
+            ->selectRaw('feature, COUNT(*) as calls')
+            ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as failed', [AiUsageLog::STATUS_FAILED])
+            ->selectRaw('SUM(total_tokens) as total_tokens')
+            ->selectRaw('SUM(estimated_cost) as estimated_cost')
+            ->groupBy('feature')
+            ->orderByDesc('total_tokens')
+            ->get();
+
         $logs = $this->monthQuery($month)
             ->with(['user:id,firstname,lastname', 'account:id,account_code,account_name'])
             ->when($this->status !== '', fn ($q) => $q->where('status', $this->status))
@@ -176,6 +185,7 @@ class Index extends Component
             'byUser'         => $byUser,
             'byAccount'      => $byAccount,
             'byProvider'     => $byProvider,
+            'byFeature'      => $byFeature,
             'logs'           => $logs,
             'limit'          => $meter->monthlyLimit(),
             'dailyLimit'     => $meter->dailyUserLimit(),

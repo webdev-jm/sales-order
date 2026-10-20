@@ -50,7 +50,7 @@
         $('body').on('click', '.btn-detail', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeviationApproval', id);
+            Livewire.dispatch('setDeviationApproval', [id]);
             $('#deviation-approval-modal').modal('show');
         });
     })

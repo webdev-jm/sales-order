@@ -13,6 +13,10 @@ class CreateSalesmenTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('salesmen')) {
+            return;
+        }
+
         Schema::create('salesmen', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

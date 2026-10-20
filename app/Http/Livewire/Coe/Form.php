@@ -51,7 +51,7 @@ class Form extends Component
 
         $this->coe_id = $channel_operation->id;
 
-        $this->emit('setSignout');
+        $this->dispatch('setSignout');
     }
 
     public function removeLine($key) {

@@ -102,7 +102,7 @@
         $('body').on('click', '.btn-activity', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('showActivities', id);
+            Livewire.dispatch('showActivities', [id]);
             $('#modal-activities').modal('show');
         });
     })

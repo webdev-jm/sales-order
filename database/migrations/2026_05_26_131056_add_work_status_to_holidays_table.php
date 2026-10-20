@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('holidays', 'is_work_day')) {
+            return;
+        }
+
         Schema::table('holidays', function (Blueprint $table) {
             $table->boolean('is_work_day')->default(false)->after('repeat');
             $table->string('source')->default('custom')->after('is_work_day');

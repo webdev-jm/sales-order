@@ -25,13 +25,13 @@
                 <th class="war-label">COVERED PERIOD:</th>
                 <td class="p-0 align-middle">
                     <div class="input-group input-group-sm">
-                        {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0 bg-editable'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => $type, 'wire:model' => 'date_from', 'wire:change' => 'changeDate()']) !!}
+                        {!! Form::date('date_from', date('Y-m-d'), ['class' => 'form-control border-0 bg-editable'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => $type, 'wire:model.live' => 'date_from', 'wire:change' => 'changeDate()']) !!}
                     </div>
                 </td>
                 <td>to</td>
                 <td class="p-0 align-middle">
                     <div class="input-group input-group-sm">
-                        {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0 bg-editable'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => $type, 'wire:model' => 'date_to', 'wire:change' => 'changeDate()']) !!}
+                        {!! Form::date('date_to', date('Y-m-d'), ['class' => 'form-control border-0 bg-editable'.($errors->has('date_to') ? ' is-invalid' : ''), 'form' => $type, 'wire:model.live' => 'date_to', 'wire:change' => 'changeDate()']) !!}
                     </div>
                 </td>
             </tr>

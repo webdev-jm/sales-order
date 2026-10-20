@@ -6,7 +6,7 @@
             <h4 class="modal-title">Login to Branch of <span class="badge badge-primary">[{{$account->account_code}}] {{$account->short_name}}</span></h4>
             <div class="card-tools">
                 <div class="input-group input-group-sm" style="width: 150px;">
-                    <input type="text" class="form-control float-right" placeholder="Search" wire:model="search">
+                    <input type="text" class="form-control float-right" placeholder="Search" wire:model.live="search">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-default">
                             <i class="fas fa-search" wire:loading.remove></i>
@@ -62,7 +62,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Branch Code</label>
-                        <input type="text" class="form-control @error('branch_code') is-invalid @enderror" wire:model.defer="branch_code">
+                        <input type="text" class="form-control @error('branch_code') is-invalid @enderror" wire:model="branch_code">
                         @error('branch_code')
                         <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -72,7 +72,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Branch Name</label>
-                        <input type="text" class="form-control @error('branch_name') is-invalid @enderror" wire:model.defer="branch_name">
+                        <input type="text" class="form-control @error('branch_name') is-invalid @enderror" wire:model="branch_name">
                         @error('branch_name')
                         <p class="text-danger">{{$message}}</p>
                         @enderror
@@ -82,7 +82,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Region</label>
-                        <select class="form-control @error('region') is-invalid @enderror" wire:model.defer="region">
+                        <select class="form-control @error('region') is-invalid @enderror" wire:model="region">
                             <option value=""></option>
                             @foreach($regions as $region)
                             <option value="{{$region->id}}">{{$region->region_name}}</option>
@@ -97,7 +97,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Classification</label>
-                        <select class="form-control @error('classification') is-invalid @enderror" wire:model.defer="classification">
+                        <select class="form-control @error('classification') is-invalid @enderror" wire:model="classification">
                             <option value=""></option>
                             @foreach($classifications as $classification)
                             <option value="{{$classification->id}}">[{{$classification->classification_code}}] {{$classification->classification_name}}</option>
@@ -112,7 +112,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="">Area</label>
-                        <select class="form-control @error('area') is-invalid @enderror" wire:model.defer="area">
+                        <select class="form-control @error('area') is-invalid @enderror" wire:model="area">
                             <option value=""></option>
                             @foreach($areas as $area)
                             <option value="{{$area->id}}">[{{$area->area_code}}] {{$area->area_name}}</option>
@@ -145,7 +145,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Accuracy (m.)</label>
-                            <input type="text" wire:model="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
+                            <input type="text" wire:model.live="accuracy" class="form-control bg-white {{$errors->has('accuracy') ? 'is-invalid' : ''}}" readonly>
                             <p class="text-danger">{{$errors->first('accuracy')}}</p>
                         </div>
                     </div>
@@ -153,7 +153,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Longitude</label>
-                            <input type="text" wire:model="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
+                            <input type="text" wire:model.live="longitude" class="form-control bg-white {{$errors->has('longitude') ? 'is-invalid' : ''}}" readonly>
                             <p class="text-danger">{{$errors->first('longitude')}}</p>
                         </div>
                     </div>
@@ -161,7 +161,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label>Latitude</label>
-                            <input type="text" wire:model="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
+                            <input type="text" wire:model.live="latitude" class="form-control bg-white {{$errors->has('latitude') ? 'is-invalid' : ''}}" readonly>
                             <p class="text-danger">{{$errors->first('latitude')}}</p>
                         </div>
                     </div>

@@ -6,6 +6,7 @@ use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiResponse;
+use App\Services\Ai\Concerns\DescribesLaravelAiFailures;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -16,11 +17,14 @@ use Throwable;
 
 /**
  * Any server that speaks the OpenAI Chat Completions API (OpenAI, OpenRouter, Groq, DeepSeek, a
- * local Ollama, ...), over Laravel's HTTP client. The server address is the base URL, so one
- * driver covers all of them. PDFs go as "file" content parts, which OpenAI and OpenRouter read.
+ * local Ollama, ...). The server address is the base URL, so one driver covers all of them. PDFs
+ * go as "file" content parts, which OpenAI and OpenRouter read, over Laravel's HTTP client;
+ * text-only agents use laravel/ai's OpenAI-compatible driver.
  */
 class OpenAiProvider implements AiProviderInterface
 {
+    use DescribesLaravelAiFailures;
+
     public const NAME = 'openai';
 
     private const RETRIES = 1;
@@ -79,6 +83,30 @@ class OpenAiProvider implements AiProviderInterface
     public function maxDurationSeconds(): int
     {
         return (self::RETRIES + 1) * $this->timeout() + (int) ceil(($this->config['retry_ms'] ?? 0) / 1000);
+    }
+
+    public function timeoutSeconds(): int
+    {
+        return $this->timeout();
+    }
+
+    /**
+     * Text-only agents (assistant, insights, mapping help) reach this server through laravel/ai's
+     * OpenAI-compatible driver. Reading PDFs stays on generateJson() below, because that driver
+     * only attaches images.
+     */
+    public function laravelAiConfig(): array
+    {
+        return [
+            'driver' => 'openai-compatible',
+            'key'    => $this->config['key'] ?? null,
+            'url'    => $this->config['url'] ?? null,
+        ];
+    }
+
+    public function laravelAiOptions(): array
+    {
+        return filled($effort = $this->config['effort'] ?? null) ? ['reasoning_effort' => $effort] : [];
     }
 
     /**

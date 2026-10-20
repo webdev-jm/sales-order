@@ -13,6 +13,10 @@ class CreateChannelOperationCompetetiveReportsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('channel_operation_competetive_reports')) {
+            return;
+        }
+
         Schema::create('channel_operation_competetive_reports', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('channel_operation_id')->nullable();

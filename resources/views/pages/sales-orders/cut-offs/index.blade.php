@@ -74,7 +74,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'SalesOrderCutOff', id);
+            Livewire.dispatch('setDeleteModel', ['SalesOrderCutOff', id]);
             $('#modal-delete').modal('show');
         });
     });

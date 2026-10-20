@@ -135,7 +135,7 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Branch', id);
+            Livewire.dispatch('setDeleteModel', ['Branch', id]);
             $('#modal-delete').modal('show');
         });
 

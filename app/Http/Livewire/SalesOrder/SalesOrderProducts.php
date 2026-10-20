@@ -75,7 +75,7 @@ class SalesOrderProducts extends Component
             }
         }
 
-        $this->emit('getTotal', $this->quantity);
+        $this->dispatch('getTotal', $this->quantity);
     }
 
     public function render()

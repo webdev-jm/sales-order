@@ -13,6 +13,10 @@ class CreateBranchUser extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('branch_user')) {
+            return;
+        }
+
         Schema::create('branch_user', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('branch_id');

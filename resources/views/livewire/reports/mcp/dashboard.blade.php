@@ -16,14 +16,14 @@
                 <div class="col-lg-2">
                     <div class="form-group">
                         <label>Year</label>
-                        <input type="number" class="form-control" wire:model="year">
+                        <input type="number" class="form-control" wire:model.live="year">
                     </div>
                 </div>
                 {{-- MONTH --}}
                 <div class="col-lg-2">
                     <div class="form-group">
                         <label>Month</label>
-                        <select class="form-control" wire:model="month">
+                        <select class="form-control" wire:model.live="month">
                             @foreach($months as $key => $mon)
                             <option value="{{$key}}">{{$mon}}</option>
                             @endforeach
@@ -42,7 +42,7 @@
             </h3>
             <div class="card-tools">
                 <div class="input-group input-group-sm" style="width: 150px;">
-                    <input type="text" class="form-control float-right" placeholder="Search" wire:model="search">
+                    <input type="text" class="form-control float-right" placeholder="Search" wire:model.live="search">
                 </div>
             </div>
         </div>

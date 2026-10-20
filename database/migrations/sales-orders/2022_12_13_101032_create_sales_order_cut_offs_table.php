@@ -13,6 +13,10 @@ class CreateSalesOrderCutOffsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('sales_order_cut_offs')) {
+            return;
+        }
+
         Schema::create('sales_order_cut_offs', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

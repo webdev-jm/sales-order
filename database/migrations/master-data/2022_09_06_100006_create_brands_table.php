@@ -13,6 +13,10 @@ class CreateBrandsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('brands')) {
+            return;
+        }
+
         Schema::create('brands', function (Blueprint $table) {
             $table->id();
             $table->string('brand');

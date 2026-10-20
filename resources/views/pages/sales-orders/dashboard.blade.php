@@ -25,6 +25,11 @@
 {{-- info box --}}
 <livewire:sales-order.dashboard.info-box/>
 
+{{-- AI insights --}}
+@can('ai insights access')
+<livewire:ai.insights source="so-dashboard"/>
+@endcan
+
 {{-- sales order list --}}
 <livewire:sales-order.dashboard.sales-orders/>
 @endsection

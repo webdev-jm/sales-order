@@ -13,6 +13,10 @@ class CreateJobTitlesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('job_titles')) {
+            return;
+        }
+
         Schema::create('job_titles', function (Blueprint $table) {
             $table->id();
             $table->string('job_title');

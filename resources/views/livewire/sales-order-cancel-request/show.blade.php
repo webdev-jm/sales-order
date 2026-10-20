@@ -153,7 +153,7 @@
                                         <label for="cancel_remarks">
                                             {{ $action === 'complete' ? 'Remarks (optional)' : 'Reason for rejecting' }}
                                         </label>
-                                        <textarea id="cancel_remarks" wire:model.defer="remarks" rows="3" class="form-control @error('remarks') is-invalid @enderror"
+                                        <textarea id="cancel_remarks" wire:model="remarks" rows="3" class="form-control @error('remarks') is-invalid @enderror"
                                             placeholder="{{ $action === 'complete' ? 'e.g. Cancelled in SYSPRO; stock released' : 'e.g. The order was already delivered on Oct 14' }}"></textarea>
                                         @error('remarks')
                                             <span class="invalid-feedback">{{ $message }}</span>

@@ -24,13 +24,13 @@ class ShippingAddressChange extends Component
     public $shipping_address_id;
 
     public function openModal() {
-        $this->dispatchBrowserEvent('openModal');
+        $this->dispatch('openModal');
     }
 
     public function select() {
-        $this->dispatchBrowserEvent('changeAddress');
-        $this->dispatchBrowserEvent('closeModal');
-        $this->emit('saveData');
+        $this->dispatch('changeAddress');
+        $this->dispatch('closeModal');
+        $this->dispatch('saveData');
     }
 
     public function mount() {

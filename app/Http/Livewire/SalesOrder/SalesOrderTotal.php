@@ -58,7 +58,7 @@ class SalesOrderTotal extends Component
 
     public function getTotal($product_details) {
         $this->processDetails($product_details);
-        $this->emit('saveData');
+        $this->dispatch('saveData');
     }
 
     private function uomQuantityAllocation($quantity, $product_id, $uom) {

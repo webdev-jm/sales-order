@@ -72,14 +72,16 @@ class StructureForm extends Component
     public function render()
     {
         if(!empty($this->structure_data)) {
-            $this->structures = OrganizationStructure::orderBy('reports_to_id', 'ASC')
+            $structures = OrganizationStructure::orderBy('reports_to_id', 'ASC')
             ->where('id', '<>', $this->structure_data->id)
             ->where('type', $this->type)->get();
         } else {
-            $this->structures = OrganizationStructure::orderBy('reports_to_id', 'ASC')
+            $structures = OrganizationStructure::orderBy('reports_to_id', 'ASC')
             ->where('type', $this->type)->get();
         }
-        
-        return view('livewire.organizational-structure.structure-form');
+
+        return view('livewire.organizational-structure.structure-form', [
+            'structures' => $structures,
+        ]);
     }
 }

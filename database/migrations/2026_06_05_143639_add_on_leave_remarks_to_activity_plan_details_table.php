@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasColumn('activity_plan_details', 'on_leave_remarks')) {
+            return;
+        }
+
         Schema::table('activity_plan_details', function (Blueprint $table) {
             $table->text('on_leave_remarks')->nullable()->after('is_on_leave');
         });

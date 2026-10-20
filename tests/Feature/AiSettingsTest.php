@@ -85,8 +85,9 @@ class AiSettingsTest extends TestCase
 
         $this->assertSame('claude-saved', $this->anthropicRequestBody()['model']);
         $this->assertSame('high', $this->anthropicRequestBody()['output_config']['effort']);
-        Http::assertSent(fn (Request $request): bool => str_contains($request->url(), 'models/gemini-saved:generateContent')
-            && !array_key_exists('thinkingConfig', $request->data()['generationConfig']));
+        Http::assertSent(fn (Request $request): bool => str_ends_with($request->url(), '/interactions')
+            && data_get($request->data(), 'model') === 'gemini-saved'
+            && !array_key_exists('thinking_level', (array) data_get($request->data(), 'generation_config')));
     }
 
     public function test_with_every_saved_provider_turned_off_ai_says_so(): void

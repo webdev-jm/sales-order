@@ -35,6 +35,10 @@
     </div>
 </div>
 
+@can('ai insights access')
+<livewire:ai.insights source="so-report" :year="request('year')" :month="request('month')" :group_code="request('group_code')"/>
+@endcan
+
 <div class="row">
     <div class="col-lg-6">
         <livewire:reports.sales-orders.salesman/>

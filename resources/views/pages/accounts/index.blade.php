@@ -161,14 +161,14 @@
         $('body').on('click', '.btn-delete', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setDeleteModel', 'Account', id);
+            Livewire.dispatch('setDeleteModel', ['Account', id]);
             $('#modal-delete').modal('show');
         });
 
         $('body').on('click', '.btn-product-modal', function(e) {
             e.preventDefault();
             var id = $(this).data('id');
-            Livewire.emit('setAccount', id);
+            Livewire.dispatch('setAccount', [id]);
             $('#modal-product-assign').modal('show');
         });
     });

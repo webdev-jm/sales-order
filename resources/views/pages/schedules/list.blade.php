@@ -141,19 +141,19 @@
     $(function() {
         $('body').on('click', '.btn-detail', function() {
             var id = $(this).data('id');
-            Livewire.emit('setDetail', id);
+            Livewire.dispatch('setDetail', [id]);
             $('#detail-modal').modal('show');
         });
 
         $('body').on('click', '.btn-delete', function() {
             var id = $(this).data('id');
-            Livewire.emit('showDetail', id);
+            Livewire.dispatch('showDetail', [id]);
             $('#delete-modal').modal('show');
         });
 
         $('body').on('click', '.btn-reschedule', function() {
             var id = $(this).data('id');
-            Livewire.emit('showChange', id);
+            Livewire.dispatch('showChange', [id]);
             $('#reschedule-modal').modal('show');
         });
     })

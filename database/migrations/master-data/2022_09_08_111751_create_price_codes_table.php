@@ -13,6 +13,10 @@ class CreatePriceCodesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('price_codes')) {
+            return;
+        }
+
         Schema::create('price_codes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id')->nullable();

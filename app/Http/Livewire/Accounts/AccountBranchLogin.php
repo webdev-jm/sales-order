@@ -197,7 +197,7 @@ class AccountBranchLogin extends Component
     }
 
     public function loadLocation() {
-        $this->dispatchBrowserEvent('reloadLocation');
+        $this->dispatch('reloadLocation');
     }
 
     public function setAccount($account_id) {

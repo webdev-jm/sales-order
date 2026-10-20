@@ -24,6 +24,20 @@ class AiUsageLog extends Model
 
     public const FEATURE_PO_SCAN = 'po_scan';
 
+    public const FEATURE_ASSISTANT = 'sales_assistant';
+
+    public const FEATURE_INSIGHTS = 'report_insights';
+
+    public const FEATURE_MAPPING = 'mapping_help';
+
+    /** @var array<string, string> Names shown on the AI Usage page */
+    public const FEATURES = [
+        self::FEATURE_PO_SCAN   => 'PO scan',
+        self::FEATURE_ASSISTANT => 'Sales assistant',
+        self::FEATURE_INSIGHTS  => 'Report insights',
+        self::FEATURE_MAPPING   => 'Upload mapping help',
+    ];
+
     protected $fillable = [
         'user_id',
         'account_id',

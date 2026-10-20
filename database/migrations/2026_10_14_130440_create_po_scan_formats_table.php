@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('po_scan_formats')) {
+            return;
+        }
+
         Schema::create('po_scan_formats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();

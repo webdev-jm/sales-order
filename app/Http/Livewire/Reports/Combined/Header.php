@@ -17,15 +17,15 @@ class Header extends Component
         $this->month = $month;
         $this->selected_year = $year;
 
-        $this->emit('setActivityDate', $this->month, $this->selected_year, $this->user_id);
-        $this->emit('setWarDate', $this->month, $this->selected_year, $this->user_id);
-        $this->emit('setDeviationDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setActivityDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setWarDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setDeviationDate', $this->month, $this->selected_year, $this->user_id);
     }
 
     public function updatedUserId() {
-        $this->emit('setActivityDate', $this->month, $this->selected_year, $this->user_id);
-        $this->emit('setWarDate', $this->month, $this->selected_year, $this->user_id);
-        $this->emit('setDeviationDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setActivityDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setWarDate', $this->month, $this->selected_year, $this->user_id);
+        $this->dispatch('setDeviationDate', $this->month, $this->selected_year, $this->user_id);
     }
 
     public function selectYear($year) {

@@ -13,6 +13,10 @@ class CreateChannelOperationTradeDisplaysTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('channel_operation_trade_displays')) {
+            return;
+        }
+
         Schema::create('channel_operation_trade_displays', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('channel_operation_id')->nullable();

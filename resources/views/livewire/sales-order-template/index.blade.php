@@ -60,10 +60,10 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fas fa-search"></i></span>
                             </div>
-                            <input type="text" wire:model.debounce.300ms="accountSearch"
+                            <input type="text" wire:model.live.debounce.300ms="accountSearch"
                                    class="form-control" placeholder="Filter accounts…">
                         </div>
-                        <select wire:model="account_ids" id="account_ids" multiple size="6"
+                        <select wire:model.live="account_ids" id="account_ids" multiple size="6"
                                 class="form-control @error('account_ids') is-invalid @enderror"
                                 style="height:auto;">
                             @foreach($accounts as $account)
@@ -86,7 +86,7 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="form-group">
                         <label for="file">Raw CSV File <span class="text-danger">*</span></label>
-                        <input type="file" wire:model="file" id="file" accept=".csv"
+                        <input type="file" wire:model.live="file" id="file" accept=".csv"
                                class="form-control @error('file') is-invalid @enderror">
                         @error('file')
                             <span class="invalid-feedback">{{ $message }}</span>
@@ -99,12 +99,12 @@
             </div>
         </div>
         <div class="card-footer">
-            <button wire:click="upload" wire:loading.attr="disabled" wire:target="upload"
+            <button wire:click="uploadFile" wire:loading.attr="disabled" wire:target="uploadFile"
                     type="button" class="btn btn-primary">
-                <span wire:loading.remove wire:target="upload">
+                <span wire:loading.remove wire:target="uploadFile">
                     <i class="fas fa-cogs mr-1"></i> Parse File
                 </span>
-                <span wire:loading wire:target="upload">
+                <span wire:loading wire:target="uploadFile">
                     <i class="fas fa-spinner fa-spin mr-1"></i> Parsing…
                 </span>
             </button>
@@ -172,6 +172,9 @@
                 <span class="badge badge-info mr-1">&nbsp;</span> Address not found &nbsp;
                 <span class="badge badge-danger mr-1">&nbsp;</span> Both not found
             </div>
+            @can('ai mapping help')
+                <livewire:ai.mapping-help :account-ids="$account_ids" wire:key="mapping-help-{{ implode('-', $account_ids) }}"/>
+            @endcan
         </div>
         <div class="card-body table-responsive p-0" style="max-height:70vh; overflow-y:auto;">
             <table class="table table-bordered table-sm table-hover text-nowrap" style="font-size:0.78rem;">
@@ -309,7 +312,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
-                        <input type="text" wire:model.debounce.300ms="storeMapSearch"
+                        <input type="text" wire:model.live.debounce.300ms="storeMapSearch"
                                class="form-control" placeholder="Store code or BEVI code…" style="width:220px;">
                     </div>
                 </div>
@@ -317,7 +320,7 @@
             <div class="form-row align-items-end">
                 <div class="col-auto">
                     <label class="small font-weight-bold">Store Code</label>
-                    <input type="text" wire:model.defer="newStoreCode"
+                    <input type="text" wire:model="newStoreCode"
                            class="form-control form-control-sm @error('newStoreCode') is-invalid @enderror"
                            placeholder="e.g. 1061" style="width:140px;">
                     @error('newStoreCode')
@@ -326,7 +329,7 @@
                 </div>
                 <div class="col-auto">
                     <label class="small font-weight-bold">BEVI Code</label>
-                    <input type="text" wire:model.defer="newBeviCode"
+                    <input type="text" wire:model="newBeviCode"
                            class="form-control form-control-sm @error('newBeviCode') is-invalid @enderror"
                            placeholder="e.g. 01061" style="width:140px;">
                     @error('newBeviCode')
@@ -356,14 +359,14 @@
                         <tr wire:key="storemap-{{ $map->id }}">
                             @if($editingId === $map->id)
                                 <td>
-                                    <input type="text" wire:model.defer="editStoreCode"
+                                    <input type="text" wire:model="editStoreCode"
                                            class="form-control form-control-sm @error('editStoreCode') is-invalid @enderror">
                                     @error('editStoreCode')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
                                 </td>
                                 <td>
-                                    <input type="text" wire:model.defer="editBeviCode"
+                                    <input type="text" wire:model="editBeviCode"
                                            class="form-control form-control-sm @error('editBeviCode') is-invalid @enderror">
                                     @error('editBeviCode')
                                         <span class="invalid-feedback">{{ $message }}</span>
@@ -424,7 +427,7 @@
             <div class="form-row align-items-end mb-3">
                 <div class="col-auto">
                     <label class="small font-weight-bold">Filter by Account</label>
-                    <select wire:model="productMapAccountId"
+                    <select wire:model.live="productMapAccountId"
                             class="form-control form-control-sm" style="width:220px;">
                         <option value="">— All accounts —</option>
                         @foreach($accounts as $acc)
@@ -438,7 +441,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
-                        <input type="text" wire:model.debounce.300ms="productMapSearch"
+                        <input type="text" wire:model.live.debounce.300ms="productMapSearch"
                                class="form-control" placeholder="Ref code, SKU, or description…" style="width:240px;">
                     </div>
                 </div>
@@ -448,7 +451,7 @@
             <div class="form-row align-items-end">
                 <div class="col-auto">
                     <label class="small font-weight-bold">Account <span class="text-danger">*</span></label>
-                    <select wire:model="newPmAccountId"
+                    <select wire:model.live="newPmAccountId"
                             class="form-control form-control-sm @error('newPmAccountId') is-invalid @enderror"
                             style="width:220px;">
                         <option value="">— select —</option>
@@ -462,7 +465,7 @@
                 </div>
                 <div class="col-auto">
                     <label class="small font-weight-bold">Account Ref <span class="text-danger">*</span></label>
-                    <input type="text" wire:model.defer="newPmAccountRef"
+                    <input type="text" wire:model="newPmAccountRef"
                            class="form-control form-control-sm @error('newPmAccountRef') is-invalid @enderror"
                            placeholder="Customer SKU code" style="width:160px;">
                     @error('newPmAccountRef')
@@ -471,10 +474,10 @@
                 </div>
                 <div class="col-auto">
                     <label class="small font-weight-bold">Product <span class="text-danger">*</span></label>
-                    <input type="text" wire:model.debounce.300ms="newPmProductSearch"
+                    <input type="text" wire:model.live.debounce.300ms="newPmProductSearch"
                            class="form-control form-control-sm mb-1"
                            placeholder="Search product…" style="width:200px;">
-                    <select wire:model="newPmProductId"
+                    <select wire:model.live="newPmProductId"
                             class="form-control form-control-sm @error('newPmProductId') is-invalid @enderror"
                             style="width:200px;" size="3">
                         <option value="">— select product —</option>
@@ -488,7 +491,7 @@
                 </div>
                 <div class="col-auto">
                     <label class="small font-weight-bold">Description</label>
-                    <input type="text" wire:model.defer="newPmDescription"
+                    <input type="text" wire:model="newPmDescription"
                            class="form-control form-control-sm"
                            placeholder="Optional" style="width:180px;">
                 </div>
@@ -521,7 +524,7 @@
                                     [{{ $ref->account->account_code ?? '?' }}] {{ $ref->account->account_name ?? '' }}
                                 </td>
                                 <td>
-                                    <input type="text" wire:model.defer="pmEditAccountRef"
+                                    <input type="text" wire:model="pmEditAccountRef"
                                            class="form-control form-control-sm @error('pmEditAccountRef') is-invalid @enderror"
                                            style="width:130px;">
                                     @error('pmEditAccountRef')
@@ -529,10 +532,10 @@
                                     @enderror
                                 </td>
                                 <td colspan="2">
-                                    <input type="text" wire:model.debounce.300ms="pmEditProductSearch"
+                                    <input type="text" wire:model.live.debounce.300ms="pmEditProductSearch"
                                            class="form-control form-control-sm mb-1"
                                            placeholder="Search product…" style="width:200px;">
-                                    <select wire:model="pmEditProductId"
+                                    <select wire:model.live="pmEditProductId"
                                             class="form-control form-control-sm @error('pmEditProductId') is-invalid @enderror"
                                             style="width:300px;" size="3">
                                         <option value="">— select product —</option>
@@ -545,7 +548,7 @@
                                     @enderror
                                 </td>
                                 <td>
-                                    <input type="text" wire:model.defer="pmEditDescription"
+                                    <input type="text" wire:model="pmEditDescription"
                                            class="form-control form-control-sm"
                                            style="width:160px;" placeholder="Description">
                                 </td>

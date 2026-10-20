@@ -13,6 +13,10 @@ class CreateActivityPlanApprovalsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('activity_plan_approvals')) {
+            return;
+        }
+
         Schema::create('activity_plan_approvals', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();

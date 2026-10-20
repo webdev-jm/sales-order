@@ -196,7 +196,7 @@ class ScheduleEvent extends Component
 
     public function loadLocation(): void
     {
-        $this->dispatchBrowserEvent('reloadLocation');
+        $this->dispatch('reloadLocation');
     }
 
     public function submit()
@@ -303,7 +303,7 @@ class ScheduleEvent extends Component
     public function setAction($action): void
     {
         $this->action = $action;
-        $this->dispatchBrowserEvent('reloadLocation');
+        $this->dispatch('reloadLocation');
         if ($action == 'reschedule-request') {
             $this->reschedule_date = $this->date;
         }

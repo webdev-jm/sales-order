@@ -49,7 +49,7 @@
                         </div>
                         <div class="custom-control custom-switch mr-3">
                             <input type="checkbox" class="custom-control-input" id="ai_enabled_{{ $row['name'] }}"
-                                   wire:model="providers.{{ $index }}.is_enabled">
+                                   wire:model.live="providers.{{ $index }}.is_enabled">
                             <label class="custom-control-label h5 mb-0" for="ai_enabled_{{ $row['name'] }}">
                                 {{ $index + 1 }}. {{ $driver->label() }}
                             </label>
@@ -85,7 +85,7 @@
                         <div class="col-lg-3 col-md-6 form-group mb-2">
                             <label for="ai_model_{{ $row['name'] }}" class="small font-weight-bold mb-1">Model</label>
                             <input type="text" id="ai_model_{{ $row['name'] }}" list="ai_models_{{ $row['name'] }}"
-                                   wire:model.defer="providers.{{ $index }}.model"
+                                   wire:model="providers.{{ $index }}.model"
                                    class="form-control form-control-sm @error('providers.' . $index . '.model') is-invalid @enderror">
                             <datalist id="ai_models_{{ $row['name'] }}">
                                 @foreach($modelLists[$row['name']] ?? [] as $modelId)
@@ -98,7 +98,7 @@
                         </div>
                         <div class="col-lg-2 col-md-6 form-group mb-2">
                             <label for="ai_effort_{{ $row['name'] }}" class="small font-weight-bold mb-1">Thinking effort</label>
-                            <select id="ai_effort_{{ $row['name'] }}" wire:model.defer="providers.{{ $index }}.effort"
+                            <select id="ai_effort_{{ $row['name'] }}" wire:model="providers.{{ $index }}.effort"
                                     class="form-control form-control-sm @error('providers.' . $index . '.effort') is-invalid @enderror">
                                 <option value="">Model default</option>
                                 @foreach($driver->effortLevels() as $level)
@@ -114,7 +114,7 @@
                             <div class="input-group input-group-sm">
                                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                                 <input type="number" step="0.0001" min="0" id="ai_input_price_{{ $row['name'] }}"
-                                       wire:model.defer="providers.{{ $index }}.input_price" placeholder="per 1M tokens"
+                                       wire:model="providers.{{ $index }}.input_price" placeholder="per 1M tokens"
                                        class="form-control @error('providers.' . $index . '.input_price') is-invalid @enderror">
                             </div>
                             @error('providers.' . $index . '.input_price')
@@ -126,7 +126,7 @@
                             <div class="input-group input-group-sm">
                                 <div class="input-group-prepend"><span class="input-group-text">$</span></div>
                                 <input type="number" step="0.0001" min="0" id="ai_output_price_{{ $row['name'] }}"
-                                       wire:model.defer="providers.{{ $index }}.output_price" placeholder="per 1M tokens"
+                                       wire:model="providers.{{ $index }}.output_price" placeholder="per 1M tokens"
                                        class="form-control @error('providers.' . $index . '.output_price') is-invalid @enderror">
                             </div>
                             @error('providers.' . $index . '.output_price')
@@ -136,7 +136,7 @@
                         @if(in_array($row['name'], $editableUrl, true))
                             <div class="col-lg-3 col-md-12 form-group mb-2">
                                 <label for="ai_base_url_{{ $row['name'] }}" class="small font-weight-bold mb-1">Server address</label>
-                                <input type="url" id="ai_base_url_{{ $row['name'] }}" wire:model.defer="providers.{{ $index }}.base_url"
+                                <input type="url" id="ai_base_url_{{ $row['name'] }}" wire:model="providers.{{ $index }}.base_url"
                                        placeholder="https://api.openai.com/v1/"
                                        class="form-control form-control-sm @error('providers.' . $index . '.base_url') is-invalid @enderror">
                                 @error('providers.' . $index . '.base_url')

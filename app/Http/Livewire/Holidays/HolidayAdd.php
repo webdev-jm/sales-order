@@ -55,7 +55,7 @@ class HolidayAdd extends Component
         ]);
 
         $this->clearDate();
-        $this->emit('closeAddHoliday');
+        $this->dispatch('closeAddHoliday');
         session()->flash('message_success', 'Holiday was added.');
         $this->redirect(request()->header('Referer'));
     }

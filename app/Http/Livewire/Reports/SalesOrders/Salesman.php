@@ -29,7 +29,7 @@ class Salesman extends Component
         $this->group_code = $group_code;
 
         $this->mount();
-        $this->emitSelf('updateChart');
+        $this->dispatch('updateChart')->self();
     }
 
     public function mount() {

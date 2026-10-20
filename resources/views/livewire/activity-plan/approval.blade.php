@@ -23,7 +23,7 @@
                     @if($action == 'reject')
                         <div class="form-group">
                             <label for="remarks" class="font-weight-bold">Remarks / Reason for Rejection</label>
-                            <textarea id="remarks" class="form-control @error('remarks') is-invalid @enderror" rows="4" placeholder="Enter your reason for rejection..." wire:model.defer="remarks"></textarea>
+                            <textarea id="remarks" class="form-control @error('remarks') is-invalid @enderror" rows="4" placeholder="Enter your reason for rejection..." wire:model="remarks"></textarea>
                             @error('remarks')
                             <div class="invalid-feedback">{{$message}}</div>
                             @enderror
@@ -59,7 +59,7 @@
     </form>
 
     <script>
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
         });
     </script>
 </div>

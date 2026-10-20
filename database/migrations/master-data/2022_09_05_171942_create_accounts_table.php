@@ -13,6 +13,10 @@ class CreateAccountsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('accounts')) {
+            return;
+        }
+
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('invoice_term_id')->nullable();

@@ -32,7 +32,7 @@
                             @enderror
                             <div class="form-group mb-0">
                                 <label for="cancel_reason">Reason for cancelation</label>
-                                <textarea id="cancel_reason" wire:model.defer="reason" rows="3" class="form-control @error('reason') is-invalid @enderror" placeholder="e.g. The customer cancelled the PO on Oct 14"></textarea>
+                                <textarea id="cancel_reason" wire:model="reason" rows="3" class="form-control @error('reason') is-invalid @enderror" placeholder="e.g. The customer cancelled the PO on Oct 14"></textarea>
                                 @error('reason')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -75,7 +75,7 @@
                                     <button type="button" wire:click="$set('selectedOrderId', null)" class="btn btn-sm btn-default">Change</button>
                                 </div>
                             @else
-                                <input type="text" id="cancel_search" wire:model.debounce.400ms="search" class="form-control" placeholder="Search by control number, PO number or SYSPRO SO number" autocomplete="off">
+                                <input type="text" id="cancel_search" wire:model.live.debounce.400ms="search" class="form-control" placeholder="Search by control number, PO number or SYSPRO SO number" autocomplete="off">
                                 <small class="form-text text-muted">Only orders already in SYSPRO, in accounts assigned to you, are listed.</small>
                                 <div class="list-group mt-2">
                                     @forelse($orders as $order)
@@ -95,7 +95,7 @@
                         </div>
                         <div class="form-group mb-0">
                             <label for="cancel_reason_new">Reason for cancelation</label>
-                            <textarea id="cancel_reason_new" wire:model.defer="reason" rows="3" class="form-control @error('reason') is-invalid @enderror" placeholder="e.g. The customer cancelled the PO on Oct 14"></textarea>
+                            <textarea id="cancel_reason_new" wire:model="reason" rows="3" class="form-control @error('reason') is-invalid @enderror" placeholder="e.g. The customer cancelled the PO on Oct 14"></textarea>
                             @error('reason')
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror

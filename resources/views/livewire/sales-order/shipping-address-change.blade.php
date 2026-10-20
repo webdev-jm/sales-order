@@ -5,7 +5,7 @@
             <h4 class="modal-title">Change Address</h4>
             <div class="card-tools">
                 <div class="input-group input-group-sm" style="width: 150px;">
-                    <input type="text" class="form-control" wire:model="search_address" placeholder="Search">
+                    <input type="text" class="form-control" wire:model.live="search_address" placeholder="Search">
                     <div class="input-group-append">
                         <button type="submit" class="btn btn-default" form="search_form">
                             <i class="fas fa-search"></i>
@@ -102,7 +102,7 @@
             @this.shipping_address_id = id;
         });
 
-        document.addEventListener('livewire:load', function () {
+        document.addEventListener('livewire:initialized', function () {
             $(function() {
                 $('body').on('click', '.address-option', function() {
                     $('body').find('.address-option').each(function() {

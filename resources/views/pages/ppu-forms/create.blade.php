@@ -226,7 +226,7 @@
             items.push({ rs, rtv, name, qty, amount, remarks });
         });
 
-        Livewire.emit('loadOrderSummary', controlNumber, items, account_name, submitted, pickup);
+        Livewire.dispatch('loadOrderSummary', [controlNumber, items, account_name, submitted, pickup]);
 
     });
 
@@ -254,7 +254,7 @@
                 items.push({ rs, rtv, name, qty, amount, remarks });
             });
 
-            Livewire.emit('loadOrderSummary', controlNumber, items, account_name, submitted, pickup);
+            Livewire.dispatch('loadOrderSummary', [controlNumber, items, account_name, submitted, pickup]);
         }
     });
 
@@ -293,7 +293,7 @@
             items.push({ rs, rtv, name, qty, amount, remarks });
         });
 
-        Livewire.emit('loadOrderSummary', controlNumber, items, account_name, submitted, pickup);
+        Livewire.dispatch('loadOrderSummary', [controlNumber, items, account_name, submitted, pickup]);
         let modal = new bootstrap.Modal(document.getElementById('orderSummaryModal'));
         modal.show();
     });

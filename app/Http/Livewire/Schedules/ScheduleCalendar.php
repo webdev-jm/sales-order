@@ -20,7 +20,7 @@ class ScheduleCalendar extends Component
     public $schedule_data;
 
     public function filter() {
-        $this->dispatchBrowserEvent('renderCalendar');
+        $this->dispatch('renderCalendar');
     }
 
     public function render()

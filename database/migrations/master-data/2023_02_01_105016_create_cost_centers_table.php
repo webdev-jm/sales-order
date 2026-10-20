@@ -13,6 +13,10 @@ class CreateCostCentersTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('cost_centers')) {
+            return;
+        }
+
         Schema::create('cost_centers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('company_id')->nullable();

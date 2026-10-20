@@ -97,7 +97,7 @@ class PoScan extends Component
         }
 
         Session::put('so_template_rows', $rows);
-        $this->emit('poScanned', SoTemplateLookup::summarize($rows), $this->scanErrors);
+        $this->dispatch('poScanned', SoTemplateLookup::summarize($rows), $this->scanErrors);
         $this->reset('files', 'scanErrors', 'readAgain');
     }
 

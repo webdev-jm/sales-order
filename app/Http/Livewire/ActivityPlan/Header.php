@@ -56,7 +56,7 @@ class Header extends Component
             Session::put('activity_plan_data', $activity_plan_data);
         }
 
-        $this->emit('setDate', $this->year, $this->month);
+        $this->dispatch('setDate', $this->year, $this->month);
 
         // get deadline from settings
         $settings = $this->getSettings();

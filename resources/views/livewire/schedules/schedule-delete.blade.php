@@ -45,7 +45,7 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <label>Remarks</label>
-                                                <textarea rows="3" class="form-control @error('remarks') is-invalid @enderror" wire:model.defer="remarks"></textarea>
+                                                <textarea rows="3" class="form-control @error('remarks') is-invalid @enderror" wire:model="remarks"></textarea>
                                                 @error('remarks')
                                                 <p class="text-danger">{{$message}}</p>
                                                 @enderror

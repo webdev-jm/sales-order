@@ -5,6 +5,7 @@ namespace App\Services\Ai;
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
 use Closure;
+use Laravel\Ai\Ai;
 
 /**
  * The AI entry point for the application. It sends a request to the first provider in the
@@ -15,6 +16,9 @@ use Closure;
  */
 class AiClient
 {
+    /** Names given to the providers built for laravel/ai, so they never clash with its own. */
+    public const LARAVEL_AI_PREFIX = 'sms-';
+
     public function __construct(private AiManager $manager)
     {
     }
@@ -85,6 +89,45 @@ class AiClient
         }
 
         return $this->availableProviders() === [] ? $chain[0]->setupProblem() : null;
+    }
+
+    /**
+     * The providers registered with laravel/ai, as the provider => model map an agent's prompt()
+     * takes, in failover order. Each one is built on demand from its saved model and server, so
+     * a change on the AI Settings page applies to the next call.
+     *
+     * @param array<int, AiProviderInterface>|null $providers Defaults to every ready provider
+     * @return array<string, string>
+     */
+    public function laravelAiProviders(?array $providers = null): array
+    {
+        $chain = [];
+
+        foreach ($providers ?? $this->availableProviders() as $provider) {
+            $name = self::LARAVEL_AI_PREFIX . $provider->name();
+
+            Ai::build(['name' => $name] + $provider->laravelAiConfig());
+
+            $chain[$name] = $provider->model();
+        }
+
+        return $chain;
+    }
+
+    /**
+     * The application provider behind a name from laravelAiProviders(), or a laravel/ai driver name.
+     */
+    public function providerForLaravelAi(string $name): ?AiProviderInterface
+    {
+        $own = str_starts_with($name, self::LARAVEL_AI_PREFIX) ? substr($name, \strlen(self::LARAVEL_AI_PREFIX)) : null;
+
+        foreach ($this->chain() as $provider) {
+            if ($provider->name() === $own || $provider->laravelAiConfig()['driver'] === $name) {
+                return $provider;
+            }
+        }
+
+        return null;
     }
 
     /**

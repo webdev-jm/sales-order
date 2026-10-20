@@ -32,7 +32,7 @@ class ActiveAccountBanner extends Component
     public function openSelector(): void
     {
         $this->reset(['search', 'confirm_account_id']);
-        $this->dispatchBrowserEvent('openAccountSelector');
+        $this->dispatch('openAccountSelector');
     }
 
     /**
@@ -67,7 +67,7 @@ class ActiveAccountBanner extends Component
         ]);
 
         $this->confirm_account_id = null;
-        $this->dispatchBrowserEvent('closeAccountSelector');
+        $this->dispatch('closeAccountSelector');
 
         return redirect(url()->previous());
     }

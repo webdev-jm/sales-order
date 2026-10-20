@@ -35,7 +35,7 @@
                         <td colspan="2">{{$user->fullName()}}</td>
 
                         <th @error('cost_center') class="border border-danger" @enderror>COST CENTER:
-                            <input type="text" class="border-0" wire:model="cost_center">
+                            <input type="text" class="border-0" wire:model.live="cost_center">
                         </th>
                     </tr>
                     <tr>
@@ -43,7 +43,7 @@
                     </tr>
                     <tr>
                         <td colspan="4" class="p-0 @error('reason_for_deviation') border border-danger @enderror">
-                            <textarea class="form-control border-0 textarea @error('reason_for_deviation') is-invalid @enderror" wire:model="reason_for_deviation"></textarea>
+                            <textarea class="form-control border-0 textarea @error('reason_for_deviation') is-invalid @enderror" wire:model.live="reason_for_deviation"></textarea>
                         </td>
                     </tr>
                     <tr class="bg-gray">
@@ -96,7 +96,7 @@
                             </td>
                             <td class="align-middle">
                                 <textarea class="form-control border-0 textarea{{$errors->has('new_schedules.'.$key.'.branch_id') ? ' is-invalid' : ''}}"
-                                wire:model="branchQuery.{{$key}}"
+                                wire:model.live="branchQuery.{{$key}}"
                                 wire:keyup="setQuery('{{$key}}')"
                                 wire:keydown.escape="resetQuery"
                                 wire:keydown.tab.prevent="resetQuery"

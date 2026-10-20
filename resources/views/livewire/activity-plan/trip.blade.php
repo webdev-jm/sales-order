@@ -52,7 +52,7 @@
                     <div class="col-lg-12 row mb-2">
                         <div class="col-4">
                             <div class="input-group">
-                                <input type="number" class="form-control{{$errors->has('passenger') ? ' is-invalid' : ''}}" placeholder="Passenger/s" wire:model="passenger" {{!empty($ticket_selected) ? 'readonly' : ''}}>
+                                <input type="number" class="form-control{{$errors->has('passenger') ? ' is-invalid' : ''}}" placeholder="Passenger/s" wire:model.live="passenger" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                                 <div class="input-group-append">
                                     <div class="input-group-text">
                                         <i class="fas fa-user"></i>
@@ -71,7 +71,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label><i class="fa fa-plane-departure text-primary mr-1"></i>From</label>
-                            <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="From" wire:model="from" {{!empty($ticket_selected) ? 'readonly' : ''}}>
+                            <input type="text" class="form-control{{$errors->has('from') ? ' is-invalid' : ''}}" placeholder="From" wire:model.live="from" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('from')}}</p>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label><i class="fa fa-plane-arrival text-primary mr-1"></i>To</label>
-                            <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="To" wire:model="to" {{!empty($ticket_selected) ? 'readonly' : ''}}>
+                            <input type="text" class="form-control{{$errors->has('to') ? ' is-invalid' : ''}}" placeholder="To" wire:model.live="to" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('to')}}</p>
                         </div>
                     </div>
@@ -87,7 +87,7 @@
                     <div class="col-lg-6">
                         <div class="form-group">
                             <label><i class="fa fa-calendar-alt mr-1"></i>Departure</label>
-                            <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model="departure" {{!empty($ticket_selected) ? 'readonly' : ''}}>
+                            <input type="date" class="form-control{{$errors->has('departure') ? ' is-invalid' : ''}}" wire:model.live="departure" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                             <p class="text-danger">{{$errors->first('departure')}}</p>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label><i class="fa fa-calendar-alt mr-1"></i>Return</label>
-                                <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model="return" {{!empty($ticket_selected) ? 'readonly' : ''}}>
+                                <input type="date" class="form-control{{$errors->has('return') ? ' is-invalid' : ''}}" wire:model.live="return" {{!empty($ticket_selected) ? 'readonly' : ''}}>
                                 <p class="text-danger">{{$errors->first('return')}}</p>
                             </div>
                         </div>
@@ -175,7 +175,7 @@
         </div>
 
         <script>
-            document.addEventListener('livewire:load', function () {
+            document.addEventListener('livewire:initialized', function () {
             });
         </script>
     </div>

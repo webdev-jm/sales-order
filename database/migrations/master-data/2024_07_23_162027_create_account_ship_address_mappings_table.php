@@ -13,6 +13,10 @@ class CreateAccountShipAddressMappingsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('account_ship_address_mappings')) {
+            return;
+        }
+
         Schema::create('account_ship_address_mappings', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('account_id')->nullable();

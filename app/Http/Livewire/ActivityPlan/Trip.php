@@ -132,7 +132,7 @@ class Trip extends Component
         if (!empty($this->departure)) {
             $currentDate = Carbon::today();
             $departureDate = Carbon::parse($this->departure);
-            if($departureDate->diffInDays($currentDate) < 14) {
+            if(abs($departureDate->diffInDays($currentDate)) < 14) {
                 // Show a note for the user
                 $this->form_error = 'The date provided should be at least two weeks in advance to facilitate ticket processing.';
             } else {
@@ -269,7 +269,7 @@ class Trip extends Component
             Session::put('activity_plan_data', $activity_plan_data);
         }
 
-        $this->emit('saveTrip', $this->year, $this->month, $this->date, $this->key, $trip_arr);
+        $this->dispatch('saveTrip', $this->year, $this->month, $this->date, $this->key, $trip_arr);
 
         $this->reset(['ticket_selected', 'ticket_select']);
     }

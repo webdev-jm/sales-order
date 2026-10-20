@@ -251,7 +251,7 @@ class PoScanTest extends TestCase
             ->call('scan')
             ->assertHasNoErrors()
             ->assertSet('scanErrors', [])
-            ->assertEmitted('poScanned', [
+            ->assertDispatched('poScanned', [
                 'total' => 4, 'ok' => 3, 'sku_not_found' => 1, 'address_not_found' => 0, 'both_not_found' => 0,
             ], []);
 
@@ -282,19 +282,24 @@ class PoScanTest extends TestCase
         $this->assertSame('MET001', $rows[3]['account_code'], 'Every scanned row belongs to the chosen account.');
 
         Http::assertSent(function (Request $request): bool {
-            return str_ends_with($request->url(), 'models/gemini-test:generateContent')
-                && data_get($request->data(), 'contents.0.parts.0.inlineData.mimeType') === 'application/pdf'
-                && data_get($request->data(), 'contents.0.parts.0.inlineData.data') === base64_encode(self::PDF_CONTENT)
-                && str_contains(data_get($request->data(), 'contents.0.parts.1.text'), 'The item code is in the Article column.')
-                && str_contains(data_get($request->data(), 'contents.0.parts.1.text'), '[MET001] METRO SUPERMARKET')
-                && str_contains(data_get($request->data(), 'contents.0.parts.1.text'), 'Unit to use when the PO does not say: PCS');
+            $parts = collect(data_get($request->data(), 'input.0.content', []));
+            $prompt = (string) $parts->firstWhere('type', 'text')['text'];
+            $pdf = $parts->firstWhere('type', 'document');
+
+            return str_ends_with($request->url(), '/interactions')
+                && data_get($request->data(), 'model') === 'gemini-test'
+                && ($pdf['mime_type'] ?? null) === 'application/pdf'
+                && ($pdf['data'] ?? null) === base64_encode(self::PDF_CONTENT)
+                && str_contains($prompt, 'The item code is in the Article column.')
+                && str_contains($prompt, '[MET001] METRO SUPERMARKET')
+                && str_contains($prompt, 'Unit to use when the PO does not say: PCS');
         });
 
         $log = $this->usageLogs()->sole();
         $this->assertSame(AiUsageLog::STATUS_SUCCESS, $log->status);
         $this->assertSame($user->id, $log->user_id);
         $this->assertSame('metro-po.pdf', $log->reference);
-        $this->assertSame('gemini-test-001', $log->model);
+        $this->assertSame('gemini-test', $log->model);
         $this->assertSame(1200, $log->input_tokens);
         $this->assertSame(350, $log->output_tokens);
         $this->assertSame(1550, $log->total_tokens);
@@ -312,13 +317,16 @@ class PoScanTest extends TestCase
             ->assertSet('format_id', '')
             ->set('files', [$this->pdf()])
             ->call('scan')
-            ->assertEmitted('poScanned');
+            ->assertDispatched('poScanned');
 
         $rows = Session::get('so_template_rows');
         $this->assertSame('both_not_found', $rows[0]['lookup_status']);
         $this->assertSame('CS', $rows[0]['so_uom']);
 
-        Http::assertSent(fn (Request $request): bool => str_contains(data_get($request->data(), 'contents.0.parts.1.text'), 'Account notes: none'));
+        Http::assertSent(fn (Request $request): bool => str_contains(
+            (string) collect(data_get($request->data(), 'input.0.content', []))->firstWhere('type', 'text')['text'],
+            'Account notes: none'
+        ));
     }
 
     // -------------------------------------------------------------------------
@@ -338,7 +346,7 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->call('scan')
             ->assertSee('token limit has been reached')
-            ->assertNotEmitted('poScanned');
+            ->assertNotDispatched('poScanned');
 
         Http::assertNothingSent();
         $this->assertCount(0, $this->usageLogs());
@@ -358,7 +366,7 @@ class PoScanTest extends TestCase
             ->set('account_id', (string) $this->account->id)
             ->set('files', [$this->pdf()])
             ->call('scan')
-            ->assertEmitted('poScanned');
+            ->assertDispatched('poScanned');
     }
 
     public function test_scanning_stops_once_the_users_daily_token_limit_is_reached(): void
@@ -375,7 +383,7 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->call('scan')
             ->assertSee('You have used your AI token limit for today (1,000 tokens).')
-            ->assertNotEmitted('poScanned');
+            ->assertNotDispatched('poScanned');
 
         Http::assertNothingSent();
     }
@@ -395,7 +403,7 @@ class PoScanTest extends TestCase
             ->set('account_id', (string) $this->account->id)
             ->set('files', [$this->pdf()])
             ->call('scan')
-            ->assertEmitted('poScanned');
+            ->assertDispatched('poScanned');
     }
 
     // -------------------------------------------------------------------------
@@ -409,7 +417,7 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->set('readAgain', $readAgain)
             ->call('scan')
-            ->assertEmitted('poScanned')
+            ->assertDispatched('poScanned')
             ->assertSet('readAgain', false);
     }
 
@@ -431,7 +439,7 @@ class PoScanTest extends TestCase
         $logs = $this->usageLogs()->sortBy('id')->values();
         $this->assertSame([AiUsageLog::STATUS_SUCCESS, AiUsageLog::STATUS_CACHED], $logs->pluck('status')->all());
         $this->assertSame(0, $logs[1]->total_tokens);
-        $this->assertSame('gemini-test-001', $logs[1]->model);
+        $this->assertSame('gemini-test', $logs[1]->model);
     }
 
     public function test_read_again_skips_the_saved_scan(): void
@@ -536,7 +544,7 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->call('scan')
             ->assertSee('The AI service is having problems')
-            ->assertNotEmitted('poScanned');
+            ->assertNotDispatched('poScanned');
 
         $log = $this->usageLogs()->sole();
         $this->assertSame(AiUsageLog::STATUS_FAILED, $log->status);
@@ -591,7 +599,7 @@ class PoScanTest extends TestCase
             ->set('files', [$this->pdf()])
             ->call('scan')
             ->assertSet('scanErrors', [])
-            ->assertEmitted('poScanned');
+            ->assertDispatched('poScanned');
 
         $this->assertSame('PCS', Session::get('so_template_rows')[0]['so_uom']);
 
@@ -633,7 +641,7 @@ class PoScanTest extends TestCase
             ->set('account_id', (string) $this->account->id)
             ->set('files', [$this->pdf('first.pdf'), $this->pdf('second.pdf')])
             ->call('scan')
-            ->assertEmitted('poScanned', [
+            ->assertDispatched('poScanned', [
                 'total' => 1, 'ok' => 0, 'sku_not_found' => 0, 'address_not_found' => 0, 'both_not_found' => 1,
             ], ['second.pdf' => 'The AI service is busy or its quota is used up. Try again later.']);
 
@@ -673,7 +681,7 @@ class PoScanTest extends TestCase
         $component = Livewire::test(Index::class)->call('exportTemplate')->assertFileDownloaded();
 
         $path = tempnam(sys_get_temp_dir(), 'so_test_') . '.xlsx';
-        file_put_contents($path, base64_decode(data_get($component->lastResponse, 'original.effects.download.content')));
+        file_put_contents($path, base64_decode(data_get($component->effects, 'download.content')));
         $sheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path)->getActiveSheet();
 
         $this->assertSame('PO-55501', $sheet->getCell('A2')->getValue());

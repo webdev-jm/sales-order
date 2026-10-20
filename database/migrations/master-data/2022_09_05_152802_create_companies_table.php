@@ -13,6 +13,10 @@ class CreateCompaniesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('companies')) {
+            return;
+        }
+
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
             $table->string('name');

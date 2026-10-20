@@ -200,7 +200,7 @@
             $('body').on('click', '.btn-invoice', function(e) {
                 e.preventDefault();
                 var id = $(this).data('id');
-                Livewire.emit('setTripId', id);
+                Livewire.dispatch('setTripId', [id]);
                 $('#invoive-modal').modal('show');
             });
         });

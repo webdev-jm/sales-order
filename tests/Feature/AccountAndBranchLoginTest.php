@@ -163,7 +163,7 @@ class AccountAndBranchLoginTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(AccountLoginForm::class)
-            ->call('set', $next->id)
+            ->call('selectAccount', $next->id)
             ->set('accuracy', '10 m')
             ->set('longitude', '121.0437')
             ->set('latitude', '14.6760')
@@ -187,7 +187,7 @@ class AccountAndBranchLoginTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(AccountLoginForm::class)
-            ->call('set', $next->id)
+            ->call('selectAccount', $next->id)
             ->assertSee('Switching Account')
             ->assertSee('ALPHA')
             ->assertSee('Switch Account');

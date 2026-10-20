@@ -11,7 +11,7 @@ class UserAdd extends Component
     public $firstname, $middlename, $lastname, $email, $role;
 
     public function addForm() {
-        $this->dispatchBrowserEvent('openFormModal');
+        $this->dispatch('openFormModal');
     }
 
     public function submitForm() {

@@ -13,6 +13,10 @@ class CreateBranchAddressesTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('branch_addresses')) {
+            return;
+        }
+
         Schema::create('branch_addresses', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('branch_id')->nullable();

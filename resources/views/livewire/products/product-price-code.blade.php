@@ -34,13 +34,13 @@
                                             @foreach($price_codes as $key => $price_code)
                                             <tr>
                                                 <td class="p-0">
-                                                    <input type="text" wire:model.defer="code.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
+                                                    <input type="text" wire:model="code.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
                                                 </td>
                                                 <td class="p-0">
-                                                    <input type="number" wire:model.defer="selling_price.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
+                                                    <input type="number" wire:model="selling_price.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
                                                 </td>
                                                 <td class="p-0">
-                                                    <input type="text" wire:model.defer="price_basis.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
+                                                    <input type="text" wire:model="price_basis.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
                                                 </td>
                                                 <td class="p-0 align-middle text-center">
                                                     <a href="" class="btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>
@@ -50,13 +50,13 @@
                                         @else
                                         <tr>
                                             <td class="p-0">
-                                                <input type="text" wire:model.defer="code.{{$company->id}}.0" class="form-control text-center border-0">
+                                                <input type="text" wire:model="code.{{$company->id}}.0" class="form-control text-center border-0">
                                             </td>
                                             <td class="p-0">
-                                                <input type="number" wire:model.defer="selling_price.{{$company->id}}.0" class="form-control text-center border-0">
+                                                <input type="number" wire:model="selling_price.{{$company->id}}.0" class="form-control text-center border-0">
                                             </td>
                                             <td class="p-0">
-                                                <input type="text" wire:model.defer="price_basis.{{$company->id}}.0" class="form-control text-center border-0">
+                                                <input type="text" wire:model="price_basis.{{$company->id}}.0" class="form-control text-center border-0">
                                             </td>
                                             <td class="p-0 align-middle text-center">
                                                 <a href="" class="btn-remove-row"><i class="fa fa-trash-alt text-danger"></i></a>

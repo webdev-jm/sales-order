@@ -125,10 +125,7 @@ class Structure extends Component
             }
         }
 
-        $this->dispatchBrowserEvent('load-chart', [
-            'nodes' => $nodes,
-            'data' => $data
-        ]);
+        $this->dispatch('load-chart', nodes: $nodes, data: $data);
 
         $this->nodes = $nodes;
         $this->chart_data = $data;

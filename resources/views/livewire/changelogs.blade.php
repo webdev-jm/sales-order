@@ -43,7 +43,7 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:initialized', function() {
             $('#btn-changelog').on('click', function(e) {
                 e.preventDefault();
                 $('#changelog-modal').modal('show');

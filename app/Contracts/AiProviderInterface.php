@@ -5,6 +5,7 @@ namespace App\Contracts;
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiResponse;
+use Throwable;
 
 /**
  * One AI vendor (Gemini, Claude, ...). The application talks to App\Services\Ai\AiClient, which
@@ -58,6 +59,32 @@ interface AiProviderInterface
      * @throws AiUnavailableException with a message that can be shown to the user
      */
     public function listModels(): array;
+
+    /**
+     * The laravel/ai provider configuration (driver, key, url) that reaches this provider with
+     * the model and server saved on the AI Settings page.
+     *
+     * @return array{driver: string, key: string|null, url?: string|null}
+     */
+    public function laravelAiConfig(): array;
+
+    /**
+     * Request options laravel/ai merges into this provider's request body, such as the effort
+     * level. Empty when the model's defaults apply.
+     *
+     * @return array<string, mixed>
+     */
+    public function laravelAiOptions(): array;
+
+    /**
+     * Seconds one request may take before it is abandoned.
+     */
+    public function timeoutSeconds(): int;
+
+    /**
+     * The message to show for a failed laravel/ai call to this provider.
+     */
+    public function failureFor(Throwable $e): AiUnavailableException;
 
     /**
      * Asks for a JSON reply that follows the given schema.

@@ -315,26 +315,26 @@
                 if(type == 'holiday' || type == 'on-leave') {
                     return;
                 } else if(type == 'schedule') {
-                    Livewire.emit('showEvents', date_format, id);
+                    Livewire.dispatch('showEvents', [date_format, id]);
                     $('#event-modal').modal('show');
                 } else if(type == 'reschedule') {
-                    Livewire.emit('setDate', date_format, id);
+                    Livewire.dispatch('setDate', [date_format, id]);
                     $('#reschedule-modal').modal('show');
                 } else if(type == 'delete') {
-                    Livewire.emit('getDate', date_format, id);
+                    Livewire.dispatch('getDate', [date_format, id]);
                     $('#delete-modal').modal('show');
                 } else if(type == 'request') {
-                    Livewire.emit('setRequestDate', date_format, id);
+                    Livewire.dispatch('setRequestDate', [date_format, id]);
                     $('#request-modal').modal('show');
                 } else if(type == 'deviation') {
-                    Livewire.emit('setDeviationApproval', id);
+                    Livewire.dispatch('setDeviationApproval', [id]);
                     $('#deviation-approval-modal').modal('show');
                 }
 
             },
             dateClick: function(info) {
                 var date = info.dateStr;
-                Livewire.emit('setDeviation', date);
+                Livewire.dispatch('setDeviation', [date]);
                 $('#deviation-modal').modal('show');
             },
             eventDidMount: function(info) {

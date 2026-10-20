@@ -2,6 +2,10 @@
 
 namespace App\Services\Ai;
 
+use Laravel\Ai\Responses\AgentResponse;
+use Laravel\Ai\Responses\Data\FinishReason;
+use Laravel\Ai\Responses\StructuredAgentResponse;
+
 /**
  * The text of an AI reply, which provider and model wrote it, and the tokens it used. Every
  * provider fills this the same way, so callers never see a vendor's reply format.
@@ -19,6 +23,32 @@ class AiResponse
         public readonly bool $cutOff = false,
         public readonly bool $refused = false,
     ) {
+    }
+
+    /**
+     * A laravel/ai agent reply in the application's shape. laravel/ai already counts cache reads
+     * and writes as input and thinking tokens as output.
+     */
+    public static function fromAgentResponse(AgentResponse $response, string $provider, string $fallbackModel, int $durationMs): self
+    {
+        $usage = $response->usage;
+        $finishReason = $response->steps->last()?->finishReason;
+
+        $text = $response instanceof StructuredAgentResponse && $response->structured !== []
+            ? (string) json_encode($response->structured)
+            : (string) $response->text;
+
+        return new self(
+            text: $text,
+            provider: $provider,
+            model: (string) ($response->meta->model ?: $fallbackModel),
+            inputTokens: $usage->inputTokens,
+            outputTokens: $usage->outputTokens,
+            totalTokens: $usage->inputTokens + $usage->outputTokens,
+            durationMs: $durationMs,
+            cutOff: $finishReason === FinishReason::Length,
+            refused: $finishReason === FinishReason::ContentFilter,
+        );
     }
 
     /**

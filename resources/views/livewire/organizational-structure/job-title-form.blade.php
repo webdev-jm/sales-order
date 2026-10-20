@@ -10,7 +10,7 @@
                     <div class="col-12">
                         <div class="form-group">
                             <label for="job-title">Job Title</label>
-                            <input type="text" class="form-control @error('job_title') is-invalid @enderror" id="job-title" wire:model.defer="job_title">
+                            <input type="text" class="form-control @error('job_title') is-invalid @enderror" id="job-title" wire:model="job_title">
                             @error('job_title')
                             <p class="text-danger">{{$message}}</p>
                             @enderror

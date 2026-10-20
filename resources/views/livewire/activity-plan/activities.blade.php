@@ -14,7 +14,7 @@
             <div class="row mb-3">
                 <div class="col-lg-6">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" placeholder="Search activities..." wire:model="search">
+                        <input type="text" class="form-control" placeholder="Search activities..." wire:model.live="search">
                         <div class="input-group-append">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                         </div>
@@ -37,7 +37,7 @@
                         <tr wire:key="activity-{{ $activity->id }}">
                             <td class="text-center align-middle">
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model="activity_data.{{$activity->id}}" value="{{$activity->id}}">
+                                    <input type="checkbox" class="custom-control-input" id="switch{{$activity->id}}" wire:model.live="activity_data.{{$activity->id}}" value="{{$activity->id}}">
                                     <label class="custom-control-label" for="switch{{$activity->id}}"></label>
                                 </div>
                             </td>
@@ -71,7 +71,7 @@
         </div>
 
         <script>
-            document.addEventListener('livewire:load', function () {
+            document.addEventListener('livewire:initialized', function () {
             });
         </script>
     </div>

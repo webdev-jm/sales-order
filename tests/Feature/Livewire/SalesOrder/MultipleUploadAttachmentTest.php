@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
-use Livewire\Testing\TestableLivewire;
+use Livewire\Features\SupportTesting\Testable;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 use Tests\Concerns\FakesGemini;
@@ -146,7 +146,7 @@ class MultipleUploadAttachmentTest extends TestCase
         Http::fake(['generativelanguage.googleapis.com/*' => $sequence]);
     }
 
-    private function uploader(): TestableLivewire
+    private function uploader(): Testable
     {
         return Livewire::test(Upload::class, ['logged_account' => $this->accountLogin]);
     }

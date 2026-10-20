@@ -19,7 +19,7 @@
                     </ul>
                 </div>
                 <div class="col-lg-4">
-                    <input type="text" wire:model.debounce.400ms="search" class="form-control form-control-sm" placeholder="Search request, SO, PO, SYSPRO SO or salesman">
+                    <input type="text" wire:model.live.debounce.400ms="search" class="form-control form-control-sm" placeholder="Search request, SO, PO, SYSPRO SO or salesman">
                 </div>
             </div>
         </div>

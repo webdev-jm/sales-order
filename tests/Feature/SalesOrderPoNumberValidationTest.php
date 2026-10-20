@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Http\Requests\StoreSalesOrderRequest;
 use App\Http\Requests\UpdateSalesOrderRequest;
 use App\Models\User;
@@ -51,9 +53,7 @@ class SalesOrderPoNumberValidationTest extends TestCase
         $this->assertTrue($this->passes(StoreSalesOrderRequest::class, 'PH-00123'));
     }
 
-    /**
-     * @dataProvider disallowedCharacters
-     */
+    #[DataProvider('disallowedCharacters')]
     public function test_other_special_characters_are_still_rejected(string $poNumber): void
     {
         $this->assertFalse($this->passes(StoreSalesOrderRequest::class, $poNumber));

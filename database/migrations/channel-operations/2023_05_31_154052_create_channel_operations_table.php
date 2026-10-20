@@ -13,6 +13,10 @@ class CreateChannelOperationsTable extends Migration
      */
     public function up()
     {
+        if (Schema::hasTable('channel_operations')) {
+            return;
+        }
+
         Schema::create('channel_operations', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('branch_login_id')->nullable();

@@ -18,7 +18,7 @@
                     <div class="col-lg-3">
                         <div class="form-group">
                             <label for="">UPLOAD FILE</label>
-                            <input type="file" class="form-control" wire:model.defer="so_file" accept=".xls, .xlsx">
+                            <input type="file" class="form-control" wire:model="so_file" accept=".xls, .xlsx">
                         </div>
                     </div>
                 </div>
@@ -184,7 +184,7 @@
                                                 <td class="align-middle">
                                                     <input type="text"
                                                            class="form-control form-control-sm{{ !empty($rowErr['rtv_number']) ? ' is-invalid' : '' }}"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.rtv_number">
+                                                           wire:model="ppu_data.lines.{{ $key }}.rtv_number">
                                                     @if(!empty($rowErr['rtv_number']))
                                                         <div class="invalid-feedback d-block">{{ $rowErr['rtv_number'] }}</div>
                                                     @endif
@@ -192,26 +192,26 @@
                                                 <td class="align-middle">
                                                     <input type="date"
                                                            class="form-control form-control-sm{{ !empty($rowErr['rtv_date']) ? ' is-invalid' : '' }}"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.rtv_date">
+                                                           wire:model="ppu_data.lines.{{ $key }}.rtv_date">
                                                     @if(!empty($rowErr['rtv_date']))
                                                         <div class="invalid-feedback d-block">{{ $rowErr['rtv_date'] }}</div>
                                                     @endif
                                                 </td>
                                                 <td class="align-middle">
                                                     <input type="text" class="form-control form-control-sm"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.branch_name">
+                                                           wire:model="ppu_data.lines.{{ $key }}.branch_name">
                                                 </td>
                                                 <td class="align-middle">
                                                     <input type="number" class="form-control form-control-sm text-right"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.total_quantity">
+                                                           wire:model="ppu_data.lines.{{ $key }}.total_quantity">
                                                 </td>
                                                 <td class="align-middle">
                                                     <input type="number" step="0.01" class="form-control form-control-sm text-right"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.total_amount">
+                                                           wire:model="ppu_data.lines.{{ $key }}.total_amount">
                                                 </td>
                                                 <td class="align-middle">
                                                     <input type="text" class="form-control form-control-sm"
-                                                           wire:model.defer="ppu_data.lines.{{ $key }}.remarks">
+                                                           wire:model="ppu_data.lines.{{ $key }}.remarks">
                                                 </td>
                                             </tr>
                                             @php

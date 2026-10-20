@@ -2,6 +2,8 @@
 
 namespace Tests\Unit;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 use App\Helpers\UploadDateHelper;
 use PHPUnit\Framework\TestCase;
 
@@ -42,10 +44,10 @@ class UploadDateHelperTest extends TestCase
     }
 
     /**
-     * @dataProvider dateProvider
      *
      * @param  mixed  $value
      */
+    #[DataProvider('dateProvider')]
     public function test_parse_normalizes_every_supported_shape($value, ?string $expected): void
     {
         $this->assertSame($expected, UploadDateHelper::parse($value));

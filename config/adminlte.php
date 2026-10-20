@@ -398,10 +398,18 @@ return [
             'icon'    => 'fas fa-fw fa-tools',
             'can'     => [
                 'so template access',
+                'ai assistant access',
                 'ai usage access',
                 'ai settings manage',
             ],
             'submenu' => [
+                [
+                    'text'   => 'AI Assistant',
+                    'url'    => '/ai-assistant',
+                    'icon'   => 'fas fa-fw fa-comments',
+                    'can'    => 'ai assistant access',
+                    'active' => ['ai-assistant*'],
+                ],
                 [
                     'text'   => 'SO Templates',
                     'url'    => '/sales-order-template',
