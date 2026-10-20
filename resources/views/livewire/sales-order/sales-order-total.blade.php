@@ -90,7 +90,7 @@
                             @php
                                 $num++;
                             @endphp
-                            <tr>
+                            <tr wire:key="order-{{ $loop->index }}">
                                 <td class="align-middle text-center p-0 font-weight-bold" rowspan="{{count($order['data']) + 1}}">{{$num}}.</td>
                                 <td class="align-middle p-2" rowspan="{{count($order['data']) + 1}}">
                                     <span class="font-weight-bold">{{$order['stock_code']}}</span>
@@ -100,7 +100,7 @@
                                 </td>
                             </tr>
                             @foreach($order['data'] as $uom => $data)
-                            <tr>
+                            <tr wire:key="data-{{ $uom }}">
                                 <td class="text-center align-middle p-0">{{$uom}}</td>
                                 <td class="text-right align-middle p-1">{{number_format($data['quantity'], 2)}}</td>
                                 <td class="text-right align-middle p-1">{{number_format($data['total'], 2)}}</td>

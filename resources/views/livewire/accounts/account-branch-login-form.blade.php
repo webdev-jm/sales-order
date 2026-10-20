@@ -10,7 +10,11 @@
 
     @section('plugins.EkkoLightbox', true)
 
-    <form wire:submit.prevent="logout" enctype="multipart/form-data">
+    {{-- The GPS readings still kept on the phone are saved with the sign-out (see partials/branch-location-tracker). --}}
+    <form x-data x-on:submit.prevent="
+        const trail = window.SmsLocationTrail ? window.SmsLocationTrail.pending() : [];
+        $wire.logout(trail).then(() => window.SmsLocationTrail && window.SmsLocationTrail.signedOut(trail.length));
+    " enctype="multipart/form-data">
         <div class="modal-header">
             <h4 class="modal-title">Logout Branch <span class="badge badge-primary">[{{$branch->branch_code}}] {{$branch->branch_name}}</span></h4>
         </div>
@@ -24,7 +28,7 @@
                     <label>{{$logged_branch->operation_process->operation_process}}</label>
                     <ol>
                         @foreach($branch_activities as $activity)
-                        <li>{{$activity->activity->description}}
+                        <li wire:key="activity-{{ $loop->index }}">{{$activity->activity->description}}
                             @if(!empty($activity->remarks))
                             <ul>
                                 <li>{{$activity->remarks}}</li>
@@ -49,7 +53,7 @@
                     <label>Preview</label>
                     <div class="col-12 py-2">
                         @foreach($picture_file as $file)
-                            <a href="{{ $file->temporaryUrl() }}" data-toggle="lightbox" data-title="Preview">
+                            <a wire:key="file-{{ $loop->index }}" href="{{ $file->temporaryUrl() }}" data-toggle="lightbox" data-title="Preview">
                                 <img src="{{ $file->temporaryUrl() }}" class="mx-auto d-inline img" height="300px">
                             </a>
                         @endforeach

@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Accounts;
 
 use App\Services\AccountLoginResolver;
+use App\Services\Maps\LocationTrail;
 use Livewire\Component;
 
 use Livewire\WithFileUploads;
@@ -25,7 +26,14 @@ class AccountBranchLoginForm extends Component
         'reloadActivities' => 'loadActivities'
     ];
 
-    public function logout() {
+    /**
+     * @param array<int, mixed> $trail GPS readings the phone kept for this branch login and has not sent yet
+     */
+    public function logout(array $trail = []) {
+        if(!empty($trail)) {
+            LocationTrail::save($this->logged_branch, $trail);
+        }
+
         if($this->picture_file) {
             foreach($this->picture_file as $key => $file) {
                 $this->save_image($file, $this->logged_branch->id, $key);

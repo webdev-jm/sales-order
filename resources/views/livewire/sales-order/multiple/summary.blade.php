@@ -24,7 +24,7 @@
                         </thead>
                         <tbody>
                             @foreach($po_data as $po_number => $data)
-                                <tr>
+                                <tr wire:key="data-{{ $po_number }}">
                                     <td class="p-0 pl-1 text-left">{{$data['po_number']}}</td>
                                     <td class="p-0 pl-1 text-left">{{$data['ship_to_name']}}</td>
                                     <td class="p-0 pl-1 text-left">{{$data['address']}}</td>

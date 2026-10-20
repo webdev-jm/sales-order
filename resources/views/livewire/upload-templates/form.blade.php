@@ -58,7 +58,7 @@
                                 @php
                                     $num++;
                                 @endphp
-                                <tr>
+                                <tr wire:key="line-{{ $key }}">
                                     <td class="p-0 text-center align-middle">
                                         {{$num}}
                                     </td>

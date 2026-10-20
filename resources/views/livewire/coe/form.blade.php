@@ -707,7 +707,7 @@
                                 <ul class="list-group">
                                     @if(!empty($competetive_reports))
                                         @foreach($competetive_reports as $key => $report)
-                                            <li class="list-group-item">
+                                            <li wire:key="report-1-{{ $key }}" class="list-group-item">
                                                 <div class="row">
                                                     <div class="col-lg-2">
                                                         <label for="">COMPANY NAME</label>
@@ -1183,7 +1183,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach($competetive_reports as $report)
-                                            <tr class="text-center">
+                                            <tr wire:key="report-2-{{ $loop->index }}" class="text-center">
                                                 <td>{{$report['company_name'] ?? '-'}}</td>
                                                 <td>{{$report['product_description'] ?? '-'}}</td>
                                                 <td>{{$report['srp'] ?? '-'}}</td>

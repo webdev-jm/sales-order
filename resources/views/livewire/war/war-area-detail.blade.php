@@ -19,7 +19,7 @@
                 <h4>PLANNED ACTIVITIES</h4>
                 <ul class="list-group">
                     @foreach($schedules as $schedule)
-                        <li class="list-group-item">
+                        <li wire:key="schedule-{{ $loop->index }}" class="list-group-item">
                             <h4>{{$schedule->branch->branch_code}} {{$schedule->branch->branch_name}}</h4>
                             <p>
                                 <b>OBJECTIVES:</b>
@@ -43,7 +43,7 @@
                 @if($branch_logins->count() > 0)
                     <div class="list-group">
                         @foreach($branch_logins as $login)
-                            <div class="list-group-item">
+                            <div wire:key="login-{{ $login->id }}" class="list-group-item">
                                 <h2>[{{$login->branch->account->account_code}}] {{$login->branch->account->short_name}}</h2>
                                 <h3>[{{$login->branch->branch_code}}] {{$login->branch->branch_name}}</h3>
                                 
@@ -58,7 +58,7 @@
                                             @endphp
                                             <ol>
                                                 @foreach($branch_activities as $activity)
-                                                <li>{{$activity->activity->description}}
+                                                <li wire:key="activity-{{ $loop->index }}">{{$activity->activity->description}}
                                                     @if(!empty($activity->remarks))
                                                     <ul class="list-unstyled">
                                                         <li><b>Remarks: </b>{{$activity->remarks}}</li>
@@ -356,7 +356,7 @@
                                                         <tbody>
                                                             @if(!empty($trade_marketing_activities->skus))
                                                                 @foreach($trade_marketing_activities->skus as $sku)
-                                                                <tr class="text-center">
+                                                                <tr wire:key="sku-{{ $loop->index }}" class="text-center">
                                                                     <td>{{$sku['sku_code'] ?? ' - '}}</td>
                                                                     <td>{{$sku['sku_description'] ?? ' - '}}</td>
                                                                     <td>{{$sku['brand'] ?? ' - '}}</td>
@@ -498,7 +498,7 @@
                                                         </thead>
                                                         <tbody>
                                                             @foreach($channel_operation->competetive_reports as $report)
-                                                            <tr class="text-center">
+                                                            <tr wire:key="report-{{ $loop->index }}" class="text-center">
                                                                 <td>{{$report['company_name']}}</td>
                                                                 <td>{{$report['product_description']}}</td>
                                                                 <td>{{$report['srp']}}</td>

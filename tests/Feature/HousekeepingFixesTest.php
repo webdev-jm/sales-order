@@ -155,4 +155,26 @@ class HousekeepingFixesTest extends TestCase
 
         $this->assertSame([], $offenders);
     }
+
+    public function test_the_layout_serves_source_sans_pro_locally_instead_of_from_google(): void
+    {
+        $this->actingAsUser(['department access']);
+
+        $this->get(route('department.index'))
+            ->assertOk()
+            ->assertSee('vendor/source-sans-pro/source-sans-pro.css', false)
+            ->assertDontSee('fonts.googleapis.com', false);
+    }
+
+    public function test_every_font_file_the_local_stylesheet_names_exists(): void
+    {
+        $css = file_get_contents(public_path('vendor/source-sans-pro/source-sans-pro.css'));
+        preg_match_all('/url\(([^)]+)\)/', $css, $matches);
+
+        $this->assertCount(16, $matches[1]);
+
+        foreach ($matches[1] as $file) {
+            $this->assertFileExists(public_path('vendor/source-sans-pro/' . $file));
+        }
+    }
 }

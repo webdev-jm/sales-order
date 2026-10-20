@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                     @foreach($weekly_activity_reports as $weekly_activity_report)
-                    <tr>
+                    <tr wire:key="weekly-activity-report-{{ $weekly_activity_report->id }}">
                         <td>{{$weekly_activity_report->user->fullName()}}</td>
                         <td>[{{$weekly_activity_report->area->area_code ?? $weekly_activity_report->accounts_visited}}] {{$weekly_activity_report->area->area_name ?? ''}}</td>
                         <td>{{$weekly_activity_report->date_from}} to {{$weekly_activity_report->date_to}}</td>

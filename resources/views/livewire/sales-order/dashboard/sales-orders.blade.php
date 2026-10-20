@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     @foreach($sales_orders as $sales_order)
-                    <tr>
+                    <tr wire:key="sales-order-{{ $loop->index }}">
                         <td>{{$sales_order->control_number}}</td>
                         <td>{{$sales_order->po_number}}</td>
                         <td>{{$sales_order->order_date}}</td>

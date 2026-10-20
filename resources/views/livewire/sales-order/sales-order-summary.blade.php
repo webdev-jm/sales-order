@@ -70,12 +70,12 @@
                                 @php
                                     $num++;
                                 @endphp
-                                <tr>
+                                <tr wire:key="item-{{ $loop->index }}">
                                     <td class="align-middle">{{$num}}</td>
                                     <td class="align-middle">{{$item['stock_code']}}</td>
                                     <td class="align-middle">{{$item['description'].' '.$item['size']}}</td>
                                     @foreach($item['data'] as $unit => $val)
-                                        <td class="text-center align-middle">
+                                        <td wire:key="val-{{ $unit }}" class="text-center align-middle">
                                             {{$unit}}
                                         </td>
                                         <td class="text-right align-middle">

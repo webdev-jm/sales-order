@@ -11,7 +11,7 @@
             <div class="dropdown-divider"></div>
             @if(!empty($notifications))
                 @foreach($notifications as $notification)
-                    <a href="#" class="dropdown-item" wire:click.prevent="readNotif('{{$notification->id}}')">
+                    <a wire:key="notification-{{ $notification->id }}" href="#" class="dropdown-item" wire:click.prevent="readNotif('{{$notification->id}}')">
                         <!-- Message Start -->
                         <div class="media">
                             <div class="media-body">

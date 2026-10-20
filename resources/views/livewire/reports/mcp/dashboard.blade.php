@@ -60,7 +60,7 @@
                 </thead>
                 <tbody>
                     @foreach($schedule_results as $result)
-                        <tr>
+                        <tr wire:key="result-{{ $loop->index }}">
                             <td>{{$result->name}}</td>
                             <td>{{$result->schedule_count}}</td>
                             <td>{{$user_data[$result->uid]['visited'] ?? 0}}</td>

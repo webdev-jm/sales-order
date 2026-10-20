@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                     @foreach($structures as $structure)
-                    <tr>
+                    <tr wire:key="structure-{{ $structure->id }}">
                         <td>{{$structure->job_title->job_title}}</td>
                         {{-- user --}}
                         @if(!empty($structure->user_id))

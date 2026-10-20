@@ -33,7 +33,7 @@
                             <label>{{$branch_login->operation_process->operation_process}}</label>
                             <ol>
                                 @foreach($branch_activities as $activity)
-                                    <li>
+                                    <li wire:key="activity-{{ $loop->index }}">
                                         {{$activity->activity->description}}
                                         @if(!empty($activity->remarks))
                                             <ul>
@@ -334,7 +334,7 @@
                                         <tbody>
                                             @if(!empty($trade_marketing_activities->skus))
                                                 @foreach($trade_marketing_activities->skus as $sku)
-                                                <tr class="text-center">
+                                                <tr wire:key="sku-{{ $loop->index }}" class="text-center">
                                                     <td>{{$sku['sku_code'] ?? ' - '}}</td>
                                                     <td>{{$sku['sku_description'] ?? ' - '}}</td>
                                                     <td>{{$sku['brand'] ?? ' - '}}</td>
@@ -476,7 +476,7 @@
                                         </thead>
                                         <tbody>
                                             @foreach($channel_operation->competetive_reports as $report)
-                                            <tr class="text-center">
+                                            <tr wire:key="report-{{ $loop->index }}" class="text-center">
                                                 <td>{{$report['company_name']}}</td>
                                                 <td>{{$report['product_description']}}</td>
                                                 <td>{{$report['srp']}}</td>

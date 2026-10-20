@@ -6,7 +6,7 @@
         <div class="modal-body">
             <ul class="list-group" wire:poll.visible.3000ms>
                 @foreach($users as $user)
-                <li class="list-group-item">
+                <li wire:key="user-{{ $user->id }}" class="list-group-item">
                     {{$user->fullName()}}
                     @if(Cache::has('user-is-online-' . $user->id))
                         <span class="text-success float-right">Online</span>

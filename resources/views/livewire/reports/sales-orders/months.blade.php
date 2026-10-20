@@ -79,7 +79,7 @@
     <div class="row">
         <div class="col-12 text-center">
             @foreach($group_codes as $code)
-                <a href="{{route('report.sales-order')}}" class="btn {{$group_code == $code->group_code ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="selectGroup('{{$code->group_code}}')" wire:loading.attr="disabled">{{$code->group_code}}</a>
+                <a wire:key="code-{{ $loop->index }}" href="{{route('report.sales-order')}}" class="btn {{$group_code == $code->group_code ? 'btn-primary' : 'btn-default'}}" wire:click.prevent="selectGroup('{{$code->group_code}}')" wire:loading.attr="disabled">{{$code->group_code}}</a>
             @endforeach
         </div>
     </div>

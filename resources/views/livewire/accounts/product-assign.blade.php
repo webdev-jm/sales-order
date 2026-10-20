@@ -42,7 +42,7 @@
                             $special_products[$product->id]['price_code'] = $account->price_code;
                         }
                     @endphp
-                    <tr>
+                    <tr wire:key="product-{{ $product->id }}">
                         <td class="p-0 text-center align-middle">
                             <div class="form-group m-0">
                                 <div class="custom-control custom-switch">

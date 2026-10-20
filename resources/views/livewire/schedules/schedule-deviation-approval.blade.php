@@ -62,7 +62,7 @@
                         </tr>
                         @if(!empty($original_schedules))
                             @foreach($original_schedules as $schedule)
-                            <tr class="text-center">
+                            <tr wire:key="schedule-1-{{ $loop->index }}" class="text-center">
                                 <td></td>
                                 <td>{{$schedule->date}}</td>
                                 <td>
@@ -91,7 +91,7 @@
                         </tr>
                         @if(!empty($new_schedules))
                             @foreach($new_schedules as $schedule)
-                            <tr>
+                            <tr wire:key="schedule-2-{{ $loop->index }}">
                                 <td class="text-center">
                                 </td>
                                 <td class="text-center">
@@ -154,7 +154,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach($approvals as $approval)
-                                    <tr>
+                                    <tr wire:key="approval-{{ $loop->index }}">
                                         <td>{{$approval->user->fullName()}}</td>
                                         <td>
                                             <span class="badge badge-{{$status_arr[$approval->status]}}">{{$approval->status}}</span>

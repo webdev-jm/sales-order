@@ -2,58 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBranchLocationRequest;
 use App\Models\BranchLogin;
+use App\Services\Maps\LocationTrail;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class BranchLocationController extends Controller
 {
     /**
-     * Maximum points kept per branch login. At one point a minute this covers
-     * roughly a 24 hour shift; older points are trimmed to keep the JSON small.
+     * Save GPS readings the browser kept for a branch login (see partials/branch-location-tracker).
+     *
+     * With branch_login_id the readings go to that branch login of the user, even after sign-out, so a phone
+     * that was offline can catch up. Without it they go to the user's open branch login. 409 means there is no
+     * such branch login: the browser then discards those readings.
      */
-    private const MAX_POINTS = 1500;
-
-    /**
-     * Append a geolocation point to the authenticated user's open branch login.
-     * Called every minute by the client-side tracker while a branch session is
-     * active. Recording stops naturally once the branch login is timed out.
-     */
-    public function store(Request $request): JsonResponse
+    public function store(StoreBranchLocationRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'latitude'  => ['required', 'numeric', 'between:-90,90'],
-            'longitude' => ['required', 'numeric', 'between:-180,180'],
-            'accuracy'  => ['nullable'],
-        ]);
-
-        $branch_login = BranchLogin::where('user_id', auth()->id())
-            ->whereNull('time_out')
-            ->latest('time_in')
+        $branchLogin = BranchLogin::where('user_id', auth()->id())
+            ->when(
+                $request->filled('branch_login_id'),
+                fn ($query) => $query->whereKey($request->integer('branch_login_id'))
+                    ->where('time_in', '>=', now()->subDays(LocationTrail::LATE_SYNC_DAYS)),
+                fn ($query) => $query->whereNull('time_out')->latest('time_in')
+            )
             ->first();
 
-        if (empty($branch_login)) {
-            return response()->json(['recorded' => false, 'reason' => 'no_active_login'], 409);
+        if (empty($branchLogin)) {
+            return response()->json(['recorded' => false, 'reason' => 'no_branch_login'], 409);
         }
 
-        $trail = $branch_login->location_trail ?? [];
+        $result = LocationTrail::save($branchLogin, $request->rawReadings());
 
-        $trail[] = [
-            'latitude'    => (float) $validated['latitude'],
-            'longitude'   => (float) $validated['longitude'],
-            'accuracy'    => $validated['accuracy'] ?? null,
-            'recorded_at' => now()->toDateTimeString(),
-        ];
-
-        if (count($trail) > self::MAX_POINTS) {
-            $trail = array_slice($trail, -self::MAX_POINTS);
-        }
-
-        $branch_login->update(['location_trail' => $trail]);
-
-        return response()->json([
-            'recorded' => true,
-            'points'   => count($trail),
-        ]);
+        return response()->json(['recorded' => true] + $result);
     }
 }

@@ -1,7 +1,7 @@
 <div>
     <div class="row">
         @foreach($companies as $company)
-        <div class="col-lg-6 table-responsive">
+        <div wire:key="company-{{ $loop->index }}" class="col-lg-6 table-responsive">
             <label>{{$company->name}}</label>
             <table class="table table-bordered table-sm">
                 <thead class="text-center">
@@ -30,7 +30,7 @@
                         </td>
                     </tr>
                     @foreach($inputs as $key => $value)
-                    <tr>
+                    <tr wire:key="value-{{ $key }}">
                         <td class="p-0">
                             <input type="text" class="form-control text-center border-0">
                         </td>

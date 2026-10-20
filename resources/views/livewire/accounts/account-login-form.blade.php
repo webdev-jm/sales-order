@@ -2,11 +2,12 @@
     @if(!empty($account))
     @section('plugins.EkkoLightbox', true)
 
-    <form wire:submit.prevent="login" enctype="multipart/form-data">
+    {{-- The form only appears once an account is picked, so the position is read when Alpine starts it. --}}
+    <form wire:submit.prevent="login" enctype="multipart/form-data" x-data x-init="SmsGeolocation.fill($wire)">
         <div class="modal-header">
             <h4 class="modal-title">Login to Account <span class="badge badge-primary">[{{$account->account_code}}] {{$account->short_name}}</span></h4>
             <div class="card-tools">
-                <button type="button" class="btn btn-secondary" id="btn-reload-location">Reload Location</button>
+                <button type="button" class="btn btn-secondary" id="btn-reload-location" x-on:click.prevent="SmsGeolocation.fill($wire)">Reload Location</button>
             </div>
         </div>
         <div class="modal-body text-left">
@@ -57,37 +58,16 @@
         </div>
     </form>
 
+    @endif
+
     <script>
         document.addEventListener('livewire:initialized', function () {
-            getLocation();
-            $('body').on('click', '#btn-reload-location', function(e) {
-                e.preventDefault();
-                getLocation();
-            });
-
-
             $('body').on('click', '[data-toggle="lightbox"]', function(event) {
                 event.preventDefault();
                 $(this).ekkoLightbox({
                     alwaysShowClose: true
                 });
             });
-
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        @this.accuracy = position.coords.accuracy.toFixed(3)+' m';
-                        @this.longitude = position.coords.longitude;
-                        @this.latitude = position.coords.latitude;
-                    }, function(error) {
-                        @this.accuracy = error.message;
-                    });
-                } else { 
-                    console.log("Geolocation is not supported by this browser.");
-                }
-            }
-
         });
     </script>
-    @endif
 </div>

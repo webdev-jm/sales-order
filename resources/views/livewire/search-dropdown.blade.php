@@ -27,6 +27,7 @@
             @foreach($results as $result)
                 <button
                     type="button"
+                    wire:key="result-{{ $result[$valueField] }}"
                     class="list-group-item list-group-item-action"
                     wire:click="selectItem('{{ $result[$valueField] }}')"
                 >

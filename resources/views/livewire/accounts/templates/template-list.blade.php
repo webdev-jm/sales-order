@@ -20,7 +20,7 @@
                     </thead>
                     <tbody>
                         @foreach($account_templates as $account_template)
-                            <tr>
+                            <tr wire:key="account-template-{{ $account_template->id }}">
                                 <td>{{$account_template->upload_template->name}}</td>
                                 <td class="text-right">
                                     <a href="" title="edit" wire:click.prevent="editTemplate({{$account_template->id}})">
@@ -117,7 +117,7 @@
                             </thead>
                             <tbody>
                                 @foreach($template_fields as $field)
-                                    <tr>
+                                    <tr wire:key="field-{{ $field->id }}">
                                         <td>{{$field->number}}</td>
                                         <td>{{$field->column_name}}</td>
                                         <td class="p-0">

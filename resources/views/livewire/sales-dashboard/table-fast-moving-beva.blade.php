@@ -8,7 +8,7 @@
         <tbody>
             @if(!empty($api_data))
                 @foreach($api_data as $data)
-                <tr>
+                <tr wire:key="data-{{ $loop->index }}">
                     <td class="border-0">{{$data->description ?? $data['description']}}</td>
                     <td class="border-0 font-[900]">{{$data->percent ?? $data['percent']}}%</td>
                 </tr>

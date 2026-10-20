@@ -12,7 +12,7 @@
                         
                         <div class="row">
                             @foreach($companies as $company)
-                            <div class="col-lg-6 table-responsive">
+                            <div wire:key="company-{{ $company->id }}" class="col-lg-6 table-responsive">
                                 <label>{{$company->name}}</label>
                                 <table class="table table-bordered table-sm">
                                     <thead class="text-center">
@@ -32,7 +32,7 @@
 
                                         @if($price_codes->count() > 0)
                                             @foreach($price_codes as $key => $price_code)
-                                            <tr>
+                                            <tr wire:key="price-code-{{ $key }}">
                                                 <td class="p-0">
                                                     <input type="text" wire:model="code.{{$company->id}}.{{$key}}" class="form-control text-center border-0">
                                                 </td>

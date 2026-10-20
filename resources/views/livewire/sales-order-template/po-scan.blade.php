@@ -34,7 +34,7 @@
                 <p class="small mb-3">
                     @foreach($aiProviders as $index => $provider)
                         @if($index === 1)
-                            <span class="text-muted mx-1">then, if it fails,</span>
+                            <span wire:key="provider-{{ $index }}" class="text-muted mx-1">then, if it fails,</span>
                         @elseif($index > 1)
                             <span class="text-muted mx-1">then</span>
                         @endif
@@ -144,7 +144,7 @@
                         <p class="mb-1"><strong>These PDFs could not be scanned:</strong></p>
                         <ul class="mb-0 pl-3">
                             @foreach($scanErrors as $fileName => $message)
-                                <li><strong>{{ $fileName }}</strong> — {{ $message }}</li>
+                                <li wire:key="message-{{ $fileName }}"><strong>{{ $fileName }}</strong> — {{ $message }}</li>
                             @endforeach
                         </ul>
                     </div>

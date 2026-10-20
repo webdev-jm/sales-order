@@ -17,7 +17,7 @@
                 </thead>
                 <tbody>
                     @foreach($activity_plans as $activity_plan)
-                    <tr>
+                    <tr wire:key="activity-plan-{{ $activity_plan->id }}">
                         <td>
                             <a href="{{route('mcp.show', $activity_plan->id)}}">{{$activity_plan->month}}</a>
                         </td>

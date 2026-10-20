@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                     @foreach($activity_plans as $activity_plan)
-                    <tr>
+                    <tr wire:key="activity-plan-{{ $activity_plan->id }}">
                         <td class="align-middle">{{$activity_plan->user->fullName()}}</td>
                         <td>{{$activity_plan->objectives}}</td>
                         <td class="text-center align-middle">

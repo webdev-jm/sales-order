@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                     @foreach($data as $name => $val)
-                    <tr class="text-center">
+                    <tr wire:key="val-{{ $name }}" class="text-center">
                         <td class="align-middle">{{$name}}</td>
                         <td class="align-middle">{{$val['actual']}}</td>
                         <td class="align-middle">{{$val['target']}}</td>

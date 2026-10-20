@@ -69,7 +69,7 @@
                 <div class="card-body">
                     <div class="row">
                         @foreach($accounts as $account)
-                        <div class="col-lg-6">
+                        <div wire:key="account-{{ $account->id }}" class="col-lg-6">
                             @php
                             $btn_class = 'btn-default';
                             if(!empty($account_data) && in_array($account->id, $account_data)) {

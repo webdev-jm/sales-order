@@ -36,7 +36,7 @@
                     ->whereNull('status')
                     ->first();
                 @endphp
-                <div class="col-lg-4 my-2">
+                <div wire:key="branch-{{ $branch->id }}" class="col-lg-4 my-2">
                     <button type="button" class="btn {{!empty($schedule) ? 'btn-success' : 'btn-default'}} btn-block h-100" wire:click.prevent="selectBranch({{$branch->id}})" wire:loading.attr="disabled">[{{$branch->branch_code}}] {{$branch->branch_name}}</button>
                 </div>
                 @endforeach
@@ -132,7 +132,9 @@
         </div>
     </form>
     @else
-        <form wire:submit.prevent="login" enctype="multipart/form-data">
+        {{-- The form only appears once a branch is picked, so the position is read when Alpine starts it. --}}
+        <form wire:submit.prevent="login" enctype="multipart/form-data"
+            x-data x-init="SmsGeolocation.fill($wire)" x-on:reload-location.camel.window="SmsGeolocation.fill($wire)">
             <div class="modal-header">
                 <h4 class="modal-title">Login to Branch <span class="badge badge-primary">[{{$branch->branch_code}}] {{$branch->branch_name}}</span></h4>
                 <div class="card-tools">
@@ -174,26 +176,5 @@
             </div>
         </form>
     @endif
-    
-    <script>
-        window.addEventListener('reloadLocation', event => {
-            getLocation();
-        });
-
-        getLocation();
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    @this.accuracy = position.coords.accuracy.toFixed(3)+' m';
-                    @this.longitude = position.coords.longitude;
-                    @this.latitude = position.coords.latitude;
-                }, function(error) {
-                    @this.accuracy = error.message;
-                });
-            } else { 
-                console.log("Geolocation is not supported by this browser.");
-            }
-        }
-    </script>
 @endif
 </div>

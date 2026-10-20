@@ -60,7 +60,7 @@
                         $reference = $product->references()->where('account_id', $account->id)->first();
                         $price_code = $product->price_codes()->where('company_id', $this->account->company_id)->where('code', $this->account->price_code)->first();
                     @endphp
-                    <tr>
+                    <tr wire:key="product-{{ $product->id }}">
                         <td class="p-0 text-center align-middle">
                             @if(empty($product->status))
                                 <i class="fa fa-circle text-success rounded-circle" title="Active"></i>

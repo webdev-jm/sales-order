@@ -11,7 +11,7 @@
         <div class="alert alert-danger">
             <ul class="mb-0 pl-2">
             @foreach($errors->all() as $error)
-                <li>{{$error}}</li>
+                <li wire:key="error-{{ $loop->index }}">{{$error}}</li>
             @endforeach
             </ul>
         </div>
@@ -57,7 +57,7 @@
                     </tr>
                     @if(!empty($original_schedules))
                         @foreach($original_schedules as $schedule)
-                        <tr class="text-center">
+                        <tr wire:key="schedule-1-{{ $loop->index }}" class="text-center">
                             <td></td>
                             <td>{{$schedule->date}}</td>
                             <td>
@@ -87,7 +87,7 @@
                     </tr>
                     @if(!empty($new_schedules))
                         @foreach($new_schedules as $key => $schedule)
-                        <tr>
+                        <tr wire:key="schedule-2-{{ $key }}">
                             <td class="align-middle text-center">
                                 <button class="btn btn-danger btn-sm" wire:click.prevent="removeLine({{$key}})" wire:loading.attr="disabled"><i class="fa fa-trash-alt"></i></button>
                             </td>
@@ -110,7 +110,7 @@
                                     <div class="list-group position-absolute" wire:loading.remove>
                                         @if($branches->count() > 0)
                                             @foreach($branches as $branch)
-                                                <button class="list-group-item text-left" wire:click.prevent="selectBranch({{$key}}, {{$branch->id}}, '[{{ addslashes($branch->account->account_name) }}] {{$branch->branch_code}} {{ addslashes($branch->branch_name) }}')">
+                                                <button wire:key="branch-{{ $branch->id }}" class="list-group-item text-left" wire:click.prevent="selectBranch({{$key}}, {{$branch->id}}, '[{{ addslashes($branch->account->account_name) }}] {{$branch->branch_code}} {{ addslashes($branch->branch_name) }}')">
                                                     [{{$branch->account->account_name}}] {{$branch->branch_code}} {{$branch->branch_name}}
                                                 </button>
                                             @endforeach

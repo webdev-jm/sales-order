@@ -15,7 +15,7 @@
                 </thead>
                 <tbody>
                     @foreach($job_titles as $job_title)
-                    <tr>
+                    <tr wire:key="job-title-{{ $loop->index }}">
                         <td>{{$job_title->job_title}}</td>
                     </tr>
                     @endforeach

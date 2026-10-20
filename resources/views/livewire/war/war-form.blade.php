@@ -70,7 +70,7 @@
                     </tr>
                 </thead>
                 @foreach($area_lines as $line)
-                    <thead>
+                    <thead wire:key="line-{{ $loop->index }}">
                         <tr class="text-center section-header">
                             <th>DATE</th>
                             <th>DAY</th>
@@ -137,7 +137,7 @@
                                 <th>RESULTS</th>
                             </tr>
                             @foreach($line['schedules'] as $schedule)
-                                <tr class="text-center">
+                                <tr wire:key="schedule-{{ $schedule['id'] }}" class="text-center">
                                     <td class="p-0 px-1 align-middle">
                                         <div class="d-flex align-items-start flex-column">
                                             <div class="branch-name mb-0" style="font-size:0.82rem;line-height:1.2;">
@@ -149,7 +149,7 @@
                                                     @foreach($line['attachments_arr'][$line['date']][$schedule['branch_id']] as $attachments)
                                                         @if(!empty($attachments))
                                                             @foreach($attachments as $attach)
-                                                                <a href="{{asset('storage/'.$attach['file'])}}" target="_blank">{{$attach['title']}}</a>
+                                                                <a wire:key="attach-1-{{ $attach['id'] }}" href="{{asset('storage/'.$attach['file'])}}" target="_blank">{{$attach['title']}}</a>
                                                                 <input type="hidden" name="branch_attachment_exists[{{$line['date']}}][{{$schedule['branch_id']}}][{{$attach['id']}}]" value="{{$attach['id']}}" form="{{$type}}">
                                                             @endforeach
                                                         @endif
@@ -233,7 +233,7 @@
                                 @endphp
                             @endforeach
                             @foreach($line['deviations'] as $deviation)
-                                <tr class="text-center">
+                                <tr wire:key="deviation-{{ $deviation['id'] }}" class="text-center">
                                     <td class="p-0 px-1 align-middle">
                                         <div class="d-flex align-items-start flex-column">
                                             <div class="branch-name mb-0" style="font-size:0.82rem;line-height:1.2;">
@@ -244,7 +244,7 @@
                                                     @foreach($line['attachments_arr'][$line['date']][$deviation['branch_id']] as $attachments)
                                                         @if(!empty($attachments))
                                                             @foreach($attachments as $attach)
-                                                                <a href="{{asset('storage/'.$attach['file'])}}" target="_blank">{{$attach['title']}}</a>
+                                                                <a wire:key="attach-2-{{ $attach['id'] }}" href="{{asset('storage/'.$attach['file'])}}" target="_blank">{{$attach['title']}}</a>
                                                                 <input type="hidden" name="branch_attachment_exists[{{$line['date']}}][{{$deviation['branch_id']}}][{{$attach['id']}}]" value="{{$attach['id']}}" form="{{$type}}">
                                                             @endforeach
                                                         @endif

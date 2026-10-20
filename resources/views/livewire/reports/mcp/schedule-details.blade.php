@@ -51,7 +51,7 @@
                         </thead>
                         <tbody>
                             @foreach($deviation_data->approvals as $approval)
-                            <tr>
+                            <tr wire:key="approval-{{ $loop->index }}">
                                 <td class="text-uppercase">{{$approval->user->fullName()}}</td>
                                 <td>{{$approval->status}}</td>
                                 <td>{{$approval->remarks}}</td>

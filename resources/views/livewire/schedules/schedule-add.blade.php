@@ -51,7 +51,7 @@
                 <div class="col-lg-12">
                     <div class="row">
                         @foreach($branches as $branch)
-                        <div class="col-lg-6 my-1">
+                        <div wire:key="branch-{{ $branch->id }}" class="col-lg-6 my-1">
                             <button class="btn btn-block {{isset($branch_id) && $branch_id == $branch->id ? 'btn-primary' : 'btn-default'}} h-100" wire:click.prevent="selectBranch({{$branch->id}})"  wire:loading.attr="disabled">{{$branch->branch_code}} {{$branch->branch_name}}</button>
                         </div>
                         @endforeach

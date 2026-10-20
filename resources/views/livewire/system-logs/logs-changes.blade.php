@@ -19,7 +19,7 @@
                 <tbody>
                     @isset($changes)
                         @foreach($changes as $key => $detail)
-                        <tr>
+                        <tr wire:key="detail-{{ $key }}">
                             <td>{{$key}}</td>
                             <td>{{$detail['old']}}</td>
                             <td>{{$detail['update']}}</td>

@@ -159,7 +159,7 @@
                                         <tbody>
                                             @if($structures->count() > 0)
                                                 @foreach($structures as $structure)
-                                                    <tr>
+                                                    <tr wire:key="structure-{{ $structure->id }}">
                                                         <td>{{$structure->user->fullName()}}</td>
                                                         <td>{{$structure->designation}}</td>
                                                         <td>
@@ -178,7 +178,7 @@
                                                             @endphp
                                                             @if(!empty($user_arr))
                                                                 @foreach($user_arr as $user)
-                                                                    <p class="mb-0">-{{$user->fullName()}}</p>
+                                                                    <p wire:key="user-{{ $loop->index }}" class="mb-0">-{{$user->fullName()}}</p>
                                                                 @endforeach
                                                             @endif
                                                         </td>

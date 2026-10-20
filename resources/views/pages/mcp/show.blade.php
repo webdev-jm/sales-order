@@ -325,9 +325,11 @@ $(function() {
                 name: 'Branches',
                 zIndex: 1000,
                 marker: {
-                    symbol: 'url(https://www.highcharts.com/samples/graphics/building.svg)',
-                    width: 24,
-                    height: 24,
+                    symbol: 'diamond',
+                    radius: 8,
+                    fillColor: '#17a2b8',
+                    lineColor: '#ffffff',
+                    lineWidth: 1.5,
                     enableMouseTracking: true,
                     states: {
                         hover: {
@@ -335,7 +337,7 @@ $(function() {
                         }
                     }
                 },
-                data: @php echo json_encode($chart_data); @endphp,
+                data: @json($chart_data),
                 tooltip: {
                     useHtml: true,
                     pointFormat: '<b>BRANCH:</b> {point.name} <br>' +
