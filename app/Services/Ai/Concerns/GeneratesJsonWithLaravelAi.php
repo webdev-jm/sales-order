@@ -10,6 +10,7 @@ use App\Services\Ai\AiResponse;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Laravel\Ai\Exceptions\FailoverableException;
+use Laravel\Ai\Exceptions\InsufficientCreditsException;
 use Laravel\Ai\Files\Document;
 use Laravel\Ai\Files\File;
 use Laravel\Ai\Files\Image;
@@ -18,11 +19,13 @@ use Throwable;
 
 /**
  * generateJson() for providers that laravel/ai calls. The provider supplies failureMessage()
- * for an HTTP error reply, retryCount() and retryDelayMs() for retries after an overload.
+ * for an HTTP error reply, retryCount() and retryDelayMs() for retries after an overload, and
+ * usedUpQuota() (RemembersUsedUpQuota) to tell a used-up quota apart from a short rate limit.
  */
 trait GeneratesJsonWithLaravelAi
 {
     use DescribesLaravelAiFailures;
+    use RemembersUsedUpQuota;
 
     /** Picture types the vision models read. */
     private const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -90,10 +93,15 @@ trait GeneratesJsonWithLaravelAi
     }
 
     /**
-     * Providers are often briefly overloaded; one retry after a short pause usually gets through.
+     * Providers are often briefly overloaded; one retry after a short pause usually gets through. A used-up
+     * quota or empty credit balance does not pass in seconds, so it is not retried.
      */
     private function isTransient(Throwable $e): bool
     {
+        if ($e instanceof InsufficientCreditsException || $this->isUsedUpQuota($e)) {
+            return false;
+        }
+
         return $e instanceof FailoverableException
             || ($e instanceof RequestException && $e->response instanceof Response && $e->response->serverError());
     }

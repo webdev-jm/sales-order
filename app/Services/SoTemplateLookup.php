@@ -94,14 +94,21 @@ class SoTemplateLookup
                 $product = Product::where('stock_code', $rawSku)->first();
             }
 
-            // 3. AccountProductReference fallback across all selected accounts
+            // 3. AccountProductReference fallback across all selected accounts. The numeric comparison
+            //    (leading zeros) is only for all-digit SKUs: MySQL casts any other text to 0, which
+            //    would match every reference that is not a number.
             if (empty($product) && !empty($accountIds)) {
+                $numericSkus = array_values(array_unique(array_map('intval', array_filter([$rawSku, $skuCode], fn ($sku) => ctype_digit((string) $sku)))));
+
                 $ref = AccountProductReference::whereIn('account_id', $accountIds)
-                    ->where(function ($q) use ($rawSku, $skuCode) {
+                    ->where(function ($q) use ($rawSku, $skuCode, $numericSkus) {
                         $q->where('account_reference', $rawSku)
-                          ->orWhere('account_reference', $skuCode)
-                          ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $rawSku)
-                          ->orWhere(DB::raw('CAST(account_reference AS UNSIGNED)'), $skuCode);
+                          ->orWhere('account_reference', $skuCode);
+
+                        if ($numericSkus !== []) {
+                            $q->orWhere(fn ($numeric) => $numeric->where('account_reference', 'regexp', '^[0-9]+$')
+                                ->whereIn(DB::raw('CAST(account_reference AS UNSIGNED)'), $numericSkus));
+                        }
                     })
                     ->first();
 
@@ -155,16 +162,22 @@ class SoTemplateLookup
                 ->first();
         }
 
-        // 4. AccountShipAddressMapping fallback
+        // 4. AccountShipAddressMapping fallback. A blank code or name is never compared, so it
+        //    cannot match a mapping whose reference is blank.
+        $compactName = strtolower(str_replace(' ', '', $storeName));
+
         if (empty($address)) {
             $mapping = AccountShipAddressMapping::whereIn('account_id', $accountIds)
-                ->where(function ($q) use ($storeCode, $storeName) {
-                    $q->where('reference1', $storeCode)
-                      ->orWhere('reference2', $storeCode)
-                      ->orWhere('reference3', $storeCode)
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference1," ",""))'), strtolower(str_replace(' ', '', $storeName)))
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference2," ",""))'), strtolower(str_replace(' ', '', $storeName)))
-                      ->orWhere(DB::raw('LOWER(REPLACE(reference3," ",""))'), strtolower(str_replace(' ', '', $storeName)));
+                ->where(function ($q) use ($storeCode, $compactName) {
+                    foreach (['reference1', 'reference2', 'reference3'] as $column) {
+                        if (trim($storeCode) !== '') {
+                            $q->orWhere($column, $storeCode);
+                        }
+
+                        if ($compactName !== '') {
+                            $q->orWhere(DB::raw('LOWER(REPLACE(' . $column . '," ",""))'), $compactName);
+                        }
+                    }
                 })
                 ->first();
 

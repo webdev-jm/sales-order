@@ -4,6 +4,7 @@ namespace App\Services\Ai\Providers;
 
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\Concerns\GeneratesJsonWithLaravelAi;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
@@ -168,6 +169,22 @@ class AnthropicProvider implements AiProviderInterface
         }
     }
 
+    /**
+     * Anthropic refuses a request with "Your credit balance is too low" when the account has no credits; there is
+     * no reset time, so Claude is tried again after a while. A 429 is a short rate limit.
+     */
+    protected function usedUpQuota(Response $response): ?array
+    {
+        if ($response->status() === 402 || str_contains(strtolower((string) $response->json('error.message', '')), 'credit balance')) {
+            return [
+                'until'  => AiQuota::unknownReset(),
+                'reason' => 'The Claude account has no credits left. Add credits, or turn Claude off on the AI Settings page.',
+            ];
+        }
+
+        return null;
+    }
+
     private function failureMessage(Response $response): string
     {
         if (\in_array($response->status(), [401, 403], true)) {
@@ -178,8 +195,12 @@ class AnthropicProvider implements AiProviderInterface
             return 'The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.';
         }
 
+        if (($quotaReason = $this->quotaFailure($response)) !== null) {
+            return $quotaReason;
+        }
+
         if ($response->status() === 429) {
-            return 'The AI service is busy or its quota is used up. Try again later.';
+            return 'Claude is getting too many requests right now. Try again in a minute.';
         }
 
         if ($response->serverError() || $response->status() === 529) {

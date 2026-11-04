@@ -55,13 +55,16 @@ class AiClient
     }
 
     /**
-     * The providers that can be called now, in order.
+     * The providers that can be called now, in order: set up, and with quota left.
      *
      * @return array<int, AiProviderInterface>
      */
     public function availableProviders(): array
     {
-        return array_values(array_filter($this->chain(), fn (AiProviderInterface $provider): bool => $provider->setupProblem() === null));
+        return array_values(array_filter(
+            $this->chain(),
+            fn (AiProviderInterface $provider): bool => $provider->setupProblem() === null && AiQuota::blocked($provider->name()) === null
+        ));
     }
 
     /**
@@ -88,7 +91,15 @@ class AiClient
                 : 'AI is not set up yet. Set AI_PROVIDER in the .env file.';
         }
 
-        return $this->availableProviders() === [] ? $chain[0]->setupProblem() : null;
+        if ($this->availableProviders() !== []) {
+            return null;
+        }
+
+        $usedUp = array_filter(array_map(fn (AiProviderInterface $provider): ?array => AiQuota::blocked($provider->name()), $chain));
+
+        return $usedUp !== []
+            ? implode(' ', array_column($usedUp, 'reason')) . (\count($chain) === 1 ? ' Add a failover provider on the AI Settings page to keep working until then.' : '')
+            : $chain[0]->setupProblem();
     }
 
     /**

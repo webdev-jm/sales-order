@@ -75,6 +75,14 @@
                         <p class="small text-muted mb-2">{{ $driver->setupProblem() }} Until then it is skipped.</p>
                     @endif
 
+                    @if(isset($quotas[$row['name']]))
+                        <p class="small text-warning mb-2">
+                            <i class="fas fa-hourglass-half mr-1"></i>{{ $quotas[$row['name']]['reason'] }}
+                            It is skipped until {{ \App\Services\Ai\AiQuota::resetLabel(\Carbon\Carbon::parse($quotas[$row['name']]['until'])) }}.
+                            <button type="button" class="btn btn-link btn-sm p-0 align-baseline" wire:click="tryAgainNow('{{ $row['name'] }}')">Try it again now</button>
+                        </p>
+                    @endif
+
                     @if($check)
                         <div class="alert {{ $check['ok'] ? 'alert-success' : 'alert-danger' }} py-1 px-2 small mb-2">
                             <i class="fas {{ $check['ok'] ? 'fa-check' : 'fa-times' }} mr-1"></i> {{ $check['message'] }}

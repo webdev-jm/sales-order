@@ -10,9 +10,10 @@ use Illuminate\Support\Carbon;
  * How sure the app is about each value the AI read from a PO PDF.
  *
  * The AI rates every field and line itself, but models tend to rate themselves high, so each value is also
- * checked against what the app knows: the product catalog, the arithmetic, the unit, the dates, the account's
- * shipping addresses and the PO numbers already used. A value takes the lowest of those scores, so one failed
- * check is enough to flag it. Low values must be checked by the user before the sales order is created.
+ * checked against what the app knows: the product catalog, the account's prices, the arithmetic, the unit, the
+ * dates, the account's shipping addresses and the PO numbers already used. A value takes the lowest of those
+ * scores, so one failed check is enough to flag it. Low values must be checked by the user before the sales
+ * order is created.
  */
 final class ScanConfidence
 {
@@ -26,6 +27,12 @@ final class ScanConfidence
     private const UNRATED = 85;
 
     public const LEVELS = ['high' => 'High', 'medium' => 'Medium', 'low' => 'Low'];
+
+    /** PO price ÷ SMS price within this range is accepted as the same price (VAT, discounts, rounding). */
+    private const PRICE_FAR_OFF = [0.5, 2.0];
+
+    /** PO price ÷ SMS price within this range is taken to mean the PO priced that unit. */
+    private const PRICE_FITS = [0.75, 1.35];
 
     public static function level(int $score): string
     {
@@ -83,6 +90,7 @@ final class ScanConfidence
 
         $lines = [];
         $sum = 0.0;
+        $withoutQuantity = 0;
         foreach ($order['lines'] as $index => $line) {
             if (($included[$index] ?? true) === false) {
                 continue;
@@ -91,6 +99,7 @@ final class ScanConfidence
             if (is_numeric($line['amount'])) {
                 $sum += (float) $line['amount'];
             }
+            $withoutQuantity += (float) $line['quantity'] <= 0 ? 1 : 0;
         }
 
         $printedTotal = $header['printed_total'];
@@ -98,7 +107,8 @@ final class ScanConfidence
         if (!is_numeric($printedTotal)) {
             self::cap($fields['total'], 85, 'No total is printed; this is the sum of the lines.');
         } elseif (abs((float) $printedTotal - $sum) > 1 && !\in_array(false, $included, true)) {
-            self::cap($fields['total'], 75, 'The lines add up to ' . number_format($sum, 2) . ', not the printed ' . number_format((float) $printedTotal, 2) . '.');
+            self::cap($fields['total'], 75, 'The lines add up to ' . number_format($sum, 2) . ', not the printed ' . number_format((float) $printedTotal, 2) . '.'
+                . ($withoutQuantity > 0 ? ' ' . $withoutQuantity . ($withoutQuantity === 1 ? ' line has' : ' lines have') . ' no quantity.' : ''));
         }
 
         $scores = array_merge(array_column($fields, 'score'), array_column($lines, 'score'));
@@ -123,12 +133,22 @@ final class ScanConfidence
         }
 
         if (empty($line['product_id'])) {
-            self::cap($rated, 40, 'No product for item code ' . $line['sku'] . ' on this account, so this line cannot be ordered.');
+            self::cap($rated, 40, $line['sku'] !== ''
+                ? 'No product for item code ' . $line['sku'] . ' on this account, so this line cannot be ordered.'
+                : 'No item code was read for this line, so it cannot be ordered.');
+        }
+
+        if (!empty($line['product_id']) && filled($line['sms_problem'] ?? null)) {
+            self::cap($rated, 40, $line['sms_problem']);
         }
 
         $quantity = (float) $line['quantity'];
         if ($quantity <= 0) {
             self::cap($rated, 40, 'The quantity is zero or missing.');
+        }
+
+        if (!empty($line['product_id']) && ($priceProblem = self::priceProblem($line, $quantity)) !== null) {
+            self::cap($rated, 65, $priceProblem);
         }
 
         if ($line['uom'] === '') {
@@ -172,6 +192,45 @@ final class ScanConfidence
         if (isset($item['level'])) {
             $item['level'] = self::level($item['score']);
         }
+    }
+
+    /**
+     * Why the PO's unit price does not fit what SMS charges for the line's product and unit, or null when it
+     * fits or cannot be compared. PO prices often include VAT or the account's discounts, so only a price that
+     * is far off counts; one that fits another unit of the product points to the wrong unit.
+     *
+     * @param array<string, mixed> $line
+     */
+    private static function priceProblem(array $line, float $quantity): ?string
+    {
+        $smsPrices = (array) ($line['sms_prices'] ?? []);
+        $uom = (string) $line['so_uom'];
+
+        $poPrice = is_numeric($line['unit_price']) ? (float) $line['unit_price'] : 0.0;
+        if ($poPrice <= 0 && !isset($line['read_quantity']) && is_numeric($line['amount']) && $quantity > 0) {
+            $poPrice = (float) $line['amount'] / $quantity;
+        }
+
+        if ($poPrice <= 0 || empty($smsPrices[$uom])) {
+            return null;
+        }
+
+        $fits = fn (float $smsPrice): bool => $poPrice / $smsPrice >= self::PRICE_FITS[0] && $poPrice / $smsPrice <= self::PRICE_FITS[1];
+        $ratio = $poPrice / (float) $smsPrices[$uom];
+
+        if ($ratio >= self::PRICE_FAR_OFF[0] && $ratio <= self::PRICE_FAR_OFF[1]) {
+            return null;
+        }
+
+        foreach ($smsPrices as $otherUom => $smsPrice) {
+            if ($otherUom !== $uom && (float) $smsPrice > 0 && $fits((float) $smsPrice)) {
+                return 'The PO price ' . number_format($poPrice, 2) . ' fits ' . $otherUom . ' (SMS price ' . number_format((float) $smsPrice, 2)
+                    . '), not ' . $uom . ' (' . number_format((float) $smsPrices[$uom], 2) . '). Check the unit.';
+            }
+        }
+
+        return 'The PO price ' . number_format($poPrice, 2) . ' is far from the SMS price of ' . number_format((float) $smsPrices[$uom], 2)
+            . ' per ' . $uom . '. Check that this is the right product and unit.';
     }
 
     private static function poNumberUsed(string $poNumber, ?int $companyId): bool

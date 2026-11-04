@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
 use App\Services\Ai\Providers\OpenAiProvider;
 use Illuminate\Http\Client\ConnectionException;
@@ -168,7 +169,7 @@ class OpenAiProviderTest extends TestCase
         return [
             'bad key'     => [401, 'The AI service rejected the API key. Check OPENAI_API_KEY in the .env file.'],
             'bad model'   => [404, 'The AI model "gpt-test" was not found. Choose another model on the AI Settings page.'],
-            'quota'       => [429, 'The AI service is busy or its quota is used up. Try again later.'],
+            'rate limited' => [429, 'OpenAI is getting too many requests right now. Try again in a minute.'],
             'server'      => [500, 'The AI service is having problems. Try again in a minute.'],
             'bad request' => [400, 'The AI service refused the request: Invalid schema.'],
         ];
@@ -183,6 +184,21 @@ class OpenAiProviderTest extends TestCase
         $this->expectExceptionMessage($message);
 
         $this->generate();
+    }
+
+    public function test_an_account_without_credits_is_not_retried_and_is_left_out_for_a_while(): void
+    {
+        Http::fake(['api.openai.com/*' => Http::response(['error' => ['message' => 'You exceeded your current quota.', 'type' => 'insufficient_quota', 'code' => 'insufficient_quota']], 429)]);
+
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException $e) {
+            $this->assertSame('The OpenAI account has no credits left. Add credits, or turn this provider off on the AI Settings page.', $e->getMessage());
+        }
+
+        Http::assertSentCount(1);
+        $this->assertNotNull(AiQuota::blocked('openai'));
     }
 
     public function test_an_unreachable_server_is_reported(): void

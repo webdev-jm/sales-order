@@ -297,12 +297,20 @@ class PoScanner
             ];
 
             foreach ($order['lines'] ?? [] as $line) {
-                $sku     = $this->text($line['sku'] ?? '');
-                $barcode = $this->text($line['barcode'] ?? '');
-                $qty     = $this->number($line['quantity'] ?? null);
+                $sku         = $this->text($line['sku'] ?? '');
+                $barcode     = $this->text($line['barcode'] ?? '');
+                $description = $this->text($line['description'] ?? '');
+                $qty         = $this->number($line['quantity'] ?? null);
+                $unclear     = $this->text($line['unclear'] ?? '');
 
-                if (($sku === '' && $barcode === '') || $qty === '') {
+                if ($sku === '' && $barcode === '' && $description === '') {
                     continue;
+                }
+
+                if ($qty === '' && $unclear === '') {
+                    $unclear = 'The quantity could not be read';
+                } elseif ($sku === '' && $barcode === '' && $unclear === '') {
+                    $unclear = 'No item code could be read';
                 }
 
                 $productData = $this->lookup->product($sku, $sku, $accountIds, $barcode);
@@ -319,7 +327,7 @@ class PoScanner
                     'po_remarks'        => $this->text($order['remarks'] ?? ''),
                     'raw_sku'           => $sku !== '' ? $sku : $barcode,
                     'sku_code'          => $sku !== '' ? $sku : $barcode,
-                    'description'       => $this->text($line['description'] ?? ''),
+                    'description'       => $description,
                     'uom'               => $this->text($line['uom'] ?? ''),
                     'qty'               => $qty,
                     'list_price'        => $this->number($line['unit_price'] ?? null),
@@ -327,7 +335,7 @@ class PoScanner
                 ], $productData, $addressData, $header, [
                     'page'          => $this->page($line['page'] ?? null) ?? $header['po_page'],
                     'ai_confidence' => $this->rating($line['confidence'] ?? null),
-                    'ai_unclear'    => $this->text($line['unclear'] ?? ''),
+                    'ai_unclear'    => $unclear,
                     'lookup_status' => $this->lookup->status($productData, $addressData),
                     'account_code'  => $account->account_code,
                     'account_name'  => $account->account_name,
