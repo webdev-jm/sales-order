@@ -646,6 +646,32 @@ class SalesOrderAttachmentTest extends TestCase
             ->assertSee('Low 55');
     }
 
+    public function test_the_review_compares_po_prices_with_sms_and_flags_lines_without_a_price_code(): void
+    {
+        Product::factory()->create(['stock_code' => 'KS-NOPRICE', 'brand_id' => Brand::factory()->create()->id, 'stock_uom' => 'CS', 'status' => '']);
+        $order = $this->purchaseOrder();
+        $order['lines'][1] = ['sku' => 'KS-NOPRICE', 'barcode' => '', 'description' => 'NO PRICE', 'quantity' => 2, 'uom' => 'CS', 'unit_price' => 10, 'amount' => 20];
+        $this->scanToReview($order);
+
+        $line = session(SalesOrderScanHandoff::REVIEW_SESSION_KEY)['orders']['PO-55501']['lines'][0];
+        $this->assertEquals(['CS' => 100], array_intersect_key($line['sms_prices'], ['CS' => true]));
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->assertSee('price code &#039;A&#039; is set up for this product', false)
+            ->assertSee('The order would leave this line out.');
+    }
+
+    public function test_a_po_price_that_fits_another_unit_is_flagged_on_the_review(): void
+    {
+        Product::where('stock_code', 'KS-ATT-01')->update(['order_uom' => 'PCS', 'order_uom_conversion' => 10, 'order_uom_operator' => 'D', 'other_uom' => '']);
+        $order = $this->purchaseOrder(amount: 50.0);
+        $order['lines'][0]['unit_price'] = 10;
+        $this->scanToReview($order);
+
+        Livewire::actingAs($this->user)->test(ScanReview::class)
+            ->assertSee('The PO price 10.00 fits PCS');
+    }
+
     public function test_creating_the_order_waits_until_every_low_value_is_checked(): void
     {
         $this->scanToReview();

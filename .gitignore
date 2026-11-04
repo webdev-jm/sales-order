@@ -17,3 +17,5 @@ yarn-error.log
 /storage/DFM
 .claude
 CLAUDE.md
+/.phpunit.result.cache
+/.phpunit.cache

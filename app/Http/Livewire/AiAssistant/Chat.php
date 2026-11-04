@@ -6,20 +6,25 @@ use App\Exceptions\AiUnavailableException;
 use App\Models\AiUsageLog;
 use App\Services\Ai\AgentRunner;
 use App\Services\Ai\Agents\SalesAssistant;
+use App\Services\Ai\Tools\SalesTool;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Laravel\Ai\Streaming\Events\StreamEvent;
+use Laravel\Ai\Streaming\Events\TextDelta;
+use Laravel\Ai\Streaming\Events\ToolCall;
 use Livewire\Component;
 
 /**
- * The AI sales assistant chat. The conversation is kept in the session, so it survives a page
- * reload and is gone when the user signs out or starts a new chat.
+ * The AI sales assistant chat. The answer is streamed to the page as it is written, and each answer lists
+ * the figures the assistant read for it. The last turns of the conversation are kept in the session, so it
+ * survives a page reload and is gone when the user signs out or starts a new chat.
  */
 class Chat extends Component
 {
     private const SESSION_KEY = 'ai_assistant.history';
 
-    /** Earlier turns sent with each question, so follow-up questions keep their context. */
+    /** Turns kept and sent with each question, so follow-up questions keep their context. */
     private const HISTORY_TURNS = 20;
 
     public $question = '';
@@ -64,13 +69,21 @@ class Chat extends Component
 
         $question = trim($this->question);
         $previous = \array_slice($this->history, -self::HISTORY_TURNS);
+        $sources = [];
 
         try {
-            $response = $runner->prompt(
+            $response = $runner->stream(
                 new SalesAssistant($user, $accountIds, $previous),
                 $question,
                 AiUsageLog::FEATURE_ASSISTANT,
                 $user,
+                function (StreamEvent $event) use (&$sources): void {
+                    if ($event instanceof TextDelta) {
+                        $this->stream(content: $event->delta, name: 'answer');
+                    } elseif ($event instanceof ToolCall) {
+                        $sources[] = SalesTool::describeCall($event->toolCall->name, $event->toolCall->arguments);
+                    }
+                },
                 reference: Str::limit($question, 120),
             );
         } catch (AiUnavailableException $e) {
@@ -82,7 +95,12 @@ class Chat extends Component
         $answer = trim((string) $response->text);
 
         $this->history[] = ['role' => 'user', 'content' => $question];
-        $this->history[] = ['role' => 'assistant', 'content' => $answer !== '' ? $answer : 'I could not find an answer to that. Try asking another way.'];
+        $this->history[] = [
+            'role'    => 'assistant',
+            'content' => $answer !== '' ? $answer : 'I could not find an answer to that. Try asking another way.',
+            'sources' => array_values(array_unique($sources)),
+        ];
+        $this->history = \array_slice($this->history, -self::HISTORY_TURNS);
         $this->question = '';
 
         Session::put(self::SESSION_KEY, $this->history);

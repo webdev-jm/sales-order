@@ -252,11 +252,12 @@ class PoScanTest extends TestCase
             ->assertHasNoErrors()
             ->assertSet('scanErrors', [])
             ->assertDispatched('poScanned', [
-                'total' => 4, 'ok' => 3, 'sku_not_found' => 1, 'address_not_found' => 0, 'both_not_found' => 0,
+                'total' => 5, 'ok' => 3, 'sku_not_found' => 2, 'address_not_found' => 0, 'both_not_found' => 0,
             ], []);
 
         $rows = Session::get('so_template_rows');
-        $this->assertCount(4, $rows);
+        $this->assertCount(5, $rows);
+        $this->assertSame('', $rows[4]['qty']);
 
         $this->assertSame('PO-55501', $rows[0]['po_number']);
         $this->assertSame('2026-10-12', $rows[0]['po_date']);
@@ -606,6 +607,52 @@ class PoScanTest extends TestCase
             ->assertSee('No PO lines were found in this PDF');
 
         $this->assertSame(AiUsageLog::STATUS_FAILED, $this->usageLogs()->sole()->status);
+    }
+
+    public function test_lines_without_a_readable_quantity_or_item_code_are_kept_with_a_note(): void
+    {
+        $this->actingAsUser();
+        $brandId = Brand::factory()->create()->id;
+        Product::factory()->create(['brand_id' => $brandId, 'stock_code' => 'KS-UNREAD-1']);
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'KS-UNREAD-1', 'barcode' => '', 'description' => 'SOAP', 'quantity' => null, 'uom' => 'CS', 'unit_price' => 100, 'amount' => null],
+            ['sku' => '', 'barcode' => '', 'description' => 'SHAMPOO 200ML', 'quantity' => 4, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+            ['sku' => '', 'barcode' => '', 'description' => '', 'quantity' => null, 'uom' => '', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        Livewire::test(PoScan::class)
+            ->set('account_id', (string) $this->account->id)
+            ->set('files', [$this->pdf()])
+            ->call('scan')
+            ->assertDispatched('poScanned');
+
+        $rows = Session::get('so_template_rows');
+        $this->assertCount(2, $rows);
+        $this->assertSame('', $rows[0]['qty']);
+        $this->assertSame('The quantity could not be read', $rows[0]['ai_unclear']);
+        $this->assertSame('SHAMPOO 200ML', $rows[1]['description']);
+        $this->assertSame('No item code could be read', $rows[1]['ai_unclear']);
+        $this->assertNull($rows[1]['product_id']);
+    }
+
+    public function test_the_pdf_reader_leaves_out_a_line_without_quantity_and_says_why(): void
+    {
+        $user = $this->actingAsUser();
+        $brandId = Brand::factory()->create()->id;
+        Product::factory()->create(['brand_id' => $brandId, 'stock_code' => 'KS-UNREAD-2']);
+        Product::factory()->create(['brand_id' => $brandId, 'stock_code' => 'KS-READ-3']);
+        $this->fakeGemini($this->purchaseOrder([
+            ['sku' => 'KS-UNREAD-2', 'barcode' => '', 'description' => 'SOAP', 'quantity' => null, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+            ['sku' => 'KS-READ-3', 'barcode' => '', 'description' => 'LOTION', 'quantity' => 3, 'uom' => 'CS', 'unit_price' => null, 'amount' => null],
+        ]));
+
+        $orders = app(\App\Services\SalesOrderPdfReader::class)->read($this->pdf(), $this->account, $user);
+        $order = $orders['PO-55501'];
+
+        $this->assertSame(['KS-READ-3' => ['CS' => 3.0]], $order['items']);
+        $this->assertCount(2, $order['lines']);
+        $this->assertContains('The quantity is zero or could not be read, so this line was left out.', array_column($order['warnings'], 'reason'));
+        $this->assertSame('low', $order['confidence']['lines'][0]['level']);
     }
 
     public function test_when_gemini_fails_claude_reads_the_pdf_and_both_calls_are_logged(): void

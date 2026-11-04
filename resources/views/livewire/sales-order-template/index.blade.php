@@ -173,7 +173,7 @@
                 <span class="badge badge-danger mr-1">&nbsp;</span> Both not found
             </div>
             @can('ai mapping help')
-                <livewire:ai.mapping-help :account-ids="$account_ids" wire:key="mapping-help-{{ implode('-', $account_ids) }}"/>
+                <livewire:ai.mapping-help :account-ids="$account_ids" wire:key="mapping-help-{{ implode('-', $account_ids) }}-{{ $uploadKey }}"/>
             @endcan
         </div>
         <div class="card-body table-responsive p-0" style="max-height:70vh; overflow-y:auto;">
@@ -236,7 +236,13 @@
                             <td>{{ $row['raw_sku'] }}</td>
                             <td>{{ $row['sku_code'] }}</td>
                             <td>{{ $row['description'] }}</td>
-                            <td>{{ $row['qty'] }}</td>
+                            <td>
+                                @if($row['qty'] === '')
+                                    <span class="badge badge-danger" title="{{ $row['ai_unclear'] ?? '' }}">not read</span>
+                                @else
+                                    {{ $row['qty'] }}
+                                @endif
+                            </td>
                             <td>{{ $row['so_uom'] ?? 'CS' }}</td>
                             <td>{{ $row['list_price'] }}</td>
                             <td>{{ $row['amount'] }}</td>

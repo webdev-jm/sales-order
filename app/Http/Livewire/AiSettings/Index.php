@@ -7,6 +7,7 @@ use App\Exceptions\AiUnavailableException;
 use App\Models\AiProviderSetting;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\AiManager;
+use App\Services\Ai\AiQuota;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
@@ -117,6 +118,17 @@ class Index extends Component
         }
     }
 
+    /**
+     * Puts a provider whose quota was used up back in the failover order before its reset time, for example
+     * after credits were added.
+     */
+    public function tryAgainNow(string $name): void
+    {
+        $this->authorizeAccess();
+
+        AiQuota::clear($name);
+    }
+
     public function save(): void
     {
         $this->authorizeAccess();
@@ -176,6 +188,7 @@ class Index extends Component
             'managedInApp' => app(AiManager::class)->isManagedInApp(),
             'editableUrl'  => AiManager::EDITABLE_URL,
             'aiProblem'    => app(AiClient::class)->setupProblem(),
+            'quotas'       => collect($this->providers)->mapWithKeys(fn (array $row): array => [$row['name'] => AiQuota::blocked($row['name'])])->filter()->all(),
         ]);
     }
 

@@ -26,11 +26,20 @@ class MappingSuggester
 
     private const CANDIDATES = 8;
 
+    /** Longest words of a description that are searched for. */
+    private const SEARCH_WORDS = 6;
+
     /** Words that say nothing about which product a line is. */
     private const STOP_WORDS = ['the', 'and', 'for', 'with', 'pcs', 'pack', 'box', 'case', 'new', 'per'];
 
     /** @var array<int, Account|null> Accounts looked up while building one request */
     private array $accounts = [];
+
+    /** @var array<int, string> Keys of the unmatched SKUs and stores sent in this request */
+    private array $asked = [];
+
+    /** @var array{products: int, stores: int} Unmatched SKUs and stores over MAX_ITEMS, left for the next request */
+    private array $leftOut = ['products' => 0, 'stores' => 0];
 
     /** Suggestions for the same unmatched lines and candidates are reused for this long. */
     private const CACHE_HOURS = 24;
@@ -42,17 +51,20 @@ class MappingSuggester
     /**
      * @param array<int, array<string, mixed>> $rows The template rows held in the session
      * @param array<int, int> $allowedAccountIds Accounts the user may add mappings for
-     * @return array{products: array<int, array<string, mixed>>, stores: array<int, array<string, mixed>>}
+     * @param array<int, string> $alreadyAsked Keys returned as "asked" by earlier requests, which are not sent again
+     * @return array{products: array<int, array<string, mixed>>, stores: array<int, array<string, mixed>>, asked: array<int, string>, left_out: array{products: int, stores: int}}
      *
      * @throws AiUnavailableException with a message that can be shown to the user
      */
-    public function suggest(array $rows, ?int $fallbackAccountId, array $allowedAccountIds, User $user): array
+    public function suggest(array $rows, ?int $fallbackAccountId, array $allowedAccountIds, User $user, array $alreadyAsked = []): array
     {
-        $products = $this->unmatchedProducts($rows, $fallbackAccountId, $allowedAccountIds);
-        $stores = $this->unmatchedStores($rows, $fallbackAccountId, $allowedAccountIds);
+        $this->asked = [];
+        $products = $this->unmatchedProducts($rows, $fallbackAccountId, $allowedAccountIds, $alreadyAsked);
+        $stores = $this->unmatchedStores($rows, $fallbackAccountId, $allowedAccountIds, $alreadyAsked);
+        $progress = ['asked' => $this->asked, 'left_out' => $this->leftOut];
 
         if ($products === [] && $stores === []) {
-            return ['products' => [], 'stores' => []];
+            return ['products' => [], 'stores' => []] + $progress;
         }
 
         $prompt = "Match these unmatched upload lines:\n" . json_encode([
@@ -83,17 +95,20 @@ class MappingSuggester
         return [
             'products' => $this->accept($products, $answer['products'], 'stock_code'),
             'stores'   => $this->accept($stores, $answer['stores'], 'address_code'),
-        ];
+        ] + $progress;
     }
 
     /**
      * @param array<int, array<string, mixed>> $rows
      * @param array<int, int> $allowedAccountIds
+     * @param array<int, string> $alreadyAsked
      * @return array<int, array<string, mixed>>
      */
-    public function unmatchedProducts(array $rows, ?int $fallbackAccountId, array $allowedAccountIds): array
+    public function unmatchedProducts(array $rows, ?int $fallbackAccountId, array $allowedAccountIds, array $alreadyAsked = []): array
     {
         $items = [];
+        $seen = [];
+        $this->leftOut['products'] = 0;
 
         foreach ($rows as $row) {
             $sku = trim((string) ($row['raw_sku'] ?? ''));
@@ -103,13 +118,22 @@ class MappingSuggester
                 continue;
             }
 
-            $key = $account->id . '|' . $sku;
+            $key = 'product|' . $account->id . '|' . $sku;
 
-            if (isset($items[$key]) || \count($items) >= self::MAX_ITEMS) {
+            if (isset($seen[$key]) || \in_array($key, $alreadyAsked, true)) {
+                continue;
+            }
+
+            $seen[$key] = true;
+
+            if (\count($items) >= self::MAX_ITEMS) {
+                $this->leftOut['products']++;
+
                 continue;
             }
 
             $description = trim((string) ($row['description'] ?? ''));
+            $this->asked[] = $key;
 
             $items[$key] = [
                 'item'        => \count($items) + 1,
@@ -117,7 +141,7 @@ class MappingSuggester
                 'account'     => $account->account_code . ' ' . $account->short_name,
                 'sku'         => $sku,
                 'description' => $description,
-                'candidates'  => $this->productCandidates($description),
+                'candidates'  => $this->productCandidates($description, $account),
             ];
         }
 
@@ -127,11 +151,14 @@ class MappingSuggester
     /**
      * @param array<int, array<string, mixed>> $rows
      * @param array<int, int> $allowedAccountIds
+     * @param array<int, string> $alreadyAsked
      * @return array<int, array<string, mixed>>
      */
-    public function unmatchedStores(array $rows, ?int $fallbackAccountId, array $allowedAccountIds): array
+    public function unmatchedStores(array $rows, ?int $fallbackAccountId, array $allowedAccountIds, array $alreadyAsked = []): array
     {
         $items = [];
+        $seen = [];
+        $this->leftOut['stores'] = 0;
 
         foreach ($rows as $row) {
             $code = trim((string) ($row['store_code'] ?? ''));
@@ -142,11 +169,21 @@ class MappingSuggester
                 continue;
             }
 
-            $key = $account->id . '|' . $code . '|' . $name;
+            $key = 'store|' . $account->id . '|' . $code . '|' . $name;
 
-            if (isset($items[$key]) || \count($items) >= self::MAX_ITEMS) {
+            if (isset($seen[$key]) || \in_array($key, $alreadyAsked, true)) {
                 continue;
             }
+
+            $seen[$key] = true;
+
+            if (\count($items) >= self::MAX_ITEMS) {
+                $this->leftOut['stores']++;
+
+                continue;
+            }
+
+            $this->asked[] = $key;
 
             $items[$key] = [
                 'item'       => \count($items) + 1,
@@ -182,39 +219,45 @@ class MappingSuggester
             return null;
         }
 
-        return $this->accounts[(int) $id] ??= Account::find($id, ['id', 'account_code', 'short_name']);
+        return $this->accounts[(int) $id] ??= Account::find($id, ['id', 'account_code', 'short_name', 'company_id']);
     }
 
     /**
-     * Products whose description shares the most words with the line.
+     * Products whose brand, description and size share the most words with the line, ranked by the
+     * database so the best ones are found however many products share a common word. When the
+     * account belongs to a company, only products with a price code in that company are offered.
      *
      * @return array<int, array{code: string, name: string}>
      */
-    private function productCandidates(string $description): array
+    private function productCandidates(string $description, Account $account): array
     {
-        $words = $this->words($description);
+        $words = \array_slice($this->words($description), 0, self::SEARCH_WORDS);
 
         if ($words === []) {
             return [];
         }
 
+        $text = "LOWER(CONCAT_WS(' ', products.brand, products.description, products.size))";
+        $score = implode(' + ', array_map(fn (string $word): string => "(CASE WHEN {$text} LIKE ? THEN " . \strlen($word) . ' ELSE 0 END)', $words));
+        $patterns = array_map(fn (string $word): string => '%' . $word . '%', $words);
+
         return Product::query()
-            ->where(function ($query) use ($words) {
-                foreach (\array_slice($words, 0, 4) as $word) {
-                    $query->orWhere('description', 'like', '%' . $word . '%');
+            ->select(['products.stock_code', 'products.description', 'products.size', 'products.brand'])
+            ->selectRaw("({$score}) as match_score", $patterns)
+            ->where(function ($query) use ($text, $patterns) {
+                foreach ($patterns as $pattern) {
+                    $query->orWhereRaw("{$text} LIKE ?", [$pattern]);
                 }
             })
-            ->limit(80)
-            ->get(['stock_code', 'description', 'size', 'brand'])
+            ->when($account->company_id !== null, fn ($query) => $query->whereHas('price_codes', fn ($prices) => $prices->where('company_id', $account->company_id)))
+            ->orderByDesc('match_score')
+            ->orderBy('products.stock_code')
+            ->limit(self::CANDIDATES)
+            ->get()
             ->map(fn (Product $product): array => [
-                'code'  => (string) $product->stock_code,
-                'name'  => trim($product->brand . ' ' . $product->description . ' ' . $product->size),
-                'score' => $this->score($words, $product->brand . ' ' . $product->description . ' ' . $product->size),
+                'code' => (string) $product->stock_code,
+                'name' => trim($product->brand . ' ' . $product->description . ' ' . $product->size),
             ])
-            ->sortByDesc('score')
-            ->take(self::CANDIDATES)
-            ->map(fn (array $candidate): array => ['code' => $candidate['code'], 'name' => $candidate['name']])
-            ->values()
             ->all();
     }
 

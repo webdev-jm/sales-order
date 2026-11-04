@@ -11,6 +11,7 @@ use App\Models\AccountProductReference;
 use App\Models\AiProviderSetting;
 use App\Models\AiUsageLog;
 use App\Models\Company;
+use App\Models\PriceCode;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderProduct;
@@ -25,6 +26,7 @@ use App\Services\Ai\Providers\AnthropicProvider;
 use App\Services\Ai\SalesFigures;
 use App\Services\Ai\Tools\SalesOrderDetail;
 use App\Services\Ai\Tools\SalesSummary;
+use App\Services\Ai\Tools\SalesTool;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
@@ -133,17 +135,45 @@ class AiFeaturesTest extends TestCase
         $this->get(route('ai-assistant.index'))->assertOk()->assertSeeLivewire('ai-assistant.chat');
     }
 
+    /**
+     * Runs $ask while catching what Livewire streams to the page, and returns the streamed text.
+     */
+    private function streamedText(callable $ask): string
+    {
+        $output = '';
+        ob_start(function (string $chunk) use (&$output): string {
+            $output .= $chunk;
+
+            return '';
+        });
+
+        try {
+            $ask();
+        } finally {
+            ob_end_clean();
+        }
+
+        preg_match_all('/\{"stream":true,"body":(\{.*?\}),"endStream":true\}/', $output, $matches);
+
+        return collect($matches[1])->map(fn (string $body) => json_decode($body, true))
+            ->filter(fn (?array $body): bool => ($body['name'] ?? null) === 'answer')
+            ->pluck('content')
+            ->join('');
+    }
+
     public function test_a_question_is_answered_and_logged(): void
     {
         $user = $this->actingAsUser(['ai assistant access']);
         SalesAssistant::fake(['Your accounts ordered **PHP 900.00** this month.']);
 
-        Livewire::test(Chat::class)
+        $streamed = $this->streamedText(fn () => Livewire::test(Chat::class)
             ->set('question', 'How much did we order this month?')
             ->call('ask')
             ->assertSet('error', '')
             ->assertSet('question', '')
-            ->assertSee('PHP 900.00');
+            ->assertSee('PHP 900.00'));
+
+        $this->assertSame('Your accounts ordered **PHP 900.00** this month.', $streamed, 'The answer is streamed to the page as it is written.');
 
         SalesAssistant::assertPrompted(fn (AgentPrompt $prompt): bool => $prompt->prompt === 'How much did we order this month?');
 
@@ -154,6 +184,45 @@ class AiFeaturesTest extends TestCase
         $this->assertSame($user->id, $log->user_id);
 
         $this->assertCount(2, Session::get('ai_assistant.history'), 'The question and the answer are kept for follow-ups.');
+    }
+
+    public function test_answers_list_the_figures_they_used(): void
+    {
+        $this->actingAsUser(['ai assistant access']);
+        Session::put('ai_assistant.history', [
+            ['role' => 'user', 'content' => 'Sales this month?'],
+            ['role' => 'assistant', 'content' => 'PHP 900.00.', 'sources' => ['Sales summary · Nov 1–4, 2026 · all your accounts']],
+        ]);
+
+        Livewire::test(Chat::class)
+            ->assertSee('Figures used:')
+            ->assertSee('Sales summary · Nov 1–4, 2026 · all your accounts');
+    }
+
+    public function test_tool_calls_are_described_in_words_a_clerk_can_check(): void
+    {
+        $this->travelTo(\Carbon\Carbon::parse('2026-11-04 10:00'));
+
+        $this->assertSame('Sales summary · Nov 1–4, 2026 · all your accounts', SalesTool::describeCall('SalesSummary', []));
+        $this->assertSame('Top products · Oct 1–31, 2026 · account AIT001', SalesTool::describeCall('TopProducts', ['date_from' => '2026-10-01', 'date_to' => '2026-10-31', 'account_code' => 'AIT001']));
+        $this->assertSame('Sales by brand · Sep 15, 2026 – Nov 4, 2026 · all your accounts', SalesTool::describeCall('SalesByBrand', ['date_from' => '2026-09-15']));
+        $this->assertSame('Order search · PO 4500123 · all your accounts', SalesTool::describeCall('FindSalesOrders', ['po_number' => '4500123']));
+        $this->assertSame('Order details · SO-20261104-001', SalesTool::describeCall('SalesOrderDetail', ['number' => 'SO-20261104-001']));
+        $this->assertSame('Your accounts', SalesTool::describeCall('ListMyAccounts', []));
+    }
+
+    public function test_only_the_last_turns_are_kept_in_the_session(): void
+    {
+        $this->actingAsUser(['ai assistant access']);
+        Session::put('ai_assistant.history', array_map(fn (int $i): array => ['role' => $i % 2 ? 'assistant' : 'user', 'content' => 'Turn ' . $i], range(0, 19)));
+        SalesAssistant::fake(['Newest answer.']);
+
+        $this->streamedText(fn () => Livewire::test(Chat::class)->set('question', 'Newest question?')->call('ask'));
+
+        $history = Session::get('ai_assistant.history');
+        $this->assertCount(20, $history);
+        $this->assertSame('Turn 2', $history[0]['content']);
+        $this->assertSame('Newest answer.', end($history)['content']);
     }
 
     public function test_follow_up_questions_send_the_earlier_turns(): void
@@ -257,6 +326,20 @@ class AiFeaturesTest extends TestCase
         $this->assertSame(AiUsageLog::FEATURE_INSIGHTS, $this->logs()->first()->feature);
     }
 
+    public function test_insights_get_changes_and_shares_worked_out_and_are_told_not_to_calculate(): void
+    {
+        $this->actingAsUser(['ai insights access']);
+        $this->order($this->login, ['order_date' => '2026-09-10', 'grand_total' => 900, 'total_sales' => 1000]);
+        $this->order($this->login, ['order_date' => '2026-08-10', 'grand_total' => 600, 'total_sales' => 800]);
+        ReportInsights::fake([['headline' => 'Up.', 'highlights' => ['Up.'], 'watch' => []]]);
+
+        Livewire::test(Insights::class, ['source' => 'so-report', 'year' => '2026', 'month' => '09'])->call('explain');
+
+        ReportInsights::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"change_pct":{"orders":0,"quantity":0,"gross_sales":25,"net_sales":50}')
+            && str_contains($prompt->prompt, '"net_sales":900,"share_pct":100'));
+        $this->assertStringContainsString('Never calculate a percentage', (new ReportInsights)->instructions());
+    }
+
     public function test_insights_follow_the_days_picked_on_the_dashboard(): void
     {
         $this->actingAsUser(['ai insights access']);
@@ -319,6 +402,7 @@ class AiFeaturesTest extends TestCase
     {
         $this->actingAsUser(['ai mapping help']);
         $soap = Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G', 'brand' => 'GLOW']);
+        $this->priceFor($soap);
         $this->unmatchedRows();
         MappingHelper::fake([[
             'products' => [
@@ -347,6 +431,73 @@ class AiFeaturesTest extends TestCase
         $this->assertSame('ok', Session::get('so_template_rows')[0]['lookup_status']);
         $this->assertSame('BV-SOAP-90', Session::get('so_template_rows')[0]['internal_sku']);
         $this->assertSame(AiUsageLog::FEATURE_MAPPING, $this->logs()->sole()->feature);
+    }
+
+    private function priceFor(Product $product, ?int $companyId = null): void
+    {
+        PriceCode::factory()->create([
+            'company_id'    => $companyId ?? $this->account->company_id,
+            'product_id'    => $product->id,
+            'code'          => 'A',
+            'selling_price' => 100,
+            'price_basis'   => 'S',
+        ]);
+    }
+
+    public function test_mapping_help_finds_the_best_candidate_even_when_many_products_share_a_word(): void
+    {
+        $this->actingAsUser(['ai mapping help']);
+        foreach (range(1, 90) as $i) {
+            $this->priceFor(Product::factory()->create(['stock_code' => 'BV-OTHER-' . $i, 'description' => 'SOAP BAR ' . $i, 'size' => '135G', 'brand' => 'OTHER']));
+        }
+        $this->priceFor(Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G', 'brand' => 'GLOW']));
+        $this->unmatchedRows();
+        MappingHelper::fake([['products' => [], 'stores' => []]]);
+
+        Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])->call('suggest');
+
+        MappingHelper::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, 'BV-SOAP-90'));
+    }
+
+    public function test_mapping_help_only_offers_products_priced_in_the_accounts_company(): void
+    {
+        $this->actingAsUser(['ai mapping help']);
+        $this->priceFor(Product::factory()->create(['stock_code' => 'BV-SOAP-OURS', 'description' => 'LAVENDER SOAP', 'size' => '90G']));
+        $this->priceFor(Product::factory()->create(['stock_code' => 'BV-SOAP-THEIRS', 'description' => 'LAVENDER SOAP', 'size' => '90G']), Company::factory()->create()->id);
+        Product::factory()->create(['stock_code' => 'BV-SOAP-NOPRICE', 'description' => 'LAVENDER SOAP', 'size' => '90G']);
+        $this->unmatchedRows();
+        MappingHelper::fake([['products' => [], 'stores' => []]]);
+
+        Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])->call('suggest');
+
+        MappingHelper::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, 'BV-SOAP-OURS')
+            && !str_contains($prompt->prompt, 'BV-SOAP-THEIRS')
+            && !str_contains($prompt->prompt, 'BV-SOAP-NOPRICE'));
+    }
+
+    public function test_mapping_help_says_how_many_lines_wait_and_moves_on_to_them_next(): void
+    {
+        $this->actingAsUser(['ai mapping help']);
+        $this->priceFor(Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G']));
+        Session::put('so_template_rows', array_map(fn (int $i): array => [
+            'po_number' => 'PO-AI-1', 'raw_sku' => 'SKU-' . $i, 'sku_code' => 'SKU-' . $i, 'description' => 'LAVENDER SOAP 90G',
+            'store_code' => '', 'store_name' => '', 'product_id' => null, 'shipping_address_id' => 55,
+            'account_id' => $this->account->id, 'account_code' => 'AIT001', 'lookup_status' => 'sku_not_found',
+        ], range(1, 17)));
+        MappingHelper::fake([['products' => [], 'stores' => []], ['products' => [], 'stores' => []]]);
+
+        $component = Livewire::test(MappingHelp::class, ['accountIds' => [$this->account->id]])
+            ->call('suggest')
+            ->assertSee('2 more unmatched lines were left for the next search')
+            ->assertSee('Suggest matches for the next lines');
+
+        $component->call('suggest')->assertSet('leftOut', 0);
+
+        MappingHelper::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"SKU-15"') && !str_contains($prompt->prompt, '"SKU-16"'));
+        MappingHelper::assertPrompted(fn (AgentPrompt $prompt): bool => str_contains($prompt->prompt, '"SKU-16"') && str_contains($prompt->prompt, '"SKU-17"') && !str_contains($prompt->prompt, '"SKU-1"'));
+
+        $component->call('suggest')->assertSee('Every unmatched line has been checked already.')->assertSee('Check every line again');
+        MappingHelper::assertPromptedTimes(2);
     }
 
     public function test_mapping_help_cannot_add_mappings_for_another_users_account(): void
@@ -421,7 +572,7 @@ class AiFeaturesTest extends TestCase
     public function test_mapping_suggestions_for_the_same_lines_are_reused(): void
     {
         $this->actingAsUser(['ai mapping help']);
-        Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G', 'brand' => 'GLOW']);
+        $this->priceFor(Product::factory()->create(['stock_code' => 'BV-SOAP-90', 'description' => 'LAVENDER SOAP', 'size' => '90G', 'brand' => 'GLOW']));
         $this->unmatchedRows();
         MappingHelper::fake([['products' => [['item' => 1, 'stock_code' => 'BV-SOAP-90', 'confidence' => 'high', 'reason' => 'Same soap.']], 'stores' => []]]);
 

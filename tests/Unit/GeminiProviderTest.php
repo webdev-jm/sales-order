@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
 use App\Services\Ai\Providers\GeminiProvider;
 use Illuminate\Http\Client\ConnectionException;
@@ -161,6 +162,52 @@ class GeminiProviderTest extends TestCase
         }
 
         Http::assertSentCount(2);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function quotaError(string $quotaId): array
+    {
+        return ['error' => [
+            'code'    => 429,
+            'message' => 'You exceeded your current quota.',
+            'status'  => 'RESOURCE_EXHAUSTED',
+            'details' => [['@type' => 'type.googleapis.com/google.rpc.QuotaFailure', 'violations' => [['quotaMetric' => 'generate_content_free_tier_requests', 'quotaId' => $quotaId]]]],
+        ]];
+    }
+
+    public function test_a_used_up_daily_quota_is_not_retried_names_the_reset_time_and_is_remembered(): void
+    {
+        $this->travelTo(\Carbon\Carbon::parse('2026-11-04 10:00', 'Asia/Manila'));
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->quotaError('GenerateRequestsPerDayPerProjectPerModel-FreeTier'), 429)]);
+
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException $e) {
+            $this->assertSame('Gemini\'s daily free-tier request limit for gemini-test is used up. It resets at 4:00 PM.', $e->getMessage());
+        }
+
+        Http::assertSentCount(1);
+        $blocked = AiQuota::blocked('gemini');
+        $this->assertNotNull($blocked);
+        $this->assertSame('2026-11-04T16:00:00+08:00', $blocked['until']);
+    }
+
+    public function test_a_per_minute_limit_is_retried_and_not_remembered(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->quotaError('GenerateRequestsPerMinutePerProjectPerModel-FreeTier'), 429)]);
+
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException $e) {
+            $this->assertSame('Gemini is getting too many requests right now. Try again in a minute.', $e->getMessage());
+        }
+
+        Http::assertSentCount(2);
+        $this->assertNull(AiQuota::blocked('gemini'));
     }
 
     public function test_a_server_error_is_retried_once(): void

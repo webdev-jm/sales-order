@@ -125,6 +125,72 @@ class ScanConfidenceTest extends TestCase
         $this->assertStringContainsString('The lines add up to 1,200.00, not the printed 1,500.00.', implode(' ', $result['fields']['total']['reasons']));
     }
 
+    public function test_a_total_mismatch_names_the_lines_without_a_quantity(): void
+    {
+        $order = $this->order([], [$this->line(), $this->line(['quantity' => 0.0, 'amount' => '', 'ai_unclear' => 'The quantity could not be read'])]);
+        $order['header']['printed_total'] = '2400';
+
+        $result = ScanConfidence::assess($order, null);
+
+        $this->assertStringContainsString('1 line has no quantity.', implode(' ', $result['fields']['total']['reasons']));
+        $this->assertSame('low', $result['lines'][1]['level']);
+    }
+
+    public function test_a_line_without_an_item_code_says_so(): void
+    {
+        $result = ScanConfidence::assess($this->order([], [$this->line(['sku' => '', 'product_id' => null, 'stock_code' => null])]), null);
+
+        $this->assertContains('No item code was read for this line, so it cannot be ordered.', $result['lines'][0]['reasons']);
+    }
+
+    public function test_a_line_the_order_would_leave_out_is_low(): void
+    {
+        $result = ScanConfidence::assess($this->order([], [$this->line(['sms_prices' => [], 'sms_problem' => 'No price code \'A\' is set up for this product. The order would leave this line out.'])]), null);
+
+        $this->assertSame('low', $result['lines'][0]['level']);
+        $this->assertContains('No price code \'A\' is set up for this product. The order would leave this line out.', $result['lines'][0]['reasons']);
+    }
+
+    public function test_a_po_price_that_fits_another_unit_is_low_and_names_that_unit(): void
+    {
+        $line = $this->line(['unit_price' => '100', 'amount' => '1200', 'sms_prices' => ['CS' => 1200.0, 'PCS' => 100.0], 'sms_problem' => null]);
+
+        $result = ScanConfidence::assess($this->order([], [$line]), null);
+
+        $this->assertSame('low', $result['lines'][0]['level']);
+        $this->assertStringContainsString('fits PCS', implode(' ', $result['lines'][0]['reasons']));
+    }
+
+    public function test_a_po_price_far_from_the_sms_price_is_low(): void
+    {
+        $line = $this->line(['unit_price' => '450', 'amount' => '5400', 'sms_prices' => ['CS' => 100.0], 'sms_problem' => null]);
+
+        $result = ScanConfidence::assess($this->order(['header' => ['printed_total' => '5400']], [$line]), null);
+
+        $this->assertSame('low', $result['lines'][0]['level']);
+        $this->assertStringContainsString('far from the SMS price of 100.00 per CS', implode(' ', $result['lines'][0]['reasons']));
+    }
+
+    public function test_a_po_price_with_vat_or_a_discount_still_counts_as_the_same_price(): void
+    {
+        $withVat = $this->line(['unit_price' => '112', 'amount' => '1344', 'sms_prices' => ['CS' => 100.0, 'PCS' => 9.0], 'sms_problem' => null]);
+        $discounted = $this->line(['unit_price' => '70', 'amount' => '840', 'sms_prices' => ['CS' => 100.0], 'sms_problem' => null]);
+
+        $result = ScanConfidence::assess($this->order(['header' => ['printed_total' => '2184']], [$withVat, $discounted]), null);
+
+        $this->assertSame('high', $result['lines'][0]['level']);
+        $this->assertSame('high', $result['lines'][1]['level']);
+    }
+
+    public function test_without_a_printed_unit_price_the_amount_is_compared(): void
+    {
+        $line = $this->line(['unit_price' => '', 'amount' => '120', 'sms_prices' => ['CS' => 120.0, 'PCS' => 10.0], 'sms_problem' => null]);
+
+        $result = ScanConfidence::assess($this->order(['header' => ['printed_total' => '120']], [$line]), null);
+
+        $this->assertStringContainsString('fits PCS', implode(' ', $result['lines'][0]['reasons']));
+    }
+
     public function test_lines_left_out_are_not_rated(): void
     {
         $lines = [$this->line(), $this->line(['sku' => '999', 'product_id' => null, 'stock_code' => null])];
