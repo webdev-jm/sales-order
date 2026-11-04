@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\ActivityPlanDetailTrip;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,10 @@ class ActivityPlanDetailTripApprovalFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'user_id'                      => User::factory(),
+            'activity_plan_detail_trip_id' => ActivityPlanDetailTrip::factory(),
+            'status'                       => 'submitted',
+            'remarks'                      => null,
         ];
     }
 }
