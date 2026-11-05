@@ -82,6 +82,67 @@ abstract class SalesTool implements Tool
         return $id === null ? [] : [(int) $id];
     }
 
+    /**
+     * What one tool call read, in words a sales clerk can check, such as
+     * "Sales summary · Nov 1–4, 2026 · all your accounts". Shown under the assistant's answer.
+     *
+     * @param array<string, mixed> $arguments
+     */
+    public static function describeCall(string $toolName, array $arguments): string
+    {
+        $label = match ($toolName) {
+            'ListMyAccounts'   => 'Your accounts',
+            'SalesSummary'     => 'Sales summary',
+            'TopProducts'      => 'Top products',
+            'SalesByBrand'     => 'Sales by brand',
+            'FindSalesOrders'  => 'Order search',
+            'SalesOrderDetail' => 'Order details',
+            default            => $toolName,
+        };
+
+        if ($toolName === 'ListMyAccounts') {
+            return $label;
+        }
+
+        if ($toolName === 'SalesOrderDetail') {
+            return $label . ' · ' . trim((string) ($arguments['number'] ?? ''));
+        }
+
+        $parts = [$label];
+
+        foreach (['po_number' => 'PO ', 'control_number' => '', 'status' => ''] as $key => $prefix) {
+            if (filled($arguments[$key] ?? null)) {
+                $parts[] = $prefix . trim((string) $arguments[$key]);
+            }
+        }
+
+        $searchesByNumber = filled($arguments['po_number'] ?? null) || filled($arguments['control_number'] ?? null);
+
+        if (! $searchesByNumber || filled($arguments['date_from'] ?? null)) {
+            $parts[] = self::periodLabel($arguments['date_from'] ?? null, $arguments['date_to'] ?? null);
+        }
+
+        $parts[] = filled($arguments['account_code'] ?? null) ? 'account ' . trim((string) $arguments['account_code']) : 'all your accounts';
+
+        return implode(' · ', $parts);
+    }
+
+    private static function periodLabel(mixed $from, mixed $to): string
+    {
+        try {
+            $start = filled($from) ? Carbon::parse((string) $from) : now()->startOfMonth();
+            $end = filled($to) ? Carbon::parse((string) $to) : now();
+        } catch (Throwable) {
+            return 'this month so far';
+        }
+
+        if ($start->isSameMonth($end)) {
+            return $start->format('M j') . ($start->isSameDay($end) ? '' : '–' . $end->format('j')) . ', ' . $end->format('Y');
+        }
+
+        return $start->format('M j, Y') . ' – ' . $end->format('M j, Y');
+    }
+
     protected function limit(mixed $value, int $default): int
     {
         return is_numeric($value) ? (int) $value : $default;

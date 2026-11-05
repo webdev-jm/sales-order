@@ -6,6 +6,7 @@ use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\AiDocument;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -162,12 +163,42 @@ class AiClientTest extends TestCase
         } catch (AiUnavailableException $e) {
             $this->assertSame(
                 'No AI provider could answer. Gemini: The AI service is having problems. Try again in a minute. '
-                . 'Claude: The AI service is busy or its quota is used up. Try again later.',
+                . 'Claude: Claude is getting too many requests right now. Try again in a minute.',
                 $e->getMessage()
             );
         }
 
         $this->assertSame(['gemini', 'anthropic'], array_column($this->failures, 0));
+    }
+
+    public function test_a_provider_whose_quota_is_used_up_is_skipped_until_it_resets(): void
+    {
+        AiQuota::block('gemini', now()->addHours(3), 'Gemini\'s daily request limit is used up.');
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->geminiReply(['ok' => true]))]);
+        $this->fakeAnthropic([$this->claudeReply(['ok' => true])]);
+
+        $this->assertSame('anthropic', $this->generate()->provider);
+        Http::assertNotSent(fn (\Illuminate\Http\Client\Request $request): bool => str_contains($request->url(), 'generativelanguage'));
+
+        $this->travel(4)->hours();
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->geminiReply(['ok' => true]))]);
+
+        $this->assertSame('gemini', $this->generate()->provider);
+    }
+
+    public function test_when_every_provider_is_out_of_quota_the_reasons_are_the_setup_problem(): void
+    {
+        config(['ai.failover' => '']);
+        AiQuota::block('gemini', now()->addHours(3), 'Gemini\'s daily request limit is used up. It resets at 4:00 PM.');
+        Http::fake();
+
+        $this->assertSame(
+            'Gemini\'s daily request limit is used up. It resets at 4:00 PM. Add a failover provider on the AI Settings page to keep working until then.',
+            $this->client()->setupProblem()
+        );
+
+        $this->expectException(AiUnavailableException::class);
+        $this->generate();
     }
 
     public function test_with_one_provider_its_own_message_is_kept(): void

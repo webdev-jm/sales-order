@@ -6,7 +6,9 @@ use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiResponse;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\Concerns\DescribesLaravelAiFailures;
+use App\Services\Ai\Concerns\RemembersUsedUpQuota;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\RequestException;
@@ -24,6 +26,7 @@ use Throwable;
 class OpenAiProvider implements AiProviderInterface
 {
     use DescribesLaravelAiFailures;
+    use RemembersUsedUpQuota;
 
     public const NAME = 'openai';
 
@@ -316,10 +319,31 @@ class OpenAiProvider implements AiProviderInterface
         return (int) ($this->config['timeout'] ?? 180);
     }
 
+    /**
+     * A busy server or a short rate limit is retried once; a used-up quota or empty balance is not.
+     */
     private function isTransient(Throwable $e): bool
     {
         return $e instanceof ConnectionException
-            || ($e instanceof RequestException && ($e->response->serverError() || $e->response->status() === 429));
+            || ($e instanceof RequestException && ($e->response->serverError() || ($e->response->status() === 429 && $this->usedUpQuota($e->response) === null)));
+    }
+
+    /**
+     * OpenAI answers an account without credits with 429 and the code insufficient_quota; OpenRouter and others
+     * use 402. Neither says when credits come back, so the provider is tried again after a while.
+     */
+    protected function usedUpQuota(Response $response): ?array
+    {
+        $code = (string) ($response->json('error.code') ?? $response->json('error.type') ?? '');
+
+        if ($response->status() === 402 || ($response->status() === 429 && $code === 'insufficient_quota')) {
+            return [
+                'until'  => AiQuota::unknownReset(),
+                'reason' => 'The ' . $this->label() . ' account has no credits left. Add credits, or turn this provider off on the AI Settings page.',
+            ];
+        }
+
+        return null;
     }
 
     private function failureMessage(Response $response): string
@@ -332,8 +356,12 @@ class OpenAiProvider implements AiProviderInterface
             return 'The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.';
         }
 
+        if (($quotaReason = $this->quotaFailure($response)) !== null) {
+            return $quotaReason;
+        }
+
         if ($response->status() === 429) {
-            return 'The AI service is busy or its quota is used up. Try again later.';
+            return $this->label() . ' is getting too many requests right now. Try again in a minute.';
         }
 
         if ($response->serverError()) {

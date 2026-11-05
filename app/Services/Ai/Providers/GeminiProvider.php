@@ -4,10 +4,12 @@ namespace App\Services\Ai\Providers;
 
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\Concerns\GeneratesJsonWithLaravelAi;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -159,6 +161,44 @@ class GeminiProvider implements AiProviderInterface
     }
 
     /**
+     * A 429 whose quota ID is a per-day quota (such as GenerateRequestsPerDayPerProjectPerModel-FreeTier)
+     * lasts until midnight Pacific time; per-minute limits pass on their own.
+     */
+    protected function usedUpQuota(Response $response): ?array
+    {
+        if ($response->status() !== 429) {
+            return null;
+        }
+
+        $quotaIds = $this->quotaIds($response);
+        $daily = $quotaIds->first(fn (string $id): bool => str_contains($id, 'PerDay'));
+
+        if ($daily === null) {
+            return null;
+        }
+
+        $until = AiQuota::nextPacificMidnight();
+
+        return [
+            'until'  => $until,
+            'reason' => 'Gemini\'s daily ' . (str_contains($daily, 'FreeTier') ? 'free-tier ' : '') . 'request limit for ' . $this->model()
+                . ' is used up. It resets at ' . AiQuota::resetLabel($until) . '.',
+        ];
+    }
+
+    /**
+     * @return Collection<int, string>
+     */
+    private function quotaIds(Response $response): Collection
+    {
+        return collect($response->json('error.details', []))
+            ->flatMap(fn ($detail): array => \is_array($detail) ? (array) ($detail['violations'] ?? []) : [])
+            ->map(fn ($violation): string => \is_array($violation) ? (string) ($violation['quotaId'] ?? '') : '')
+            ->filter()
+            ->values();
+    }
+
+    /**
      * Gemini answers a bad key with 400 and the reason API_KEY_INVALID, or with 403.
      */
     private function failureMessage(Response $response): string
@@ -171,6 +211,14 @@ class GeminiProvider implements AiProviderInterface
 
         if ($response->status() === 404) {
             return 'The AI model "' . $this->model() . '" was not found. Choose another model on the AI Settings page.';
+        }
+
+        if (($quotaReason = $this->quotaFailure($response)) !== null) {
+            return $quotaReason;
+        }
+
+        if ($response->status() === 429 && $this->quotaIds($response)->contains(fn (string $id): bool => str_contains($id, 'PerMinute'))) {
+            return 'Gemini is getting too many requests right now. Try again in a minute.';
         }
 
         if ($response->status() === 429) {

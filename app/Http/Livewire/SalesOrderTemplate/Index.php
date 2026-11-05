@@ -623,6 +623,8 @@ class Index extends Component
 
         return view('livewire.sales-order-template.index', [
             'rows'           => $rows,
+            // A new upload gives the mapping help a fresh start; mapping a line keeps its progress.
+            'uploadKey'      => substr(md5(json_encode(array_map(fn ($row) => [$row['po_number'] ?? '', $row['raw_sku'] ?? '', $row['store_code'] ?? '', $row['store_name'] ?? ''], $rows))), 0, 12),
             'summary'        => $this->summary,
             'accounts'       => $accounts,
             'storeMaps'      => $storeMaps,

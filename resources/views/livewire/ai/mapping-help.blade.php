@@ -5,7 +5,7 @@
                 <h3 class="card-title"><i class="fas fa-magic mr-1"></i> AI mapping help</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-sm btn-info" wire:click="suggest" wire:loading.attr="disabled" wire:target="suggest">
-                        <span wire:loading.remove wire:target="suggest"><i class="fas fa-search mr-1"></i> Suggest matches for unmatched lines</span>
+                        <span wire:loading.remove wire:target="suggest"><i class="fas fa-search mr-1"></i> {{ $leftOut > 0 ? 'Suggest matches for the next lines' : 'Suggest matches for unmatched lines' }}</span>
                         <span wire:loading wire:target="suggest"><i class="fas fa-spinner fa-spin mr-1"></i> Looking for matches…</span>
                     </button>
                     @if($suggestions)
@@ -20,7 +20,11 @@
                         <p class="text-warning m-3"><i class="fas fa-exclamation-triangle mr-1"></i>{{ $error }}</p>
                     @endif
                     @if($notice !== '')
-                        <p class="text-muted m-3"><i class="fas fa-info-circle mr-1"></i>{{ $notice }}</p>
+                        <p class="text-muted m-3"><i class="fas fa-info-circle mr-1"></i>{{ $notice }}
+                            @if($asked !== [] && $leftOut === 0)
+                                <button type="button" class="btn btn-link btn-sm p-0 ml-1 align-baseline" wire:click="startOver">Check every line again</button>
+                            @endif
+                        </p>
                     @endif
 
                     @if($suggestions)

@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ asked: '' }">
     <div class="card card-primary card-outline direct-chat direct-chat-primary">
         <div class="card-header">
             <h3 class="card-title"><i class="fas fa-comments mr-1"></i> Ask about your sales orders</h3>
@@ -39,17 +39,34 @@
                             </div>
                             <div class="direct-chat-text ai-chat-answer">
                                 {!! \Illuminate\Support\Str::markdown($turn['content'], ['html_input' => 'strip', 'allow_unsafe_links' => false]) !!}
+                                @if(!empty($turn['sources']))
+                                    <div class="ai-chat-sources small text-muted border-top pt-1 mt-2">
+                                        <i class="fas fa-database mr-1"></i>Figures used:
+                                        @foreach($turn['sources'] as $sourceIndex => $source)
+                                            <span class="badge badge-light font-weight-normal mr-1" wire:key="turn-{{ $index }}-source-{{ $sourceIndex }}">{{ $source }}</span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endif
                 @endforeach
 
-                <div class="direct-chat-msg" wire:loading.block wire:target="ask">
-                    <div class="direct-chat-infos clearfix">
-                        <span class="direct-chat-name float-left"><i class="fas fa-robot mr-1"></i>Assistant</span>
+                <div wire:loading.block wire:target="ask">
+                    <div class="direct-chat-msg right" x-show="asked !== ''">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-right">You</span>
+                        </div>
+                        <div class="direct-chat-text ai-chat-question" x-text="asked"></div>
                     </div>
-                    <div class="direct-chat-text text-muted">
-                        <i class="fas fa-spinner fa-spin mr-1"></i> Reading your sales orders…
+                    <div class="direct-chat-msg">
+                        <div class="direct-chat-infos clearfix">
+                            <span class="direct-chat-name float-left"><i class="fas fa-robot mr-1"></i>Assistant</span>
+                        </div>
+                        <div class="direct-chat-text ai-chat-answer">
+                            <div class="ai-chat-stream" style="white-space: pre-wrap;" wire:stream="answer"></div>
+                            <span class="text-muted small"><i class="fas fa-spinner fa-spin mr-1"></i> Reading your sales orders…</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -59,7 +76,7 @@
             @if($error !== '')
                 <div class="alert alert-warning py-2 mb-2"><i class="fas fa-exclamation-triangle mr-1"></i>{{ $error }}</div>
             @endif
-            <form wire:submit="ask">
+            <form wire:submit="ask" x-on:submit="asked = $wire.question">
                 <div class="input-group">
                     <input type="text" class="form-control{{ $errors->has('question') ? ' is-invalid' : '' }}" id="ai-question"
                            placeholder="Ask about orders, sales or products in your accounts" maxlength="1000" autocomplete="off"
@@ -85,6 +102,12 @@
             };
             scrollToEnd();
             Livewire.hook('morphed', scrollToEnd);
+
+            // Streamed text arrives without a morph, so follow it as it grows.
+            var box = document.getElementById('ai-chat-messages');
+            if (box && window.MutationObserver) {
+                new MutationObserver(scrollToEnd).observe(box, { childList: true, subtree: true, characterData: true });
+            }
         });
     </script>
 </div>

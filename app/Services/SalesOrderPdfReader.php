@@ -18,11 +18,12 @@ use Illuminate\Http\UploadedFile;
  * as SalesOrderService's skipped items, so the upload screens can list them together.
  *
  * Each PO also carries its header and every line as read, with the AI's rating, and the confidence the
- * app worked out from them (ScanConfidence), for the review screens.
+ * app worked out from them (ScanConfidence), for the review screens. A matched line also carries what
+ * SMS charges the account per unit (ScanPriceCheck), so the review can compare it with the PO price.
  */
 class SalesOrderPdfReader
 {
-    public function __construct(private PoScanner $scanner)
+    public function __construct(private PoScanner $scanner, private ScanPriceCheck $priceCheck)
     {
     }
 
@@ -54,7 +55,9 @@ class SalesOrderPdfReader
         $rows = $this->scanner->scan($file->get(), $file->getClientOriginalName(), $account, $format, $user);
 
         $orders = [];
-        $productNames = Product::whereIn('id', array_filter(array_column($rows, 'product_id')))->pluck('description', 'id');
+        $products = Product::whereIn('id', array_filter(array_column($rows, 'product_id')))->get()->keyBy('id');
+        $account->loadMissing('company', 'discount');
+        $prices = [];
 
         foreach ($rows as $row) {
             $poNumber = $row['po_number'];
@@ -94,6 +97,12 @@ class SalesOrderPdfReader
                 }
             }
 
+            $price = null;
+            if (isset($products[$row['product_id'] ?? null])) {
+                $priceKey = $row['product_id'] . '|' . $row['so_uom'];
+                $price = $prices[$priceKey] ??= $this->priceCheck->forProduct($account, $products[$row['product_id']], $row['so_uom'], PoScanner::UOMS);
+            }
+
             $orders[$poNumber]['lines'][] = [
                 'sku'           => $row['raw_sku'],
                 'description'   => $row['description'],
@@ -104,10 +113,12 @@ class SalesOrderPdfReader
                 'amount'        => $row['amount'],
                 'product_id'    => $row['product_id'] ?? null,
                 'stock_code'    => !empty($row['product_id']) ? $row['internal_sku'] : null,
-                'product'       => !empty($row['product_id']) ? (string) ($productNames[$row['product_id']] ?? '') : '',
+                'product'       => !empty($row['product_id']) ? (string) ($products[$row['product_id']]->description ?? '') : '',
                 'page'          => $row['page'] ?? null,
                 'ai_confidence' => $row['ai_confidence'] ?? null,
                 'ai_unclear'    => $row['ai_unclear'] ?? '',
+                'sms_prices'    => $price['prices'] ?? [],
+                'sms_problem'   => $price['problem'] ?? null,
             ];
 
             if (is_numeric($row['amount'])) {
@@ -116,8 +127,19 @@ class SalesOrderPdfReader
 
             if (empty($row['product_id'])) {
                 $orders[$poNumber]['warnings'][] = [
-                    'stock_code' => $row['raw_sku'],
-                    'reason'     => 'Not found in the product catalog' . ($row['description'] !== '' ? ' (' . $row['description'] . ')' : '') . '.',
+                    'stock_code' => $row['raw_sku'] !== '' ? $row['raw_sku'] : $row['description'],
+                    'reason'     => $row['raw_sku'] !== ''
+                        ? 'Not found in the product catalog' . ($row['description'] !== '' ? ' (' . $row['description'] . ')' : '') . '.'
+                        : 'No item code could be read, so no product was matched.',
+                ];
+
+                continue;
+            }
+
+            if ((float) $row['qty'] <= 0) {
+                $orders[$poNumber]['warnings'][] = [
+                    'stock_code' => $row['internal_sku'],
+                    'reason'     => 'The quantity is zero or could not be read, so this line was left out.',
                 ];
 
                 continue;

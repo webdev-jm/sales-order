@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiDocument;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
 use App\Services\Ai\Providers\AnthropicProvider;
 use Illuminate\Support\Facades\Http;
@@ -158,7 +159,7 @@ class AnthropicProviderTest extends TestCase
     public static function failures(): array
     {
         return [
-            'rate limited' => [[429, 'rate_limit_error', 'slow down'], 'The AI service is busy or its quota is used up. Try again later.'],
+            'rate limited' => [[429, 'rate_limit_error', 'slow down'], 'Claude is getting too many requests right now. Try again in a minute.'],
             'overloaded'   => [[529, 'overloaded_error', 'Overloaded'], 'The AI service is having problems. Try again in a minute.'],
             'bad key'      => [[401, 'authentication_error', 'invalid x-api-key'], 'The AI service rejected the API key. Check ANTHROPIC_API_KEY in the .env file.'],
             'bad model'    => [[404, 'not_found_error', 'model: claude-test'], 'The AI model "claude-test" was not found. Choose another model on the AI Settings page.'],
@@ -178,6 +179,21 @@ class AnthropicProviderTest extends TestCase
         $this->expectExceptionMessage($message);
 
         $this->generate();
+    }
+
+    public function test_an_empty_credit_balance_is_named_and_left_out_for_a_while(): void
+    {
+        $this->fakeAnthropic([$this->claudeError(400, 'invalid_request_error', 'Your credit balance is too low to access the Anthropic API.')]);
+
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException $e) {
+            $this->assertSame('The Claude account has no credits left. Add credits, or turn Claude off on the AI Settings page.', $e->getMessage());
+        }
+
+        Http::assertSentCount(1);
+        $this->assertNotNull(AiQuota::blocked('anthropic'));
     }
 
     public function test_a_connection_failure_becomes_a_friendly_message(): void

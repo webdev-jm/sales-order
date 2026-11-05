@@ -78,16 +78,23 @@ class Insights extends Component
         $this->error = '';
         [$label, $current, $previous] = $this->periods();
 
+        $totals = $figures->summary($current);
+        $previousTotals = $previous === null ? null : $figures->summary($previous['filters']);
+
         $data = [
             'report'          => $this->source === 'so-report' ? 'Sales Order report' : 'SO Dashboard',
             'period'          => $label,
             'salesman_group'  => $this->group_code ?: 'all',
             'counted_orders'  => 'finalized orders uploaded to SYSPRO',
-            'totals'          => $figures->summary($current),
-            'previous_period' => $previous === null ? null : ['label' => $previous['label'], 'totals' => $figures->summary($previous['filters'])],
-            'top_accounts'    => $figures->byAccount($current, 10),
-            'top_products'    => $figures->topProducts($current, 10, 'sales'),
-            'brands'          => $figures->byBrand($current, 10),
+            'totals'          => $totals,
+            'previous_period' => $previous === null ? null : [
+                'label'      => $previous['label'],
+                'totals'     => $previousTotals,
+                'change_pct' => array_map(fn (string $key): ?int => self::changePct($totals[$key], $previousTotals[$key]), array_combine(array_keys($totals), array_keys($totals))),
+            ],
+            'top_accounts'    => self::withShares($figures->byAccount($current, 10), 'net_sales', $totals['net_sales']),
+            'top_products'    => self::withShares($figures->topProducts($current, 10, 'sales'), 'gross_sales', $totals['gross_sales']),
+            'brands'          => self::withShares($figures->byBrand($current, 10), 'gross_sales', $totals['gross_sales']),
         ];
 
         if ($data['totals']['orders'] === 0) {
@@ -152,6 +159,26 @@ class Insights extends Component
     public function render(): View
     {
         return view('livewire.ai.insights', ['currentPeriod' => $this->periods()[0]]);
+    }
+
+    /**
+     * Change from the previous period in whole percent, or null when the previous period had none to compare.
+     * Worked out here so the AI only describes it; models often get percentages wrong.
+     */
+    private static function changePct(int|float $current, int|float $previous): ?int
+    {
+        return (float) $previous == 0.0 ? null : (int) round(($current - $previous) / abs($previous) * 100);
+    }
+
+    /**
+     * Each row's share of the period total, in whole percent.
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private static function withShares(array $rows, string $key, float $total): array
+    {
+        return array_map(fn (array $row): array => $row + ['share_pct' => $total > 0 ? (int) round((float) $row[$key] / $total * 100) : null], $rows);
     }
 
     /**

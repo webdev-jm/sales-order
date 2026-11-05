@@ -33,27 +33,42 @@ class MappingHelp extends Component
 
     public $notice = '';
 
+    /** @var array<int, string> Unmatched SKUs and stores already sent to the AI, so the next request moves on to the rest */
+    public $asked = [];
+
+    /** Unmatched SKUs and stores left for the next request. */
+    public $leftOut = 0;
+
     public function suggest(MappingSuggester $suggester): void
     {
         $this->authorizeHelp();
         $this->reset('error', 'notice');
 
         try {
-            $suggestions = $suggester->suggest($this->rows(), $this->fallbackAccountId(), $this->allowedAccountIds(), auth()->user());
+            $suggestions = $suggester->suggest($this->rows(), $this->fallbackAccountId(), $this->allowedAccountIds(), auth()->user(), $this->asked);
         } catch (AiUnavailableException $e) {
             $this->error = $e->getMessage();
 
             return;
         }
 
+        $this->asked = array_values(array_unique([...$this->asked, ...$suggestions['asked']]));
+        $this->leftOut = $suggestions['left_out']['products'] + $suggestions['left_out']['stores'];
+        $more = $this->leftOut > 0
+            ? ' ' . number_format($this->leftOut) . ' more unmatched ' . ($this->leftOut === 1 ? 'line was' : 'lines were') . ' left for the next search, which checks up to ' . MappingSuggester::MAX_ITEMS . ' SKUs and ' . MappingSuggester::MAX_ITEMS . ' stores at a time.'
+            : '';
+
         if ($suggestions['products'] === [] && $suggestions['stores'] === []) {
             $this->suggestions = null;
-            $this->notice = 'No confident matches were found. Add the missing SKUs and stores on the mapping tabs.';
+            $this->notice = ($suggestions['asked'] === []
+                ? 'Every unmatched line has been checked already.'
+                : 'No confident matches were found.') . $more . ($this->leftOut > 0 ? '' : ' Add the missing SKUs and stores on the mapping tabs.');
 
             return;
         }
 
         $this->suggestions = $suggestions;
+        $this->notice = trim($more);
     }
 
     public function addProduct(int $index, SoTemplateLookup $lookup): void
@@ -101,7 +116,7 @@ class MappingHelp extends Component
 
         AccountShipAddressMapping::firstOrCreate(
             ['account_id' => $suggestion['account_id'], 'shipping_address_id' => $address->id, 'reference1' => $suggestion['store_code'] !== '' ? $suggestion['store_code'] : $suggestion['store_name']],
-            ['reference2' => $suggestion['store_name']]
+            ['reference2' => $suggestion['store_name'] !== '' ? $suggestion['store_name'] : null]
         );
 
         $this->recheckRows(
@@ -115,6 +130,14 @@ class MappingHelp extends Component
     public function dismiss(): void
     {
         $this->reset('suggestions', 'error', 'notice');
+    }
+
+    /**
+     * Starts over from the first unmatched line.
+     */
+    public function startOver(): void
+    {
+        $this->reset('suggestions', 'error', 'notice', 'asked', 'leftOut');
     }
 
     public function render(): View

@@ -8,6 +8,7 @@ use App\Models\AiUsageLog;
 use App\Models\User;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\AiManager;
+use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
 use App\Services\Ai\AiUsageMeter;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -351,5 +352,20 @@ class AiSettingsTest extends TestCase
             ->assertSet('checks.groq', ['ok' => true, 'message' => 'Connected. Groq has openai/gpt-oss-120b ready.']);
 
         Http::assertSent(fn (Request $request): bool => $request->header('Authorization') === ['Bearer test-groq-key']);
+    }
+
+    public function test_a_provider_out_of_quota_shows_when_it_is_tried_again_and_can_be_tried_now(): void
+    {
+        $this->actingAsUser();
+        $this->travelTo(\Carbon\Carbon::parse('2026-11-04 10:00', 'Asia/Manila'));
+        AiQuota::block('gemini', now()->setTime(16, 0), 'Gemini\'s daily free-tier request limit for gemini-test is used up.');
+
+        $component = Livewire::test(Index::class)
+            ->assertSee('Gemini&#039;s daily free-tier request limit for gemini-test is used up.', false)
+            ->assertSee('It is skipped until 4:00 PM.')
+            ->assertSee('Try it again now');
+
+        $component->call('tryAgainNow', 'gemini')->assertDontSee('Try it again now');
+        $this->assertNull(AiQuota::blocked('gemini'));
     }
 }

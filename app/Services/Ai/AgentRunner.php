@@ -7,6 +7,8 @@ use App\Models\AiUsageLog;
 use App\Models\User;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Responses\AgentResponse;
+use Laravel\Ai\Responses\StreamedAgentResponse;
+use Laravel\Ai\Streaming\Events\StreamEvent;
 use Throwable;
 
 /**
@@ -72,11 +74,85 @@ class AgentRunner
             return $response;
         }
 
-        if (\count($failures) === 1) {
-            throw reset($failures);
+        throw $this->noProviderAnswered($failures);
+    }
+
+    /**
+     * Like prompt(), but hands each event (text as it is written, tool calls) to $onEvent as it arrives. A
+     * provider that fails before sending anything is failed over; one that fails part-way through an answer
+     * is not, because the user has already seen part of it.
+     *
+     * @param callable(StreamEvent): void $onEvent
+     *
+     * @throws AiUnavailableException with a message that can be shown to the user
+     */
+    public function stream(Agent $agent, string $prompt, string $feature, ?User $user, callable $onEvent, ?int $accountId = null, ?string $reference = null): AgentResponse
+    {
+        if (($problem = $this->problemFor($user)) !== null) {
+            throw new AiUnavailableException($problem);
         }
 
-        throw new AiUnavailableException('No AI provider could answer. ' . implode(' ', array_map(
+        $log = [
+            'user_id'    => $user?->id,
+            'account_id' => $accountId,
+            'feature'    => $feature,
+            'reference'  => $reference,
+        ];
+
+        $failures = [];
+
+        foreach ($this->client->availableProviders() as $provider) {
+            $startedAt = hrtime(true);
+            $finished = null;
+            $sentSomething = false;
+
+            try {
+                $stream = $agent->stream(
+                    $prompt,
+                    provider: $this->client->laravelAiProviders([$provider]),
+                    timeout: $provider->timeoutSeconds(),
+                )->then(function (StreamedAgentResponse $response) use (&$finished): void {
+                    $finished = $response;
+                });
+
+                foreach ($stream as $event) {
+                    $sentSomething = true;
+                    $onEvent($event);
+                }
+            } catch (Throwable $e) {
+                $error = $provider->failureFor($e);
+                $failures[$provider->label()] = $error;
+
+                $this->meter->record($log + ['status' => AiUsageLog::STATUS_FAILED, 'error' => $error->getMessage()], $provider);
+
+                if ($sentSomething) {
+                    throw $error;
+                }
+
+                continue;
+            }
+
+            $this->meter->record(
+                $log + ['status' => AiUsageLog::STATUS_SUCCESS],
+                AiResponse::fromAgentResponse($finished, $provider->name(), $provider->model(), (int) ((hrtime(true) - $startedAt) / 1_000_000))
+            );
+
+            return $finished;
+        }
+
+        throw $this->noProviderAnswered($failures);
+    }
+
+    /**
+     * @param array<string, AiUnavailableException> $failures provider label => why it failed
+     */
+    private function noProviderAnswered(array $failures): AiUnavailableException
+    {
+        if (\count($failures) === 1) {
+            return reset($failures);
+        }
+
+        return new AiUnavailableException('No AI provider could answer. ' . implode(' ', array_map(
             fn (string $label, AiUnavailableException $e): string => "{$label}: {$e->getMessage()}",
             array_keys($failures),
             $failures
