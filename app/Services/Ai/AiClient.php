@@ -10,9 +10,9 @@ use Laravel\Ai\Ai;
 /**
  * The AI entry point for the application. It sends a request to the first provider in the
  * failover order and, when that provider cannot answer (unreachable, overloaded, out of quota,
- * refusing the request or missing its key), fails over to the next ones. The order is the one
- * saved on the AI Settings page, or AI_PROVIDER then AI_FAILOVER until that page is saved.
- * A provider without an API key is skipped.
+ * refusing the request or missing its key), fails over to the backups. The order is the one
+ * saved on the AI Settings page, or the defaults in config/ai.php until that page is saved.
+ * A provider without an API key is skipped, and so is one that cannot read the attached file.
  */
 class AiClient
 {
@@ -70,22 +70,20 @@ class AiClient
     public function setupProblem(): ?string
     {
         if (! config('ai.enabled')) {
-            return 'AI is turned off. Set AI_ENABLED=true in the .env file.';
+            return 'AI is turned off in config/ai.php.';
         }
 
         $unknown = array_filter($this->configuredNames(), fn (string $name): bool => $this->manager->resolveName($name) === null);
 
         if ($unknown !== []) {
-            return 'Unknown AI provider "' . implode('", "', $unknown) . '" in AI_PROVIDER or AI_FAILOVER. Use '
+            return 'Unknown AI provider "' . implode('", "', $unknown) . '" in config/ai.php. Use '
                 . collect(array_keys(AiManager::PROVIDERS))->join(', ', ' or ') . '.';
         }
 
         $chain = $this->chain();
 
         if ($chain === []) {
-            return $this->manager->isManagedInApp()
-                ? 'AI is not set up yet. Turn on a provider on the AI Settings page.'
-                : 'AI is not set up yet. Set AI_PROVIDER in the .env file.';
+            return 'AI is not set up yet. Turn on a provider on the AI Settings page.';
         }
 
         return $this->availableProviders() === [] ? $chain[0]->setupProblem() : null;
@@ -139,13 +137,32 @@ class AiClient
     }
 
     /**
-     * Asks the first ready provider for JSON, failing over to the next one when it cannot answer.
+     * The ready providers that can read every one of these files, in order.
+     *
+     * @param array<int, AiDocument> $documents
+     * @return array<int, AiProviderInterface>
+     */
+    public function providersReading(array $documents): array
+    {
+        return array_values(array_filter($this->availableProviders(), function (AiProviderInterface $provider) use ($documents): bool {
+            foreach ($documents as $document) {
+                if (! $provider->canRead($document->mimeType)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
+    }
+
+    /**
+     * Asks the first ready provider that can read the documents for JSON, failing over to the next one when it cannot answer.
      *
      * @param array<int, AiDocument> $documents
      * @param array<string, mixed> $schema
      * @param (Closure(AiProviderInterface, AiUnavailableException): void)|null $onFailure Called for each provider that failed, so its attempt can be logged
      *
-     * @throws AiUnavailableException when no provider is ready, or every provider failed
+     * @throws AiUnavailableException when no provider is ready, none reads the documents, or every provider failed
      */
     public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens, ?Closure $onFailure = null): AiResponse
     {
@@ -153,9 +170,15 @@ class AiClient
             throw new AiUnavailableException($problem);
         }
 
+        $providers = $this->providersReading($documents);
+
+        if ($providers === []) {
+            throw new AiUnavailableException($this->unreadableProblem($documents));
+        }
+
         $failures = [];
 
-        foreach ($this->availableProviders() as $provider) {
+        foreach ($providers as $provider) {
             try {
                 return $provider->generateJson($instructions, $prompt, $documents, $schema, $maxOutputTokens);
             } catch (AiUnavailableException $e) {
@@ -176,5 +199,29 @@ class AiClient
             array_keys($failures),
             $failures
         )));
+    }
+
+    /**
+     * Why none of the turned-on providers can take these files, naming the ones that could.
+     *
+     * @param array<int, AiDocument> $documents
+     */
+    private function unreadableProblem(array $documents): string
+    {
+        $types = array_values(array_unique(array_map(fn (AiDocument $document): string => $document->mimeType, $documents)));
+        $kind = $types === ['application/pdf'] ? 'PDF' : implode(', ', $types);
+
+        $readers = [];
+
+        foreach (array_keys(AiManager::PROVIDERS) as $name) {
+            $provider = $this->manager->provider($name);
+
+            if (array_filter($types, fn (string $type): bool => ! $provider->canRead($type)) === []) {
+                $readers[] = $provider->label();
+            }
+        }
+
+        return 'None of the AI providers turned on can read ' . $kind . ' files.'
+            . ($readers !== [] ? ' Turn on ' . collect($readers)->join(', ', ' or ') . ' on the AI Settings page.' : '');
     }
 }

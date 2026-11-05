@@ -6,7 +6,9 @@ use App\Contracts\AiProviderInterface;
 use App\Models\AiProviderSetting;
 use App\Services\Ai\Providers\AnthropicProvider;
 use App\Services\Ai\Providers\GeminiProvider;
+use App\Services\Ai\Providers\GroqProvider;
 use App\Services\Ai\Providers\OpenAiProvider;
+use App\Services\Ai\Providers\QwenProvider;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 
@@ -22,9 +24,11 @@ class AiManager
         GeminiProvider::NAME    => GeminiProvider::class,
         AnthropicProvider::NAME => AnthropicProvider::class,
         OpenAiProvider::NAME    => OpenAiProvider::class,
+        GroqProvider::NAME      => GroqProvider::class,
+        QwenProvider::NAME      => QwenProvider::class,
     ];
 
-    /** Other names accepted in AI_PROVIDER and AI_FAILOVER. */
+    /** Other names accepted in config/ai.php's provider and failover. */
     public const ALIASES = [
         'claude'            => AnthropicProvider::NAME,
         'google'            => GeminiProvider::NAME,
@@ -32,7 +36,7 @@ class AiManager
     ];
 
     /** Providers whose server address can be changed on the AI Settings page. */
-    public const EDITABLE_URL = [OpenAiProvider::NAME];
+    public const EDITABLE_URL = [OpenAiProvider::NAME, GroqProvider::NAME, QwenProvider::NAME];
 
     /** @var Collection<string, AiProviderSetting>|null */
     private ?Collection $saved = null;
@@ -50,7 +54,7 @@ class AiManager
 
     /**
      * The rows saved on the AI Settings page, in failover order and keyed by provider name. Empty
-     * until the page has been saved, and then the .env order and models no longer apply.
+     * until the page has been saved; until then the defaults in config/ai.php apply.
      *
      * @return Collection<string, AiProviderSetting>
      */
@@ -70,8 +74,8 @@ class AiManager
     }
 
     /**
-     * Builds a provider. Without overrides it uses the saved settings, or the .env file when none
-     * are saved; the AI Settings page passes its unsaved form values to test them.
+     * Builds a provider. Without overrides it uses the saved settings, or the defaults in
+     * config/ai.php when none are saved; the AI Settings page passes its unsaved form values to test them.
      *
      * @param array{model?: string|null, effort?: string|null, base_url?: string|null}|null $overrides
      */
@@ -99,7 +103,7 @@ class AiManager
     }
 
     /**
-     * A saved blank effort means "the model's default", so it replaces the .env value too.
+     * A saved blank effort means "the model's default", so it replaces the config default too.
      *
      * @param array{model?: string|null, effort?: string|null, base_url?: string|null}|null $overrides
      * @return array<string, mixed>

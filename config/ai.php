@@ -11,30 +11,32 @@ return [
     | off while no provider below has an API key, so a fresh checkout
     | never calls out until a key has been added to the .env file.
     |
+    | Only the API keys come from the .env file. Everything else about the
+    | providers is set on the AI Settings page.
+    |
     */
 
-    'enabled' => (bool) env('AI_ENABLED', true),
+    'enabled' => true,
 
     /*
     |--------------------------------------------------------------------------
     | Provider and Failover
     |--------------------------------------------------------------------------
     |
-    | "provider" answers every request. When it cannot (unreachable, busy,
-    | out of quota, refusing the request or missing its key), the request
-    | goes to each provider in "failover" in turn (comma-separated).
+    | The defaults until the AI Settings page is saved: "provider" is the
+    | main provider, and "failover" lists the backups tried in turn when
+    | it cannot answer (unreachable, busy, out of quota, refusing the
+    | request or missing its key), comma-separated.
     |
-    | Providers: gemini (alias google), anthropic (alias claude) and openai
-    | (alias openai-compatible). Example: AI_PROVIDER=gemini, AI_FAILOVER=claude
-    |
-    | Once the AI Settings page has been saved, its order, models, effort
-    | and prices replace these values. The API keys always stay here.
+    | Providers: gemini, anthropic, openai, groq and qwen. Once the AI
+    | Settings page has been saved, its order, models, effort, server
+    | addresses and prices replace these defaults.
     |
     */
 
-    'provider' => env('AI_PROVIDER', 'gemini'),
+    'provider' => 'gemini',
 
-    'failover' => env('AI_FAILOVER', ''),
+    'failover' => '',
 
     /*
     |--------------------------------------------------------------------------
@@ -47,7 +49,7 @@ return [
     |
     */
 
-    'default' => env('AI_PROVIDER', 'gemini'),
+    'default' => 'gemini',
 
     /*
     |--------------------------------------------------------------------------
@@ -58,6 +60,9 @@ return [
     | "key" and "url" are laravel/ai's names). Gemini and Claude are called
     | through laravel/ai; use the same Gemini key as the PAF application.
     |
+    | The model, effort and (for OpenAI, Groq and Qwen) the server address
+    | below are defaults; the AI Settings page overrides them.
+    |
     */
 
     'providers' => [
@@ -65,61 +70,99 @@ return [
             'driver'  => 'gemini',
             // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
             // input price (see the model's price page).
-            'cache_read_price'  => (float) env('GEMINI_CACHE_READ_PRICE', 0.1),
-            'cache_write_price' => (float) env('GEMINI_CACHE_WRITE_PRICE', 1.0),
+            'cache_read_price'  => 0.1,
+            'cache_write_price' => 1.0,
             'key'     => env('GEMINI_API_KEY'),
-            'url'     => env('GEMINI_URL', 'https://generativelanguage.googleapis.com/v1beta/'),
-            'model'   => env('GEMINI_MODEL', 'gemini-3.5-flash'),
-            'timeout' => (int) env('GEMINI_TIMEOUT', 180),
+            'url'     => 'https://generativelanguage.googleapis.com/v1beta/',
+            'model'   => 'gemini-3.5-flash',
+            'timeout' => 180,
 
             // How much the model thinks before it answers. Thinking tokens are billed as
             // output, and copying a PO needs little of it. Leave empty for the model's default.
-            'effort' => env('GEMINI_THINKING_LEVEL', 'low'),
+            'effort' => 'low',
 
             // Pause before the one retry after an overload (5xx), rate limit (429) or timeout.
-            'retry_ms' => (int) env('GEMINI_RETRY_MS', 2500),
+            'retry_ms' => 2500,
         ],
 
         'anthropic' => [
             'driver'  => 'anthropic',
             // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
             // input price (see the model's price page).
-            'cache_read_price'  => (float) env('ANTHROPIC_CACHE_READ_PRICE', 0.1),
-            'cache_write_price' => (float) env('ANTHROPIC_CACHE_WRITE_PRICE', 1.25),
+            'cache_read_price'  => 0.1,
+            'cache_write_price' => 1.25,
             'key'     => env('ANTHROPIC_API_KEY'),
-            'url'     => env('ANTHROPIC_URL', 'https://api.anthropic.com/v1'),
-            'model'   => env('ANTHROPIC_MODEL', 'claude-haiku-5-5'),
-            'timeout' => (int) env('ANTHROPIC_TIMEOUT', 180),
+            'url'     => 'https://api.anthropic.com/v1',
+            'model'   => 'claude-haiku-5-5',
+            'timeout' => 180,
 
             // Claude's effort level (low, medium, high, xhigh, max): how much it thinks and
             // spends. Copying a PO needs little. Leave empty for the model's default.
-            'effort' => env('ANTHROPIC_EFFORT', 'low'),
+            'effort' => 'low',
 
             // Retries after an overload, rate limit or timeout, and the pause before each.
-            'max_retries' => (int) env('ANTHROPIC_MAX_RETRIES', 1),
-            'retry_ms'    => (int) env('ANTHROPIC_RETRY_MS', 500),
+            'max_retries' => 1,
+            'retry_ms'    => 500,
         ],
 
-        // Any server with the OpenAI Chat Completions API: OpenAI itself, OpenRouter, Groq,
-        // DeepSeek or a local Ollama (any key works there). Reading PDFs needs a model and server
+        // Any server with the OpenAI Chat Completions API: OpenAI itself, OpenRouter, DeepSeek
+        // or a local Ollama (any key works there). Reading PDFs needs a model and server
         // that accept PDF files, such as OpenAI or OpenRouter. PDFs are sent by the application's
         // own Chat Completions request, because laravel/ai's compatible driver only attaches images.
         'openai' => [
             'driver'  => 'openai-compatible',
             // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
             // input price (see the model's price page).
-            'cache_read_price'  => (float) env('OPENAI_CACHE_READ_PRICE', 0.1),
-            'cache_write_price' => (float) env('OPENAI_CACHE_WRITE_PRICE', 1.0),
+            'cache_read_price'  => 0.1,
+            'cache_write_price' => 1.0,
             'key'     => env('OPENAI_API_KEY'),
-            'url'     => env('OPENAI_BASE_URL', 'https://api.openai.com/v1/'),
-            'model'   => env('OPENAI_MODEL', 'gpt-5-mini'),
-            'timeout' => (int) env('OPENAI_TIMEOUT', 180),
+            'url'     => 'https://api.openai.com/v1/',
+            'model'   => 'gpt-5-mini',
+            'timeout' => 180,
 
             // reasoning_effort for reasoning models (minimal, low, medium, high). Leave empty for
             // models that do not reason, which reject the setting.
-            'effort' => env('OPENAI_REASONING_EFFORT', 'low'),
+            'effort' => 'low',
 
-            'retry_ms' => (int) env('OPENAI_RETRY_MS', 2500),
+            'retry_ms' => 2500,
+        ],
+
+        // Groq runs open models fast. Its API takes text and, on vision models, images, but no
+        // PDF files, so PO scans skip it and go to the next provider that reads PDFs.
+        'groq' => [
+            'driver'  => 'groq',
+            // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
+            // input price (see the model's price page).
+            'cache_read_price'  => 0.5,
+            'cache_write_price' => 1.0,
+            'key'     => env('GROQ_API_KEY'),
+            'url'     => 'https://api.groq.com/openai/v1/',
+            'model'   => 'openai/gpt-oss-120b',
+            'timeout' => 120,
+
+            // reasoning_effort for reasoning models such as gpt-oss. Leave empty for models that
+            // do not reason, which reject the setting.
+            'effort' => 'low',
+
+            'retry_ms' => 2500,
+        ],
+
+        // Alibaba Cloud Model Studio (DashScope), through its OpenAI-compatible mode. The address
+        // depends on the region the key was made in (international: dashscope-intl, China:
+        // dashscope). Like Groq it reads text and images but no PDF files.
+        'qwen' => [
+            'driver'  => 'openai-compatible',
+            // Prompt caching: tokens read from the provider's cache, and written to it, cost this share of the
+            // input price (see the model's price page).
+            'cache_read_price'  => 0.2,
+            'cache_write_price' => 1.0,
+            'key'     => env('QWEN_API_KEY'),
+            'url'     => 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/',
+            'model'   => 'qwen-plus',
+            'timeout' => 120,
+            'effort'  => null,
+
+            'retry_ms' => 2500,
         ],
     ],
 
@@ -148,6 +191,7 @@ return [
     |
     | A PDF read once is kept for "cache_days", so scanning the same file for
     | the same account and format again costs no tokens. 0 turns this off.
+    | Only providers that read PDF files are asked to scan.
     |
     */
 
@@ -155,7 +199,7 @@ return [
         'max_file_kb' => 10240,
         'max_files' => 10,
         'max_output_tokens' => 16000,
-        'cache_days' => (int) env('AI_SCAN_CACHE_DAYS', 30),
+        'cache_days' => 30,
     ],
 
 ];

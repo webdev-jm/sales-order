@@ -58,7 +58,7 @@ class AiSettingsTest extends TestCase
     // Saved settings drive the AI client
     // -------------------------------------------------------------------------
 
-    public function test_without_saved_settings_the_env_order_applies(): void
+    public function test_without_saved_settings_the_config_defaults_apply(): void
     {
         config(['ai.failover' => 'claude']);
 
@@ -66,7 +66,7 @@ class AiSettingsTest extends TestCase
         $this->assertSame(['gemini', 'anthropic'], app(AiClient::class)->configuredNames());
     }
 
-    public function test_saved_settings_replace_the_env_order_model_and_effort(): void
+    public function test_saved_settings_replace_the_default_order_model_and_effort(): void
     {
         config(['ai.failover' => '']);
         AiProviderSetting::factory()->create(['name' => 'anthropic', 'priority' => 1, 'model' => 'claude-saved', 'effort' => 'high']);
@@ -132,7 +132,7 @@ class AiSettingsTest extends TestCase
         $this->get(route('ai-settings.index'))->assertForbidden();
     }
 
-    public function test_the_page_starts_from_the_env_file(): void
+    public function test_the_page_starts_from_the_config_defaults(): void
     {
         $this->actingAsUser();
         config(['ai.provider' => 'claude', 'ai.failover' => 'gemini', 'ai.providers.anthropic.model' => 'claude-env']);
@@ -148,7 +148,15 @@ class AiSettingsTest extends TestCase
             ->assertSet('providers.2.name', 'openai')
             ->assertSet('providers.2.is_enabled', false)
             ->assertSet('providers.2.base_url', 'https://api.openai.com/v1/')
-            ->assertSee('still follow the');
+            ->assertSet('providers.3.name', 'groq')
+            ->assertSet('providers.3.is_enabled', false)
+            ->assertSet('providers.3.model', 'openai/gpt-oss-120b')
+            ->assertSet('providers.3.base_url', 'https://api.groq.com/openai/v1/')
+            ->assertSet('providers.4.name', 'qwen')
+            ->assertSet('providers.4.is_enabled', false)
+            ->assertSet('providers.4.model', 'qwen-plus')
+            ->assertSet('providers.4.base_url', 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/')
+            ->assertSee('Nothing is saved here yet, so the defaults apply.');
     }
 
     public function test_saving_stores_the_order_and_settings_of_every_provider(): void
@@ -170,8 +178,8 @@ class AiSettingsTest extends TestCase
 
         $saved = AiProviderSetting::query()->orderBy('priority')->get()->keyBy('name');
 
-        $this->assertSame(['anthropic', 'gemini', 'openai'], $saved->keys()->all());
-        $this->assertSame([1, 2, 3], $saved->pluck('priority')->all());
+        $this->assertSame(['anthropic', 'gemini', 'openai', 'groq', 'qwen'], $saved->keys()->all());
+        $this->assertSame([1, 2, 3, 4, 5], $saved->pluck('priority')->all());
         $this->assertTrue($saved['anthropic']->is_enabled);
         $this->assertSame('max', $saved['anthropic']->effort);
         $this->assertSame('gemini-new', $saved['gemini']->model);
@@ -248,17 +256,100 @@ class AiSettingsTest extends TestCase
         Http::assertSentCount(1);
     }
 
-    public function test_resetting_goes_back_to_the_env_file(): void
+    public function test_the_settings_can_no_longer_be_handed_back_to_the_env_file(): void
     {
         $this->actingAsUser();
         AiProviderSetting::factory()->create(['name' => 'anthropic', 'model' => 'claude-saved']);
 
         Livewire::test(Index::class)
             ->assertSet('providers.0.model', 'claude-saved')
-            ->call('resetToEnv')
-            ->assertSet('providers.0.name', 'gemini')
-            ->assertSee('The .env file applies again.');
+            ->assertDontSee('Use .env file');
 
-        $this->assertSame(0, AiProviderSetting::query()->count());
+        $this->assertFalse(method_exists(Index::class, 'resetToEnv'));
+        $this->assertSame(1, AiProviderSetting::query()->count());
+    }
+
+    // -------------------------------------------------------------------------
+    // Groq and Qwen, main provider and backups
+    // -------------------------------------------------------------------------
+
+    public function test_the_first_provider_turned_on_is_main_and_the_others_are_backups(): void
+    {
+        $this->actingAsUser();
+        AiProviderSetting::factory()->create(['name' => 'groq', 'priority' => 1, 'model' => 'openai/gpt-oss-120b']);
+        AiProviderSetting::factory()->disabled()->create(['name' => 'anthropic', 'priority' => 2, 'model' => 'claude-saved']);
+        AiProviderSetting::factory()->create(['name' => 'gemini', 'priority' => 3]);
+        AiProviderSetting::factory()->create(['name' => 'qwen', 'priority' => 4, 'model' => 'qwen-plus', 'effort' => null]);
+
+        $this->assertSame(['groq', 'gemini', 'qwen'], app(AiClient::class)->configuredNames());
+
+        Livewire::test(Index::class)
+            ->assertSeeInOrder(['1. Groq', 'Main', 'Text only', '2. Claude', '3. Gemini', 'Backup 1', 'Scans PDFs', '4. Qwen', 'Backup 2', 'Text only']);
+    }
+
+    public function test_groq_and_qwen_server_addresses_models_and_effort_are_saved_and_used(): void
+    {
+        $this->actingAsUser();
+        config(['ai.providers.groq.key' => 'test-groq-key', 'ai.providers.qwen.key' => 'test-qwen-key']);
+
+        Livewire::test(Index::class)
+            ->set('providers.3.is_enabled', true)
+            ->set('providers.3.model', 'qwen/qwen3.8-27b')
+            ->set('providers.3.effort', 'medium')
+            ->set('providers.4.is_enabled', true)
+            ->set('providers.4.model', 'qwen-max')
+            ->set('providers.4.base_url', 'https://dashscope.aliyuncs.com/compatible-mode/v1/')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $saved = AiProviderSetting::query()->get()->keyBy('name');
+
+        $this->assertSame('https://api.groq.com/openai/v1/', $saved['groq']->base_url);
+        $this->assertSame('medium', $saved['groq']->effort);
+        $this->assertSame('https://dashscope.aliyuncs.com/compatible-mode/v1/', $saved['qwen']->base_url);
+        $this->assertNull($saved['qwen']->effort);
+
+        $manager = app(AiManager::class);
+        $groq = $manager->provider('groq');
+        $qwen = $manager->provider('qwen');
+
+        $this->assertSame('qwen/qwen3.8-27b', $groq->model());
+        $this->assertSame('groq', $groq->laravelAiConfig()['driver']);
+        $this->assertSame(['reasoning_effort' => 'medium'], $groq->laravelAiOptions());
+        $this->assertSame('qwen-max', $qwen->model());
+        $this->assertSame(['driver' => 'openai-compatible', 'key' => 'test-qwen-key', 'url' => 'https://dashscope.aliyuncs.com/compatible-mode/v1/'], $qwen->laravelAiConfig());
+        $this->assertSame([], $qwen->laravelAiOptions());
+    }
+
+    public function test_qwen_takes_no_effort_level(): void
+    {
+        $this->actingAsUser();
+
+        Livewire::test(Index::class)
+            ->set('providers.4.effort', 'low')
+            ->call('save')
+            ->assertHasErrors(['providers.4.effort' => 'in']);
+    }
+
+    public function test_a_missing_groq_or_qwen_key_names_the_env_setting(): void
+    {
+        config(['ai.providers.groq.key' => null, 'ai.providers.qwen.key' => '']);
+        $manager = app(AiManager::class);
+
+        $this->assertSame('AI is not set up yet. Add GROQ_API_KEY to the .env file.', $manager->provider('groq')->setupProblem());
+        $this->assertSame('AI is not set up yet. Add QWEN_API_KEY to the .env file.', $manager->provider('qwen')->setupProblem());
+    }
+
+    public function test_the_groq_connection_test_finds_the_model_in_its_list(): void
+    {
+        $this->actingAsUser();
+        config(['ai.providers.groq.key' => 'test-groq-key']);
+        Http::fake(['api.groq.com/openai/v1/models' => Http::response(['data' => [['id' => 'openai/gpt-oss-20b'], ['id' => 'openai/gpt-oss-120b']]])]);
+
+        Livewire::test(Index::class)
+            ->call('testConnection', 3)
+            ->assertSet('checks.groq', ['ok' => true, 'message' => 'Connected. Groq has openai/gpt-oss-120b ready.']);
+
+        Http::assertSent(fn (Request $request): bool => $request->header('Authorization') === ['Bearer test-groq-key']);
     }
 }

@@ -27,6 +27,11 @@ trait GeneratesJsonWithLaravelAi
     /** Picture types the vision models read. */
     private const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
+    public function canRead(string $mimeType): bool
+    {
+        return $mimeType === 'application/pdf' || \in_array($mimeType, self::IMAGE_TYPES, true);
+    }
+
     public function generateJson(string $instructions, string $prompt, array $documents, array $schema, int $maxOutputTokens): AiResponse
     {
         if (($problem = $this->setupProblem()) !== null) {

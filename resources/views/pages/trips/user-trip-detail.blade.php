@@ -143,7 +143,7 @@
                     <br>
                     <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user->fullName())}}">
                     <br>
-                    <small class="font-weight-bold">{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                    <small class="font-weight-bold">{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                 </div>
             @endif
             @php
@@ -155,7 +155,7 @@
                     <br>
                     <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user?->fullName() ?? '')}}">
                     <br>
-                    <small class="font-weight-bold">{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                    <small class="font-weight-bold">{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                 </div>
             @endif
             @php
@@ -167,7 +167,7 @@
                     <br>
                     <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user->fullName())}}">
                     <br>
-                    <small class="font-weight-bold">{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                    <small class="font-weight-bold">{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                 </div>
             @endif
             @php
@@ -179,7 +179,7 @@
                     <br>
                     <input type="text" class="border-0 text-center font-weight-bold text-lg" value="{{strtoupper($approval->user->fullName())}}">
                     <br>
-                    <small class="font-weight-bold">{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                    <small class="font-weight-bold">{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                 </div>
             @endif
         </div>
