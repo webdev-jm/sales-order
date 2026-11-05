@@ -26,4 +26,5 @@
 
 @section('content')
     <livewire:ai-settings.index />
+    <livewire:ai-settings.features />
 @endsection

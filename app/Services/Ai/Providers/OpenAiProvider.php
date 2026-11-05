@@ -21,7 +21,7 @@ use Throwable;
  * Any server that speaks the OpenAI Chat Completions API (OpenAI, OpenRouter, Groq, DeepSeek, a
  * local Ollama, ...). The server address is the base URL, so one driver covers all of them. PDFs
  * go as "file" content parts, which OpenAI and OpenRouter read, over Laravel's HTTP client;
- * text-only agents use laravel/ai's OpenAI-compatible driver.
+ * text-only agents use laravel/ai's OpenAI-compatible driver. Groq and Qwen extend it.
  */
 class OpenAiProvider implements AiProviderInterface
 {
@@ -35,7 +35,7 @@ class OpenAiProvider implements AiProviderInterface
     /** Seconds a model lookup or connection check may take. */
     private const CHECK_TIMEOUT = 20;
 
-    private const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    protected const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
     /** Names shown for well-known servers; any other server is "OpenAI-compatible". */
     private const KNOWN_HOSTS = [
@@ -72,14 +72,22 @@ class OpenAiProvider implements AiProviderInterface
         return ['minimal', 'low', 'medium', 'high'];
     }
 
+    /**
+     * PDFs need a server that accepts "file" parts, such as OpenAI or OpenRouter; pictures need a vision model.
+     */
+    public function canRead(string $mimeType): bool
+    {
+        return $mimeType === 'application/pdf' || \in_array($mimeType, self::IMAGE_TYPES, true);
+    }
+
     public function setupProblem(): ?string
     {
         if (blank($this->config['url'] ?? null)) {
-            return 'AI is not set up yet. Set the server address (OPENAI_BASE_URL) for the OpenAI-compatible provider.';
+            return 'AI is not set up yet. Set the server address for ' . $this->label() . ' on the AI Settings page.';
         }
 
         return blank($this->config['key'] ?? null)
-            ? 'AI is not set up yet. Add OPENAI_API_KEY to the .env file (any value for a local server).'
+            ? 'AI is not set up yet. ' . $this->missingKeyHint()
             : null;
     }
 
@@ -219,7 +227,7 @@ class OpenAiProvider implements AiProviderInterface
 
         return new AiResponse(
             text: \is_string($message['content'] ?? null) ? $message['content'] : '',
-            provider: self::NAME,
+            provider: $this->name(),
             model: (string) ($data['model'] ?? $this->model()),
             inputTokens: $input,
             outputTokens: $output,
@@ -236,6 +244,10 @@ class OpenAiProvider implements AiProviderInterface
      */
     private function partFor(AiDocument $document): array
     {
+        if (! $this->canRead($document->mimeType)) {
+            throw new AiUnavailableException($this->label() . ' cannot read ' . $document->mimeType . ' files.');
+        }
+
         $dataUrl = 'data:' . $document->mimeType . ';base64,' . base64_encode($document->contents);
 
         if ($document->mimeType === 'application/pdf') {
@@ -255,6 +267,19 @@ class OpenAiProvider implements AiProviderInterface
     private function maxTokensField(): string
     {
         return $this->host() === 'api.openai.com' ? 'max_completion_tokens' : 'max_tokens';
+    }
+
+    /**
+     * The .env setting that holds this provider's API key.
+     */
+    protected function keyName(): string
+    {
+        return 'OPENAI_API_KEY';
+    }
+
+    protected function missingKeyHint(): string
+    {
+        return 'Add ' . $this->keyName() . ' to the .env file (any value for a local server).';
     }
 
     private function host(): string
@@ -324,7 +349,7 @@ class OpenAiProvider implements AiProviderInterface
     private function failureMessage(Response $response): string
     {
         if (\in_array($response->status(), [401, 403], true)) {
-            return 'The AI service rejected the API key. Check OPENAI_API_KEY in the .env file.';
+            return 'The AI service rejected the API key. Check ' . $this->keyName() . ' in the .env file.';
         }
 
         if ($response->status() === 404) {

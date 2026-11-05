@@ -6,16 +6,17 @@
     @endif
 
     <div class="callout {{ $managedInApp ? 'callout-info' : 'callout-warning' }}">
-        @if($managedInApp)
-            <p class="mb-0">
-                These settings choose the AI providers. The API keys stay in the <code>.env</code> file.
-            </p>
-        @else
-            <p class="mb-0">
-                The AI providers still follow the <code>.env</code> file (<code>AI_PROVIDER</code>, <code>AI_FAILOVER</code>
-                and the model settings). Saving this page takes over from them. The API keys always stay in the <code>.env</code> file.
-            </p>
-        @endif
+        <p class="mb-1">
+            The first provider turned on is the <strong>main</strong> provider. When it cannot answer (down, busy,
+            out of quota or missing its key), the <strong>backups</strong> below it are tried in order.
+        </p>
+        <p class="mb-0">
+            Only the API keys are in the <code>.env</code> file:
+            <code>GEMINI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>OPENAI_API_KEY</code>, <code>GROQ_API_KEY</code> and <code>QWEN_API_KEY</code>.
+            @unless($managedInApp)
+                Nothing is saved here yet, so the defaults apply. Save this page to make your own choices.
+            @endunless
+        </p>
     </div>
 
     @if($aiProblem)
@@ -34,8 +35,14 @@
         <div class="card-body p-0">
             @foreach($providers as $index => $row)
                 @php
+                    $enabledSoFar ??= 0;
                     $driver = $drivers[$index];
                     $check = $checks[$row['name']] ?? null;
+                    $role = null;
+                    if ($row['is_enabled']) {
+                        $role = $enabledSoFar === 0 ? 'Main' : 'Backup ' . $enabledSoFar;
+                        $enabledSoFar++;
+                    }
                 @endphp
                 <div wire:key="ai-provider-{{ $row['name'] }}" class="p-3 {{ $loop->last ? '' : 'border-bottom' }} {{ $row['is_enabled'] ? '' : 'bg-light' }}">
                     <div class="d-flex align-items-center flex-wrap mb-2">
@@ -54,6 +61,14 @@
                                 {{ $index + 1 }}. {{ $driver->label() }}
                             </label>
                         </div>
+                        @if($role)
+                            <span class="badge {{ $role === 'Main' ? 'badge-primary' : 'badge-info' }} mr-1">{{ $role }}</span>
+                        @endif
+                        @if($driver->canRead('application/pdf'))
+                            <span class="badge badge-light border mr-1" title="Can read PO PDFs"><i class="fas fa-file-pdf mr-1"></i>Scans PDFs</span>
+                        @else
+                            <span class="badge badge-light border mr-1" title="Used for the assistant, insights and mapping help. PO scans go to the next provider that reads PDFs."><i class="fas fa-font mr-1"></i>Text only</span>
+                        @endif
                         @if($driver->setupProblem() === null)
                             <span class="badge badge-success"><i class="fas fa-key mr-1"></i>Key set</span>
                         @else
@@ -145,12 +160,23 @@
                             <div class="col-lg-3 col-md-12 form-group mb-2">
                                 <label for="ai_base_url_{{ $row['name'] }}" class="small font-weight-bold mb-1">Server address</label>
                                 <input type="url" id="ai_base_url_{{ $row['name'] }}" wire:model="providers.{{ $index }}.base_url"
-                                       placeholder="https://api.openai.com/v1/"
+                                       placeholder="{{ $defaultUrls[$row['name']] ?? '' }}"
                                        class="form-control form-control-sm @error('providers.' . $index . '.base_url') is-invalid @enderror">
                                 @error('providers.' . $index . '.base_url')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
-                                <small class="form-text text-muted">OpenAI, OpenRouter, Groq, DeepSeek or a local Ollama.</small>
+                                <small class="form-text text-muted">
+                                    @switch($row['name'])
+                                        @case('qwen')
+                                            International keys: dashscope-intl.aliyuncs.com. China keys: dashscope.aliyuncs.com (both end in /compatible-mode/v1).
+                                            @break
+                                        @case('groq')
+                                            Leave as is unless Groq gives you another address.
+                                            @break
+                                        @default
+                                            OpenAI, OpenRouter, DeepSeek or a local Ollama.
+                                    @endswitch
+                                </small>
                             </div>
                         @endif
                     </div>
@@ -162,12 +188,6 @@
                 Prices are US dollars per million tokens, from the provider's price page. They give the
                 estimated cost on the AI Usage page. Lower effort uses fewer output tokens.
             </span>
-            @if($managedInApp)
-                <button type="button" class="btn btn-default mr-2" wire:click="resetToEnv"
-                        onclick="confirm('Forget these settings and go back to the .env file?') || event.stopImmediatePropagation()">
-                    <i class="fas fa-undo mr-1"></i> Use .env file
-                </button>
-            @endif
             <button type="button" class="btn btn-primary" wire:click="save" wire:loading.attr="disabled">
                 <i class="fas fa-save mr-1"></i> Save AI Settings
             </button>

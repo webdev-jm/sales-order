@@ -5,8 +5,10 @@ namespace Tests\Unit;
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
 use App\Services\Ai\AiClient;
+use App\Services\Ai\AiDocument;
 use App\Services\Ai\AiQuota;
 use App\Services\Ai\AiResponse;
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use Tests\Concerns\FakesAnthropic;
 use Tests\Concerns\FakesGemini;
@@ -51,7 +53,7 @@ class AiClientTest extends TestCase
     // Configuration
     // -------------------------------------------------------------------------
 
-    public function test_the_chain_follows_ai_provider_then_ai_failover_with_aliases_and_no_repeats(): void
+    public function test_the_chain_follows_the_default_provider_then_its_failover_with_aliases_and_no_repeats(): void
     {
         config(['ai.provider' => 'Claude', 'ai.failover' => ' google , anthropic,gemini']);
 
@@ -63,14 +65,14 @@ class AiClientTest extends TestCase
     {
         config(['ai.failover' => 'mistral']);
 
-        $this->assertSame('Unknown AI provider "mistral" in AI_PROVIDER or AI_FAILOVER. Use gemini, anthropic or openai.', $this->client()->setupProblem());
+        $this->assertSame('Unknown AI provider "mistral" in config/ai.php. Use gemini, anthropic, openai, groq or qwen.', $this->client()->setupProblem());
     }
 
     public function test_ai_can_be_turned_off_even_with_keys(): void
     {
         config(['ai.enabled' => false]);
 
-        $this->assertSame('AI is turned off. Set AI_ENABLED=true in the .env file.', $this->client()->setupProblem());
+        $this->assertSame('AI is turned off in config/ai.php.', $this->client()->setupProblem());
     }
 
     public function test_without_any_key_the_main_providers_setup_problem_is_shown(): void
@@ -208,5 +210,98 @@ class AiClientTest extends TestCase
         $this->expectExceptionMessage('The AI service is having problems. Try again in a minute.');
 
         $this->generate();
+    }
+
+    // -------------------------------------------------------------------------
+    // Providers that cannot read the attached file
+    // -------------------------------------------------------------------------
+
+    /**
+     * @param array<string, mixed> $json
+     * @return array<string, mixed>
+     */
+    private function chatCompletion(array $json): array
+    {
+        return [
+            'model'   => 'openai/gpt-oss-120b',
+            'choices' => [['message' => ['role' => 'assistant', 'content' => json_encode($json)], 'finish_reason' => 'stop']],
+            'usage'   => ['prompt_tokens' => 50, 'completion_tokens' => 10, 'total_tokens' => 60],
+        ];
+    }
+
+    private function generatePdf(): AiResponse
+    {
+        return $this->client()->generateJson('Be exact.', 'Read this.', [AiDocument::pdf('%PDF-1.4', 'po.pdf')], ['type' => 'object', 'properties' => []], 1000,
+            function (AiProviderInterface $provider, AiUnavailableException $e): void {
+                $this->failures[] = [$provider->name(), $e->getMessage()];
+            });
+    }
+
+    public function test_a_pdf_skips_a_text_only_main_provider_and_goes_to_the_backup_that_reads_pdfs(): void
+    {
+        config(['ai.provider' => 'groq', 'ai.failover' => 'gemini', 'ai.providers.groq.key' => 'test-groq-key']);
+        Http::fake([
+            'api.groq.com/*'                       => Http::response($this->chatCompletion(['from' => 'groq'])),
+            'generativelanguage.googleapis.com/*' => Http::response($this->geminiReply(['from' => 'gemini'])),
+        ]);
+
+        $response = $this->generatePdf();
+
+        $this->assertSame('gemini', $response->provider);
+        $this->assertSame([], $this->failures);
+        Http::assertNotSent(fn (Request $request): bool => str_contains($request->url(), 'api.groq.com'));
+    }
+
+    public function test_a_request_without_files_goes_to_a_text_only_main_provider(): void
+    {
+        config(['ai.provider' => 'groq', 'ai.failover' => 'gemini', 'ai.providers.groq.key' => 'test-groq-key']);
+        Http::fake(['api.groq.com/*' => Http::response($this->chatCompletion(['from' => 'groq']))]);
+
+        $response = $this->generate();
+
+        $this->assertSame('groq', $response->provider);
+        $this->assertSame(['from' => 'groq'], $response->json());
+        Http::assertSent(fn (Request $request): bool => $request->url() === 'https://api.groq.com/openai/v1/chat/completions'
+            && $request->header('Authorization') === ['Bearer test-groq-key']
+            && $request->data()['reasoning_effort'] === 'low');
+    }
+
+    public function test_with_only_text_only_providers_on_a_pdf_says_which_providers_read_pdfs(): void
+    {
+        config([
+            'ai.provider'           => 'groq',
+            'ai.failover'           => 'qwen',
+            'ai.providers.groq.key' => 'test-groq-key',
+            'ai.providers.qwen.key' => 'test-qwen-key',
+        ]);
+        Http::fake();
+
+        $this->assertNull($this->client()->setupProblem());
+
+        try {
+            $this->generatePdf();
+            $this->fail('A PDF was sent to a provider that cannot read it.');
+        } catch (AiUnavailableException $e) {
+            $this->assertSame('None of the AI providers turned on can read PDF files. Turn on Gemini, Claude or OpenAI on the AI Settings page.', $e->getMessage());
+        }
+
+        Http::assertNothingSent();
+    }
+
+    public function test_only_providers_that_read_every_file_are_offered(): void
+    {
+        config([
+            'ai.provider'           => 'groq',
+            'ai.failover'           => 'gemini,qwen',
+            'ai.providers.groq.key' => 'test-groq-key',
+            'ai.providers.qwen.key' => 'test-qwen-key',
+        ]);
+
+        $names = fn (array $documents): array => array_map(fn (AiProviderInterface $p): string => $p->name(), $this->client()->providersReading($documents));
+
+        $this->assertSame(['groq', 'gemini', 'qwen'], $names([]));
+        $this->assertSame(['gemini'], $names([AiDocument::pdf('%PDF-1.4')]));
+        $this->assertSame(['groq', 'gemini', 'qwen'], $names([new AiDocument('image/png', 'png')]));
+        $this->assertSame(['gemini'], $names([new AiDocument('image/png', 'png'), AiDocument::pdf('%PDF-1.4')]));
     }
 }

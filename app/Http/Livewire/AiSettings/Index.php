@@ -14,9 +14,10 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 /**
- * The AI Settings page: which providers answer, in what order, with which model, effort and
- * token prices. Saving it replaces AI_PROVIDER, AI_FAILOVER and the model settings in the .env
- * file; the API keys stay in the .env file. The model list and the connection test cost no tokens.
+ * The AI Settings page: the main provider and its backups, in the order they are tried, with each
+ * one's model, effort, server address and token prices. Until it is saved the defaults in
+ * config/ai.php apply. Only the API keys are in the .env file. The model list and the connection
+ * test cost no tokens.
  */
 class Index extends Component
 {
@@ -126,7 +127,7 @@ class Index extends Component
     {
         $this->authorizeAccess();
 
-        AiQuota::clear($name);
+        AiQuota::clear($name, collect($this->providers)->firstWhere('name', $name)['model'] ?? null);
     }
 
     public function save(): void
@@ -156,23 +157,8 @@ class Index extends Component
             ->log(':causer.firstname :causer.lastname has updated the AI settings');
 
         $this->loadProviders();
+        $this->dispatch('ai-settings-saved');
         session()->flash('ai_settings_message', 'AI settings saved. New scans use them right away.');
-    }
-
-    /**
-     * Forgets the saved settings, so AI_PROVIDER, AI_FAILOVER and the .env models apply again.
-     */
-    public function resetToEnv(): void
-    {
-        $this->authorizeAccess();
-
-        AiProviderSetting::query()->delete();
-
-        activity('update')->log(':causer.firstname :causer.lastname has reset the AI settings to the .env file');
-
-        $this->checks = [];
-        $this->loadProviders();
-        session()->flash('ai_settings_message', 'AI settings reset. The .env file applies again.');
     }
 
     public function render(): View
@@ -187,13 +173,14 @@ class Index extends Component
             'drivers'      => $providers,
             'managedInApp' => app(AiManager::class)->isManagedInApp(),
             'editableUrl'  => AiManager::EDITABLE_URL,
+            'defaultUrls'  => collect(AiManager::EDITABLE_URL)->mapWithKeys(fn (string $name): array => [$name => (string) config("ai.providers.{$name}.url")])->all(),
             'aiProblem'    => app(AiClient::class)->setupProblem(),
-            'quotas'       => collect($this->providers)->mapWithKeys(fn (array $row): array => [$row['name'] => AiQuota::blocked($row['name'])])->filter()->all(),
+            'quotas'       => collect($this->providers)->mapWithKeys(fn (array $row): array => [$row['name'] => AiQuota::blocked($row['name'], $row['model'])])->filter()->all(),
         ]);
     }
 
     /**
-     * Fills the form from the saved settings, or from the .env file when none are saved yet. Every
+     * Fills the form from the saved settings, or from the defaults in config/ai.php when none are saved yet. Every
      * known provider is listed; the ones not in the order come last, turned off.
      */
     private function loadProviders(): void

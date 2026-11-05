@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SalesOrder;
+use App\Models\AiUsageLog;
 use App\Models\SalesOrderProduct;
 use App\Models\Product;
 use App\Models\SalesOrderCutOff;
@@ -519,7 +520,7 @@ class SalesOrderController extends Controller
 
         $account = $logged_account->account;
 
-        set_time_limit(30 + app(AiClient::class)->maxDurationSeconds());
+        set_time_limit(30 + app(AiClient::class)->forFeature(AiUsageLog::FEATURE_PO_SCAN)->maxDurationSeconds());
 
         try {
             $orders = app(SalesOrderPdfReader::class)->read($file, $account, auth()->user());

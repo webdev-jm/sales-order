@@ -190,9 +190,25 @@ class GeminiProviderTest extends TestCase
         }
 
         Http::assertSentCount(1);
-        $blocked = AiQuota::blocked('gemini');
+        $blocked = AiQuota::blocked('gemini', 'gemini-test');
         $this->assertNotNull($blocked);
         $this->assertSame('2026-11-04T16:00:00+08:00', $blocked['until']);
+        $this->assertNull(AiQuota::blocked('gemini'), 'The quota is per model, so other Gemini models still work.');
+        $this->assertNull(AiQuota::blocked('gemini', 'gemini-other'));
+    }
+
+    public function test_a_daily_quota_for_the_whole_project_blocks_every_gemini_model(): void
+    {
+        Http::fake(['generativelanguage.googleapis.com/*' => Http::response($this->quotaError('GenerateRequestsPerDayPerProject-FreeTier'), 429)]);
+
+        try {
+            $this->generate();
+            $this->fail('Expected an AiUnavailableException.');
+        } catch (AiUnavailableException) {
+        }
+
+        $this->assertNotNull(AiQuota::blocked('gemini'));
+        $this->assertNotNull(AiQuota::blocked('gemini', 'gemini-other'));
     }
 
     public function test_a_per_minute_limit_is_retried_and_not_remembered(): void

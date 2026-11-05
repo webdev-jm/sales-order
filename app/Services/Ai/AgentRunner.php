@@ -13,8 +13,8 @@ use Throwable;
 
 /**
  * Runs a laravel/ai agent the way the PO scanner runs its calls: AI must be on and within the
- * token limits, each ready provider is tried in the order of the AI Settings page, and every
- * attempt is logged on the AI Usage page with its tokens and cost.
+ * token limits, each ready provider is tried in the order set for the function ($feature) on the
+ * AI Settings page, and every attempt is logged on the AI Usage page with its tokens and cost.
  */
 class AgentRunner
 {
@@ -24,10 +24,12 @@ class AgentRunner
 
     /**
      * Why the agent cannot be run for this user now, or null when it can.
+     *
+     * @param string|null $feature the AI function (AiUsageLog::FEATURE_*), whose own providers are checked when it has any
      */
-    public function problemFor(?User $user): ?string
+    public function problemFor(?User $user, ?string $feature = null): ?string
     {
-        return $this->client->setupProblem() ?? $this->meter->budgetProblem($user);
+        return $this->client->forFeature($feature)->setupProblem() ?? $this->meter->budgetProblem($user);
     }
 
     /**
@@ -35,9 +37,11 @@ class AgentRunner
      */
     public function prompt(Agent $agent, string $prompt, string $feature, ?User $user, ?int $accountId = null, ?string $reference = null): AgentResponse
     {
-        if (($problem = $this->problemFor($user)) !== null) {
+        if (($problem = $this->problemFor($user, $feature)) !== null) {
             throw new AiUnavailableException($problem);
         }
+
+        $client = $this->client->forFeature($feature);
 
         $log = [
             'user_id'    => $user?->id,
@@ -48,18 +52,18 @@ class AgentRunner
 
         $failures = [];
 
-        foreach ($this->client->availableProviders() as $provider) {
+        foreach ($client->availableProviders() as $provider) {
             $startedAt = hrtime(true);
 
             try {
                 $response = $agent->prompt(
                     $prompt,
-                    provider: $this->client->laravelAiProviders([$provider]),
+                    provider: $client->laravelAiProviders([$provider]),
                     timeout: $provider->timeoutSeconds(),
                 );
             } catch (Throwable $e) {
                 $error = $provider->failureFor($e);
-                $failures[$provider->label()] = $error;
+                $failures[AiClient::failureKey($failures, $provider)] = $error;
 
                 $this->meter->record($log + ['status' => AiUsageLog::STATUS_FAILED, 'error' => $error->getMessage()], $provider);
 
@@ -88,9 +92,11 @@ class AgentRunner
      */
     public function stream(Agent $agent, string $prompt, string $feature, ?User $user, callable $onEvent, ?int $accountId = null, ?string $reference = null): AgentResponse
     {
-        if (($problem = $this->problemFor($user)) !== null) {
+        if (($problem = $this->problemFor($user, $feature)) !== null) {
             throw new AiUnavailableException($problem);
         }
+
+        $client = $this->client->forFeature($feature);
 
         $log = [
             'user_id'    => $user?->id,
@@ -101,7 +107,7 @@ class AgentRunner
 
         $failures = [];
 
-        foreach ($this->client->availableProviders() as $provider) {
+        foreach ($client->availableProviders() as $provider) {
             $startedAt = hrtime(true);
             $finished = null;
             $sentSomething = false;
@@ -109,7 +115,7 @@ class AgentRunner
             try {
                 $stream = $agent->stream(
                     $prompt,
-                    provider: $this->client->laravelAiProviders([$provider]),
+                    provider: $client->laravelAiProviders([$provider]),
                     timeout: $provider->timeoutSeconds(),
                 )->then(function (StreamedAgentResponse $response) use (&$finished): void {
                     $finished = $response;
@@ -121,7 +127,7 @@ class AgentRunner
                 }
             } catch (Throwable $e) {
                 $error = $provider->failureFor($e);
-                $failures[$provider->label()] = $error;
+                $failures[AiClient::failureKey($failures, $provider)] = $error;
 
                 $this->meter->record($log + ['status' => AiUsageLog::STATUS_FAILED, 'error' => $error->getMessage()], $provider);
 

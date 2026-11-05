@@ -183,7 +183,7 @@ class GeminiProvider implements AiProviderInterface
             'until'  => $until,
             'reason' => 'Gemini\'s daily ' . (str_contains($daily, 'FreeTier') ? 'free-tier ' : '') . 'request limit for ' . $this->model()
                 . ' is used up. It resets at ' . AiQuota::resetLabel($until) . '.',
-        ];
+        ] + (str_contains($daily, 'PerModel') ? ['model' => $this->model()] : []);
     }
 
     /**

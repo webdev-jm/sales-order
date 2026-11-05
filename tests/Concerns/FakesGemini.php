@@ -20,6 +20,8 @@ trait FakesGemini
             'ai.failover'               => '',
             'ai.providers.anthropic.key' => null,
             'ai.providers.openai.key'   => null,
+            'ai.providers.groq.key'     => null,
+            'ai.providers.qwen.key'     => null,
             'ai.providers.gemini.key'   => 'test-key',
             'ai.providers.gemini.url'   => 'https://generativelanguage.googleapis.com/v1beta/',
             'ai.providers.gemini.model' => 'gemini-test',

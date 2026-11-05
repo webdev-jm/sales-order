@@ -397,7 +397,7 @@
                             <br>
                             <input type="text" class="signatory-line" value="{{strtoupper($approval->user->fullName())}}">
                             <br>
-                            <small>{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                            <small>{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                         </td>
                     @endif
                     @php
@@ -409,7 +409,7 @@
                             <br>
                             <input type="text" class="signatory-line" value="{{strtoupper($approval->user?->fullName() ?? '')}}">
                             <br>
-                            <small>{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                            <small>{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                         </td>
                     @endif
                     @php
@@ -421,7 +421,7 @@
                             <br>
                             <input type="text" class="signatory-line align-bottom" value="{{strtoupper($approval->user->fullName())}}">
                             <br>
-                            <small>{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                            <small>{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                         </td>
                     @endif
                     @php
@@ -433,7 +433,7 @@
                             <br>
                             <input type="text" class="signatory-line align-bottom" value="{{strtoupper($approval->user->fullName())}}">
                             <br>
-                            <small>{{date('m/d/Y H:i:s a', strtotime($approval->created_at))}}</small>
+                            <small>{{date('M j, Y g:i A', strtotime($approval->created_at))}}</small>
                         </td>
                     @endif
                 </tr>

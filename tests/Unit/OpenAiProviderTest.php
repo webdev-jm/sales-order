@@ -216,7 +216,7 @@ class OpenAiProviderTest extends TestCase
         Http::fake();
 
         $this->assertSame('AI is not set up yet. Add OPENAI_API_KEY to the .env file (any value for a local server).', $this->provider(['key' => null])->setupProblem());
-        $this->assertSame('AI is not set up yet. Set the server address (OPENAI_BASE_URL) for the OpenAI-compatible provider.', $this->provider(['url' => ''])->setupProblem());
+        $this->assertSame('AI is not set up yet. Set the server address for OpenAI-compatible on the AI Settings page.', $this->provider(['url' => ''])->setupProblem());
 
         try {
             $this->provider(['key' => ''])->listModels();

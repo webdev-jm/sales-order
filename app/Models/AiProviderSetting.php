@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\Session;
 
 /**
  * One AI provider as set on the AI Settings page: whether it is used, its place in the failover
- * order, the model, how hard it thinks and its token prices. Once any row exists, these rows
- * replace AI_PROVIDER, AI_FAILOVER and the model settings in the .env file; API keys always stay
- * in the .env file.
+ * order (the first one turned on is the main provider, the rest are backups), the model, how hard
+ * it thinks, its server address and its token prices. Once any row exists, these rows replace the
+ * defaults in config/ai.php; API keys always stay in the .env file.
  */
 class AiProviderSetting extends Model
 {

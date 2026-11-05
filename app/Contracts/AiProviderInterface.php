@@ -14,7 +14,7 @@ use Throwable;
 interface AiProviderInterface
 {
     /**
-     * Short name kept in the usage log and used in AI_PROVIDER, e.g. "gemini".
+     * Short name kept in the usage log and on the AI Settings page, e.g. "gemini".
      */
     public function name(): string;
 
@@ -31,6 +31,12 @@ interface AiProviderInterface
      * @return array<int, string>
      */
     public function effortLevels(): array;
+
+    /**
+     * Whether files of this type can be sent with the prompt, e.g. "application/pdf". A provider
+     * that cannot read a file is skipped for requests that send one.
+     */
+    public function canRead(string $mimeType): bool;
 
     /**
      * Why this provider cannot be called yet, or null when it is ready.

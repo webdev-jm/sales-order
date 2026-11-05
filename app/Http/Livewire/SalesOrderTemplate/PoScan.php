@@ -4,6 +4,7 @@ namespace App\Http\Livewire\SalesOrderTemplate;
 
 use App\Exceptions\AiUnavailableException;
 use App\Models\Account;
+use App\Models\AiUsageLog;
 use App\Models\PoScanFormat;
 use App\Services\Ai\AiClient;
 use App\Services\Ai\AiUsageMeter;
@@ -80,7 +81,7 @@ class PoScan extends Component
         $scanner = app(PoScanner::class);
         $rows    = [];
 
-        set_time_limit(30 + count($this->files) * app(AiClient::class)->maxDurationSeconds());
+        set_time_limit(30 + count($this->files) * app(AiClient::class)->forFeature(AiUsageLog::FEATURE_PO_SCAN)->maxDurationSeconds());
 
         foreach ($this->files as $file) {
             $fileName = $file->getClientOriginalName();
@@ -138,7 +139,7 @@ class PoScan extends Component
             : collect();
 
         $meter = app(AiUsageMeter::class);
-        $ai    = app(AiClient::class);
+        $ai    = app(AiClient::class)->forFeature(AiUsageLog::FEATURE_PO_SCAN);
 
         return view('livewire.sales-order-template.po-scan', [
             'accounts'      => $accounts,

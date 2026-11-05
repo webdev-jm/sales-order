@@ -11,6 +11,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use Illuminate\Support\Fluent;
 
 use App\Exceptions\AiUnavailableException;
+use App\Models\AiUsageLog;
 use App\Models\Product;
 use App\Models\SalesOrderAttachment;
 use App\Models\SalesOrder;
@@ -136,7 +137,7 @@ class Upload extends Component
             return;
         }
 
-        set_time_limit(30 + count($this->so_files) * app(AiClient::class)->maxDurationSeconds());
+        set_time_limit(30 + count($this->so_files) * app(AiClient::class)->forFeature(AiUsageLog::FEATURE_PO_SCAN)->maxDurationSeconds());
 
         $reader = app(SalesOrderPdfReader::class);
         $grouped_data = [];
