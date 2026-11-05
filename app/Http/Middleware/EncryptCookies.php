@@ -12,6 +12,7 @@ class EncryptCookies extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // The maintenance pass is checked before the cookies are decrypted (EnvMaintenanceMode is global middleware).
+        'sms_maintenance_pass',
     ];
 }

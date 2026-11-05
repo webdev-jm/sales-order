@@ -173,6 +173,9 @@
         })();
     </script>
 
+    {{-- Countdown before scheduled maintenance --}}
+    @include('maintenance.warning')
+
 </body>
 
 </html>
