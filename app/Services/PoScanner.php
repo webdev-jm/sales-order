@@ -68,6 +68,7 @@ class PoScanner
         private AiUsageMeter $meter,
         private SoTemplateLookup $lookup,
     ) {
+        $this->ai = $ai->forFeature(AiUsageLog::FEATURE_PO_SCAN);
     }
 
     /**

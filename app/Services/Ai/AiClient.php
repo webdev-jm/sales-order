@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Contracts\AiProviderInterface;
 use App\Exceptions\AiUnavailableException;
+use App\Models\AiUsageLog;
 use Closure;
 use Laravel\Ai\Ai;
 
@@ -13,14 +14,45 @@ use Laravel\Ai\Ai;
  * refusing the request or missing its key), fails over to the backups. The order is the one
  * saved on the AI Settings page, or the defaults in config/ai.php until that page is saved.
  * A provider without an API key is skipped, and so is one that cannot read the attached file.
+ *
+ * Each AI function can have its own providers and models on the AI Settings page: forFeature()
+ * gives the client for one function, and it follows the main order when the function has none.
  */
 class AiClient
 {
     /** Names given to the providers built for laravel/ai, so they never clash with its own. */
     public const LARAVEL_AI_PREFIX = 'sms-';
 
+    /** The AI function being served (AiUsageLog::FEATURE_*), when it may have its own providers. */
+    private ?string $feature = null;
+
     public function __construct(private AiManager $manager)
     {
+    }
+
+    /**
+     * The client for one AI function: it tries the providers and models set for that function on the
+     * AI Settings page, or the main provider order when the function has none of its own.
+     */
+    public function forFeature(?string $feature): static
+    {
+        $client = clone $this;
+        $client->feature = $feature;
+
+        return $client;
+    }
+
+    public function feature(): ?string
+    {
+        return $this->feature;
+    }
+
+    /**
+     * Whether the function being served has its own providers instead of the main order.
+     */
+    public function hasOwnProviders(): bool
+    {
+        return $this->manager->featureSteps($this->feature) !== null;
     }
 
     /**
@@ -30,6 +62,10 @@ class AiClient
      */
     public function configuredNames(): array
     {
+        if (($steps = $this->manager->featureSteps($this->feature)) !== null) {
+            return array_values(array_map(fn (array $step): string => (string) ($step['name'] ?? ''), $steps));
+        }
+
         if ($this->manager->isManagedInApp()) {
             return $this->manager->savedSettings()->where('is_enabled', true)->keys()->values()->all();
         }
@@ -48,6 +84,13 @@ class AiClient
      */
     public function chain(): array
     {
+        if (($steps = $this->manager->featureSteps($this->feature)) !== null) {
+            return array_values(array_map(
+                fn (array $step): AiProviderInterface => $this->manager->providerWithModel($step['name'], $step['model'] ?? null),
+                array_filter($steps, fn (array $step): bool => $this->manager->resolveName((string) ($step['name'] ?? '')) !== null)
+            ));
+        }
+
         return array_values(array_map(
             fn (string $name): AiProviderInterface => $this->manager->provider($name),
             array_filter($this->configuredNames(), fn (string $name): bool => $this->manager->resolveName($name) !== null)
@@ -63,7 +106,7 @@ class AiClient
     {
         return array_values(array_filter(
             $this->chain(),
-            fn (AiProviderInterface $provider): bool => $provider->setupProblem() === null && AiQuota::blocked($provider->name()) === null
+            fn (AiProviderInterface $provider): bool => $provider->setupProblem() === null && AiQuota::blocked($provider->name(), $provider->model()) === null
         ));
     }
 
@@ -78,8 +121,10 @@ class AiClient
 
         $unknown = array_filter($this->configuredNames(), fn (string $name): bool => $this->manager->resolveName($name) === null);
 
+        $ownProviders = $this->hasOwnProviders();
+
         if ($unknown !== []) {
-            return 'Unknown AI provider "' . implode('", "', $unknown) . '" in config/ai.php. Use '
+            return 'Unknown AI provider "' . implode('", "', $unknown) . '" ' . ($ownProviders ? 'set for ' . $this->featureLabel() . ' on the AI Settings page' : 'in config/ai.php') . '. Use '
                 . collect(array_keys(AiManager::PROVIDERS))->join(', ', ' or ') . '.';
         }
 
@@ -93,7 +138,11 @@ class AiClient
             return null;
         }
 
-        $usedUp = array_filter(array_map(fn (AiProviderInterface $provider): ?array => AiQuota::blocked($provider->name()), $chain));
+        $usedUp = array_filter(array_map(fn (AiProviderInterface $provider): ?array => AiQuota::blocked($provider->name(), $provider->model()), $chain));
+
+        if ($ownProviders && $usedUp === []) {
+            return 'None of the providers set for ' . $this->featureLabel() . ' on the AI Settings page can be used now. ' . $chain[0]->setupProblem();
+        }
 
         return $usedUp !== []
             ? implode(' ', array_column($usedUp, 'reason')) . (\count($chain) === 1 ? ' Add a failover provider on the AI Settings page to keep working until then.' : '')
@@ -136,7 +185,27 @@ class AiClient
             }
         }
 
+        if ($own !== null && $this->manager->resolveName($own) !== null) {
+            return $this->manager->provider($own);
+        }
+
         return null;
+    }
+
+    /**
+     * The name a failed provider is reported under. A function can list one provider twice with different
+     * models, so the second one also names its model.
+     *
+     * @param array<string, mixed> $failures
+     */
+    public static function failureKey(array $failures, AiProviderInterface $provider): string
+    {
+        return isset($failures[$provider->label()]) ? $provider->label() . ' (' . $provider->model() . ')' : $provider->label();
+    }
+
+    private function featureLabel(): string
+    {
+        return AiUsageLog::FEATURES[$this->feature] ?? 'this AI function';
     }
 
     /**
@@ -193,7 +262,7 @@ class AiClient
             try {
                 return $provider->generateJson($instructions, $prompt, $documents, $schema, $maxOutputTokens);
             } catch (AiUnavailableException $e) {
-                $failures[$provider->label()] = $e;
+                $failures[self::failureKey($failures, $provider)] = $e;
 
                 if ($onFailure !== null) {
                     $onFailure($provider, $e);

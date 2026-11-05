@@ -18,7 +18,9 @@ trait RemembersUsedUpQuota
     /**
      * When the error reply says the quota or credits are used up: until when, and a message for the user.
      *
-     * @return array{until: CarbonInterface, reason: string}|null
+     * When "model" is given, only that model's quota is used up; otherwise the whole provider's is.
+     *
+     * @return array{until: CarbonInterface, reason: string, model?: string}|null
      */
     abstract protected function usedUpQuota(Response $response): ?array;
 
@@ -31,7 +33,7 @@ trait RemembersUsedUpQuota
             return null;
         }
 
-        AiQuota::block($this->name(), $usedUp['until'], $usedUp['reason']);
+        AiQuota::block($this->name(), $usedUp['until'], $usedUp['reason'], $usedUp['model'] ?? null);
 
         return $usedUp['reason'];
     }

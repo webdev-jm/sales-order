@@ -127,7 +127,7 @@ class Index extends Component
     {
         $this->authorizeAccess();
 
-        AiQuota::clear($name);
+        AiQuota::clear($name, collect($this->providers)->firstWhere('name', $name)['model'] ?? null);
     }
 
     public function save(): void
@@ -157,6 +157,7 @@ class Index extends Component
             ->log(':causer.firstname :causer.lastname has updated the AI settings');
 
         $this->loadProviders();
+        $this->dispatch('ai-settings-saved');
         session()->flash('ai_settings_message', 'AI settings saved. New scans use them right away.');
     }
 
@@ -174,7 +175,7 @@ class Index extends Component
             'editableUrl'  => AiManager::EDITABLE_URL,
             'defaultUrls'  => collect(AiManager::EDITABLE_URL)->mapWithKeys(fn (string $name): array => [$name => (string) config("ai.providers.{$name}.url")])->all(),
             'aiProblem'    => app(AiClient::class)->setupProblem(),
-            'quotas'       => collect($this->providers)->mapWithKeys(fn (array $row): array => [$row['name'] => AiQuota::blocked($row['name'])])->filter()->all(),
+            'quotas'       => collect($this->providers)->mapWithKeys(fn (array $row): array => [$row['name'] => AiQuota::blocked($row['name'], $row['model'])])->filter()->all(),
         ]);
     }
 

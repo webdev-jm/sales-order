@@ -3,6 +3,7 @@
 namespace App\Services\Ai;
 
 use App\Contracts\AiProviderInterface;
+use App\Models\AiFeatureSetting;
 use App\Models\AiProviderSetting;
 use App\Services\Ai\Providers\AnthropicProvider;
 use App\Services\Ai\Providers\GeminiProvider;
@@ -41,6 +42,9 @@ class AiManager
     /** @var Collection<string, AiProviderSetting>|null */
     private ?Collection $saved = null;
 
+    /** @var Collection<string, AiFeatureSetting>|null */
+    private ?Collection $features = null;
+
     /**
      * The canonical provider name, or null when the name is unknown.
      */
@@ -74,6 +78,50 @@ class AiManager
     }
 
     /**
+     * The AI functions given their own providers on the AI Settings page, keyed by function.
+     *
+     * @return Collection<string, AiFeatureSetting>
+     */
+    public function featureSettings(): Collection
+    {
+        return $this->features ??= AiFeatureSetting::query()
+            ->get()
+            ->filter(fn (AiFeatureSetting $setting): bool => isset(AiFeatureSetting::FEATURES[$setting->feature]) && $setting->providers !== [])
+            ->keyBy('feature');
+    }
+
+    /**
+     * The providers and models one AI function tries in turn, or null when it follows the main provider order.
+     *
+     * @return array<int, array{name: string, model: string|null, input_price: float|null, output_price: float|null}>|null
+     */
+    public function featureSteps(?string $feature): ?array
+    {
+        if ($feature === null) {
+            return null;
+        }
+
+        $steps = (array) $this->featureSettings()->get($feature)?->providers;
+
+        return $steps !== [] ? array_values($steps) : null;
+    }
+
+    /**
+     * A provider with its saved settings, running another model than its own when one is given.
+     */
+    public function providerWithModel(string $name, ?string $model): AiProviderInterface
+    {
+        if (blank($model)) {
+            return $this->provider($name);
+        }
+
+        $resolved = $this->resolveName($name) ?? $name;
+        $saved = $this->savedSettings()->get($resolved)?->only(['model', 'effort', 'base_url']) ?? [];
+
+        return $this->provider($name, ['model' => trim((string) $model)] + $saved);
+    }
+
+    /**
      * Builds a provider. Without overrides it uses the saved settings, or the defaults in
      * config/ai.php when none are saved; the AI Settings page passes its unsaved form values to test them.
      *
@@ -91,15 +139,26 @@ class AiManager
 
     /**
      * Estimated cost in US dollars of a call, from the prices saved on the AI Settings page, or
-     * null when the provider has no price.
-     */
-    /**
+     * null when the provider has no price. A function that lists this provider and model with its
+     * own prices is charged those instead.
+     *
      * @param int $cachedInputTokens input tokens read from the prompt cache, billed at the provider's cache read rate
      * @param int $cacheWriteTokens input tokens written to the prompt cache, billed at its cache write rate
      */
-    public function costOf(string $provider, int $inputTokens, int $outputTokens, int $cachedInputTokens = 0, int $cacheWriteTokens = 0): ?float
+    public function costOf(string $provider, int $inputTokens, int $outputTokens, int $cachedInputTokens = 0, int $cacheWriteTokens = 0, ?string $feature = null, ?string $model = null): ?float
     {
-        return $this->savedSettings()->get($provider)?->costOf($inputTokens, $outputTokens, $cachedInputTokens, $cacheWriteTokens);
+        $prices = $this->savedSettings()->get($provider);
+        $step = $feature !== null && $model !== null ? $this->featureSettings()->get($feature)?->stepFor($provider, $model) : null;
+
+        if ($step !== null && (($step['input_price'] ?? null) !== null || ($step['output_price'] ?? null) !== null)) {
+            $prices = new AiProviderSetting([
+                'name'         => $provider,
+                'input_price'  => $step['input_price'] ?? $prices?->input_price,
+                'output_price' => $step['output_price'] ?? $prices?->output_price,
+            ]);
+        }
+
+        return $prices?->costOf($inputTokens, $outputTokens, $cachedInputTokens, $cacheWriteTokens);
     }
 
     /**
